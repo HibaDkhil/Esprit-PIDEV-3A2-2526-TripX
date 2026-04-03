@@ -1,0 +1,928 @@
+<?php
+
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Extension\CoreExtension;
+use Twig\Extension\SandboxExtension;
+use Twig\Markup;
+use Twig\Sandbox\SecurityError;
+use Twig\Sandbox\SecurityNotAllowedTagError;
+use Twig\Sandbox\SecurityNotAllowedFilterError;
+use Twig\Sandbox\SecurityNotAllowedFunctionError;
+use Twig\Source;
+use Twig\Template;
+use Twig\TemplateWrapper;
+
+/* front/onboarding.html.twig */
+class __TwigTemplate_0049b159a16596b04d04b016cdb64e61 extends Template
+{
+    private Source $source;
+    /**
+     * @var array<string, Template>
+     */
+    private array $macros = [];
+
+    public function __construct(Environment $env)
+    {
+        parent::__construct($env);
+
+        $this->source = $this->getSourceContext();
+
+        $this->blocks = [
+            'title' => [$this, 'block_title'],
+            'extra_css' => [$this, 'block_extra_css'],
+            'body' => [$this, 'block_body'],
+            'extra_js' => [$this, 'block_extra_js'],
+        ];
+    }
+
+    protected function doGetParent(array $context): bool|string|Template|TemplateWrapper
+    {
+        // line 1
+        return "front/base_auth.html.twig";
+    }
+
+    protected function doDisplay(array $context, array $blocks = []): iterable
+    {
+        $macros = $this->macros;
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f = $this->extensions["Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension"];
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->enter($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "template", "front/onboarding.html.twig"));
+
+        $this->parent = $this->load("front/base_auth.html.twig", 1);
+        yield from $this->parent->unwrap()->yield($context, array_merge($this->blocks, $blocks));
+        
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->leave($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof);
+
+    }
+
+    // line 2
+    /**
+     * @return iterable<null|scalar|\Stringable>
+     */
+    public function block_title(array $context, array $blocks = []): iterable
+    {
+        $macros = $this->macros;
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f = $this->extensions["Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension"];
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->enter($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "block", "title"));
+
+        yield "Set Your Preferences";
+        
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->leave($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof);
+
+        yield from [];
+    }
+
+    // line 4
+    /**
+     * @return iterable<null|scalar|\Stringable>
+     */
+    public function block_extra_css(array $context, array $blocks = []): iterable
+    {
+        $macros = $this->macros;
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f = $this->extensions["Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension"];
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->enter($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "block", "extra_css"));
+
+        // line 5
+        yield "<style>
+  /* Island background for onboarding */
+  body {
+    background: url('/images/island.jpg') center/cover no-repeat fixed;
+    overflow: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: rgba(15,27,45,.65);
+    z-index: 0;
+  }
+  .bg-shape { display: none; }
+  #onboarding-page { position: relative; z-index: 1; }
+  
+  /* Slide styles from FXML */
+  .ob-card {
+    background: rgba(255,255,255,.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    overflow: hidden;
+    width: 90%;
+    max-width: 1000px;
+    height: 700px;
+    margin: 40px auto;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .ob-slides-wrap {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ob-slide {
+    position: absolute;
+    inset: 0;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: transform 0.6s cubic-bezier(0.77,0,0.18,1), opacity 0.4s;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ob-slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+
+  /* Slide White vs Blue from FXML */
+  .slide-white { background: #fff; color: #1e3a8a; }
+  .slide-blue { background: #1e3a8a; color: #fff; }
+
+  .label-blue { color: #1e3a8a; font-size: 32px; font-weight: 800; margin-bottom: 8px; font-family: var(--font-display); }
+  .sub-label-blue { color: #4b5563; font-size: 1.1rem; margin-bottom: 30px; }
+  
+  .label-white { color: #fff; font-size: 32px; font-weight: 800; margin-bottom: 8px; font-family: var(--font-display); }
+  .sub-label-white { color: rgba(255,255,255,0.8); font-size: 1.1rem; margin-bottom: 30px; }
+
+  /* Option Cards (ToggleButtons) */
+  .option-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; width: 100%; max-width: 800px; }
+  .option-card {
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 16px;
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: inherit;
+  }
+  .slide-white .option-card { background: #f8fafc; border-color: #e2e8f0; }
+  .slide-white .option-card:hover { border-color: #1e3a8a; background: #eff6ff; }
+  .slide-white .option-card.selected { background: #1e3a8a; color: #fff; border-color: #1e3a8a; transform: translateY(-4px); }
+  
+  .slide-blue .option-card:hover { background: rgba(255,255,255,0.2); border-color: #fff; }
+  .slide-blue .option-card.selected { background: #fff; color: #1e3a8a; border-color: #fff; transform: translateY(-4px); }
+
+  .option-icon { font-size: 32px; }
+
+  /* Navigation Footer */
+  .ob-footer {
+    padding: 30px 60px;
+    background: rgba(0,0,0,0.02);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(0,0,0,0.05);
+  }
+
+  .ob-progress-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: rgba(0,0,0,0.05);
+  }
+  .ob-progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, #1e3a8a, #3b82f6);
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+  
+  /* Dots Indicator */
+  .ob-dots {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px 0;
+  }
+  .ob-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.1);
+    transition: all 0.3s;
+  }
+  .ob-dot.active {
+    background: #1e3a8a;
+    transform: scale(1.3);
+  }
+  .slide-blue ~ .ob-footer .ob-dot.active {
+    background: #fff;
+  }
+
+  /* Specific widgets */
+  .budget-slider-wrap { width: 100%; max-width: 600px; padding: 20px; }
+  .birth-year-input { 
+    background: transparent; border: none; border-bottom: 2px solid currentColor;
+    color: inherit; font-size: 48px; font-weight: 800; text-align: center; width: 200px;
+    outline: none;
+  }
+
+  .action-button {
+    background: #1e3a8a;
+    color: #fff;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .action-button:hover {
+    background: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(30,58,138,0.2);
+  }
+  .secondary-button {
+    background: transparent;
+    color: #4b5563;
+    border: 1px solid #e2e8f0;
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+</style>
+";
+        
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->leave($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof);
+
+        yield from [];
+    }
+
+    // line 176
+    /**
+     * @return iterable<null|scalar|\Stringable>
+     */
+    public function block_body(array $context, array $blocks = []): iterable
+    {
+        $macros = $this->macros;
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f = $this->extensions["Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension"];
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->enter($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "block", "body"));
+
+        // line 177
+        yield "<div id=\"onboarding-page\">
+  <div class=\"ob-card\">
+    <div class=\"ob-progress-bar\">
+      <div class=\"ob-progress-fill\" id=\"progressFill\"></div>
+    </div>
+
+    <div class=\"ob-slides-wrap\" id=\"obSlidesWrap\">
+      ";
+        // line 185
+        yield "      <div class=\"ob-slide slide-white active\" data-slide=\"0\">
+        <div class=\"label-blue\">Tell us about yourself</div>
+        <div class=\"sub-label-blue\">Select your gender to help us personalize your experience.</div>
+        <div class=\"option-grid\">
+          <div class=\"option-card\" data-val=\"Male\" data-field=\"gender\" style=\"flex:1\">
+            <div class=\"option-icon\">👨</div><span>Male</span>
+          </div>
+          <div class=\"option-card\" data-val=\"Female\" data-field=\"gender\" style=\"flex:1\">
+            <div class=\"option-icon\">👩</div><span>Female</span>
+          </div>
+        </div>
+      </div>
+
+      ";
+        // line 199
+        yield "      <div class=\"ob-slide slide-blue\" data-slide=\"1\">
+        <div class=\"label-white\">In which interval were you born?</div>
+        <div class=\"sub-label-white\">Select your birth year range.</div>
+        <div class=\"option-grid\" data-group=\"birth_year\" data-multi=\"false\">
+          <div class=\"option-card\" data-val=\"1970-1980\">1970 - 1980</div>
+          <div class=\"option-card\" data-val=\"1980-1990\">1980 - 1990</div>
+          <div class=\"option-card\" data-val=\"1990-2000\">1990 - 2000</div>
+          <div class=\"option-card\" data-val=\"2000-2010\">2000 - 2010</div>
+          <div class=\"option-card\" data-val=\"2010-Now\">2010 - Now</div>
+        </div>
+      </div>
+
+      ";
+        // line 212
+        yield "      <div class=\"ob-slide slide-white\" data-slide=\"2\">
+        <div class=\"label-blue\">What matters most?</div>
+        <div class=\"sub-label-blue\">Select your top travel priorities (Max 4).</div>
+        <div class=\"option-grid\" data-group=\"priorities\" data-multi=\"true\" data-max=\"4\">
+          <div class=\"option-card\" data-val=\"Activities\">🏃 Activities</div>
+          <div class=\"option-card\" data-val=\"Wellness\">🧘 Wellness</div>
+          <div class=\"option-card\" data-val=\"Food and Drinks\">🍽 Food & Drinks</div>
+          <div class=\"option-card\" data-val=\"Family Friendly\">👨‍👩‍👧 Family Friendly</div>
+          <div class=\"option-card\" data-val=\"Parking\">🅿️ Parking</div>
+          <div class=\"option-card\" data-val=\"Amenities\">✨ Amenities</div>
+          <div class=\"option-card\" data-val=\"Pet-Friendly\">🐾 Pet-Friendly</div>
+          <div class=\"option-card\" data-val=\"Business Facilities\">💼 Business</div>
+          <div class=\"option-card\" data-val=\"I dont care\">🤷 I don't care</div>
+        </div>
+      </div>
+
+      ";
+        // line 229
+        yield "      <div class=\"ob-slide slide-blue\" data-slide=\"3\">
+        <div class=\"label-white\">Preferred Climate</div>
+        <div class=\"sub-label-white\">What kind of weather do you enjoy?</div>
+        <div class=\"option-grid\" data-group=\"preferred_climate\" data-multi=\"true\">
+          <div class=\"option-card\" data-val=\"Temperate\">🌤️ Temperate</div>
+          <div class=\"option-card\" data-val=\"Tropical\">🌴 Tropical</div>
+          <div class=\"option-card\" data-val=\"Desert\">🌵 Desert</div>
+          <div class=\"option-card\" data-val=\"Cold/Arctic\">❄️ Cold/Arctic</div>
+          <div class=\"option-card\" data-val=\"Oceanic\">🌊 Oceanic</div>
+          <div class=\"option-card\" data-val=\"Mountain\">⛰ Mountain</div>
+        </div>
+      </div>
+
+      ";
+        // line 243
+        yield "      <div class=\"ob-slide slide-white\" data-slide=\"4\">
+        <div class=\"label-blue\">What is your budget?</div>
+        <div class=\"sub-label-blue\">Select your preferred minimum and maximum nightly budget.</div>
+        <div style=\"width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 30px;\">
+          <div>
+            <div style=\"display:flex; justify-content:space-between; font-weight:700; color:#1e3a8a; margin-bottom:8px;\">
+              <span>Min Budget</span><span id=\"minBudgetDisplay\">\$50</span>
+            </div>
+            <input type=\"range\" id=\"minBudget\" class=\"budget-slider\" min=\"0\" max=\"1000\" step=\"50\" value=\"50\" style=\"width:100%\">
+          </div>
+          <div>
+            <div style=\"display:flex; justify-content:space-between; font-weight:700; color:#1e3a8a; margin-bottom:8px;\">
+              <span>Max Budget</span><span id=\"maxBudgetDisplay\">\$500</span>
+            </div>
+            <input type=\"range\" id=\"maxBudget\" class=\"budget-slider\" min=\"0\" max=\"2000\" step=\"100\" value=\"500\" style=\"width:100%\">
+          </div>
+        </div>
+      </div>
+
+      ";
+        // line 263
+        yield "      <div class=\"ob-slide slide-blue\" data-slide=\"5\">
+        <div class=\"label-white\">Location Preferences</div>
+        <div class=\"sub-label-white\">Where do you prefer to stay?</div>
+        <div class=\"option-grid\" data-group=\"location_preferences\" data-multi=\"true\">
+          <div class=\"option-card\" data-val=\"City Center\">🏙 City Center</div>
+          <div class=\"option-card\" data-val=\"Beachfront\">🏖 Beachfront</div>
+          <div class=\"option-card\" data-val=\"Mountain View\">⛰ Mountain View</div>
+          <div class=\"option-card\" data-val=\"Countryside\">🌾 Countryside</div>
+        </div>
+      </div>
+
+      ";
+        // line 275
+        yield "      <div class=\"ob-slide slide-white\" data-slide=\"6\">
+        <div class=\"label-blue\">Accommodation Types</div>
+        <div class=\"sub-label-blue\">Select your preferred places to stay.</div>
+        <div class=\"option-grid\" data-group=\"accommodation_types\" data-multi=\"true\">
+          <div class=\"option-card\" data-val=\"Hotel\">🏨 Hotel</div>
+          <div class=\"option-card\" data-val=\"Resort\">🏝 Resort</div>
+          <div class=\"option-card\" data-val=\"Villa\">🏡 Villa</div>
+          <div class=\"option-card\" data-val=\"Hostel\">🛏 Hostel</div>
+          <div class=\"option-card\" data-val=\"Vacation Rental\">🔑 Vacation Rental</div>
+          <div class=\"option-card\" data-val=\"Camping\">⛺ Camping</div>
+          <div class=\"option-card\" data-val=\"Cabin\">🪵 Cabin</div>
+          <div class=\"option-card\" data-val=\"Boat/Yacht\">⛵ Boat/Yacht</div>
+        </div>
+      </div>
+
+      ";
+        // line 291
+        yield "      <div class=\"ob-slide slide-blue\" data-slide=\"7\">
+        <div class=\"label-white\">Style Preferences</div>
+        <div class=\"sub-label-white\">What fits your vibe? (Max 4)</div>
+        <div class=\"option-grid\" data-group=\"style_preferences\" data-multi=\"true\" data-max=\"4\">
+          <div class=\"option-card\" data-val=\"Minimalist\">⚪ Minimalist</div>
+          <div class=\"option-card\" data-val=\"Urban\">🏙 Urban</div>
+          <div class=\"option-card\" data-val=\"Luxury\">💎 Luxury</div>
+          <div class=\"option-card\" data-val=\"Bohemian\">✨ Bohemian</div>
+          <div class=\"option-card\" data-val=\"Rustic\">🪵 Rustic</div>
+          <div class=\"option-card\" data-val=\"Traditional\">🏛 Traditional</div>
+          <div class=\"option-card\" data-val=\"Tropical\">🌴 Tropical</div>
+          <div class=\"option-card\" data-val=\"Mediterranean\">☀️ Mediterranean</div>
+          <div class=\"option-card\" data-val=\"Vintage\">🎞 Vintage</div>
+          <div class=\"option-card\" data-val=\"Classic\">🎩 Classic</div>
+        </div>
+      </div>
+
+      ";
+        // line 309
+        yield "      <div class=\"ob-slide slide-white\" data-slide=\"8\">
+        <div class=\"label-blue\">Dietary Restrictions</div>
+        <div class=\"sub-label-blue\">Any food preferences we should know?</div>
+        <div class=\"option-grid\" data-group=\"dietary_restrictions\" data-multi=\"true\">
+          <div class=\"option-card\" data-val=\"None\">🍴 None</div>
+          <div class=\"option-card\" data-val=\"Vegetarian\">🥗 Vegetarian</div>
+          <div class=\"option-card\" data-val=\"Vegan\">🌱 Vegan</div>
+          <div class=\"option-card\" data-val=\"Gluten-Free\">🌾 Gluten-Free</div>
+          <div class=\"option-card\" data-val=\"Dairy-Free\">🥛 Dairy-Free</div>
+          <div class=\"option-card\" data-val=\"Halal\">🌙 Halal</div>
+          <div class=\"option-card\" data-val=\"Nut Allergies\">🥜 Nut Allergies</div>
+          <div class=\"option-card\" data-val=\"Seafood Allergies\">🦞 Seafood Allergies</div>
+          <div class=\"option-card\" data-val=\"Raw Food\">🥕 Raw Food</div>
+          <div class=\"option-card\" data-val=\"Sugar-Free\">🍬 Sugar-Free</div>
+          <div class=\"option-card\" data-val=\"Low-Sodium\">🧂 Low-Sodium</div>
+        </div>
+      </div>
+
+      ";
+        // line 328
+        yield "      <div class=\"ob-slide slide-blue\" data-slide=\"9\">
+        <div class=\"label-white\">Travel Pace</div>
+        <div class=\"sub-label-white\">How fast do you like to travel?</div>
+        <div class=\"option-grid\" data-group=\"travel_pace\" data-multi=\"false\">
+          <div class=\"option-card\" data-val=\"Relaxed\">🌅 Relaxed</div>
+          <div class=\"option-card\" data-val=\"Moderate\">🚶 Moderate</div>
+          <div class=\"option-card\" data-val=\"Fast-paced\">⚡ Fast-paced</div>
+        </div>
+      </div>
+
+      ";
+        // line 339
+        yield "      <div class=\"ob-slide slide-white\" data-slide=\"10\">
+        <div class=\"label-blue\">Who are you with?</div>
+        <div class=\"sub-label-blue\">Select your typical group type.</div>
+        <div class=\"option-grid\" data-group=\"group_type\" data-multi=\"false\">
+          <div class=\"option-card\" data-val=\"Solo\">🎒 Solo</div>
+          <div class=\"option-card\" data-val=\"Couple\">💑 Couple</div>
+          <div class=\"option-card\" data-val=\"Family\">👨‍👩‍👧 Family</div>
+          <div class=\"option-card\" data-val=\"Friends\">👯 Friends</div>
+          <div class=\"option-card\" data-val=\"Business\">💼 Business</div>
+        </div>
+      </div>
+
+      ";
+        // line 352
+        yield "      <div class=\"ob-slide slide-blue\" data-slide=\"11\">
+        <div class=\"label-white\">Accessibility</div>
+        <div class=\"sub-label-white\">Do you require any specific assistance?</div>
+        <div class=\"option-card\" style=\"max-width:400px; padding:30px; font-weight:700;\" id=\"accessibilityToggle\">
+          <div class=\"option-icon\" style=\"margin-bottom:12px;\">♿</div>
+          <span>I require accessibility features</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class=\"ob-footer\">
+      <button class=\"secondary-button\" id=\"obBack\" style=\"visibility:hidden\">Back</button>
+      <div class=\"ob-dots\" id=\"dotContainer\"></div>
+      <button class=\"action-button\" id=\"obNext\">Continue ➔</button>
+    </div>
+  </div>
+</div>
+";
+        
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->leave($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof);
+
+        yield from [];
+    }
+
+    // line 372
+    /**
+     * @return iterable<null|scalar|\Stringable>
+     */
+    public function block_extra_js(array $context, array $blocks = []): iterable
+    {
+        $macros = $this->macros;
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f = $this->extensions["Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension"];
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->enter($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "block", "extra_js"));
+
+        // line 373
+        yield "<script>
+  window.TRIPX = {
+    savePrefsUrl: \"";
+        // line 375
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("app_save_preferences");
+        yield "\",
+    homeUrl: \"";
+        // line 376
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("index");
+        yield "\"
+  };
+</script>
+<script src=\"";
+        // line 379
+        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\AssetExtension']->getAssetUrl("js/onboarding.js"), "html", null, true);
+        yield "\"></script>
+";
+        
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->leave($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof);
+
+        yield from [];
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function getTemplateName(): string
+    {
+        return "front/onboarding.html.twig";
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function isTraitable(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function getDebugInfo(): array
+    {
+        return array (  511 => 379,  505 => 376,  501 => 375,  497 => 373,  487 => 372,  461 => 352,  447 => 339,  435 => 328,  415 => 309,  396 => 291,  379 => 275,  366 => 263,  345 => 243,  330 => 229,  312 => 212,  298 => 199,  283 => 185,  274 => 177,  264 => 176,  87 => 5,  77 => 4,  60 => 2,  43 => 1,);
+    }
+
+    public function getSourceContext(): Source
+    {
+        return new Source("{% extends 'front/base_auth.html.twig' %}
+{% block title %}Set Your Preferences{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Island background for onboarding */
+  body {
+    background: url('/images/island.jpg') center/cover no-repeat fixed;
+    overflow: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: rgba(15,27,45,.65);
+    z-index: 0;
+  }
+  .bg-shape { display: none; }
+  #onboarding-page { position: relative; z-index: 1; }
+  
+  /* Slide styles from FXML */
+  .ob-card {
+    background: rgba(255,255,255,.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    overflow: hidden;
+    width: 90%;
+    max-width: 1000px;
+    height: 700px;
+    margin: 40px auto;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .ob-slides-wrap {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ob-slide {
+    position: absolute;
+    inset: 0;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: transform 0.6s cubic-bezier(0.77,0,0.18,1), opacity 0.4s;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ob-slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+
+  /* Slide White vs Blue from FXML */
+  .slide-white { background: #fff; color: #1e3a8a; }
+  .slide-blue { background: #1e3a8a; color: #fff; }
+
+  .label-blue { color: #1e3a8a; font-size: 32px; font-weight: 800; margin-bottom: 8px; font-family: var(--font-display); }
+  .sub-label-blue { color: #4b5563; font-size: 1.1rem; margin-bottom: 30px; }
+  
+  .label-white { color: #fff; font-size: 32px; font-weight: 800; margin-bottom: 8px; font-family: var(--font-display); }
+  .sub-label-white { color: rgba(255,255,255,0.8); font-size: 1.1rem; margin-bottom: 30px; }
+
+  /* Option Cards (ToggleButtons) */
+  .option-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; width: 100%; max-width: 800px; }
+  .option-card {
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 16px;
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: inherit;
+  }
+  .slide-white .option-card { background: #f8fafc; border-color: #e2e8f0; }
+  .slide-white .option-card:hover { border-color: #1e3a8a; background: #eff6ff; }
+  .slide-white .option-card.selected { background: #1e3a8a; color: #fff; border-color: #1e3a8a; transform: translateY(-4px); }
+  
+  .slide-blue .option-card:hover { background: rgba(255,255,255,0.2); border-color: #fff; }
+  .slide-blue .option-card.selected { background: #fff; color: #1e3a8a; border-color: #fff; transform: translateY(-4px); }
+
+  .option-icon { font-size: 32px; }
+
+  /* Navigation Footer */
+  .ob-footer {
+    padding: 30px 60px;
+    background: rgba(0,0,0,0.02);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(0,0,0,0.05);
+  }
+
+  .ob-progress-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: rgba(0,0,0,0.05);
+  }
+  .ob-progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, #1e3a8a, #3b82f6);
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+  
+  /* Dots Indicator */
+  .ob-dots {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px 0;
+  }
+  .ob-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.1);
+    transition: all 0.3s;
+  }
+  .ob-dot.active {
+    background: #1e3a8a;
+    transform: scale(1.3);
+  }
+  .slide-blue ~ .ob-footer .ob-dot.active {
+    background: #fff;
+  }
+
+  /* Specific widgets */
+  .budget-slider-wrap { width: 100%; max-width: 600px; padding: 20px; }
+  .birth-year-input { 
+    background: transparent; border: none; border-bottom: 2px solid currentColor;
+    color: inherit; font-size: 48px; font-weight: 800; text-align: center; width: 200px;
+    outline: none;
+  }
+
+  .action-button {
+    background: #1e3a8a;
+    color: #fff;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .action-button:hover {
+    background: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(30,58,138,0.2);
+  }
+  .secondary-button {
+    background: transparent;
+    color: #4b5563;
+    border: 1px solid #e2e8f0;
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div id=\"onboarding-page\">
+  <div class=\"ob-card\">
+    <div class=\"ob-progress-bar\">
+      <div class=\"ob-progress-fill\" id=\"progressFill\"></div>
+    </div>
+
+    <div class=\"ob-slides-wrap\" id=\"obSlidesWrap\">
+      {# Step 1: Gender (White) #}
+      <div class=\"ob-slide slide-white active\" data-slide=\"0\">
+        <div class=\"label-blue\">Tell us about yourself</div>
+        <div class=\"sub-label-blue\">Select your gender to help us personalize your experience.</div>
+        <div class=\"option-grid\">
+          <div class=\"option-card\" data-val=\"Male\" data-field=\"gender\" style=\"flex:1\">
+            <div class=\"option-icon\">👨</div><span>Male</span>
+          </div>
+          <div class=\"option-card\" data-val=\"Female\" data-field=\"gender\" style=\"flex:1\">
+            <div class=\"option-icon\">👩</div><span>Female</span>
+          </div>
+        </div>
+      </div>
+
+      {# Step 2: Age (Blue) #}
+      <div class=\"ob-slide slide-blue\" data-slide=\"1\">
+        <div class=\"label-white\">In which interval were you born?</div>
+        <div class=\"sub-label-white\">Select your birth year range.</div>
+        <div class=\"option-grid\" data-group=\"birth_year\" data-multi=\"false\">
+          <div class=\"option-card\" data-val=\"1970-1980\">1970 - 1980</div>
+          <div class=\"option-card\" data-val=\"1980-1990\">1980 - 1990</div>
+          <div class=\"option-card\" data-val=\"1990-2000\">1990 - 2000</div>
+          <div class=\"option-card\" data-val=\"2000-2010\">2000 - 2010</div>
+          <div class=\"option-card\" data-val=\"2010-Now\">2010 - Now</div>
+        </div>
+      </div>
+
+      {# Step 3: Priorities (White) #}
+      <div class=\"ob-slide slide-white\" data-slide=\"2\">
+        <div class=\"label-blue\">What matters most?</div>
+        <div class=\"sub-label-blue\">Select your top travel priorities (Max 4).</div>
+        <div class=\"option-grid\" data-group=\"priorities\" data-multi=\"true\" data-max=\"4\">
+          <div class=\"option-card\" data-val=\"Activities\">🏃 Activities</div>
+          <div class=\"option-card\" data-val=\"Wellness\">🧘 Wellness</div>
+          <div class=\"option-card\" data-val=\"Food and Drinks\">🍽 Food & Drinks</div>
+          <div class=\"option-card\" data-val=\"Family Friendly\">👨‍👩‍👧 Family Friendly</div>
+          <div class=\"option-card\" data-val=\"Parking\">🅿️ Parking</div>
+          <div class=\"option-card\" data-val=\"Amenities\">✨ Amenities</div>
+          <div class=\"option-card\" data-val=\"Pet-Friendly\">🐾 Pet-Friendly</div>
+          <div class=\"option-card\" data-val=\"Business Facilities\">💼 Business</div>
+          <div class=\"option-card\" data-val=\"I dont care\">🤷 I don't care</div>
+        </div>
+      </div>
+
+      {# Step 4: Preferred Climate (Blue) #}
+      <div class=\"ob-slide slide-blue\" data-slide=\"3\">
+        <div class=\"label-white\">Preferred Climate</div>
+        <div class=\"sub-label-white\">What kind of weather do you enjoy?</div>
+        <div class=\"option-grid\" data-group=\"preferred_climate\" data-multi=\"true\">
+          <div class=\"option-card\" data-val=\"Temperate\">🌤️ Temperate</div>
+          <div class=\"option-card\" data-val=\"Tropical\">🌴 Tropical</div>
+          <div class=\"option-card\" data-val=\"Desert\">🌵 Desert</div>
+          <div class=\"option-card\" data-val=\"Cold/Arctic\">❄️ Cold/Arctic</div>
+          <div class=\"option-card\" data-val=\"Oceanic\">🌊 Oceanic</div>
+          <div class=\"option-card\" data-val=\"Mountain\">⛰ Mountain</div>
+        </div>
+      </div>
+
+      {# Step 5: Budget (White) #}
+      <div class=\"ob-slide slide-white\" data-slide=\"4\">
+        <div class=\"label-blue\">What is your budget?</div>
+        <div class=\"sub-label-blue\">Select your preferred minimum and maximum nightly budget.</div>
+        <div style=\"width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 30px;\">
+          <div>
+            <div style=\"display:flex; justify-content:space-between; font-weight:700; color:#1e3a8a; margin-bottom:8px;\">
+              <span>Min Budget</span><span id=\"minBudgetDisplay\">\$50</span>
+            </div>
+            <input type=\"range\" id=\"minBudget\" class=\"budget-slider\" min=\"0\" max=\"1000\" step=\"50\" value=\"50\" style=\"width:100%\">
+          </div>
+          <div>
+            <div style=\"display:flex; justify-content:space-between; font-weight:700; color:#1e3a8a; margin-bottom:8px;\">
+              <span>Max Budget</span><span id=\"maxBudgetDisplay\">\$500</span>
+            </div>
+            <input type=\"range\" id=\"maxBudget\" class=\"budget-slider\" min=\"0\" max=\"2000\" step=\"100\" value=\"500\" style=\"width:100%\">
+          </div>
+        </div>
+      </div>
+
+      {# Step 6: Location Preference (Blue) #}
+      <div class=\"ob-slide slide-blue\" data-slide=\"5\">
+        <div class=\"label-white\">Location Preferences</div>
+        <div class=\"sub-label-white\">Where do you prefer to stay?</div>
+        <div class=\"option-grid\" data-group=\"location_preferences\" data-multi=\"true\">
+          <div class=\"option-card\" data-val=\"City Center\">🏙 City Center</div>
+          <div class=\"option-card\" data-val=\"Beachfront\">🏖 Beachfront</div>
+          <div class=\"option-card\" data-val=\"Mountain View\">⛰ Mountain View</div>
+          <div class=\"option-card\" data-val=\"Countryside\">🌾 Countryside</div>
+        </div>
+      </div>
+
+      {# Step 7: Accommodation Type (White) #}
+      <div class=\"ob-slide slide-white\" data-slide=\"6\">
+        <div class=\"label-blue\">Accommodation Types</div>
+        <div class=\"sub-label-blue\">Select your preferred places to stay.</div>
+        <div class=\"option-grid\" data-group=\"accommodation_types\" data-multi=\"true\">
+          <div class=\"option-card\" data-val=\"Hotel\">🏨 Hotel</div>
+          <div class=\"option-card\" data-val=\"Resort\">🏝 Resort</div>
+          <div class=\"option-card\" data-val=\"Villa\">🏡 Villa</div>
+          <div class=\"option-card\" data-val=\"Hostel\">🛏 Hostel</div>
+          <div class=\"option-card\" data-val=\"Vacation Rental\">🔑 Vacation Rental</div>
+          <div class=\"option-card\" data-val=\"Camping\">⛺ Camping</div>
+          <div class=\"option-card\" data-val=\"Cabin\">🪵 Cabin</div>
+          <div class=\"option-card\" data-val=\"Boat/Yacht\">⛵ Boat/Yacht</div>
+        </div>
+      </div>
+
+      {# Step 8: Style Preferences (Blue) #}
+      <div class=\"ob-slide slide-blue\" data-slide=\"7\">
+        <div class=\"label-white\">Style Preferences</div>
+        <div class=\"sub-label-white\">What fits your vibe? (Max 4)</div>
+        <div class=\"option-grid\" data-group=\"style_preferences\" data-multi=\"true\" data-max=\"4\">
+          <div class=\"option-card\" data-val=\"Minimalist\">⚪ Minimalist</div>
+          <div class=\"option-card\" data-val=\"Urban\">🏙 Urban</div>
+          <div class=\"option-card\" data-val=\"Luxury\">💎 Luxury</div>
+          <div class=\"option-card\" data-val=\"Bohemian\">✨ Bohemian</div>
+          <div class=\"option-card\" data-val=\"Rustic\">🪵 Rustic</div>
+          <div class=\"option-card\" data-val=\"Traditional\">🏛 Traditional</div>
+          <div class=\"option-card\" data-val=\"Tropical\">🌴 Tropical</div>
+          <div class=\"option-card\" data-val=\"Mediterranean\">☀️ Mediterranean</div>
+          <div class=\"option-card\" data-val=\"Vintage\">🎞 Vintage</div>
+          <div class=\"option-card\" data-val=\"Classic\">🎩 Classic</div>
+        </div>
+      </div>
+
+      {# Step 9: Dietary Restrictions (White) #}
+      <div class=\"ob-slide slide-white\" data-slide=\"8\">
+        <div class=\"label-blue\">Dietary Restrictions</div>
+        <div class=\"sub-label-blue\">Any food preferences we should know?</div>
+        <div class=\"option-grid\" data-group=\"dietary_restrictions\" data-multi=\"true\">
+          <div class=\"option-card\" data-val=\"None\">🍴 None</div>
+          <div class=\"option-card\" data-val=\"Vegetarian\">🥗 Vegetarian</div>
+          <div class=\"option-card\" data-val=\"Vegan\">🌱 Vegan</div>
+          <div class=\"option-card\" data-val=\"Gluten-Free\">🌾 Gluten-Free</div>
+          <div class=\"option-card\" data-val=\"Dairy-Free\">🥛 Dairy-Free</div>
+          <div class=\"option-card\" data-val=\"Halal\">🌙 Halal</div>
+          <div class=\"option-card\" data-val=\"Nut Allergies\">🥜 Nut Allergies</div>
+          <div class=\"option-card\" data-val=\"Seafood Allergies\">🦞 Seafood Allergies</div>
+          <div class=\"option-card\" data-val=\"Raw Food\">🥕 Raw Food</div>
+          <div class=\"option-card\" data-val=\"Sugar-Free\">🍬 Sugar-Free</div>
+          <div class=\"option-card\" data-val=\"Low-Sodium\">🧂 Low-Sodium</div>
+        </div>
+      </div>
+
+      {# Step 10: Travel Pace (Blue) #}
+      <div class=\"ob-slide slide-blue\" data-slide=\"9\">
+        <div class=\"label-white\">Travel Pace</div>
+        <div class=\"sub-label-white\">How fast do you like to travel?</div>
+        <div class=\"option-grid\" data-group=\"travel_pace\" data-multi=\"false\">
+          <div class=\"option-card\" data-val=\"Relaxed\">🌅 Relaxed</div>
+          <div class=\"option-card\" data-val=\"Moderate\">🚶 Moderate</div>
+          <div class=\"option-card\" data-val=\"Fast-paced\">⚡ Fast-paced</div>
+        </div>
+      </div>
+
+      {# Step 11: Group Type (White) #}
+      <div class=\"ob-slide slide-white\" data-slide=\"10\">
+        <div class=\"label-blue\">Who are you with?</div>
+        <div class=\"sub-label-blue\">Select your typical group type.</div>
+        <div class=\"option-grid\" data-group=\"group_type\" data-multi=\"false\">
+          <div class=\"option-card\" data-val=\"Solo\">🎒 Solo</div>
+          <div class=\"option-card\" data-val=\"Couple\">💑 Couple</div>
+          <div class=\"option-card\" data-val=\"Family\">👨‍👩‍👧 Family</div>
+          <div class=\"option-card\" data-val=\"Friends\">👯 Friends</div>
+          <div class=\"option-card\" data-val=\"Business\">💼 Business</div>
+        </div>
+      </div>
+
+      {# Step 12: Accessibility (Blue) #}
+      <div class=\"ob-slide slide-blue\" data-slide=\"11\">
+        <div class=\"label-white\">Accessibility</div>
+        <div class=\"sub-label-white\">Do you require any specific assistance?</div>
+        <div class=\"option-card\" style=\"max-width:400px; padding:30px; font-weight:700;\" id=\"accessibilityToggle\">
+          <div class=\"option-icon\" style=\"margin-bottom:12px;\">♿</div>
+          <span>I require accessibility features</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class=\"ob-footer\">
+      <button class=\"secondary-button\" id=\"obBack\" style=\"visibility:hidden\">Back</button>
+      <div class=\"ob-dots\" id=\"dotContainer\"></div>
+      <button class=\"action-button\" id=\"obNext\">Continue ➔</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  window.TRIPX = {
+    savePrefsUrl: \"{{ path('app_save_preferences') }}\",
+    homeUrl: \"{{ path('index') }}\"
+  };
+</script>
+<script src=\"{{ asset('js/onboarding.js') }}\"></script>
+{% endblock %}
+", "front/onboarding.html.twig", "C:\\Sym\\templates\\front\\onboarding.html.twig");
+    }
+}

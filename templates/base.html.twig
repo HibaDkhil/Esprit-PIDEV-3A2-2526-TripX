@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}TripX — Future of Travel{% endblock %}</title>
+    <link rel="stylesheet" href="/assets.php?f=css/main.css">
+    <link rel="stylesheet" href="/assets.php?f=css/animations.css">
+    {% block stylesheets %}{% endblock %}
+</head>
+<body class="page-wipe-container">
+    <div id="cursor-dot"></div><div id="cursor-halo"></div>
+    <div id="cursor-halo"></div>
+
+    <nav class="nav" id="main-nav" style="position: relative; z-index: 1000;">
+        <div class="nav-inner">
+            <a href="{{ path('index') }}" class="nav-logo">
+                <img src="/images/tripx-logo.png" alt="TripX" style="height: 38px;" onerror="this.style.display='none'">
+                Trip<span>X</span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="{{ path('index') }}" class="nav-link">Home</a>
+                <a href="{{ path('destinations') }}" class="nav-link">Destinations</a>
+                <a href="{{ path('activities') }}" class="nav-link">Activities</a>
+                <a href="{{ path('accommodations') }}" class="nav-link">Accommodations</a>
+                <a href="{{ path('transport') }}" class="nav-link">Transport</a>
+                <a href="{{ path('offers') }}" class="nav-link">Offers</a>
+                <a href="{{ path('blog') }}" class="nav-link">Blog</a>
+            </div>
+
+            <div class="nav-actions">
+                <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle dark mode">
+                    <span class="toggle-icon icon-sun">☀️</span>
+                    <span class="toggle-icon icon-moon">🌙</span>
+                </button>
+                <a href="{{ path('users') }}" class="nav-link">My Bookings</a>
+                <a href="{{ path('users') }}" class="btn-nav-primary ripple-btn">Profile</a>
+                <a href="{{ path('app_logout') }}" class="Btn-logout" style="margin-left: 8px;">
+                  <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" /></svg></div>
+                  <div class="text">Logout</div>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% for label, messages in app.flashes %}
+            <div class="flash-container">
+                {% for message in messages %}
+                    <div class="flash-message {{ label }}">
+                        {% if label == 'success' %}✅{% else %}❌{% endif %}
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        {% block body %}{% endblock %}
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.querySelectorAll('.flash-message').forEach(el => {
+                    el.classList.add('fade-out');
+                    setTimeout(() => el.remove(), 500);
+                });
+            }, 4000);
+        });
+    </script>
+
+    <script src="/assets.php?f=js/main.js"></script>
+    <script src="/js/tracker.js"></script>
+    {% block javascripts %}{% endblock %}
+</body>
+</html>
+
+
+
+
+

@@ -1,0 +1,16 @@
+{% extends 'admin/admin_base.html.twig' %}
+{% block title %}Blog — TripX Admin{% endblock %}
+
+{% block breadcrumbs %}
+  <span class="crumb active">Blog</span>
+{% endblock %}
+
+{% block content %}
+<div style="display:flex; align-items:center; justify-content:center; min-height:60vh;">
+  <div style="text-align:center; color:var(--text-muted); padding:40px; border:1px dashed var(--border-color); border-radius:var(--border-radius-md);">
+    <h2 style="font-family:var(--font-display); margin-bottom:16px;">Module Space Prepared</h2>
+    <p>This blank page has been set up securely for the rest of your group to implement the functionality.</p>
+    <a href="{{ path('admin_dashboard') }}" class="btn btn-primary" style="margin-top:24px; text-decoration:none; display:inline-block;">Return to Dashboard</a>
+  </div>
+</div>
+{% endblock %}

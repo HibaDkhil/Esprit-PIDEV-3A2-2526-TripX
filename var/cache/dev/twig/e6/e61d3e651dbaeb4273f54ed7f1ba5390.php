@@ -1,0 +1,780 @@
+<?php
+
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Extension\CoreExtension;
+use Twig\Extension\SandboxExtension;
+use Twig\Markup;
+use Twig\Sandbox\SecurityError;
+use Twig\Sandbox\SecurityNotAllowedTagError;
+use Twig\Sandbox\SecurityNotAllowedFilterError;
+use Twig\Sandbox\SecurityNotAllowedFunctionError;
+use Twig\Source;
+use Twig\Template;
+use Twig\TemplateWrapper;
+
+/* front/destination-detail.html.twig */
+class __TwigTemplate_b63288863bc81e86e41a63ee31bf1819 extends Template
+{
+    private Source $source;
+    /**
+     * @var array<string, Template>
+     */
+    private array $macros = [];
+
+    public function __construct(Environment $env)
+    {
+        parent::__construct($env);
+
+        $this->source = $this->getSourceContext();
+
+        $this->parent = false;
+
+        $this->blocks = [
+        ];
+    }
+
+    protected function doDisplay(array $context, array $blocks = []): iterable
+    {
+        $macros = $this->macros;
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f = $this->extensions["Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension"];
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->enter($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "template", "front/destination-detail.html.twig"));
+
+        // line 1
+        yield "<!DOCTYPE html>
+<html lang=\"en\" data-theme=\"light\">
+<head>
+  <meta charset=\"UTF-8\">
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+  <meta name=\"description\" content=\"Bali, Indonesia — AI-powered travel guide. Best activities, accommodations, restaurants, and climate data.\">
+  <title>Bali — Destination Detail · TripX</title>
+  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">
+  <link href=\"https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Montserrat:wght@100..900&family=Space+Mono:wght@400;700&display=swap\" rel=\"stylesheet\">
+  <link rel=\"stylesheet\" href=\"/assets.php?f=css/main.css\">
+  <link rel=\"stylesheet\" href=\"/assets.php?f=css/animations.css\">
+  <style>
+    .detail-hero {
+      height: 90vh;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: 64px;
+      overflow: hidden;
+      margin-top: var(--nav-height);
+    }
+    .detail-hero-bg {
+      position: absolute; inset: 0;
+      font-size: 160px;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #003049 0%, #d62828 50%, #f77f00 100%);
+    }
+    .detail-hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(3,7,18,0.9) 0%, rgba(3,7,18,0.3) 50%, transparent 100%);
+    }
+    [data-theme=\"light\"] .detail-hero-overlay {
+      background: linear-gradient(to top, rgba(255,248,240,0.1) 0%, transparent 100%);
+    }
+    .detail-hero-content { position: relative; z-index: 1; color: #F0F4F8; }
+    .detail-back {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em;
+      color: rgba(240,244,248,0.7); margin-bottom: 20px;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: color var(--transition-fast);
+    }
+    .detail-back:hover { color: var(--accent-primary); }
+    .detail-title {
+      font-family: var(--font-display);
+      font-size: clamp(64px, 10vw, 128px);
+      text-transform: uppercase;
+      line-height: 0.88;
+      margin-bottom: 20px;
+    }
+    .detail-meta-bar {
+      display: flex; gap: 20px; flex-wrap: wrap; align-items: center;
+      margin-bottom: 32px;
+    }
+    .detail-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    /* Tabs */
+    .tab-bar {
+      position: sticky; top: var(--nav-height); z-index: 99;
+      background: var(--bg-nav); backdrop-filter: var(--bg-glass-blur);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .tab-bar-inner {
+      display: flex; gap: 0;
+      max-width: var(--container-max); margin-inline: auto; padding-inline: 32px;
+    }
+    .tab-btn {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-muted);
+      padding: 18px 20px;
+      border-bottom: 2px solid transparent;
+      transition: color var(--transition-fast), border-color var(--transition-fast);
+    }
+    .tab-btn.active, .tab-btn:hover {
+      color: var(--accent-primary);
+      border-bottom-color: var(--accent-primary);
+    }
+
+    /* Climate Wheel */
+    .climate-wheel { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+    .climate-month {
+      text-align: center;
+      padding: 12px 6px;
+      border-radius: var(--border-radius-sm);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      transition: all var(--transition-fast);
+    }
+    .climate-month:hover { border-color: var(--accent-teal); background: rgba(0,245,212,0.05); }
+    .climate-month.best { background: rgba(0,245,212,0.1); border-color: rgba(0,245,212,0.4); }
+    .climate-month-name { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
+    .climate-month-temp { font-weight: 600; font-size: 1rem; margin: 4px 0; }
+    .climate-month-icon { font-size: 18px; }
+
+    /* Activity & Accommodation small cards */
+    .mini-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-md);
+      padding: 20px;
+      display: flex; gap: 16px; align-items: center;
+      transition: all var(--transition-fast);
+    }
+    .mini-card:hover { border-color: var(--accent-primary); transform: translateX(4px); }
+    .mini-card-icon { font-size: 32px; flex-shrink: 0; }
+    .mini-card-title { font-weight: 600; margin-bottom: 4px; }
+    .mini-card-sub { font-size: 0.82rem; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+    <div id=\"cursor-dot\"></div><div id=\"cursor-halo\"></div>
+
+
+
+<nav class=\"nav\">
+  <div class=\"nav-inner\">
+    <a href=\"";
+        // line 116
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("index");
+        yield "\" class=\"nav-logo\">Trip<span>X</span></a>
+    <div class=\"nav-links\">
+      <a href=\"";
+        // line 118
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("index");
+        yield "\"          class=\"nav-link\">Home</a>
+      <a href=\"";
+        // line 119
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("destinations");
+        yield "\"   class=\"nav-link active\">Destinations</a>
+      <a href=\"";
+        // line 120
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("activities");
+        yield "\"     class=\"nav-link\">Activities</a>
+      <a href=\"";
+        // line 121
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("accommodations");
+        yield "\" class=\"nav-link\">Accommodations</a>
+      <a href=\"";
+        // line 122
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("transport");
+        yield "\"      class=\"nav-link\">Transport</a>
+      <a href=\"";
+        // line 123
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("offers");
+        yield "\"         class=\"nav-link\">Offers</a>
+      <a href=\"";
+        // line 124
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("blog");
+        yield "\" class=\"nav-link\">Blog</a><a href=\"#\" class=\"nav-link\">My Bookings</a>
+    </div>
+    <div class=\"nav-actions\">
+      <button id=\"theme-toggle\" class=\"theme-toggle\" aria-label=\"Toggle dark mode\">
+        <span class=\"toggle-icon icon-sun\">☀️</span>
+        <span class=\"toggle-icon icon-moon\">🌙</span>
+      </button>
+      <a href=\"";
+        // line 131
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("users");
+        yield "\" class=\"btn-nav-primary ripple-btn\">My Profile</a><a href=\"";
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("app_logout");
+        yield "\" class=\"Btn-logout\" style=\"margin-left: 8px;\">
+        <div class=\"sign\"><svg viewBox=\"0 0 512 512\"><path d=\"M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z\" /></svg></div>
+        <div class=\"text\">Logout</div>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class=\"detail-hero\">
+  <div class=\"detail-hero-bg parallax-img\" data-speed=\"0.25\">🌊</div>
+  <div class=\"detail-hero-overlay\"></div>
+  <div class=\"detail-hero-content container\">
+    <a href=\"";
+        // line 144
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("destinations");
+        yield "\" class=\"detail-back\">← All Destinations</a>
+    <div class=\"detail-meta-bar\">
+      <span class=\"badge badge-teal\">🌴 Beach</span>
+      <span class=\"badge badge-coral\">🔥 Trending</span>
+      <span class=\"ai-badge\">94% match for you</span>
+      <span style=\"font-family:var(--font-mono);font-size:11px;color:rgba(240,244,248,0.6)\">🇮🇩 Bali · Indonesia</span>
+    </div>
+    <div class=\"detail-title\">Bali</div>
+    <div class=\"detail-actions\">
+      <a href=\"";
+        // line 153
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("transport");
+        yield "\" class=\"btn btn-primary btn-lg ripple-btn\">✈️ Book Flights</a>
+      <a href=\"";
+        // line 154
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("accommodations");
+        yield "\" class=\"btn btn-secondary btn-lg ripple-btn\" style=\"color:#F0F4F8;border-color:rgba(255,255,255,0.2)\">🏨 Find Stays</a>
+      <button class=\"btn btn-ghost\" style=\"color:#F0F4F8\">♡ Save to Wishlist</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tab Bar -->
+<div class=\"tab-bar\">
+  <div class=\"tab-bar-inner\">
+    <button class=\"tab-btn active\">Overview</button>
+    <button class=\"tab-btn\">Activities</button>
+    <button class=\"tab-btn\">Accommodation</button>
+    <button class=\"tab-btn\">Transport</button>
+    <button class=\"tab-btn\">Climate</button>
+  </div>
+</div>
+
+<!-- Overview -->
+<section class=\"section\">
+  <div class=\"container\">
+    <div class=\"grid-2\" style=\"gap:60px;align-items:start\">
+      <div>
+        <div class=\"section-label reveal\"><span>About</span></div>
+        <h2 class=\"display-md reveal\" style=\"margin-bottom:20px\">The Island of <span class=\"gradient-text\">the Gods</span></h2>
+        <p class=\"reveal reveal-delay-1\" style=\"color:var(--text-secondary);line-height:1.8;margin-bottom:20px\">
+          Bali is Indonesia's most iconic island — a magical blend of emerald rice terraces, ancient temples, world-class surf breaks, and a deeply spiritual Balinese culture that permeates every corner of life.
+        </p>
+        <p class=\"reveal reveal-delay-2\" style=\"color:var(--text-secondary);line-height:1.8;margin-bottom:32px\">
+          Whether you're chasing sunsets in Seminyak, exploring ancient temples in Ubud, diving coral reefs in Amed, or simply unwinding in a jungle villa — Bali delivers an experience unlike anywhere else on Earth.
+        </p>
+        <div class=\"grid-2 reveal reveal-delay-3\" style=\"gap:16px\">
+          <div class=\"stat-card\">
+            <div class=\"stat-value\">28°</div>
+            <div class=\"stat-label\">Avg Temperature</div>
+          </div>
+          <div class=\"stat-card\">
+            <div class=\"stat-value\">⭐ 4.9</div>
+            <div class=\"stat-label\">AI Review Score</div>
+          </div>
+          <div class=\"stat-card\">
+            <div class=\"stat-value\">200+</div>
+            <div class=\"stat-label\">Activities</div>
+          </div>
+          <div class=\"stat-card\">
+            <div class=\"stat-value\">€640</div>
+            <div class=\"stat-label\">From (7 nights)</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <!-- AI Insight Panel -->
+        <div style=\"background:var(--bg-glass);backdrop-filter:var(--bg-glass-blur);border:1px solid var(--border-color);border-radius:var(--border-radius-lg);padding:32px\" class=\"reveal\">
+          <div style=\"display:flex;align-items:center;gap:12px;margin-bottom:20px\">
+            <div style=\"width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent-teal),var(--accent-indigo));display:flex;align-items:center;justify-content:center;font-size:18px\">✦</div>
+            <div>
+              <div style=\"font-family:var(--font-mono);font-size:10px;color:var(--accent-teal);letter-spacing:0.1em;text-transform:uppercase\">ARIA Says</div>
+              <div style=\"font-weight:600\">Why you'll love Bali</div>
+            </div>
+          </div>
+          <p style=\"font-family:var(--font-serif);font-style:italic;color:var(--text-secondary);line-height:1.7;margin-bottom:20px\">
+            \"Based on your love of street food in Vietnam, boutique hotels, and cultural immersion — Bali is a 94% match. Ubud's art scene and the local Warung food culture will absolutely resonate with you.\"
+          </p>
+          <div style=\"display:flex;flex-direction:column;gap:10px\">
+            <div style=\"display:flex;justify-content:space-between;align-items:center\">
+              <span style=\"font-size:0.85rem;color:var(--text-muted)\">Cultural Match</span>
+              <div class=\"progress-bar\" style=\"width:200px\"><div class=\"progress-fill\" style=\"width:91%\"></div></div>
+            </div>
+            <div style=\"display:flex;justify-content:space-between;align-items:center\">
+              <span style=\"font-size:0.85rem;color:var(--text-muted)\">Food Scene</span>
+              <div class=\"progress-bar\" style=\"width:200px\"><div class=\"progress-fill\" style=\"width:88%\"></div></div>
+            </div>
+            <div style=\"display:flex;justify-content:space-between;align-items:center\">
+              <span style=\"font-size:0.85rem;color:var(--text-muted)\">Value for Budget</span>
+              <div class=\"progress-bar\" style=\"width:200px\"><div class=\"progress-fill\" style=\"width:95%\"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weather Widget -->
+        <div style=\"background:var(--bg-surface);border:1px solid var(--border-color);border-radius:var(--border-radius-md);padding:24px;margin-top:20px\" class=\"reveal reveal-delay-1\">
+          <div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:12px\">
+            <div style=\"font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em\">Live Weather</div>
+            <span class=\"ai-badge\">Good time to visit ✓</span>
+          </div>
+          <div style=\"display:flex;align-items:center;gap:20px\">
+            <div style=\"font-size:56px\">☀️</div>
+            <div>
+              <div style=\"font-family:var(--font-display);font-size:48px;line-height:1;color:var(--accent-gold)\">29°C</div>
+              <div style=\"font-size:0.85rem;color:var(--text-muted)\">Sunny · Humidity 72%</div>
+              <div style=\"font-size:0.8rem;color:var(--accent-teal);margin-top:4px\">✦ AI Verdict: Perfect conditions!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Climate Wheel -->
+<section class=\"section\" style=\"background:var(--bg-secondary)\">
+  <div class=\"container\">
+    <div class=\"section-label reveal\"><span>Climate Intelligence</span></div>
+    <h2 class=\"display-md reveal\" style=\"margin-bottom:32px\">Best Time to <span class=\"text-teal\">Visit</span></h2>
+    <div class=\"climate-wheel reveal\">
+      <div class=\"climate-month\"><div class=\"climate-month-icon\">🌧️</div><div class=\"climate-month-temp\">28°</div><div class=\"climate-month-name\">Jan</div></div>
+      <div class=\"climate-month\"><div class=\"climate-month-icon\">🌧️</div><div class=\"climate-month-temp\">28°</div><div class=\"climate-month-name\">Feb</div></div>
+      <div class=\"climate-month best\"><div class=\"climate-month-icon\">⛅</div><div class=\"climate-month-temp\">29°</div><div class=\"climate-month-name\">Mar ✓</div></div>
+      <div class=\"climate-month best\"><div class=\"climate-month-icon\">☀️</div><div class=\"climate-month-temp\">30°</div><div class=\"climate-month-name\">Apr ✓</div></div>
+      <div class=\"climate-month best\"><div class=\"climate-month-icon\">☀️</div><div class=\"climate-month-temp\">29°</div><div class=\"climate-month-name\">May ✓</div></div>
+      <div class=\"climate-month best\"><div class=\"climate-month-icon\">☀️</div><div class=\"climate-month-temp\">28°</div><div class=\"climate-month-name\">Jun ✓</div></div>
+      <div class=\"climate-month best\"><div class=\"climate-month-icon\">☀️</div><div class=\"climate-month-temp\">27°</div><div class=\"climate-month-name\">Jul ✓</div></div>
+      <div class=\"climate-month best\"><div class=\"climate-month-icon\">☀️</div><div class=\"climate-month-temp\">27°</div><div class=\"climate-month-name\">Aug ✓</div></div>
+      <div class=\"climate-month\"><div class=\"climate-month-icon\">⛅</div><div class=\"climate-month-temp\">28°</div><div class=\"climate-month-name\">Sep</div></div>
+      <div class=\"climate-month\"><div class=\"climate-month-icon\">🌦️</div><div class=\"climate-month-temp\">29°</div><div class=\"climate-month-name\">Oct</div></div>
+      <div class=\"climate-month\"><div class=\"climate-month-icon\">🌧️</div><div class=\"climate-month-temp\">29°</div><div class=\"climate-month-name\">Nov</div></div>
+      <div class=\"climate-month\"><div class=\"climate-month-icon\">🌧️</div><div class=\"climate-month-temp\">28°</div><div class=\"climate-month-name\">Dec</div></div>
+    </div>
+    <p style=\"font-size:0.85rem;color:var(--text-muted);margin-top:16px\">✦ Highlighted months = AI-recommended based on your travel profile. Dry season (Apr–Sep) offers the best conditions.</p>
+  </div>
+</section>
+
+<!-- Top Activities -->
+<section class=\"section\">
+  <div class=\"container\">
+    <div class=\"section-label reveal\"><span>Must Experience</span></div>
+    <h2 class=\"display-md reveal\" style=\"margin-bottom:32px\">Top <span class=\"text-coral\">Activities</span></h2>
+    <div style=\"display:flex;flex-direction:column;gap:14px\" class=\"stagger\">
+      <div class=\"mini-card\"><div class=\"mini-card-icon\">🌊</div><div><div class=\"mini-card-title\">Surfing at Kuta Beach</div><div class=\"mini-card-sub\">3 hours · €45 · Beginner friendly · Best at sunrise 🌅</div></div><a href=\"";
+        // line 281
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("activities");
+        yield "\" class=\"btn btn-secondary btn-sm\" style=\"margin-left:auto\">Book</a></div>
+      <div class=\"mini-card\"><div class=\"mini-card-icon\">🏛️</div><div><div class=\"mini-card-title\">Temple Trail — Uluwatu</div><div class=\"mini-card-sub\">Half day · €25 · Cultural · Kecak fire dance at sunset</div></div><a href=\"";
+        // line 282
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("activities");
+        yield "\" class=\"btn btn-secondary btn-sm\" style=\"margin-left:auto\">Book</a></div>
+      <div class=\"mini-card\"><div class=\"mini-card-icon\">🍜</div><div><div class=\"mini-card-title\">Balinese Cooking Class</div><div class=\"mini-card-sub\">4 hours · €38 · Culinary · AI-perfect pairing for you ✦</div></div><a href=\"";
+        // line 283
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("activities");
+        yield "\" class=\"btn btn-secondary btn-sm\" style=\"margin-left:auto\">Book</a></div>
+      <div class=\"mini-card\"><div class=\"mini-card-icon\">🧘</div><div><div class=\"mini-card-title\">Ubud Spiritual Retreat</div><div class=\"mini-card-sub\">Full day · €80 · Wellness · Includes yoga & meditation</div></div><a href=\"";
+        // line 284
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("activities");
+        yield "\" class=\"btn btn-secondary btn-sm\" style=\"margin-left:auto\">Book</a></div>
+      <div class=\"mini-card\"><div class=\"mini-card-icon\">🚴</div><div><div class=\"mini-card-title\">Rice Terrace Cycling</div><div class=\"mini-card-sub\">3 hours · €30 · Adventure · Tegalalang UNESCO site</div></div><a href=\"";
+        // line 285
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("activities");
+        yield "\" class=\"btn btn-secondary btn-sm\" style=\"margin-left:auto\">Book</a></div>
+    </div>
+  </div>
+</section>
+
+<footer class=\"footer\">
+  <div class=\"container\">
+    <div class=\"footer-bottom\">
+      <div class=\"footer-copy\">© 2026 TripX. All rights reserved.</div>
+      <a href=\"";
+        // line 294
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("destinations");
+        yield "\" class=\"footer-copy\" style=\"color:var(--accent-primary)\">← All Destinations</a>
+    </div>
+  </div>
+</footer>
+
+<button class=\"aria-orb\" id=\"aria-orb\" aria-label=\"Open ARIA\">✦</button>
+<div class=\"aria-panel\" id=\"aria-panel\">
+  <div class=\"aria-header\">
+    <div class=\"aria-avatar\">✦</div>
+    <div><span class=\"aria-name\">ARIA</span><span class=\"aria-status\">Bali Expert Mode 🌴</span></div>
+    <button id=\"aria-close\" style=\"margin-left:auto;font-size:18px;color:var(--text-muted);cursor:none\">✕</button>
+  </div>
+  <div class=\"aria-messages\" id=\"aria-messages\">
+    <div class=\"aria-msg bot\"><div class=\"aria-bubble\">I see you're exploring Bali! Want me to build you a complete 7-day itinerary? Just tell me your dates and budget 🌴</div></div>
+  </div>
+  <div class=\"aria-input-row\">
+    <input class=\"aria-input\" id=\"aria-input\" type=\"text\" placeholder=\"Ask about Bali...\">
+    <button class=\"aria-send\" id=\"aria-send\">➤</button>
+  </div>
+</div>
+<script src=\"/assets.php?f=js/main.js\"></script>
+</body>
+</html>
+
+
+
+
+
+
+";
+        
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->leave($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof);
+
+        yield from [];
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function getTemplateName(): string
+    {
+        return "front/destination-detail.html.twig";
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function isTraitable(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function getDebugInfo(): array
+    {
+        return array (  393 => 294,  381 => 285,  377 => 284,  373 => 283,  369 => 282,  365 => 281,  235 => 154,  231 => 153,  219 => 144,  201 => 131,  191 => 124,  187 => 123,  183 => 122,  179 => 121,  175 => 120,  171 => 119,  167 => 118,  162 => 116,  45 => 1,);
+    }
+
+    public function getSourceContext(): Source
+    {
+        return new Source("<!DOCTYPE html>
+<html lang=\"en\" data-theme=\"light\">
+<head>
+  <meta charset=\"UTF-8\">
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+  <meta name=\"description\" content=\"Bali, Indonesia — AI-powered travel guide. Best activities, accommodations, restaurants, and climate data.\">
+  <title>Bali — Destination Detail · TripX</title>
+  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">
+  <link href=\"https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Montserrat:wght@100..900&family=Space+Mono:wght@400;700&display=swap\" rel=\"stylesheet\">
+  <link rel=\"stylesheet\" href=\"/assets.php?f=css/main.css\">
+  <link rel=\"stylesheet\" href=\"/assets.php?f=css/animations.css\">
+  <style>
+    .detail-hero {
+      height: 90vh;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: 64px;
+      overflow: hidden;
+      margin-top: var(--nav-height);
+    }
+    .detail-hero-bg {
+      position: absolute; inset: 0;
+      font-size: 160px;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #003049 0%, #d62828 50%, #f77f00 100%);
+    }
+    .detail-hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(3,7,18,0.9) 0%, rgba(3,7,18,0.3) 50%, transparent 100%);
+    }
+    [data-theme=\"light\"] .detail-hero-overlay {
+      background: linear-gradient(to top, rgba(255,248,240,0.1) 0%, transparent 100%);
+    }
+    .detail-hero-content { position: relative; z-index: 1; color: #F0F4F8; }
+    .detail-back {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em;
+      color: rgba(240,244,248,0.7); margin-bottom: 20px;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: color var(--transition-fast);
+    }
+    .detail-back:hover { color: var(--accent-primary); }
+    .detail-title {
+      font-family: var(--font-display);
+      font-size: clamp(64px, 10vw, 128px);
+      text-transform: uppercase;
+      line-height: 0.88;
+      margin-bottom: 20px;
+    }
+    .detail-meta-bar {
+      display: flex; gap: 20px; flex-wrap: wrap; align-items: center;
+      margin-bottom: 32px;
+    }
+    .detail-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    /* Tabs */
+    .tab-bar {
+      position: sticky; top: var(--nav-height); z-index: 99;
+      background: var(--bg-nav); backdrop-filter: var(--bg-glass-blur);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .tab-bar-inner {
+      display: flex; gap: 0;
+      max-width: var(--container-max); margin-inline: auto; padding-inline: 32px;
+    }
+    .tab-btn {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-muted);
+      padding: 18px 20px;
+      border-bottom: 2px solid transparent;
+      transition: color var(--transition-fast), border-color var(--transition-fast);
+    }
+    .tab-btn.active, .tab-btn:hover {
+      color: var(--accent-primary);
+      border-bottom-color: var(--accent-primary);
+    }
+
+    /* Climate Wheel */
+    .climate-wheel { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+    .climate-month {
+      text-align: center;
+      padding: 12px 6px;
+      border-radius: var(--border-radius-sm);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      transition: all var(--transition-fast);
+    }
+    .climate-month:hover { border-color: var(--accent-teal); background: rgba(0,245,212,0.05); }
+    .climate-month.best { background: rgba(0,245,212,0.1); border-color: rgba(0,245,212,0.4); }
+    .climate-month-name { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
+    .climate-month-temp { font-weight: 600; font-size: 1rem; margin: 4px 0; }
+    .climate-month-icon { font-size: 18px; }
+
+    /* Activity & Accommodation small cards */
+    .mini-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-md);
+      padding: 20px;
+      display: flex; gap: 16px; align-items: center;
+      transition: all var(--transition-fast);
+    }
+    .mini-card:hover { border-color: var(--accent-primary); transform: translateX(4px); }
+    .mini-card-icon { font-size: 32px; flex-shrink: 0; }
+    .mini-card-title { font-weight: 600; margin-bottom: 4px; }
+    .mini-card-sub { font-size: 0.82rem; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+    <div id=\"cursor-dot\"></div><div id=\"cursor-halo\"></div>
+
+
+
+<nav class=\"nav\">
+  <div class=\"nav-inner\">
+    <a href=\"{{ path('index') }}\" class=\"nav-logo\">Trip<span>X</span></a>
+    <div class=\"nav-links\">
+      <a href=\"{{ path('index') }}\"          class=\"nav-link\">Home</a>
+      <a href=\"{{ path('destinations') }}\"   class=\"nav-link active\">Destinations</a>
+      <a href=\"{{ path('activities') }}\"     class=\"nav-link\">Activities</a>
+      <a href=\"{{ path('accommodations') }}\" class=\"nav-link\">Accommodations</a>
+      <a href=\"{{ path('transport') }}\"      class=\"nav-link\">Transport</a>
+      <a href=\"{{ path('offers') }}\"         class=\"nav-link\">Offers</a>
+      <a href=\"{{ path('blog') }}\" class=\"nav-link\">Blog</a><a href=\"#\" class=\"nav-link\">My Bookings</a>
+    </div>
+    <div class=\"nav-actions\">
+      <button id=\"theme-toggle\" class=\"theme-toggle\" aria-label=\"Toggle dark mode\">
+        <span class=\"toggle-icon icon-sun\">☀️</span>
+        <span class=\"toggle-icon icon-moon\">🌙</span>
+      </button>
+      <a href=\"{{ path('users') }}\" class=\"btn-nav-primary ripple-btn\">My Profile</a><a href=\"{{ path('app_logout') }}\" class=\"Btn-logout\" style=\"margin-left: 8px;\">
+        <div class=\"sign\"><svg viewBox=\"0 0 512 512\"><path d=\"M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z\" /></svg></div>
+        <div class=\"text\">Logout</div>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class=\"detail-hero\">
+  <div class=\"detail-hero-bg parallax-img\" data-speed=\"0.25\">🌊</div>
+  <div class=\"detail-hero-overlay\"></div>
+  <div class=\"detail-hero-content container\">
+    <a href=\"{{ path('destinations') }}\" class=\"detail-back\">← All Destinations</a>
+    <div class=\"detail-meta-bar\">
+      <span class=\"badge badge-teal\">🌴 Beach</span>
+      <span class=\"badge badge-coral\">🔥 Trending</span>
+      <span class=\"ai-badge\">94% match for you</span>
+      <span style=\"font-family:var(--font-mono);font-size:11px;color:rgba(240,244,248,0.6)\">🇮🇩 Bali · Indonesia</span>
+    </div>
+    <div class=\"detail-title\">Bali</div>
+    <div class=\"detail-actions\">
+      <a href=\"{{ path('transport') }}\" class=\"btn btn-primary btn-lg ripple-btn\">✈️ Book Flights</a>
+      <a href=\"{{ path('accommodations') }}\" class=\"btn btn-secondary btn-lg ripple-btn\" style=\"color:#F0F4F8;border-color:rgba(255,255,255,0.2)\">🏨 Find Stays</a>
+      <button class=\"btn btn-ghost\" style=\"color:#F0F4F8\">♡ Save to Wishlist</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tab Bar -->
+<div class=\"tab-bar\">
+  <div class=\"tab-bar-inner\">
+    <button class=\"tab-btn active\">Overview</button>
+    <button class=\"tab-btn\">Activities</button>
+    <button class=\"tab-btn\">Accommodation</button>
+    <button class=\"tab-btn\">Transport</button>
+    <button class=\"tab-btn\">Climate</button>
+  </div>
+</div>
+
+<!-- Overview -->
+<section class=\"section\">
+  <div class=\"container\">
+    <div class=\"grid-2\" style=\"gap:60px;align-items:start\">
+      <div>
+        <div class=\"section-label reveal\"><span>About</span></div>
+        <h2 class=\"display-md reveal\" style=\"margin-bottom:20px\">The Island of <span class=\"gradient-text\">the Gods</span></h2>
+        <p class=\"reveal reveal-delay-1\" style=\"color:var(--text-secondary);line-height:1.8;margin-bottom:20px\">
+          Bali is Indonesia's most iconic island — a magical blend of emerald rice terraces, ancient temples, world-class surf breaks, and a deeply spiritual Balinese culture that permeates every corner of life.
+        </p>
+        <p class=\"reveal reveal-delay-2\" style=\"color:var(--text-secondary);line-height:1.8;margin-bottom:32px\">
+          Whether you're chasing sunsets in Seminyak, exploring ancient temples in Ubud, diving coral reefs in Amed, or simply unwinding in a jungle villa — Bali delivers an experience unlike anywhere else on Earth.
+        </p>
+        <div class=\"grid-2 reveal reveal-delay-3\" style=\"gap:16px\">
+          <div class=\"stat-card\">
+            <div class=\"stat-value\">28°</div>
+            <div class=\"stat-label\">Avg Temperature</div>
+          </div>
+          <div class=\"stat-card\">
+            <div class=\"stat-value\">⭐ 4.9</div>
+            <div class=\"stat-label\">AI Review Score</div>
+          </div>
+          <div class=\"stat-card\">
+            <div class=\"stat-value\">200+</div>
+            <div class=\"stat-label\">Activities</div>
+          </div>
+          <div class=\"stat-card\">
+            <div class=\"stat-value\">€640</div>
+            <div class=\"stat-label\">From (7 nights)</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <!-- AI Insight Panel -->
+        <div style=\"background:var(--bg-glass);backdrop-filter:var(--bg-glass-blur);border:1px solid var(--border-color);border-radius:var(--border-radius-lg);padding:32px\" class=\"reveal\">
+          <div style=\"display:flex;align-items:center;gap:12px;margin-bottom:20px\">
+            <div style=\"width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent-teal),var(--accent-indigo));display:flex;align-items:center;justify-content:center;font-size:18px\">✦</div>
+            <div>
+              <div style=\"font-family:var(--font-mono);font-size:10px;color:var(--accent-teal);letter-spacing:0.1em;text-transform:uppercase\">ARIA Says</div>
+              <div style=\"font-weight:600\">Why you'll love Bali</div>
+            </div>
+          </div>
+          <p style=\"font-family:var(--font-serif);font-style:italic;color:var(--text-secondary);line-height:1.7;margin-bottom:20px\">
+            \"Based on your love of street food in Vietnam, boutique hotels, and cultural immersion — Bali is a 94% match. Ubud's art scene and the local Warung food culture will absolutely resonate with you.\"
+          </p>
+          <div style=\"display:flex;flex-direction:column;gap:10px\">
+            <div style=\"display:flex;justify-content:space-between;align-items:center\">
+              <span style=\"font-size:0.85rem;color:var(--text-muted)\">Cultural Match</span>
+              <div class=\"progress-bar\" style=\"width:200px\"><div class=\"progress-fill\" style=\"width:91%\"></div></div>
+            </div>
+            <div style=\"display:flex;justify-content:space-between;align-items:center\">
+              <span style=\"font-size:0.85rem;color:var(--text-muted)\">Food Scene</span>
+              <div class=\"progress-bar\" style=\"width:200px\"><div class=\"progress-fill\" style=\"width:88%\"></div></div>
+            </div>
+            <div style=\"display:flex;justify-content:space-between;align-items:center\">
+              <span style=\"font-size:0.85rem;color:var(--text-muted)\">Value for Budget</span>
+              <div class=\"progress-bar\" style=\"width:200px\"><div class=\"progress-fill\" style=\"width:95%\"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weather Widget -->
+        <div style=\"background:var(--bg-surface);border:1px solid var(--border-color);border-radius:var(--border-radius-md);padding:24px;margin-top:20px\" class=\"reveal reveal-delay-1\">
+          <div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:12px\">
+            <div style=\"font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em\">Live Weather</div>
+            <span class=\"ai-badge\">Good time to visit ✓</span>
+          </div>
+          <div style=\"display:flex;align-items:center;gap:20px\">
+            <div style=\"font-size:56px\">☀️</div>
+            <div>
+              <div style=\"font-family:var(--font-display);font-size:48px;line-height:1;color:var(--accent-gold)\">29°C</div>
+              <div style=\"font-size:0.85rem;color:var(--text-muted)\">Sunny · Humidity 72%</div>
+              <div style=\"font-size:0.8rem;color:var(--accent-teal);margin-top:4px\">✦ AI Verdict: Perfect conditions!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Climate Wheel -->
+<section class=\"section\" style=\"background:var(--bg-secondary)\">
+  <div class=\"container\">
+    <div class=\"section-label reveal\"><span>Climate Intelligence</span></div>
+    <h2 class=\"display-md reveal\" style=\"margin-bottom:32px\">Best Time to <span class=\"text-teal\">Visit</span></h2>
+    <div class=\"climate-wheel reveal\">
+      <div class=\"climate-month\"><div class=\"climate-month-icon\">🌧️</div><div class=\"climate-month-temp\">28°</div><div class=\"climate-month-name\">Jan</div></div>
+      <div class=\"climate-month\"><div class=\"climate-month-icon\">🌧️</div><div class=\"climate-month-temp\">28°</div><div class=\"climate-month-name\">Feb</div></div>
+      <div class=\"climate-month best\"><div class=\"climate-month-icon\">⛅</div><div class=\"climate-month-temp\">29°</div><div class=\"climate-month-name\">Mar ✓</div></div>
+      <div class=\"climate-month best\"><div class=\"climate-month-icon\">☀️</div><div class=\"climate-month-temp\">30°</div><div class=\"climate-month-name\">Apr ✓</div></div>
+      <div class=\"climate-month best\"><div class=\"climate-month-icon\">☀️</div><div class=\"climate-month-temp\">29°</div><div class=\"climate-month-name\">May ✓</div></div>
+      <div class=\"climate-month best\"><div class=\"climate-month-icon\">☀️</div><div class=\"climate-month-temp\">28°</div><div class=\"climate-month-name\">Jun ✓</div></div>
+      <div class=\"climate-month best\"><div class=\"climate-month-icon\">☀️</div><div class=\"climate-month-temp\">27°</div><div class=\"climate-month-name\">Jul ✓</div></div>
+      <div class=\"climate-month best\"><div class=\"climate-month-icon\">☀️</div><div class=\"climate-month-temp\">27°</div><div class=\"climate-month-name\">Aug ✓</div></div>
+      <div class=\"climate-month\"><div class=\"climate-month-icon\">⛅</div><div class=\"climate-month-temp\">28°</div><div class=\"climate-month-name\">Sep</div></div>
+      <div class=\"climate-month\"><div class=\"climate-month-icon\">🌦️</div><div class=\"climate-month-temp\">29°</div><div class=\"climate-month-name\">Oct</div></div>
+      <div class=\"climate-month\"><div class=\"climate-month-icon\">🌧️</div><div class=\"climate-month-temp\">29°</div><div class=\"climate-month-name\">Nov</div></div>
+      <div class=\"climate-month\"><div class=\"climate-month-icon\">🌧️</div><div class=\"climate-month-temp\">28°</div><div class=\"climate-month-name\">Dec</div></div>
+    </div>
+    <p style=\"font-size:0.85rem;color:var(--text-muted);margin-top:16px\">✦ Highlighted months = AI-recommended based on your travel profile. Dry season (Apr–Sep) offers the best conditions.</p>
+  </div>
+</section>
+
+<!-- Top Activities -->
+<section class=\"section\">
+  <div class=\"container\">
+    <div class=\"section-label reveal\"><span>Must Experience</span></div>
+    <h2 class=\"display-md reveal\" style=\"margin-bottom:32px\">Top <span class=\"text-coral\">Activities</span></h2>
+    <div style=\"display:flex;flex-direction:column;gap:14px\" class=\"stagger\">
+      <div class=\"mini-card\"><div class=\"mini-card-icon\">🌊</div><div><div class=\"mini-card-title\">Surfing at Kuta Beach</div><div class=\"mini-card-sub\">3 hours · €45 · Beginner friendly · Best at sunrise 🌅</div></div><a href=\"{{ path('activities') }}\" class=\"btn btn-secondary btn-sm\" style=\"margin-left:auto\">Book</a></div>
+      <div class=\"mini-card\"><div class=\"mini-card-icon\">🏛️</div><div><div class=\"mini-card-title\">Temple Trail — Uluwatu</div><div class=\"mini-card-sub\">Half day · €25 · Cultural · Kecak fire dance at sunset</div></div><a href=\"{{ path('activities') }}\" class=\"btn btn-secondary btn-sm\" style=\"margin-left:auto\">Book</a></div>
+      <div class=\"mini-card\"><div class=\"mini-card-icon\">🍜</div><div><div class=\"mini-card-title\">Balinese Cooking Class</div><div class=\"mini-card-sub\">4 hours · €38 · Culinary · AI-perfect pairing for you ✦</div></div><a href=\"{{ path('activities') }}\" class=\"btn btn-secondary btn-sm\" style=\"margin-left:auto\">Book</a></div>
+      <div class=\"mini-card\"><div class=\"mini-card-icon\">🧘</div><div><div class=\"mini-card-title\">Ubud Spiritual Retreat</div><div class=\"mini-card-sub\">Full day · €80 · Wellness · Includes yoga & meditation</div></div><a href=\"{{ path('activities') }}\" class=\"btn btn-secondary btn-sm\" style=\"margin-left:auto\">Book</a></div>
+      <div class=\"mini-card\"><div class=\"mini-card-icon\">🚴</div><div><div class=\"mini-card-title\">Rice Terrace Cycling</div><div class=\"mini-card-sub\">3 hours · €30 · Adventure · Tegalalang UNESCO site</div></div><a href=\"{{ path('activities') }}\" class=\"btn btn-secondary btn-sm\" style=\"margin-left:auto\">Book</a></div>
+    </div>
+  </div>
+</section>
+
+<footer class=\"footer\">
+  <div class=\"container\">
+    <div class=\"footer-bottom\">
+      <div class=\"footer-copy\">© 2026 TripX. All rights reserved.</div>
+      <a href=\"{{ path('destinations') }}\" class=\"footer-copy\" style=\"color:var(--accent-primary)\">← All Destinations</a>
+    </div>
+  </div>
+</footer>
+
+<button class=\"aria-orb\" id=\"aria-orb\" aria-label=\"Open ARIA\">✦</button>
+<div class=\"aria-panel\" id=\"aria-panel\">
+  <div class=\"aria-header\">
+    <div class=\"aria-avatar\">✦</div>
+    <div><span class=\"aria-name\">ARIA</span><span class=\"aria-status\">Bali Expert Mode 🌴</span></div>
+    <button id=\"aria-close\" style=\"margin-left:auto;font-size:18px;color:var(--text-muted);cursor:none\">✕</button>
+  </div>
+  <div class=\"aria-messages\" id=\"aria-messages\">
+    <div class=\"aria-msg bot\"><div class=\"aria-bubble\">I see you're exploring Bali! Want me to build you a complete 7-day itinerary? Just tell me your dates and budget 🌴</div></div>
+  </div>
+  <div class=\"aria-input-row\">
+    <input class=\"aria-input\" id=\"aria-input\" type=\"text\" placeholder=\"Ask about Bali...\">
+    <button class=\"aria-send\" id=\"aria-send\">➤</button>
+  </div>
+</div>
+<script src=\"/assets.php?f=js/main.js\"></script>
+</body>
+</html>
+
+
+
+
+
+
+", "front/destination-detail.html.twig", "C:\\Sym\\templates\\front\\destination-detail.html.twig");
+    }
+}

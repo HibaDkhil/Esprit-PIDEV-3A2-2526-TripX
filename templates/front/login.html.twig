@@ -1,0 +1,225 @@
+{% extends 'front/base_auth.html.twig' %}
+{% block title %}Login{% endblock %}
+
+{% block body %}
+<div id="app">
+  <div class="auth-card" id="authCard">
+
+    {# ── Forms container (behind image) ── #}
+    <div class="auth-forms">
+
+      {# LOGIN PANEL #}
+      <div class="form-panel panel-login" id="panelLogin">
+        <div class="form-title">Welcome back <span class="sparkle">✦</span></div>
+        <div class="form-sub">Sign in and pick up where you left off</div>
+
+        <div class="social-row">
+          <a href="#" class="social-btn social-btn--circle">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="G"/>
+          </a>
+          <a href="#" class="social-btn social-btn--circle">
+            <i class="fab fa-linkedin" style="color:#0a66c2; font-size: 1.5rem;"></i>
+          </a>
+        </div>
+
+        <div class="divider"><span>or continue with email</span></div>
+
+        {% set error_flashes = app.flashes('error') %}
+        {% set success_flashes = app.flashes('success') %}
+        {# Flash messages #}
+        {% for message in error_flashes %}
+          <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> {{ message }}</div>
+        {% endfor %}
+        {% for message in success_flashes %}
+          <div class="alert alert-success"><i class="fas fa-check-circle"></i> {{ message }}</div>
+        {% endfor %}
+
+        {# Symfony Authentication Error #}
+        {% if error %}
+          <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i> {{ error.messageKey|trans(error.messageData, 'security') }}
+          </div>
+        {% endif %}
+
+        <form method="POST" action="{{ path('app_login') }}" id="loginForm">
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}"/>
+
+          <div class="form-control {{ error ? 'error' : '' }}">
+            <input type="email" id="login_email" name="_username"
+                   value="{{ last_username }}"
+                   autocomplete="email" required/>
+            <label for="login_email">
+              <span style="transition-delay:0ms">E</span><span style="transition-delay:50ms">m</span><span style="transition-delay:100ms">a</span><span style="transition-delay:150ms">i</span><span style="transition-delay:200ms">l</span>
+            </label>
+            <span class="field-icon"><i class="far fa-envelope"></i></span>
+          </div>
+
+          <div class="form-control {{ error ? 'error' : '' }}">
+            <input type="password" id="login_password" name="_password"
+                   autocomplete="current-password" required/>
+            <label for="login_password">
+              <span style="transition-delay:0ms">P</span><span style="transition-delay:50ms">a</span><span style="transition-delay:100ms">s</span><span style="transition-delay:150ms">s</span><span style="transition-delay:200ms">w</span><span style="transition-delay:250ms">o</span><span style="transition-delay:300ms">r</span><span style="transition-delay:350ms">d</span>
+            </label>
+            <span class="field-icon toggle-pw" data-target="login_password">
+              <i class="far fa-eye"></i>
+            </span>
+          </div>
+
+          <div class="forgot">
+            <a href="#">Forgot password?</a>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn-secondary" id="goSignup">Create account</button>
+            <button type="submit" class="btn-primary">Login</button>
+          </div>
+        </form>
+      </div>
+
+      {# SIGNUP PANEL #}
+<div class="form-panel panel-signup" id="panelSignup">
+    <div class="form-title">Join TripX <span class="sparkle">✈</span></div>
+    <div class="form-sub">Create your account — it only takes a minute</div>
+
+    {{ form_start(form, {'action': path('app_register'), 'method': 'POST', 'attr': {'id': 'signupForm', 'novalidate': 'novalidate'}}) }}
+
+    {# ── Name row ── #}
+    <div class="name-row">
+        <div class="form-control {{ form.firstName.vars.valid is defined and not form.firstName.vars.valid ? 'error' : '' }}">
+            {{ form_widget(form.firstName, {'attr': {'placeholder': ' '}}) }}
+            <label for="{{ form.firstName.vars.id }}">
+              <span style="transition-delay:0ms">F</span><span style="transition-delay:50ms">i</span><span style="transition-delay:100ms">r</span><span style="transition-delay:150ms">s</span><span style="transition-delay:200ms">t</span>
+            </label>
+            {{ form_errors(form.firstName) }}
+        </div>
+        <div class="form-control {{ form.lastName.vars.valid is defined and not form.lastName.vars.valid ? 'error' : '' }}">
+            {{ form_widget(form.lastName, {'attr': {'placeholder': ' '}}) }}
+            <label for="{{ form.lastName.vars.id }}">
+              <span style="transition-delay:0ms">L</span><span style="transition-delay:50ms">a</span><span style="transition-delay:100ms">s</span><span style="transition-delay:150ms">t</span>
+            </label>
+            {{ form_errors(form.lastName) }}
+        </div>
+    </div>
+
+    {# ── Email ── #}
+    <div class="form-control {{ form.email.vars.valid is defined and not form.email.vars.valid ? 'error' : '' }}">
+        {{ form_widget(form.email, {'attr': {'placeholder': ' '}}) }}
+        <label for="{{ form.email.vars.id }}">
+          <span style="transition-delay:0ms">E</span><span style="transition-delay:50ms">m</span><span style="transition-delay:100ms">a</span><span style="transition-delay:150ms">i</span><span style="transition-delay:200ms">l</span>
+        </label>
+        <span class="field-icon"><i class="far fa-envelope"></i></span>
+        {{ form_errors(form.email) }}
+    </div>
+
+    {# ── Password ── #}
+    <div class="form-control {{ form.plainPassword.first.vars.valid is defined and not form.plainPassword.first.vars.valid ? 'error' : '' }}">
+        {{ form_widget(form.plainPassword.first, {'attr': {'placeholder': ' '}}) }}
+        <label for="{{ form.plainPassword.first.vars.id }}">
+          <span style="transition-delay:0ms">P</span><span style="transition-delay:50ms">a</span><span style="transition-delay:100ms">s</span><span style="transition-delay:150ms">s</span><span style="transition-delay:200ms">w</span><span style="transition-delay:250ms">o</span><span style="transition-delay:300ms">r</span><span style="transition-delay:350ms">d</span>
+        </label>
+        <span class="field-icon toggle-pw" data-target="{{ form.plainPassword.first.vars.id }}"><i class="far fa-eye"></i></span>
+        {{ form_errors(form.plainPassword.first) }}
+    </div>
+
+    {# ── Confirm Password ── #}
+    <div class="form-control {{ form.plainPassword.second.vars.valid is defined and not form.plainPassword.second.vars.valid ? 'error' : '' }}">
+        {{ form_widget(form.plainPassword.second, {'attr': {'placeholder': ' '}}) }}
+        <label for="{{ form.plainPassword.second.vars.id }}">
+          <span style="transition-delay:0ms">C</span><span style="transition-delay:50ms">o</span><span style="transition-delay:100ms">n</span><span style="transition-delay:150ms">f</span><span style="transition-delay:200ms">i</span><span style="transition-delay:250ms">r</span><span style="transition-delay:300ms">m</span>
+        </label>
+        {{ form_errors(form.plainPassword.second) }}
+    </div>
+
+    {# ── Phone (optional) ── #}
+    <div class="form-control">
+        {{ form_widget(form.phoneNumber, {'attr': {'placeholder': ' '}}) }}
+        <label for="{{ form.phoneNumber.vars.id }}">
+          <span style="transition-delay:0ms">P</span><span style="transition-delay:50ms">h</span><span style="transition-delay:100ms">o</span><span style="transition-delay:150ms">n</span><span style="transition-delay:200ms">e</span>
+          <span style="transition-delay:250ms; font-size:12px; opacity:.7"> (optional)</span>
+        </label>
+    </div>
+
+    <div class="btn-row" style="margin-top:20px">
+        <button type="button" class="btn-secondary" id="goLogin">Back to login</button>
+        {{ form_widget(form.save) }}
+    </div>
+
+    {{ form_rest(form) }}
+    {{ form_end(form) }}
+</div>
+
+    </div>{# /auth-forms #}
+
+    {# Image panel – slides right on signup #}
+    <div class="auth-image" id="authImage">
+      <img src="{{ asset('images/traveLogin.jpg') }}"
+           alt="Adventure awaits" loading="eager"/>
+      <div class="auth-image-overlay"></div>
+      <div class="logo-badge">
+        <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="19" cy="19" r="19" fill="white" fill-opacity=".18"/>
+          <text x="7" y="26" font-size="18" font-family="serif" fill="white">✈</text>
+        </svg>
+        <span>TripX</span>
+      </div>
+      <div class="auth-image-text">
+        <div class="tagline">Your Next<br/>Adventure,</div>
+        <div class="sub">Instantly</div>
+      </div>
+    </div>
+
+  </div>{# /auth-card #}
+</div>{# /app #}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  window.TRIPX = {
+    registerUrl: "{{ path('app_register') }}",
+    onboardingUrl: "{{ path('app_onboarding') }}"
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+
+    /* ── Login form: guard against empty submission (prevents NULL error) ── */
+    var loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+      loginForm.addEventListener('submit', function (e) {
+        var email = document.getElementById('login_email').value.trim();
+        var pwd   = document.getElementById('login_password').value;
+        if (!email || !pwd) {
+          e.preventDefault();
+          if (window.showToast) {
+            showToast('Please enter your email and password 🔑');
+          }
+          return;
+        }
+      });
+    }
+
+    /* ── Animated label: lift label when input already has a value (e.g. last_username) ── */
+    document.querySelectorAll('.form-control input').forEach(function (input) {
+      function checkFilled() {
+        if (input.value && input.value.trim() !== '') {
+          input.classList.add('has-value');
+        } else {
+          input.classList.remove('has-value');
+        }
+      }
+      checkFilled();
+      input.addEventListener('input', checkFilled);
+      input.addEventListener('change', checkFilled);
+    });
+
+    /* ── Browser validation custom messages ── */
+    document.querySelectorAll('input[required], select[required], textarea[required]').forEach(function (el) {
+      el.addEventListener('invalid', function () {
+        if (el.validity.valueMissing) el.setCustomValidity('Please fill out this field.');
+        else if (el.validity.typeMismatch) el.setCustomValidity('Please enter a valid email address.');
+        else el.setCustomValidity('Please enter a valid value.');
+      });
+      el.addEventListener('input', function () { el.setCustomValidity(''); });
+    });
+  });
+</script>
+{% endblock %}
