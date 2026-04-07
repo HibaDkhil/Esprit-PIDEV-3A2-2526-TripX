@@ -15,6 +15,7 @@ return [
         '/admin/profile/password' => [[['_route' => 'admin_profile_password', '_controller' => 'App\\Controller\\admin\\AdminController::updatePassword'], null, ['POST' => 0], null, false, false, null]],
         '/admin/dashboard' => [[['_route' => 'admin_dashboard', '_controller' => 'App\\Controller\\admin\\AdminController::dashboard'], null, null, null, false, false, null]],
         '/admin/users' => [[['_route' => 'admin_users', '_controller' => 'App\\Controller\\admin\\AdminController::users'], null, null, null, false, false, null]],
+        '/admin/users/search' => [[['_route' => 'admin_users_search', '_controller' => 'App\\Controller\\admin\\AdminController::searchUsers'], null, ['GET' => 0], null, false, false, null]],
         '/admin/destinations' => [[['_route' => 'admin_destinations', '_controller' => 'App\\Controller\\admin\\AdminController::destinations'], null, null, null, false, false, null]],
         '/admin/destinations/add' => [[['_route' => 'admin_destination_add', '_controller' => 'App\\Controller\\admin\\AdminController::addDestination'], null, ['GET' => 0, 'POST' => 1], null, false, false, null]],
         '/admin/activities' => [[['_route' => 'admin_activities', '_controller' => 'App\\Controller\\admin\\AdminController::activities'], null, null, null, false, false, null]],
@@ -38,6 +39,10 @@ return [
         '/offers' => [[['_route' => 'offers', '_controller' => 'App\\Controller\\user\\FrontController::offers'], null, null, null, false, false, null]],
         '/blog' => [[['_route' => 'blog', '_controller' => 'App\\Controller\\user\\FrontController::blog'], null, null, null, false, false, null]],
         '/search' => [[['_route' => 'search', '_controller' => 'App\\Controller\\user\\FrontController::search'], null, null, null, false, false, null]],
+        '/price-dashboard' => [[['_route' => 'price_dashboard', '_controller' => 'App\\Controller\\user\\PricePredictionController::dashboard'], null, null, null, false, false, null]],
+        '/api/price-alert' => [[['_route' => 'api_price_alert', '_controller' => 'App\\Controller\\user\\PricePredictionController::createPriceAlert'], null, ['POST' => 0], null, false, false, null]],
+        '/api/price-alerts/feed' => [[['_route' => 'api_price_alerts_feed', '_controller' => 'App\\Controller\\user\\PricePredictionController::feedAlerts'], null, ['GET' => 0], null, false, false, null]],
+        '/forgot-password' => [[['_route' => 'app_forgot_password', '_controller' => 'App\\Controller\\user\\ResetPasswordController::forgotPassword'], null, ['GET' => 0, 'POST' => 1], null, false, false, null]],
         '/test-gemini' => [[['_route' => 'test_gemini', '_controller' => 'App\\Controller\\user\\TestGeminiController::test'], null, null, null, false, false, null]],
         '/profile' => [[['_route' => 'users', '_controller' => 'App\\Controller\\user\\UserController::profile'], null, ['GET' => 0], null, false, false, null]],
         '/profile/update' => [[['_route' => 'profile_update', '_controller' => 'App\\Controller\\user\\UserController::updateProfile'], null, ['POST' => 0], null, false, false, null]],
@@ -53,15 +58,19 @@ return [
                     .'|users/(?'
                         .'|edit/([^/]++)(*:74)'
                         .'|ban/([^/]++)(*:93)'
-                        .'|delete/([^/]++)(*:115)'
+                        .'|de(?'
+                            .'|lete/([^/]++)(*:118)'
+                            .'|tail/([^/]++)(*:139)'
+                        .')'
+                        .'|unban/([^/]++)(*:162)'
                     .')'
                     .'|destinations/(?'
-                        .'|edit/([^/]++)(*:153)'
-                        .'|delete/([^/]++)(*:176)'
+                        .'|edit/([^/]++)(*:200)'
+                        .'|delete/([^/]++)(*:223)'
                     .')'
                     .'|activities/(?'
-                        .'|edit/([^/]++)(*:212)'
-                        .'|delete/([^/]++)(*:235)'
+                        .'|edit/([^/]++)(*:259)'
+                        .'|delete/([^/]++)(*:282)'
                     .')'
                 .')'
             .')/?$}sDu',
@@ -70,11 +79,13 @@ return [
         35 => [[['_route' => '_preview_error', '_controller' => 'error_controller::preview', '_format' => 'html'], ['code', '_format'], null, null, false, true, null]],
         74 => [[['_route' => 'admin_user_edit', '_controller' => 'App\\Controller\\admin\\AdminController::editUser'], ['id'], ['GET' => 0, 'POST' => 1], null, false, true, null]],
         93 => [[['_route' => 'admin_user_ban', '_controller' => 'App\\Controller\\admin\\AdminController::banUser'], ['id'], null, null, false, true, null]],
-        115 => [[['_route' => 'admin_user_delete', '_controller' => 'App\\Controller\\admin\\AdminController::deleteUser'], ['id'], null, null, false, true, null]],
-        153 => [[['_route' => 'admin_destination_edit', '_controller' => 'App\\Controller\\admin\\AdminController::editDestination'], ['id'], ['GET' => 0, 'POST' => 1], null, false, true, null]],
-        176 => [[['_route' => 'admin_destination_delete', '_controller' => 'App\\Controller\\admin\\AdminController::deleteDestination'], ['id'], null, null, false, true, null]],
-        212 => [[['_route' => 'admin_activity_edit', '_controller' => 'App\\Controller\\admin\\AdminController::editActivity'], ['id'], ['GET' => 0, 'POST' => 1], null, false, true, null]],
-        235 => [
+        118 => [[['_route' => 'admin_user_delete', '_controller' => 'App\\Controller\\admin\\AdminController::deleteUser'], ['id'], null, null, false, true, null]],
+        139 => [[['_route' => 'admin_user_detail', '_controller' => 'App\\Controller\\admin\\AdminController::userDetail'], ['id'], null, null, false, true, null]],
+        162 => [[['_route' => 'admin_user_unban', '_controller' => 'App\\Controller\\admin\\AdminController::unbanUser'], ['id'], null, null, false, true, null]],
+        200 => [[['_route' => 'admin_destination_edit', '_controller' => 'App\\Controller\\admin\\AdminController::editDestination'], ['id'], ['GET' => 0, 'POST' => 1], null, false, true, null]],
+        223 => [[['_route' => 'admin_destination_delete', '_controller' => 'App\\Controller\\admin\\AdminController::deleteDestination'], ['id'], null, null, false, true, null]],
+        259 => [[['_route' => 'admin_activity_edit', '_controller' => 'App\\Controller\\admin\\AdminController::editActivity'], ['id'], ['GET' => 0, 'POST' => 1], null, false, true, null]],
+        282 => [
             [['_route' => 'admin_activity_delete', '_controller' => 'App\\Controller\\admin\\AdminController::deleteActivity'], ['id'], null, null, false, true, null],
             [null, null, null, null, false, false, 0],
         ],

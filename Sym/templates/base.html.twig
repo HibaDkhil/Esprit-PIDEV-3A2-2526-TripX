@@ -2,19 +2,20 @@
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token('price_alert') }}">
     <title>{% block title %}TripX — Future of Travel{% endblock %}</title>
     <link rel="stylesheet" href="/assets.php?f=css/main.css">
     <link rel="stylesheet" href="/assets.php?f=css/animations.css">
     {% block stylesheets %}{% endblock %}
 </head>
-<body class="page-wipe-container">
-    <div id="cursor-dot"></div><div id="cursor-halo"></div>
+<body class="page-wipe-container"{% if app.user %} data-auth="1"{% endif %}>
+    <div id="cursor-dot"></div>
     <div id="cursor-halo"></div>
 
     <nav class="nav" id="main-nav" style="position: relative; z-index: 1000;">
         <div class="nav-inner">
             <a href="{{ path('index') }}" class="nav-logo">
-                <img src="/images/tripx-logo.png" alt="TripX" style="height: 38px;" onerror="this.style.display='none'">
+                <img src="/images/tripx-logo.png" alt="TripX" class="nav-logo-img" onerror="this.style.display='none'">
                 Trip<span>X</span>
             </a>
             
@@ -43,12 +44,14 @@
         </div>
     </nav>
 
+    <div class="tripx-toast" id="tripxToast" role="status" aria-live="polite" aria-atomic="true"></div>
+
     <main>
         {% for label, messages in app.flashes %}
-            <div class="flash-container">
+            <div class="flash-container" style="position: fixed; top: 120px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px;">
                 {% for message in messages %}
-                    <div class="flash-message {{ label }}">
-                        {% if label == 'success' %}✅{% else %}❌{% endif %}
+                    <div class="flash-message {{ label }}" style="background: {{ label == 'success' ? '#10b981' : '#ef4444' }}; color: white; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; font-family: var(--font-display, sans-serif); font-size: 14px; transition: opacity 0.3s ease, margin-top 0.3s ease;">
+                        <i class="fas {{ label == 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' }}"></i>
                         {{ message }}
                     </div>
                 {% endfor %}

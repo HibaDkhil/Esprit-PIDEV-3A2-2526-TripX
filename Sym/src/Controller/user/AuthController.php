@@ -113,6 +113,7 @@ class AuthController extends AbstractController
         ]);
     }
 
+
     /* ── ONBOARDING PAGE ── */
     #[Route('/onboarding', name: 'app_onboarding')]
     public function onboarding(Request $request, EntityManagerInterface $em): Response
@@ -156,4 +157,5 @@ class AuthController extends AbstractController
 
         return new JsonResponse(['success' => false, 'message' => 'Saving failed'], 500);
     }
+    
 }

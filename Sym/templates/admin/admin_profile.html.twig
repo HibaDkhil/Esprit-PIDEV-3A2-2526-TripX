@@ -115,10 +115,10 @@
     <div class="card reveal" style="max-width: 600px;">
       <div class="card-body">
         <h3 style="margin-bottom:20px; font-family:var(--font-display); color:var(--accent-coral);">Change Password</h3>
-        <form method="post" action="{{ path('admin_profile_password') }}" novalidate>
+        <form method="post" action="{{ path('admin_profile_password') }}" id="admin_pwd_form" novalidate>
           
           <div class="wavy-control">
-            <input type="password" id="admin_newpwd" name="new_password" required>
+            <input type="password" id="admin_newpwd" name="new_password">
             <label for="admin_newpwd">
               <span style="transition-delay:0ms">N</span><span style="transition-delay:50ms">e</span><span style="transition-delay:100ms">w</span><span style="transition-delay:150ms">&nbsp;</span><span style="transition-delay:200ms">P</span><span style="transition-delay:250ms">a</span><span style="transition-delay:300ms">s</span><span style="transition-delay:350ms">s</span><span style="transition-delay:400ms">w</span><span style="transition-delay:450ms">o</span><span style="transition-delay:500ms">r</span><span style="transition-delay:550ms">d</span>
             </label>
@@ -126,7 +126,7 @@
           </div>
 
           <div class="wavy-control">
-            <input type="password" id="admin_confirmpwd" name="confirm_password" required>
+            <input type="password" id="admin_confirmpwd" name="confirm_password">
             <label for="admin_confirmpwd">
               <span style="transition-delay:0ms">C</span><span style="transition-delay:40ms">o</span><span style="transition-delay:80ms">n</span><span style="transition-delay:120ms">f</span><span style="transition-delay:160ms">i</span><span style="transition-delay:200ms">r</span><span style="transition-delay:240ms">m</span><span style="transition-delay:280ms">&nbsp;</span><span style="transition-delay:320ms">P</span><span style="transition-delay:360ms">a</span><span style="transition-delay:400ms">s</span><span style="transition-delay:440ms">s</span><span style="transition-delay:480ms">w</span><span style="transition-delay:520ms">o</span><span style="transition-delay:560ms">r</span><span style="transition-delay:600ms">d</span>
             </label>
@@ -141,14 +141,46 @@
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  /* Vanilla browser validation overrides */
-  document.querySelectorAll('input[required], select[required], textarea[required]').forEach(function (el) {
-    el.addEventListener('invalid', function () {
-      if (el.validity.valueMissing) el.setCustomValidity('Please fill out this field.');
-      else if (el.validity.typeMismatch) el.setCustomValidity('Please enter a valid value.');
+  /* Remove native HTML5 tooltips dynamically */
+  document.querySelectorAll('form').forEach(form => form.setAttribute('novalidate', 'true'));
+
+  /* Custom UI DOM Error Generator */
+  function showError(input, message) {
+    /* clear existing */
+    clearError(input);
+    const err = document.createElement('div');
+    err.className = 'wavy-error-msg';
+    err.style.cssText = 'color: #ef4444; font-size: 11px; position: absolute; bottom: -24px; left: 0; pointer-events: none; animation: slideUp 0.3s ease;';
+    err.innerText = message;
+    input.parentNode.appendChild(err);
+    input.style.borderBottomColor = '#ef4444';
+  }
+
+  function clearError(input) {
+    const parent = input.parentNode;
+    const msg = parent.querySelector('.wavy-error-msg');
+    if (msg) msg.remove();
+    input.style.borderBottomColor = ''; // Reset
+  }
+
+  /* Personal Info Form Validator */
+  const infoForm = document.querySelector('form[action="/admin/profile/update"]');
+  if (infoForm) {
+    infoForm.addEventListener('submit', function(e) {
+      let isValid = true;
+      const fName = document.getElementById('admin_firstname');
+      const lName = document.getElementById('admin_lastname');
+      const email = document.getElementById('admin_email');
+      
+      clearError(fName); clearError(lName); clearError(email);
+
+      if (!fName.value.trim()) { showError(fName, 'First name is required.'); isValid = false; }
+      if (!lName.value.trim()) { showError(lName, 'Last name is required.'); isValid = false; }
+      if (!email.value.trim() || !email.value.includes('@')) { showError(email, 'A valid email is required.'); isValid = false; }
+      
+      if (!isValid) e.preventDefault();
     });
-    el.addEventListener('input', function () { el.setCustomValidity(''); });
-  });
+  }
 
   /* Lift Wavy Labels on input value presence */
   document.querySelectorAll('.wavy-control input').forEach(function (input) {
@@ -160,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
     checkFilled();
-    input.addEventListener('input', checkFilled);
+    input.addEventListener('input', () => { checkFilled(); clearError(input); });
     input.addEventListener('change', checkFilled);
   });
 
@@ -176,6 +208,37 @@ document.addEventListener('DOMContentLoaded', function () {
       icon.className = isText ? 'far fa-eye' : 'far fa-eye-slash';
     });
   });
+
+  const pwdForm = document.getElementById('admin_pwd_form');
+  if (pwdForm) {
+    pwdForm.addEventListener('submit', function(e) {
+      let isValid = true;
+      const p1Match = document.getElementById('admin_newpwd');
+      const p2Match = document.getElementById('admin_confirmpwd');
+      const p1 = p1Match.value;
+      const p2 = p2Match.value;
+      
+      clearError(p1Match);
+      clearError(p2Match);
+      
+      if (!p1 || p1.trim() === '') {
+        showError(p1Match, 'Please enter a new password.');
+        isValid = false;
+      } else if (p1.length < 8) {
+        showError(p1Match, 'Password must contain at least 8 characters.');
+        isValid = false;
+      }
+      
+      if (p1 !== p2) {
+        showError(p2Match, 'Passwords do not match.');
+        isValid = false;
+      }
+      
+      if (!isValid) {
+         e.preventDefault();
+      }
+    });
+  }
 });
 </script>
 {% endblock %}

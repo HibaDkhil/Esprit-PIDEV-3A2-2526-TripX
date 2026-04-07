@@ -12,6 +12,11 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\User;
+use App\Entity\Preference;
+use App\Repository\UserRepository;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Knp\Component\Pager\PaginatorInterface;
 
 #[Route('/admin', name: 'admin_')]
 #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_DESTINATION') or is_granted('ROLE_ADMIN_ACCOMODATION') or is_granted('ROLE_ADMIN_OFFERS') or is_granted('ROLE_ADMIN_BLOG') or is_granted('ROLE_ADMIN_TRANSPORT')"))]
@@ -73,6 +78,10 @@ class AdminController extends AbstractController
         return $this->redirectToRoute('admin_profile');
     }
 
+    /**
+     * Renders the administrative dashboard view.
+     * Fetches top-level statistics from the AdminService.
+     */
     #[Route('/dashboard', name: 'dashboard')]
     public function dashboard(): Response
     {
@@ -80,12 +89,16 @@ class AdminController extends AbstractController
         return $this->render('admin/dashboard.html.twig', $stats);
     }
 
+    /**
+     * Lists all platform users with options for sorting, searching, and pagination.
+     * Integrates with KnpPaginator by receiving a Doctrine QueryBuilder from the AdminService/Repository.
+     */
     #[Route('/users', name: 'users')]
     #[IsGranted('ROLE_ADMIN')]
-    public function users(Request $request): Response 
+    public function users(Request $request, PaginatorInterface $paginator): Response 
     { 
         $query = $request->query->get('q', '');
-        $sortBy = $request->query->get('sort', 'userId');
+        $sortBy = $request->query->get('s', 'userId');
         $order = $request->query->get('order', 'ASC');
 
         // Whitelist sort fields
@@ -94,16 +107,49 @@ class AdminController extends AbstractController
             $sortBy = 'userId';
         }
 
-        $users = $this->adminService->getAllUsers($query, $sortBy, $order);
+        $usersQuery = $this->adminService->getAllUsers($query, $sortBy, $order);
         $stats = $this->adminService->getDashboardStats();
         
+        $pagination = $paginator->paginate(
+            $usersQuery, // query or array
+            $request->query->getInt('page', 1), // current page number
+            10 // limit per page
+        );
+        
         return $this->render('admin/users.html.twig', [
-            'users' => $users,
+            'users' => $pagination,
             'stats' => $stats,
             'currentQuery' => $query,
             'currentSort' => $sortBy,
             'currentOrder' => $order
         ]); 
+    }
+
+    /**
+     * Internal API endpoint to handle the live AJAX search without page reloading.
+     * It connects directly to the UserRepository's searchByDQL method.
+     */
+    #[Route('/users/search', name: 'users_search', methods: ['GET'])]
+    public function searchUsers(Request $request, UserRepository $repo): JsonResponse
+    {
+        $q = $request->query->get('q', '');
+        $users = $repo->searchByDQL($q);
+        
+        $data = [];
+        foreach ($users as $u) {
+            $data[] = [
+                'userId' => $u->getId(),
+                'firstName' => $u->getFirstName(),
+                'lastName' => $u->getLastName(),
+                'email' => $u->getEmail(),
+                'role' => $u->getRole(),
+                'status' => $u->getStatus(),
+                'gender' => $u->getGender(),
+                'birthYear' => $u->getBirthYear(),
+            ];
+        }
+        
+        return new JsonResponse($data);
     }
 
     #[Route('/users/edit/{id}', name: 'user_edit', methods: ['GET', 'POST'])]
@@ -157,8 +203,27 @@ class AdminController extends AbstractController
     #[IsGranted('ROLE_ADMIN')]
     public function deleteUser(int $id): Response
     {
-        if ($this->adminService->deleteUser($id)) {
-            $this->addFlash('success', 'User removed successfully.');
+        try {
+            if ($this->adminService->deleteUser($id)) {
+                $this->addFlash('success', 'User removed successfully.');
+            } else {
+                $this->addFlash('error', 'User not found or cannot be deleted.');
+            }
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Could not delete user. They may have dependent records.');
+        }
+        return $this->redirectToRoute('admin_users');
+    }
+
+    #[Route('/users/unban/{id}', name: 'user_unban')]
+    #[IsGranted('ROLE_ADMIN')]
+    public function unbanUser(int $id, EntityManagerInterface $em): Response
+    {
+        $user = $em->getRepository(\App\Entity\User::class)->find($id);
+        if ($user) {
+            $user->setStatus('active');
+            $em->flush();
+            $this->addFlash('success', 'User has been unbanned.');
         }
         return $this->redirectToRoute('admin_users');
     }
@@ -188,6 +253,22 @@ class AdminController extends AbstractController
                 'avg_rating' => round($avgRating, 1)
             ]
         ]); 
+    }
+
+    /**
+     * Shows a detailed profile of a specific user including their personal info and travel preferences.
+     * This route leverages Doctrine's find and findOneBy to cross-reference entities.
+     */
+    #[Route('/users/detail/{id}', name: 'user_detail')]
+    public function userDetail(int $id, EntityManagerInterface $em): Response
+    {
+        $user = $em->getRepository(User::class)->find($id);
+        $preferences = $em->getRepository(Preference::class)->findOneBy(['userId' => $id]);
+        
+        return $this->render('admin/user_detail.html.twig', [
+            'user' => $user,
+            'preferences' => $preferences
+        ]);
     }
 
     #[Route('/destinations/add', name: 'destination_add', methods: ['GET', 'POST'])]

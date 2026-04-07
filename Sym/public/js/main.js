@@ -311,12 +311,12 @@ document.addEventListener('DOMContentLoaded', () => {
         ariaStopVoiceBtn?.addEventListener('click', stopSpeaking);
     }
 
-    // 4. Custom Cursor
+    // 4. Custom Cursor — translate + scale together (avoids halo “pinging” vs mousemove)
     const cursorDot = document.getElementById('cursor-dot');
-    const cursorHalo = document.getElementById('cursor-halo');
-    
+    const cursorHalo = document.querySelector('#cursor-halo');
+    let cursorHaloScale = 1;
+
     if (cursorDot && cursorHalo) {
-        // Ensure cursor is explicitly black in light mode, white in dark mode
         const updateCursorColor = () => {
             const isLight = document.documentElement.getAttribute('data-theme') === 'light';
             const color = isLight ? '#0f172a' : '#ffffff';
@@ -324,19 +324,67 @@ document.addEventListener('DOMContentLoaded', () => {
             cursorHalo.style.border = `1px solid ${color}`;
         };
         updateCursorColor();
-        
-        // Re-check color on click
         document.addEventListener('click', () => setTimeout(updateCursorColor, 50));
 
+        const applyCursor = (clientX, clientY) => {
+            cursorDot.style.transform = `translate(${clientX}px, ${clientY}px)`;
+            cursorHalo.style.transform = `translate(${clientX - 15}px, ${clientY - 15}px) scale(${cursorHaloScale})`;
+        };
+
         window.addEventListener('mousemove', (e) => {
-            cursorDot.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-            cursorHalo.style.transform = `translate(${e.clientX - 15}px, ${e.clientY - 15}px)`;
+            applyCursor(e.clientX, e.clientY);
         });
 
         document.querySelectorAll('a, button, .interactive').forEach(el => {
-            el.addEventListener('mouseenter', () => cursorHalo.style.transform = 'scale(1.5)');
-            el.addEventListener('mouseleave', () => cursorHalo.style.transform = 'scale(1)');
+            el.addEventListener('mouseenter', () => {
+                cursorHaloScale = 1.22;
+            });
+            el.addEventListener('mouseleave', () => {
+                cursorHaloScale = 1;
+            });
         });
+    }
+
+    document.addEventListener('mouseover', (e) => {
+        if (e.target.closest?.('.pp-card, .aria-card')) {
+            document.body.classList.add('tripx-native-cursor');
+        }
+    });
+    document.addEventListener('mouseout', (e) => {
+        const from = e.target.closest?.('.pp-card, .aria-card');
+        const to = e.relatedTarget?.closest?.('.pp-card, .aria-card');
+        if (from && !to) {
+            document.body.classList.remove('tripx-native-cursor');
+        }
+    });
+
+    window.tripxShowToast = function (msg, ms) {
+        const el = document.getElementById('tripxToast');
+        if (!el) return;
+        el.textContent = msg;
+        el.classList.add('tripx-toast--show');
+        clearTimeout(window._tripxToastTid);
+        window._tripxToastTid = setTimeout(() => {
+            el.classList.remove('tripx-toast--show');
+        }, ms || 4200);
+    };
+
+    let lastFeedSig = '';
+    function pollPriceAlerts() {
+        if (document.body.dataset.auth !== '1') return;
+        fetch('/api/price-alerts/feed', { credentials: 'same-origin', headers: { Accept: 'application/json' } })
+            .then((r) => r.json().catch(() => ({})))
+            .then((data) => {
+                if (!data || !data.message || !data.sig) return;
+                if (data.sig === lastFeedSig) return;
+                lastFeedSig = data.sig;
+                window.tripxShowToast?.(data.message, 7000);
+            })
+            .catch(() => {});
+    }
+    if (document.body.dataset.auth === '1') {
+        setInterval(pollPriceAlerts, 90000);
+        setTimeout(pollPriceAlerts, 4000);
     }
 
 });

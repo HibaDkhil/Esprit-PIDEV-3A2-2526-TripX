@@ -71,9 +71,10 @@
     });
   }
 
-  /* ── Auto-show signup if errors or URL param ── */
+  /* ── Auto-show signup if server returned errors or URL param ── */
   const urlParams = new URLSearchParams(window.location.search);
-  const hasSignupError = document.querySelector('.panel-signup .alert-error') || document.querySelector('.panel-signup .form-control.error');
+  const hasSignupError = document.querySelector('#panelSignup .has-error') ||
+                         document.querySelector('#panelSignup .form-error-message');
   if (urlParams.has('signup') || hasSignupError) {
     authCard.classList.add('show-signup');
   }
@@ -109,26 +110,75 @@
     });
   }
 
-  /* ── Client-side signup form validation ── */
-  const signupForm = document.getElementById('signupForm');
-  if (signupForm) {
-    signupForm.addEventListener('submit', (e) => {
-      const first = document.getElementById('reg_first').value.trim();
-      const last  = document.getElementById('reg_last').value.trim();
-      const email = document.getElementById('reg_email').value.trim();
-      const pass  = document.getElementById('reg_password').value;
+  /* ── Signup form validation – button is type=button so page NEVER submits unless valid ── */
+  const signupForm   = document.getElementById('signupForm');
+  const doRegisterBtn = document.getElementById('doRegister');
 
-      if (!first || !last || !email || !pass) {
-        e.preventDefault();
-        showToast('Please fill all required fields 📋');
-        return;
+  if (signupForm && doRegisterBtn) {
+    function showFieldError(input, message) {
+      if (!input) return;
+      const existing = input.parentNode.querySelector('.wavy-error-msg');
+      if (existing) existing.remove();
+      const err = document.createElement('span');
+      err.className = 'wavy-error-msg form-error-message';
+      err.textContent = message;
+      input.parentNode.appendChild(err);
+      input.style.borderBottomColor = '#ef4444';
+      input.parentNode.classList.add('has-error');
+    }
+    function clearFieldError(input) {
+      if (!input) return;
+      const existing = input.parentNode.querySelector('.wavy-error-msg');
+      if (existing) existing.remove();
+      input.style.borderBottomColor = '';
+      input.parentNode.classList.remove('has-error');
+    }
+
+    doRegisterBtn.addEventListener('click', function() {
+      let valid = true;
+
+      const first = document.getElementById('registration_form_firstName');
+      const last  = document.getElementById('registration_form_lastName');
+      const email = document.getElementById('registration_form_email');
+      const pass  = document.getElementById('registration_form_plainPassword_first');
+      const pass2 = document.getElementById('registration_form_plainPassword_second');
+      const phone = document.getElementById('registration_form_phoneNumber');
+
+      [first, last, email, pass, pass2, phone].forEach(f => f && clearFieldError(f));
+
+      if (first && !first.value.trim()) { showFieldError(first, 'First name is required'); valid = false; }
+      if (last  && !last.value.trim())  { showFieldError(last,  'Last name is required');  valid = false; }
+      if (email) {
+        if (!email.value.trim()) { showFieldError(email, 'Email is required'); valid = false; }
+        else if (!email.value.includes('@') || !email.value.includes('.')) { showFieldError(email, 'Please enter a valid email'); valid = false; }
       }
-      if (pass.length < 8) {
-        e.preventDefault();
-        showToast('Password must be at least 8 characters 🔒');
-        return;
+      if (pass) {
+        if (!pass.value) { showFieldError(pass, 'Password is required'); valid = false; }
+        else if (pass.value.length < 8) { showFieldError(pass, 'Password must be at least 8 characters'); valid = false; }
       }
-      // Valid – allow POST to Symfony controller
+      if (pass && pass2 && pass.value && pass.value !== pass2.value) {
+        showFieldError(pass2, 'Passwords do not match'); valid = false;
+      }
+      if (phone && phone.value.trim() && !/^\d{8}$/.test(phone.value.trim())) {
+        showFieldError(phone, 'Phone must be exactly 8 digits'); valid = false;
+      }
+
+      if (valid) {
+        // All good – submit the form to Symfony
+        signupForm.submit();
+      }
+      // If invalid: errors are shown above, panel stays exactly where it is
+    });
+
+    // Clear errors when user types + Enter key triggers validation
+    signupForm.querySelectorAll('input').forEach(function(input) {
+      input.addEventListener('input', function() { clearFieldError(input); });
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          doRegisterBtn.click();
+        }
+      });
     });
   }
 

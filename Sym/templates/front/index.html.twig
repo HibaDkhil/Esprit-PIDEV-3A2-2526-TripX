@@ -73,6 +73,132 @@
       animation: fade-in-up 1s ease 0.5s both;
     }
   </style>
+  <link rel="stylesheet" href="/assets.php?f=css/price-predictor.css">
+  <style>
+    .home-footer-premium {
+      position: relative;
+      margin-top: 0;
+      padding: 64px 0 36px;
+      background: linear-gradient(165deg, rgba(2, 8, 22, 0.92) 0%, rgba(15, 23, 42, 0.98) 45%, #020617 100%);
+      border-top: 1px solid rgba(14, 165, 255, 0.18);
+      overflow: hidden;
+    }
+    .home-footer-premium::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0, 166, 237, 0.55), rgba(255, 77, 109, 0.35), transparent);
+    }
+    .home-footer-inner {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 36px 48px;
+      align-items: flex-start;
+      padding-bottom: 40px;
+    }
+    .home-footer-col h4 {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent-primary);
+      margin: 0 0 12px;
+    }
+    .home-footer-col p,
+    .home-footer-col a {
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: rgba(148, 163, 184, 0.95);
+    }
+    .home-footer-col a {
+      color: #e2e8f0;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 4px;
+    }
+    .home-footer-col a:hover {
+      color: var(--accent-primary);
+    }
+    .home-footer-logo {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      letter-spacing: 0.02em;
+      color: #f0f4f8;
+    }
+    .home-footer-logo span {
+      color: var(--accent-primary);
+    }
+    .home-footer-tagline {
+      margin: 10px 0 0;
+      max-width: 320px;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: rgba(148, 163, 184, 0.95);
+    }
+    .home-footer-contact {
+      padding: 20px 24px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      backdrop-filter: blur(10px);
+    }
+    .home-footer-label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent-primary);
+      margin-bottom: 8px;
+    }
+    .home-footer-email {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      text-decoration: none;
+      background: linear-gradient(135deg, #38bdf8, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .home-footer-email:hover {
+      opacity: 0.9;
+    }
+    .home-footer-bottom {
+      padding-top: 28px;
+      border-top: 1px solid rgba(148, 163, 184, 0.12);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: rgba(100, 116, 139, 0.9);
+    }
+    .home-footer-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .home-footer-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+      opacity: 0.5;
+      animation: home-footer-pulse 2.4s ease-in-out infinite;
+    }
+    .home-footer-dots span:nth-child(2) { animation-delay: 0.3s; background: var(--accent-teal); }
+    .home-footer-dots span:nth-child(3) { animation-delay: 0.6s; background: var(--accent-gold); }
+    @keyframes home-footer-pulse {
+      0%, 100% { opacity: 0.35; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.15); }
+    }
+  </style>
 {% endblock %}
 
 {% block body %}
@@ -135,6 +261,23 @@
   </div>
 </section>
 
+{% if price_prediction_cards is defined and price_prediction_cards|length > 0 %}
+<section class="price-predictor-home pp-home-section section container">
+  <div class="pp-home-head">
+    <div>
+      <h2 class="pp-home-title">🔮 <span>ARIA's Price Intelligence</span></h2>
+      <p class="pp-home-sub">AI-powered price outlook for top-rated activities — simulated trends for MVP.</p>
+    </div>
+    <a href="{{ path('price_dashboard') }}" class="pp-view-predictions ripple-btn">View all predictions</a>
+  </div>
+  <div class="pp-scroll stagger">
+    {% for card in price_prediction_cards %}
+      {% include 'front/_price_card.html.twig' with { card: card } %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
 <button class="aria-orb" id="aria-orb" aria-label="Open ARIA">🤖</button>
 <div class="aria-panel" id="aria-panel">
   <div class="aria-header">
@@ -152,6 +295,7 @@
 </div>
 
 <script src="/assets.php?f=js/main.js"></script>
+<script src="/assets.php?f=js/price-predictor.js"></script>
 <script>
   // Particle Background Logic
   const canvas = document.getElementById('particle-canvas');
@@ -273,8 +417,36 @@
     </div>
   </div>
 </section>
-<!-- JavaScript -->
-<script src="/assets.php?f=js/main.js"></script>
+
+<footer class="home-footer-premium">
+  <div class="container">
+    <div class="home-footer-inner">
+      <div>
+        <div class="home-footer-logo">Trip<span>X</span></div>
+        <p class="home-footer-tagline">Future-forward travel — curated by humans, sharpened by ARIA.</p>
+      </div>
+      <div class="home-footer-col">
+        <h4>Contact</h4>
+        <p>Questions about bookings, itineraries, or your account.</p>
+        <span class="home-footer-label" style="margin-top:12px;">General</span>
+        <a href="mailto:TeamTripX@tripx.com">TeamTripX@tripx.com</a>
+      </div>
+      <div class="home-footer-col">
+        <h4>Claims &amp; disputes</h4>
+        <p>Report an issue with a charge, refund, or service. Include your booking reference.</p>
+        <a href="mailto:claims@tripx.com">claims@tripx.com</a>
+      </div>
+      <div class="home-footer-col">
+        <h4>Support hours</h4>
+        <p>We aim to reply within one business day. For urgent travel-day issues, mark your email <strong>URGENT</strong> in the subject line.</p>
+      </div>
+    </div>
+    <div class="home-footer-bottom">
+      <span>© {{ "now"|date("Y") }} TripX · Made for explorers</span>
+      <div class="home-footer-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</footer>
 {% endblock %}
 
 

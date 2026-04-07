@@ -921,10 +921,18 @@
               <div id="password-change-section" style="display:none; padding:16px; border-radius:var(--border-radius-md); border:1px solid var(--border-color); background:var(--bg-surface)">
                 <h3 style="margin-bottom:16px; font-family:var(--font-display)">Change Password</h3>
                 <div class="grid-2" style="gap:20px">
-                  <div class="input-group"><div class="input-label">New Password</div><input class="input" type="password" id="new_password"></div>
-                  <div class="input-group"><div class="input-label">Confirm New Password</div><input class="input" type="password" id="confirm_password"></div>
+                  <div class="input-group" style="position: relative; padding-bottom: 24px;">
+                    <div class="input-label">New Password</div>
+                    <input class="input" type="password" id="new_password" style="padding-right: 40px; margin-bottom: 0;">
+                    <span class="front-toggle-pw" data-target="new_password" style="position: absolute; right: 12px; top: 38px; cursor: pointer; color: var(--text-muted);"><i class="far fa-eye"></i></span>
+                  </div>
+                  <div class="input-group" style="position: relative; padding-bottom: 24px;">
+                    <div class="input-label">Confirm New Password</div>
+                    <input class="input" type="password" id="confirm_password" style="padding-right: 40px; margin-bottom: 0;">
+                    <span class="front-toggle-pw" data-target="confirm_password" style="position: absolute; right: 12px; top: 38px; cursor: pointer; color: var(--text-muted);"><i class="far fa-eye"></i></span>
+                  </div>
                 </div>
-                <button class="btn btn-primary ripple-btn" style="margin-top:16px" id="confirmPasswordBtn">Update Password</button>
+                <button class="btn btn-primary ripple-btn" style="margin-top:8px" id="confirmPasswordBtn">Update Password</button>
               </div>
               <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:rgba(0,200,150,0.06);border-radius:var(--border-radius-md);border:1px solid rgba(0,200,150,0.2)">
                 <div><div style="font-weight:600;margin-bottom:4px">Two-Factor Authentication</div><div style="font-size:0.8rem;color:var(--text-muted)">Enabled via Authenticator App ✓</div></div>
@@ -1002,26 +1010,60 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // ════════════════════════════════════════════
+  // WAVY UI CUSTOM ERRORS
+  // ════════════════════════════════════════════
+  function showError(input, message) {
+    clearError(input);
+    const err = document.createElement('div');
+    err.className = 'wavy-error-msg';
+    err.style.cssText = 'color: #ef4444; font-size: 11px; position: absolute; bottom: -24px; left: 0; pointer-events: none; animation: slideUp 0.3s ease;';
+    err.innerText = message;
+    input.parentNode.appendChild(err);
+    if(input.style) input.style.borderBottomColor = '#ef4444';
+    input.parentNode.classList.add('error');
+  }
+
+  function clearError(input) {
+    const parent = input.parentNode;
+    const msg = parent.querySelector('.wavy-error-msg');
+    if (msg) msg.remove();
+    if(input.style) input.style.borderBottomColor = ''; 
+    input.parentNode.classList.remove('error');
+  }
+
+  // Clear errors on input
+  document.querySelectorAll('input').forEach(inp => {
+     inp.addEventListener('input', () => clearError(inp));
+  });
+
+  // ════════════════════════════════════════════
   // SAVE PROFILE (Upgraded for Wavy Inputs)
   // ════════════════════════════════════════════
   document.getElementById('saveProfileBtn')?.addEventListener('click', () => {
     const btn = document.getElementById('saveProfileBtn');
+    
+    let valid = true;
+    const fName = document.getElementById('profile_first_name');
+    const lName = document.getElementById('profile_last_name');
+    const email = document.getElementById('profile_email');
+    const phone = document.getElementById('profile_phone');
+    
+    if (!fName.value.trim()) { showError(fName, 'First name is required'); valid = false; }
+    if (!lName.value.trim()) { showError(lName, 'Last name is required'); valid = false; }
+    if (!email.value.trim() || !email.value.includes('@')) { showError(email, 'Valid email is required'); valid = false; }
+    if (phone.value.trim() && !/^\d{8}$/.test(phone.value.trim())) { showError(phone, 'Phone number must be exactly 8 digits'); valid = false; }
+    
+    if (!valid) return;
+
     const origText = btn.innerText;
     
     const data = {
-      firstName: document.getElementById('profile_first_name')?.value || '',
-      lastName:  document.getElementById('profile_last_name')?.value || '',
-      email:     document.getElementById('profile_email')?.value || '',
-      phone:     document.getElementById('profile_phone')?.value || '',
+      firstName: fName.value.trim(),
+      lastName:  lName.value.trim(),
+      email:     email.value.trim(),
+      phone:     phone.value.trim(),
       bio:       document.getElementById('profile_bio')?.value || ''
     };
-
-    // Phone Validation
-    const phoneRegex = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
-    if (data.phone && !phoneRegex.test(data.phone.replace(/\s/g, ''))) {
-      showToast('⚠️ Please enter a valid phone number', true);
-      return;
-    }
 
     btn.innerText = 'Saving...';
     fetch('/profile/update', { 
@@ -1032,17 +1074,49 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(r=>r.json())
     .then(res => {
       btn.innerText = origText;
-      showToast(res.success ? '✅ Profile updated successfully!' : '❌ ' + (res.error || 'Update failed.'));
-      if (res.success) setTimeout(() => window.location.reload(), 1000);
+      if (res.success) {
+          showToast('✅ Profile updated successfully!');
+          setTimeout(() => window.location.reload(), 1000);
+      } else {
+          showToast('❌ ' + (res.error || 'Update failed.'));
+      }
     });
   });
 
   // Old collectTravelPrefs and savePreferencesBtn removed to avoid duplication with the new chip-based logic below
 
+  document.querySelectorAll('.front-toggle-pw').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.dataset.target;
+      const input = document.getElementById(targetId);
+      if (!input) return;
+      const isText = input.type === 'text';
+      input.type = isText ? 'password' : 'text';
+      btn.innerHTML = isText ? '<i class="far fa-eye"></i>' : '<i class="far fa-eye-slash"></i>';
+    });
+  });
+
   document.getElementById('confirmPasswordBtn')?.addEventListener('click', () => {
-    const p1 = document.getElementById('new_password').value;
-    const p2 = document.getElementById('confirm_password').value;
-    if (!p1 || p1 !== p2) { showToast('⚠️ Passwords do not match.'); return; }
+    let valid = true;
+    const p1El = document.getElementById('new_password');
+    const p2El = document.getElementById('confirm_password');
+    const p1 = p1El.value;
+    const p2 = p2El.value;
+    
+    if (!p1 || p1.trim() === '') {
+      showError(p1El, 'Please enter a password.');
+      valid = false;
+    } else if (p1.length < 8) {
+      showError(p1El, 'Password must contain at least 8 characters.');
+      valid = false;
+    }
+    if (p1 !== p2) {
+      showError(p2El, 'Passwords do not match.');
+      valid = false;
+    }
+    
+    if(!valid) return;
+
     fetch('/profile/password', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:p1}) })
       .then(r=>r.json()).then(res => {
         if (res.success) {

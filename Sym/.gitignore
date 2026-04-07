@@ -1,3 +1,37 @@
 /vendor/
 /node_modules/
 .env
+
+/.env.dev
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+/config/google/credentials_acc.json
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.result.cache
+###< phpunit/phpunit ###
+
+# Composer
+/composer.phar
+
+# IDE
+/.idea/
+/.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (if using Webpack Encore)
+/node_modules/
+/public/build/
+npm-debug.log
+yarn-error.log

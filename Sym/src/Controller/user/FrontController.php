@@ -3,6 +3,7 @@
 namespace App\Controller\user;
 
 use App\service\UserProfileService;
+use App\service\PricePredictionService;
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,12 +16,18 @@ class FrontController extends AbstractController
     private $profileService;
     private $destinationService;
     private $activityService;
+    private PricePredictionService $pricePredictionService;
 
-    public function __construct(UserProfileService $profileService, \App\service\DestinationService $destinationService, \App\service\ActivityService $activityService)
-    {
+    public function __construct(
+        UserProfileService $profileService,
+        \App\service\DestinationService $destinationService,
+        \App\service\ActivityService $activityService,
+        PricePredictionService $pricePredictionService,
+    ) {
         $this->profileService = $profileService;
         $this->destinationService = $destinationService;
         $this->activityService = $activityService;
+        $this->pricePredictionService = $pricePredictionService;
     }
 
     #[Route('/home', name: 'index')]
@@ -29,7 +36,12 @@ class FrontController extends AbstractController
         if (!$this->getUser()) {
             return $this->redirectToRoute('app_login');
         }
-        return $this->render('front/index.html.twig');
+        $user = $this->getUser();
+        $uid = $user instanceof User ? $user->getUserId() : null;
+
+        return $this->render('front/index.html.twig', [
+            'price_prediction_cards' => $this->pricePredictionService->buildHomeCarouselCards($uid),
+        ]);
     }
 
     #[Route('/destinations', name: 'destinations')]

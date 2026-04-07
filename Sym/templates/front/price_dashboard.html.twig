@@ -1,0 +1,264 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}ARIA Price Intelligence — TripX{% endblock %}
+
+{% block stylesheets %}
+  <link rel="stylesheet" href="/assets.php?f=css/price-predictor.css">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+{% endblock %}
+
+{% block body %}
+
+<div class="aria-page" id="aria-page-root">
+{# ── Ambient background layers ── #}
+<div class="aria-bg">
+  <div class="aria-orb aria-orb--1"></div>
+  <div class="aria-orb aria-orb--2"></div>
+  <div class="aria-orb aria-orb--3"></div>
+  <canvas id="aria-grid-canvas"></canvas>
+</div>
+
+<div class="aria-wrap">
+
+  {# ══ HERO ══ #}
+  <header class="aria-hero">
+    <div class="aria-hero__eyebrow">
+      <span class="aria-pulse-dot"></span>
+      <span class="aria-mono">ARIA · PRICE INTELLIGENCE · LIVE</span>
+    </div>
+    <h1 class="aria-hero__title">
+      <span class="aria-hero__line">Market</span>
+      <span class="aria-hero__line aria-hero__line--accent">Pulse</span>
+    </h1>
+    <p class="aria-hero__sub">
+      AI-powered predictions built on real booking signals — spot the perfect window before prices move.
+    </p>
+    <div class="aria-hero__stats">
+      <div class="aria-stat">
+        <div class="aria-stat__val" data-count="2847">0</div>
+        <div class="aria-stat__label">Signals tracked</div>
+      </div>
+      <div class="aria-stat-divider"></div>
+      <div class="aria-stat">
+        <div class="aria-stat__val" data-count="94">0</div>
+        <div class="aria-stat__label aria-stat__label--pct">Accuracy rate</div>
+      </div>
+      <div class="aria-stat-divider"></div>
+      <div class="aria-stat">
+        <div class="aria-stat__val" data-count="138">0</div>
+        <div class="aria-stat__label">Destinations</div>
+      </div>
+    </div>
+  </header>
+
+  {# ══ NAV TABS ══ #}
+  <nav class="aria-tabs" id="ariaTabs">
+    <button class="aria-tab aria-tab--active" data-section="rising">
+      <span class="aria-tab__icon">📈</span> Rising Fast
+    </button>
+    <button class="aria-tab" data-section="deals">
+      <span class="aria-tab__icon">📉</span> Best Deals
+    </button>
+    <button class="aria-tab" data-section="alerts">
+      <span class="aria-tab__icon">⏰</span> My Alerts
+    </button>
+    <button class="aria-tab" data-section="destinations">
+      <span class="aria-tab__icon">🌍</span> Destinations
+    </button>
+    <button class="aria-tab" data-section="track">
+      <span class="aria-tab__icon">⌁</span> Watchlist
+    </button>
+  </nav>
+
+  {# ══ MAIN LAYOUT ══ #}
+  <div class="aria-layout">
+    <main class="aria-main">
+
+      {# ── Rising Fast ── #}
+      <section class="aria-section" id="section-rising">
+        <div class="aria-section__head">
+          <div class="aria-section__badge aria-section__badge--red">↑ RISING</div>
+          <h2 class="aria-section__title">Book before prices climb</h2>
+        </div>
+        <div class="aria-grid">
+          {% for card in rising %}
+            {% include 'front/_price_card.html.twig' with { card: card } %}
+          {% else %}
+            <div class="aria-empty">
+              <span>📡</span>
+              <p>No rising signals right now — ARIA is watching.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      {# ── Best Deals ── #}
+      <section class="aria-section aria-section--hidden" id="section-deals">
+        <div class="aria-section__head">
+          <div class="aria-section__badge aria-section__badge--green">↓ DROPPING</div>
+          <h2 class="aria-section__title">Prices easing — wait or grab now</h2>
+        </div>
+        <div class="aria-grid">
+          {% for card in deals %}
+            {% include 'front/_price_card.html.twig' with { card: card } %}
+          {% else %}
+            <div class="aria-empty">
+              <span>💤</span>
+              <p>No "wait" signals at the moment.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      {# ── Alerts ── #}
+      <section class="aria-section aria-section--hidden" id="section-alerts">
+        <div class="aria-section__head">
+          <div class="aria-section__badge aria-section__badge--gold">⏰ ALERTS</div>
+          <h2 class="aria-section__title">Your saved price alerts</h2>
+        </div>
+        <div class="aria-grid">
+          {% if user_alerts|length > 0 %}
+            {% for a in user_alerts %}
+              <div class="aria-card aria-card--alert">
+                <div class="aria-card__top">
+                  <div>
+                    <h3 class="aria-card__name">{{ a.name }}</h3>
+                    <div class="aria-card__meta">{{ a.destination }}, {{ a.country }}</div>
+                  </div>
+                  <span class="aria-badge aria-badge--{{ a.direction == 'up' ? 'rising' : 'dropping' }}">
+                    Target ${{ a.target_price }}
+                  </span>
+                </div>
+                <a href="{{ path('activities') }}" class="aria-btn aria-btn--primary">Track</a>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="aria-empty">
+              <span>🔔</span>
+              <p>No alerts yet. Hit <strong>"Wait for Drop"</strong> on any card to set one.</p>
+            </div>
+          {% endif %}
+        </div>
+      </section>
+
+      {# ── Destinations ── #}
+      <section class="aria-section aria-section--hidden" id="section-destinations">
+        <div class="aria-section__head">
+          <div class="aria-section__badge aria-section__badge--teal">🌍 OUTLOOK</div>
+          <h2 class="aria-section__title">Destination price forecast</h2>
+        </div>
+        <div class="aria-grid aria-grid--dest">
+          {% for d in destination_cards %}
+            <div class="aria-card aria-card--dest">
+              <div class="aria-card__top">
+                <div>
+                  <h3 class="aria-card__name">{{ d.name }}</h3>
+                  <div class="aria-card__meta">{{ d.country }}</div>
+                </div>
+                {% set b = d.badge %}
+                <span class="aria-badge aria-badge--{{ b }}">
+                  {% if b == 'rising' %}↑ Rising{% elseif b == 'dropping' %}↓ Dropping{% else %}⌁ Stable{% endif %}
+                </span>
+              </div>
+              <dl class="aria-prices">
+                <div><dt>Now</dt><dd>${{ d.current_price|number_format(0, '.', ',') }}</dd></div>
+                <div><dt>7d forecast</dt><dd>${{ d.predicted_price|number_format(0, '.', ',') }}</dd></div>
+              </dl>
+              {% include 'front/_price_sparkline_block.html.twig' with {
+                points: d.sparkline,
+                up: d.badge == 'rising' ? '1' : '0',
+                flat: d.badge == 'track' ? '1' : '0'
+              } %}
+              <div class="aria-card__actions">
+                <a href="{{ path('destinations') }}" class="aria-btn aria-btn--ghost">View</a>
+                <a href="{{ path('activities') }}" class="aria-btn aria-btn--primary">Explore</a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      {# ── Watchlist / Track ── #}
+      <section class="aria-section aria-section--hidden" id="section-track">
+        <div class="aria-section__head">
+          <div class="aria-section__badge aria-section__badge--gold">⌁ STABLE</div>
+          <h2 class="aria-section__title">Stable — add to watchlist</h2>
+        </div>
+        <div class="aria-grid">
+          {% for card in track %}
+            {% include 'front/_price_card.html.twig' with { card: card } %}
+          {% else %}
+            <div class="aria-empty">
+              <span>🎯</span>
+              <p>Nothing in the watchlist zone right now.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+
+    </main>
+
+    {# ══ SIDEBAR ══ #}
+    <aside class="aria-side">
+
+      <div class="aria-side__block">
+        <div class="aria-side__label aria-mono">ARIA STATUS</div>
+        <div class="aria-status-row">
+          <span class="aria-pulse-dot"></span>
+          <span class="aria-mono" style="font-size:.75rem;color:var(--gold)">Live · updating every 15min</span>
+        </div>
+        <div class="aria-side__divider"></div>
+        <div class="aria-side__label aria-mono">SAVED ALERTS</div>
+        <ul class="aria-side__list">
+          {% if user_alerts|length > 0 %}
+            {% for a in user_alerts|slice(0, 5) %}
+              <li>
+                <span>{{ a.name }}</span>
+                <span class="aria-mono" style="color:var(--gold)">${{ a.target_price }}</span>
+              </li>
+            {% endfor %}
+          {% else %}
+            <li style="color:var(--muted)">No alerts yet</li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="aria-side__block">
+        <div class="aria-side__label aria-mono">NOTIFICATIONS</div>
+        <label class="aria-toggle">
+          <input type="checkbox" id="pp-notify-toggle" checked/>
+          <span class="aria-toggle__track">
+            <span class="aria-toggle__thumb"></span>
+          </span>
+          <span>Price alerts</span>
+        </label>
+      </div>
+
+      <div class="aria-side__block">
+        <div class="aria-side__label aria-mono">HOW ARIA WORKS</div>
+        <p class="aria-side__how">
+          ARIA analyses seasonality, destination demand, and booking velocity to estimate near-term price movement.
+          This MVP uses simulated trends — connect booking history for full forecasting.
+        </p>
+      </div>
+
+      <a href="{{ path('index') }}?alert=price" class="aria-cta-btn">
+        <span>🔔</span>
+        Set Global Price Alert
+      </a>
+
+    </aside>
+  </div>
+</div>
+</div>
+
+{# Toast notification #}
+<div class="aria-toast" id="ariaToast"></div>
+
+{% endblock %}
+
+{% block javascripts %}
+  <script>window.TRIPX = window.TRIPX || {}; window.TRIPX.homeUrl = {{ path('index')|json_encode|raw }};</script>
+  <script src="/assets.php?f=js/price-predictor.js"></script>
+  <script src="/assets.php?f=js/aria-dashboard.js"></script>
+{% endblock %}

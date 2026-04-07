@@ -455,10 +455,10 @@
     <!-- PAGE CONTENT -->
     <main class="admin-main">
       {% for label, messages in app.flashes %}
-          <div class="flash-container">
+          <div class="flash-container" style="position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px;">
               {% for message in messages %}
-                  <div class="flash-message {{ label }}">
-                      {% if label == 'success' %}✅{% else %}❌{% endif %}
+                  <div class="flash-message {{ label }}" style="background: {{ label == 'success' ? '#10b981' : '#ef4444' }}; color: white; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; font-family: var(--font-display, sans-serif); font-size: 14px; transition: opacity 0.3s ease, margin-top 0.3s ease;">
+                      <i class="fas {{ label == 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' }}"></i>
                       {{ message }}
                   </div>
               {% endfor %}
@@ -466,6 +466,35 @@
       {% endfor %}
       {% block content %}{% endblock %}
     </main>
+
+    <div id="customConfirmModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; justify-content:center; align-items:center; opacity:0; transition:opacity 0.3s ease;">
+    <div class="modal-content" style="background:var(--bg-card); padding:24px; border-radius:12px; width:400px; max-width:90%; box-shadow:0 10px 30px rgba(0,0,0,0.3); transform:translateY(20px); transition:transform 0.3s ease; text-align:center;">
+      <div style="font-size:36px; margin-bottom:16px;">⚠️</div>
+      <h3 style="margin-bottom:8px; font-family:var(--font-display); font-size:20px; color:var(--text-main);">Confirm Action</h3>
+      <p id="customConfirmMessage" style="color:var(--text-muted); margin-bottom:24px; font-size:14px;">Are you sure you want to proceed?</p>
+      <div style="display:flex; justify-content:center; gap:12px;">
+        <button id="customConfirmCancel" class="btn btn-secondary">Cancel</button>
+        <a id="customConfirmOk" href="#" class="btn btn-primary" style="background:#ef4444; border-color:#ef4444;">Yes, confirm</a>
+      </div>
+    </div>
+  </div>
+  <script>
+    function openConfirmModal(msg, url) {
+      const modal = document.getElementById('customConfirmModal');
+      document.getElementById('customConfirmMessage').innerText = msg;
+      document.getElementById('customConfirmOk').href = url;
+      modal.style.display = 'flex';
+      void modal.offsetWidth; // trigger reflow
+      modal.style.opacity = '1';
+      modal.querySelector('.modal-content').style.transform = 'translateY(0)';
+      
+      document.getElementById('customConfirmCancel').onclick = function() {
+        modal.style.opacity = '0';
+        modal.querySelector('.modal-content').style.transform = 'translateY(20px)';
+        setTimeout(() => modal.style.display = 'none', 300);
+      };
+    }
+  </script>
 
   </div>
 </div>

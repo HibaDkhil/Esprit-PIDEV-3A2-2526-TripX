@@ -214,17 +214,20 @@ h3 { font-family: var(--font-body); font-size: 1.25rem; font-weight: 600; }
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 26px;
   letter-spacing: 0.08em;
   color: var(--accent-primary);
   text-transform: uppercase;
   font-weight: 800;
 }
+.nav-logo-img,
 .nav-logo img {
-  height: 36px;
+  height: 52px;
   width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(14, 165, 233, 0.25));
 }
 .nav-logo span { color: var(--text-primary); }
 .nav-links {
@@ -1071,6 +1074,49 @@ select.input { cursor: auto; }
   pointer-events: none;
   z-index: 9998;
   transition: transform 0.2s ease-out;
+}
+
+/* Native cursor on price cards / aria cards (stops halo jitter on buttons) */
+body.tripx-native-cursor #cursor-dot,
+body.tripx-native-cursor #cursor-halo {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+body.tripx-native-cursor {
+  cursor: auto !important;
+}
+
+/* Global toast (price alerts, success) — always readable */
+.tripx-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  max-width: min(520px, calc(100% - 32px));
+  padding: 14px 22px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  font-family: var(--font-body);
+  color: #f1f5f9;
+  background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10050;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.tripx-toast.tripx-toast--show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+[data-theme="light"] .tripx-toast {
+  color: #0f172a;
+  background: #ffffff;
+  border-color: rgba(14, 165, 233, 0.35);
+  box-shadow: var(--shadow-lg);
 }
 
 /* ─── Animated Logout Button ─── */
