@@ -1,0 +1,250 @@
+{% extends 'front/base_auth.html.twig' %}
+{% block title %}Login{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Wavy input errors from Symfony ── */
+  .form-control .form-error-message {
+    display: block;
+    color: #ef4444;
+    font-size: 11px;
+    margin-top: 4px;
+    padding-left: 2px;
+    animation: fadeInUp 0.3s ease;
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .form-control.has-error input,
+  .form-control.has-error input:focus {
+    border-bottom-color: #ef4444 !important;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div id="app">
+  <div class="auth-card" id="authCard">
+
+    {# ── Forms container (behind image) ── #}
+    <div class="auth-forms">
+
+      {# LOGIN PANEL #}
+      <div class="form-panel panel-login" id="panelLogin">
+        <div class="form-title">Welcome back <span class="sparkle">✦</span></div>
+        <div class="form-sub">Sign in and pick up where you left off</div>
+
+        <div class="social-row">
+          <a href="#" class="social-btn social-btn--circle">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="G"/>
+          </a>
+          <a href="#" class="social-btn social-btn--circle">
+            <i class="fab fa-linkedin" style="color:#0a66c2; font-size: 1.5rem;"></i>
+          </a>
+        </div>
+
+        <div class="divider"><span>or continue with email</span></div>
+
+        {% set error_flashes = app.flashes('error') %}
+        {% set success_flashes = app.flashes('success') %}
+        {# Flash messages #}
+        {% for message in error_flashes %}
+          <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> {{ message }}</div>
+        {% endfor %}
+        {% for message in success_flashes %}
+          <div class="alert alert-success"><i class="fas fa-check-circle"></i> {{ message }}</div>
+        {% endfor %}
+
+        {# Symfony Authentication Error #}
+        {% if error %}
+          <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i> {{ error.messageKey|trans(error.messageData, 'security') }}
+          </div>
+        {% endif %}
+
+        <form method="POST" action="{{ path('app_login') }}" id="loginForm" novalidate>
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}"/>
+
+          <div class="form-control {{ error ? 'has-error' : '' }}">
+            <input type="email" id="login_email" name="_username"
+                   value="{{ last_username }}"
+                   autocomplete="email" />
+            <label for="login_email">
+              <span style="transition-delay:0ms">E</span><span style="transition-delay:50ms">m</span><span style="transition-delay:100ms">a</span><span style="transition-delay:150ms">i</span><span style="transition-delay:200ms">l</span>
+            </label>
+            <span class="field-icon"><i class="far fa-envelope"></i></span>
+          </div>
+
+          <div class="form-control {{ error ? 'has-error' : '' }}">
+            <input type="password" id="login_password" name="_password"
+                   autocomplete="current-password" />
+            <label for="login_password">
+              <span style="transition-delay:0ms">P</span><span style="transition-delay:50ms">a</span><span style="transition-delay:100ms">s</span><span style="transition-delay:150ms">s</span><span style="transition-delay:200ms">w</span><span style="transition-delay:250ms">o</span><span style="transition-delay:300ms">r</span><span style="transition-delay:350ms">d</span>
+            </label>
+            <span class="field-icon toggle-pw" data-target="login_password">
+              <i class="far fa-eye"></i>
+            </span>
+          </div>
+
+          <div class="forgot">
+            <a href="{{ path('app_forgot_password') }}">Forgot password?</a>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn-secondary" id="goSignup">Create account</button>
+            <button type="submit" class="btn-primary">Login</button>
+          </div>
+        </form>
+      </div>
+
+      {# SIGNUP PANEL #}
+      <div class="form-panel panel-signup" id="panelSignup">
+        <div class="form-title">Join TripX <span class="sparkle">✈</span></div>
+        <div class="form-sub">Create your account — it only takes a minute</div>
+
+        {{ form_start(form, {'action': path('app_register'), 'method': 'POST', 'attr': {'id': 'signupForm', 'novalidate': 'novalidate'}}) }}
+
+        {# ── Name row ── #}
+        <div class="name-row">
+            <div class="form-control {{ form.firstName.vars.errors|length > 0 ? 'has-error' : '' }}">
+                {{ form_widget(form.firstName, {'attr': {'placeholder': ' '}}) }}
+                <label for="{{ form.firstName.vars.id }}">
+                    <span style="transition-delay:0ms">F</span><span style="transition-delay:50ms">i</span><span style="transition-delay:100ms">r</span><span style="transition-delay:150ms">s</span><span style="transition-delay:200ms">t</span>
+                </label>
+                {% if form.firstName.vars.errors|length > 0 %}
+                    <span class="form-error-message">{{ form.firstName.vars.errors[0].message }}</span>
+                {% endif %}
+            </div>
+            <div class="form-control {{ form.lastName.vars.errors|length > 0 ? 'has-error' : '' }}">
+                {{ form_widget(form.lastName, {'attr': {'placeholder': ' '}}) }}
+                <label for="{{ form.lastName.vars.id }}">
+                    <span style="transition-delay:0ms">L</span><span style="transition-delay:50ms">a</span><span style="transition-delay:100ms">s</span><span style="transition-delay:150ms">t</span>
+                </label>
+                {% if form.lastName.vars.errors|length > 0 %}
+                    <span class="form-error-message">{{ form.lastName.vars.errors[0].message }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        {# ── Email ── #}
+        <div class="form-control {{ form.email.vars.errors|length > 0 ? 'has-error' : '' }}">
+            {{ form_widget(form.email, {'attr': {'placeholder': ' '}}) }}
+            <label for="{{ form.email.vars.id }}">
+                <span style="transition-delay:0ms">E</span><span style="transition-delay:50ms">m</span><span style="transition-delay:100ms">a</span><span style="transition-delay:150ms">i</span><span style="transition-delay:200ms">l</span>
+            </label>
+            <span class="field-icon"><i class="far fa-envelope"></i></span>
+            {% if form.email.vars.errors|length > 0 %}
+                <span class="form-error-message">{{ form.email.vars.errors[0].message }}</span>
+            {% endif %}
+        </div>
+
+        {# ── Password ── #}
+        <div class="form-control {{ form.plainPassword.first.vars.errors|length > 0 ? 'has-error' : '' }}">
+            {{ form_widget(form.plainPassword.first, {'attr': {'placeholder': ' '}}) }}
+            <label for="{{ form.plainPassword.first.vars.id }}">
+                <span style="transition-delay:0ms">P</span><span style="transition-delay:50ms">a</span><span style="transition-delay:100ms">s</span><span style="transition-delay:150ms">s</span><span style="transition-delay:200ms">w</span><span style="transition-delay:250ms">o</span><span style="transition-delay:300ms">r</span><span style="transition-delay:350ms">d</span>
+            </label>
+            <span class="field-icon toggle-pw" data-target="{{ form.plainPassword.first.vars.id }}"><i class="far fa-eye"></i></span>
+            {% if form.plainPassword.first.vars.errors|length > 0 %}
+                <span class="form-error-message">{{ form.plainPassword.first.vars.errors[0].message }}</span>
+            {% endif %}
+        </div>
+
+        {# ── Confirm Password ── #}
+        <div class="form-control {{ form.plainPassword.second.vars.errors|length > 0 ? 'has-error' : '' }}">
+            {{ form_widget(form.plainPassword.second, {'attr': {'placeholder': ' '}}) }}
+            <label for="{{ form.plainPassword.second.vars.id }}">
+                <span style="transition-delay:0ms">C</span><span style="transition-delay:50ms">o</span><span style="transition-delay:100ms">n</span><span style="transition-delay:150ms">f</span><span style="transition-delay:200ms">i</span><span style="transition-delay:250ms">r</span><span style="transition-delay:300ms">m</span>
+            </label>
+            {% if form.plainPassword.second.vars.errors|length > 0 %}
+                <span class="form-error-message">{{ form.plainPassword.second.vars.errors[0].message }}</span>
+            {% endif %}
+            {% if form.plainPassword.vars.errors|length > 0 %}
+                <span class="form-error-message">{{ form.plainPassword.vars.errors[0].message }}</span>
+            {% endif %}
+        </div>
+
+        {# ── Phone (optional) ── #}
+        <div class="form-control {{ form.phoneNumber.vars.errors|length > 0 ? 'has-error' : '' }}">
+            {{ form_widget(form.phoneNumber, {'attr': {'placeholder': ' '}}) }}
+            <label for="{{ form.phoneNumber.vars.id }}">
+                <span style="transition-delay:0ms">P</span><span style="transition-delay:50ms">h</span><span style="transition-delay:100ms">o</span><span style="transition-delay:150ms">n</span><span style="transition-delay:200ms">e</span>
+                <span style="transition-delay:250ms; font-size:12px; opacity:.7"> (optional)</span>
+            </label>
+            {% if form.phoneNumber.vars.errors|length > 0 %}
+                <span class="form-error-message">{{ form.phoneNumber.vars.errors[0].message }}</span>
+            {% endif %}
+        </div>
+
+        <div class="btn-row" style="margin-top:20px">
+            <button type="button" class="btn-secondary" id="goLogin">Back to login</button>
+            <button type="button" class="btn-primary" id="doRegister">Create account</button>
+        </div>
+
+        {# Render save field as hidden so form_rest doesn't double-render a submit button #}
+        {{ form_widget(form.save, {'attr': {'style': 'display:none !important', 'tabindex': '-1', 'aria-hidden': 'true'}}) }}
+
+        {{ form_rest(form) }}
+        {{ form_end(form) }}
+      </div>
+
+    </div>{# /auth-forms #}
+
+    {# Image panel – slides right on signup #}
+    <div class="auth-image" id="authImage">
+      <img src="{{ asset('images/traveLogin.jpg') }}"
+           alt="Adventure awaits" loading="eager"/>
+      <div class="auth-image-overlay"></div>
+      <div class="logo-badge">
+        <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="19" cy="19" r="19" fill="white" fill-opacity=".18"/>
+          <text x="7" y="26" font-size="18" font-family="serif" fill="white">✈</text>
+        </svg>
+        <span>TripX</span>
+      </div>
+      <div class="auth-image-text">
+        <div class="tagline">Your Next<br/>Adventure,</div>
+        <div class="sub">Instantly</div>
+      </div>
+    </div>
+
+  </div>{# /auth-card #}
+</div>{# /app #}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  window.TRIPX = {
+    registerUrl: "{{ path('app_register') }}",
+    onboardingUrl: "{{ path('app_onboarding') }}"
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+
+    /* ── Login form: guard empty fields ── */
+    var loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+      loginForm.addEventListener('submit', function (e) {
+        var email = document.getElementById('login_email').value.trim();
+        var pwd   = document.getElementById('login_password').value;
+        if (!email || !pwd) {
+          e.preventDefault();
+          if (window.showToast) showToast('Please enter your email and password 🔑');
+        }
+      });
+    }
+
+    /* ── Animated label: lift when input has value ── */
+    document.querySelectorAll('.form-control input').forEach(function (input) {
+      function checkFilled() {
+        input.classList.toggle('has-value', !!(input.value && input.value.trim() !== ''));
+      }
+      checkFilled();
+      input.addEventListener('input', checkFilled);
+      input.addEventListener('change', checkFilled);
+    });
+
+  });
+</script>
+{% endblock %}

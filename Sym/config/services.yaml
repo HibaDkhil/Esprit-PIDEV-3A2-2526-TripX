@@ -1,0 +1,32 @@
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    App\Security\LoginSuccessHandler:
+        arguments:
+            - '@router'
+            - '@doctrine.orm.entity_manager'
+            - '@App\service\PreferenceService'
+
+    App\service\GeminiService:
+        arguments:
+            $httpClient: '@http_client'
+            $geminiApiKey: '%env(GEMINI_API_KEY)%'
+            $geminiModel: '%env(GEMINI_MODEL)%'
+
+    # Inject services into AuthController via setters
+    App\Controller\user\AuthController:
+        calls:
+            - setAuthService: ['@App\service\AuthService']
+            - setSecurity: ['@Symfony\Bundle\SecurityBundle\Security']
+            - setPreferenceService: ['@App\service\PreferenceService']

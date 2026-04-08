@@ -1,0 +1,19 @@
+{# Mini graph hidden until chevron is clicked — compact arrow only. #}
+<div class="pp-sparkline-block">
+  <div class="pp-sparkline-head{% if reco_text is not defined %} pp-sparkline-head--icon-only{% endif %}">
+    {% if reco_text is defined %}
+    <span class="pp-reco text-muted">{{ reco_text }}</span>
+    {% endif %}
+    <button type="button" class="pp-sparkline-toggle" aria-expanded="false" aria-label="Show price trend graph">
+      <span class="pp-sparkline-toggle__arrow" aria-hidden="true">▼</span>
+    </button>
+  </div>
+  <div class="pp-sparkline-panel">
+    <div class="pp-sparkline-panel__inner">
+      <div class="pp-sparkline-wrap"
+           data-points="{{ points|json_encode|e('html_attr') }}"
+           data-up="{{ up }}"
+           data-flat="{{ flat }}"></div>
+    </div>
+  </div>
+</div>
