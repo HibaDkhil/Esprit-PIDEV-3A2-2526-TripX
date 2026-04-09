@@ -664,7 +664,7 @@ class TransportAdminController extends AbstractController
     // DESTINATION MANAGEMENT
     // ════════════════════════════════
 
-    #[Route('/destinations', name: 'admin_destination_list')]
+    #[Route('/destinations', name: 'admin_trans_destination_list')]
     public function listDestinations(): Response
     {
         return $this->render('admin/transportadmindashboard.html.twig', [
@@ -677,7 +677,7 @@ class TransportAdminController extends AbstractController
         ]);
     }
 
-    #[Route('/destinations/add', name: 'admin_destination_add')]
+    #[Route('/destinations/add', name: 'admin_trans_destination_add')]
     public function addDestination(Request $request): Response
     {
         $errors = [];
@@ -702,7 +702,7 @@ class TransportAdminController extends AbstractController
             } else {
                 $this->destService->addDestination($d);
                 $this->addFlash('success', 'Destination added!');
-                return $this->redirectToRoute('admin_destination_list');
+                return $this->redirectToRoute('admin_trans_destination_list');
             }
         }
 
@@ -720,7 +720,7 @@ class TransportAdminController extends AbstractController
         ]);
     }
 
-    #[Route('/destinations/edit/{id}', name: 'admin_destination_edit')]
+    #[Route('/destinations/edit/{id}', name: 'admin_trans_destination_edit')]
     public function editDestination(int $id, Request $request): Response
     {
         $destination = $this->destService->findById($id);
@@ -747,7 +747,7 @@ class TransportAdminController extends AbstractController
             } else {
                 $this->destService->updateDestination($destination);
                 $this->addFlash('success', 'Destination updated!');
-                return $this->redirectToRoute('admin_destination_list');
+                return $this->redirectToRoute('admin_trans_destination_list');
             }
         }
 
@@ -765,12 +765,12 @@ class TransportAdminController extends AbstractController
         ]);
     }
 
-    #[Route('/destinations/delete/{id}', name: 'admin_destination_delete')]
+    #[Route('/destinations/delete/{id}', name: 'admin_trans_destination_delete')]
     public function deleteDestination(int $id): Response
     {
         $this->destService->deleteDestination($id);
         $this->addFlash('success', 'Destination deleted.');
-        return $this->redirectToRoute('admin_destination_list');
+        return $this->redirectToRoute('admin_trans_destination_list');
     }
 
     #[Route('/bookings/receipt/{id}', name: 'admin_booking_receipt_pdf')]

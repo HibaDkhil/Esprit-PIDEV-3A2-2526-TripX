@@ -74,7 +74,7 @@
     <div class="section-label reveal"><span>Overview</span></div>
     <h1 class="display-md reveal" style="margin-bottom:8px">My <span class="gradient-text">Bookings</span></h1>
     <p class="serif-mood text-muted reveal reveal-delay-1" style="margin-bottom:32px;">
-      Manage all your accommodations and transport reservations.
+      Manage all your destinations, accommodations, and transport reservations.
     </p>
 
     {# Stats #}
@@ -102,7 +102,7 @@
       <button class="bookings-tab active" onclick="filterBookings('all', this)">All Bookings</button>
       <button class="bookings-tab" onclick="filterBookings('accommodation', this)">Accommodations</button>
       <button class="bookings-tab" onclick="filterBookings('transport', this)">Transport</button>
-      <button class="bookings-tab" onclick="filterBookings('activity', this)">Activities <span style="font-size:10px; opacity:0.6;">(Soon)</span></button>
+      <button class="bookings-tab" onclick="filterBookings('destination', this)">Destinations</button>
     </div>
 
     {# List #}
@@ -110,14 +110,23 @@
       {% for b in allBookings %}
         <div class="booking-row" data-type="{{ b.type }}" style="animation-delay: {{ loop.index0 * 50 }}ms;">
           {% set isAcc = b.type == 'accommodation' %}
-          {% set statusColor = b.status == 'CONFIRMED' ? '#27ae60' : b.status == 'CANCELLED' ? '#ef4444' : '#F97316' %}
+          {% set isDest = b.type == 'destination' %}
+          {% set statusColor = b.status == 'CONFIRMED' ? '#27ae60' : (b.status == 'CANCELLED' ? '#ef4444' : '#F97316') %}
           
           <div class="booking-row-header">
             <div style="display:flex; align-items:center; gap:12px;">
-              <span class="booking-type-icon">{{ isAcc ? '🏨' : '✈️' }}</span>
+              <span class="booking-type-icon">
+                {% if isAcc %}🏨{% elseif isDest %}🌍{% else %}✈️{% endif %}
+              </span>
               <div>
                 <div style="font-weight:600; color:var(--text-primary);">
-                  {{ isAcc ? b.entity.room.accommodation.name : 'Transport Booking #' ~ b.id }}
+                  {% if isAcc %}
+                    {{ b.entity.room.accommodation.name }}
+                  {% elseif isDest %}
+                    {{ b.destName|default('Destination Booking') }}
+                  {% else %}
+                    Transport Booking #{{ b.id }}
+                  {% endif %}
                 </div>
                 <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
                   Booked on {{ b.date ? b.date|date('M d, Y') : 'Unknown' }}
@@ -131,10 +140,14 @@
 
           <div class="booking-row-body">
             <div>
-              <div class="booking-detail-label">{{ isAcc ? 'Check In / Out' : 'Details' }}</div>
+              <div class="booking-detail-label">
+                {% if isAcc %}Check In / Out{% elseif isDest %}Travel Dates{% else %}Details{% endif %}
+              </div>
               <div class="booking-detail-value">
                 {% if isAcc %}
                   {{ b.entity.checkIn|date('M d') }} - {{ b.entity.checkOut|date('M d, Y') }}
+                {% elseif isDest %}
+                  {{ b.entity.startAt|date('M d') }} - {{ b.entity.endAt ? b.entity.endAt|date('M d, Y') : 'Open' }}
                 {% else %}
                   Route/Schedule: #{{ b.entity.scheduleId > 0 ? b.entity.scheduleId : 'Direct' }}
                   <br><span style="font-size:12px;color:var(--text-muted);">{{ b.entity.totalSeats }} Seats · Insured: {{ b.entity.insuranceIncluded ? 'Yes' : 'No' }}</span>
@@ -143,11 +156,16 @@
             </div>
 
             <div>
-              <div class="booking-detail-label">{{ isAcc ? 'Room' : 'Payment' }}</div>
+              <div class="booking-detail-label">
+                {% if isAcc %}Room{% elseif isDest %}Guests{% else %}Payment{% endif %}
+              </div>
               <div class="booking-detail-value">
                 {% if isAcc %}
                   {{ b.entity.room.roomType }}
                   <br><span style="font-size:12px;color:var(--text-muted);">(Guest #{{ b.entity.userId }})</span>
+                {% elseif isDest %}
+                  {{ b.entity.numGuests }} guest{{ b.entity.numGuests > 1 ? 's' : '' }}
+                  <br><span style="font-size:12px;color:var(--text-muted);">Ref: {{ b.entity.bookingReference }}</span>
                 {% else %}
                   {{ b.entity.paymentStatus }}
                 {% endif %}
@@ -156,10 +174,28 @@
 
             <div class="booking-price">
               <div class="booking-price-val">{{ b.price|number_format(2) }}€</div>
-              <a href="{{ isAcc ? path('accommodation_details', {'id': b.entity.room.accommodation.id}) : path('user_booking_receipt_pdf', {'id': b.id}) }}" 
-                 class="btn btn-secondary btn-sm" style="width:100%; justify-content:center;">
-                View Details
-              </a>
+              {% if isAcc %}
+                <a href="{{ path('accommodation_details', {'id': b.entity.room.accommodation.id}) }}" 
+                   class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; margin-bottom:8px;">
+                  View Details
+                </a>
+              {% elseif isDest %}
+                <a href="{{ path('destination_detail', {'id': b.entity.destinationId}) }}" 
+                   class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; margin-bottom:8px;">
+                  View Destination
+                </a>
+              {% else %}
+                <a href="{{ path('user_booking_receipt_pdf', {'id': b.id}) }}" 
+                   class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; margin-bottom:8px;">
+                  View Details
+                </a>
+              {% endif %}
+              
+              {% if b.status|lower == 'confirmed' %}
+                <a href="#" onclick="alert('Feature coming soon'); return false;" class="btn btn-sm" style="width:100%; justify-content:center; background:#10b981; color:#fff; border:none; font-weight:600;">
+                  Proceed to Payment
+                </a>
+              {% endif %}
             </div>
           </div>
         </div>

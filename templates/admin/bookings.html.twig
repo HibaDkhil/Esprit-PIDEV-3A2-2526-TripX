@@ -1,0 +1,175 @@
+{% extends 'admin/admin_base.html.twig' %}
+{% block title %}Manage Bookings — TripX Admin{% endblock %}
+
+{% block page_styles %}
+  .dest-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--border-radius-lg); overflow: hidden; }
+  .dest-table th { background: rgba(0,166,237,0.05); text-align: left; padding: 16px 20px; font-family: var(--font-display); font-size: 14px; }
+  .dest-table td { padding: 16px 20px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
+  .dest-table tr:last-child td { border-bottom: none; }
+  .btn-action { padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; }
+  .btn-delete { color: #ef4444; }
+  .btn-delete:hover { border-color: #ef4444; background: rgba(239,68,68,0.1); }
+  .search-wrap { margin-bottom: 24px; }
+  .input-search { flex: 1; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); }
+  .status-pending { color: #f59e0b; }
+  .status-confirmed { color: #10b981; }
+  .status-cancelled { color: #ef4444; }
+  .status-completed { color: var(--accent-primary); }
+{% endblock %}
+
+{% block breadcrumbs %}
+  <a href="{{ path('admin_dashboard') }}" class="crumb">Dashboard</a>
+  <span class="sep">›</span>
+  <span class="crumb active">Bookings</span>
+{% endblock %}
+
+{% block content %}
+<div class="reveal">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;">
+    <div>
+      <h1 class="display-sm" style="margin-bottom:4px">Bookings</h1>
+      <p class="text-muted" style="font-size:14px">View and manage destination bookings.</p>
+    </div>
+  </div>
+
+  <div class="stats-tab-bar reveal" style="display:flex; gap:16px; margin-bottom:24px; padding:12px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius-lg); box-shadow:var(--shadow-sm);">
+    <div style="flex:1; padding:12px 20px; border-right:1px solid var(--border-color);">
+      <div class="text-muted" style="font-size:12px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px; font-family:var(--font-mono);">Total Bookings</div>
+      <div style="font-family:var(--font-display); font-size:28px; font-weight:700; color:var(--accent-primary);">{{ stats.total }}</div>
+    </div>
+    <div style="flex:1; padding:12px 20px; border-right:1px solid var(--border-color);">
+      <div class="text-muted" style="font-size:12px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px; font-family:var(--font-mono);">Pending</div>
+      <div style="font-family:var(--font-display); font-size:28px; font-weight:700; color:#f59e0b;">{{ stats.pending }}</div>
+    </div>
+    <div style="flex:1; padding:12px 20px;">
+      <div class="text-muted" style="font-size:12px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px; font-family:var(--font-mono);">Total Revenue</div>
+      <div style="font-family:var(--font-display); font-size:28px; font-weight:700; color:#10b981;">€{{ stats.revenue|number_format(2) }}</div>
+    </div>
+  </div>
+
+  <div class="search-wrap reveal">
+    <form method="get" action="{{ path('admin_bookings_des_index') }}" style="display:flex; width:100%; gap:12px;">
+      <input type="text" name="q" value="{{ currentQuery }}" class="input-search" placeholder="Search by reference, email, status...">
+      <button type="submit" class="btn btn-secondary">Search</button>
+    </form>
+  </div>
+
+  <div class="card reveal" style="padding:0; overflow:hidden;">
+    <table class="dest-table">
+      <thead>
+        <tr>
+          <th style="cursor:pointer;" onclick="sortData('bookingReference')">Reference ↕</th>
+          <th style="cursor:pointer;" onclick="sortData('userEmail')">User Email ↕</th>
+          <th>Destination</th>
+          <th style="cursor:pointer;" onclick="sortData('startAt')">Dates ↕</th>
+          <th style="cursor:pointer;" onclick="sortData('numGuests')">Guests ↕</th>
+          <th style="cursor:pointer;" onclick="sortData('totalAmount')">Amount ↕</th>
+          <th style="cursor:pointer;" onclick="sortData('status')">Status ↕</th>
+          <th style="text-align:right">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="bookingsTableBody">
+        {% for item in items %}
+        <tr>
+          <td style="font-family:var(--font-mono); font-size:12px;">{{ item.bookingReference }}</td>
+          <td>{{ item.userEmail|default('—') }}</td>
+          <td style="font-weight:600">{{ destNames[item.destinationId]|default('—') }}</td>
+          <td style="font-size:13px;">
+            {{ item.startAt|date('M d, Y') }}
+            {% if item.endAt %} → {{ item.endAt|date('M d, Y') }}{% endif %}
+          </td>
+          <td style="text-align:center">{{ item.numGuests }}</td>
+          <td style="color:var(--accent-primary); font-weight:600">€{{ item.totalAmount|number_format(2) }}</td>
+          <td>
+            <span class="badge {% if item.status == 'pending' %}badge-gold{% elseif item.status == 'confirmed' %}badge-teal{% elseif item.status == 'cancelled' %}badge-coral{% else %}badge-indigo{% endif %}">
+              {{ item.status|capitalize }}
+            </span>
+          </td>
+          <td style="text-align:right">
+            <div style="display:flex; gap:8px; justify-content:flex-end">
+              {% if item.status == 'pending' %}
+                <a href="{{ path('admin_bookings_des_confirm', {id: item.bookingId}) }}" class="btn btn-sm" style="background:#10b981; color:#fff; border:none;" onclick="return confirm('Confirm this booking?')">✅ Confirm</a>
+                <a href="{{ path('admin_bookings_des_reject', {id: item.bookingId}) }}" class="btn btn-sm" style="background:#f59e0b; color:#fff; border:none;" onclick="return confirm('Reject this booking?')">❌ Reject</a>
+              {% else %}
+                <span class="text-muted" style="font-size:12px; font-style:italic;">{{ item.status|capitalize }}</span>
+              {% endif %}
+              <a href="{{ path('admin_bookings_des_delete', {id: item.bookingId}) }}" class="btn btn-sm" style="background:#ef4444; color:#fff; border:none; border-radius: var(--border-radius-sm);" onclick="return confirm('Delete this booking permanently?')">🗑️ Delete</a>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="8" style="text-align:center; padding:40px; color:var(--text-muted)">No bookings found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+let currentSort = 'bookingReference';
+let currentOrder = 'ASC';
+
+function getBadgeClass(status) {
+    if (status === 'pending') return 'badge-gold';
+    if (status === 'confirmed') return 'badge-teal';
+    if (status === 'cancelled') return 'badge-coral';
+    return 'badge-indigo';
+}
+
+function getActions(item) {
+    let html = '<div style="display:flex; gap:8px; justify-content:flex-end">';
+    if (item.status === 'pending') {
+        html += `<a href="${item.url_confirm}" class="btn btn-sm" style="background:#10b981; color:#fff; border:none;" onclick="return confirm('Confirm this booking?')">✅ Confirm</a>`;
+        html += `<a href="${item.url_reject}" class="btn btn-sm" style="background:#f59e0b; color:#fff; border:none;" onclick="return confirm('Reject this booking?')">❌ Reject</a>`;
+    } else {
+        const capitalized = item.status.charAt(0).toUpperCase() + item.status.slice(1);
+        html += `<span class="text-muted" style="font-size:12px; font-style:italic;">${capitalized}</span>`;
+    }
+    html += `<a href="${item.url_delete}" class="btn btn-sm" style="background:#ef4444; color:#fff; border:none; border-radius: var(--border-radius-sm);" onclick="return confirm('Delete this booking permanently?')">🗑️ Delete</a>`;
+    html += '</div>';
+    return html;
+}
+
+function sortData(col) {
+    if (currentSort === col) {
+        currentOrder = currentOrder === 'ASC' ? 'DESC' : 'ASC';
+    } else {
+        currentSort = col;
+        currentOrder = 'ASC';
+    }
+    
+    // Grab the current search query
+    const searchInput = document.querySelector('input[name="q"]');
+    const q = searchInput ? searchInput.value : '';
+    
+    fetch(`{{ path('admin_bookings_des_api_sort') }}?sort=${currentSort}&order=${currentOrder}&q=${encodeURIComponent(q)}`)
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('bookingsTableBody');
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:40px; color:var(--text-muted)">No bookings found.</td></tr>`;
+                return;
+            }
+            
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                  <td style="font-family:var(--font-mono); font-size:12px;">${item.reference || ''}</td>
+                  <td>${item.userEmail || '—'}</td>
+                  <td style="font-weight:600">${item.destName || '—'}</td>
+                  <td style="font-size:13px;">${item.startAt} ${item.endAt ? '→ ' + item.endAt : ''}</td>
+                  <td style="text-align:center">${item.numGuests || 1}</td>
+                  <td style="color:var(--accent-primary); font-weight:600">€${parseFloat(item.totalPrice).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                  <td><span class="badge ${getBadgeClass(item.status)}">${item.status.charAt(0).toUpperCase() + item.status.slice(1)}</span></td>
+                  <td style="text-align:right">${getActions(item)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+}
+</script>
+{% endblock %}

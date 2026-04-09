@@ -18,55 +18,57 @@
 
   <div class="card reveal" style="max-width: 800px;">
     <div class="card-body">
-      <form method="post" action="{{ target_activity ? path('admin_activity_edit', {id: target_activity.activityId}) : path('admin_activity_add') }}">
+      {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
         
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
           <div class="form-group" style="margin-bottom: 20px;">
-            <label style="display:block; margin-bottom:8px; font-weight:600;">Name *</label>
-            <input type="text" name="name" value="{{ target_activity ? target_activity.name : '' }}" class="form-control" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);" required>
+            {{ form_label(form.name, 'Name *', {'label_attr': {'style': 'display:block; margin-bottom:8px; font-weight:600;'}}) }}
+            {{ form_widget(form.name, {'attr': {'class': 'form-control', 'style': 'width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);'}}) }}
+            <div style="color: red; font-size: 13px; margin-top: 4px;">{{ form_errors(form.name) }}</div>
           </div>
           
           <div class="form-group" style="margin-bottom: 20px;">
-            <label style="display:block; margin-bottom:8px; font-weight:600;">Category *</label>
-            <select name="category" class="form-control" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);" required>
-              {% set categories = ['tour', 'adventure', 'cultural', 'food', 'relaxation', 'nightlife', 'sports', 'wellness', 'other'] %}
-              {% for c in categories %}
-                <option value="{{ c }}" {% if target_activity and target_activity.category == c %}selected{% endif %}>{{ c|capitalize }}</option>
-              {% endfor %}
-            </select>
+            {{ form_label(form.category, 'Category *', {'label_attr': {'style': 'display:block; margin-bottom:8px; font-weight:600;'}}) }}
+            {{ form_widget(form.category, {'attr': {'class': 'form-control', 'style': 'width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);'}}) }}
+            <div style="color: red; font-size: 13px; margin-top: 4px;">{{ form_errors(form.category) }}</div>
           </div>
           
           <div class="form-group" style="margin-bottom: 20px;">
-            <label style="display:block; margin-bottom:8px; font-weight:600;">Price *</label>
-            <input type="number" step="0.01" name="price" value="{{ target_activity ? target_activity.price : '' }}" class="form-control" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);" required>
+            {{ form_label(form.price, 'Price *', {'label_attr': {'style': 'display:block; margin-bottom:8px; font-weight:600;'}}) }}
+            {{ form_widget(form.price, {'attr': {'class': 'form-control', 'style': 'width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);'}}) }}
+            <div style="color: red; font-size: 13px; margin-top: 4px;">{{ form_errors(form.price) }}</div>
           </div>
 
           <div class="form-group" style="margin-bottom: 20px;">
-            <label style="display:block; margin-bottom:8px; font-weight:600;">Currency</label>
-            <input type="text" name="currency" value="{{ target_activity ? target_activity.currency : 'USD' }}" class="form-control" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);">
+            {{ form_label(form.currency, 'Currency', {'label_attr': {'style': 'display:block; margin-bottom:8px; font-weight:600;'}}) }}
+            {{ form_widget(form.currency, {'attr': {'class': 'form-control', 'style': 'width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);'}}) }}
+            <div style="color: red; font-size: 13px; margin-top: 4px;">{{ form_errors(form.currency) }}</div>
           </div>
           
           <div class="form-group" style="margin-bottom: 20px;">
-            <label style="display:block; margin-bottom:8px; font-weight:600;">Duration (minutes)</label>
-            <input type="number" name="durationMinutes" value="{{ target_activity ? target_activity.durationMinutes : '' }}" class="form-control" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);">
+            {{ form_label(form.durationMinutes, 'Duration (minutes) *', {'label_attr': {'style': 'display:block; margin-bottom:8px; font-weight:600;'}}) }}
+            {{ form_widget(form.durationMinutes, {'attr': {'class': 'form-control', 'style': 'width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);'}}) }}
+            <div style="color: red; font-size: 13px; margin-top: 4px;">{{ form_errors(form.durationMinutes) }}</div>
           </div>
 
           <div class="form-group" style="margin-bottom: 20px;">
-            <label style="display:block; margin-bottom:8px; font-weight:600;">Capacity</label>
-            <input type="number" name="capacity" value="{{ target_activity ? target_activity.capacity : '' }}" class="form-control" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);">
+            {{ form_label(form.capacity, 'Capacity *', {'label_attr': {'style': 'display:block; margin-bottom:8px; font-weight:600;'}}) }}
+            {{ form_widget(form.capacity, {'attr': {'class': 'form-control', 'style': 'width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);'}}) }}
+            <div style="color: red; font-size: 13px; margin-top: 4px;">{{ form_errors(form.capacity) }}</div>
           </div>
         </div>
         
         <div class="form-group" style="margin-bottom: 20px;">
-          <label style="display:block; margin-bottom:8px; font-weight:600;">Description</label>
-          <textarea name="description" rows="4" class="form-control" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);">{{ target_activity ? target_activity.description : '' }}</textarea>
+          {{ form_label(form.description, 'Description', {'label_attr': {'style': 'display:block; margin-bottom:8px; font-weight:600;'}}) }}
+          {{ form_widget(form.description, {'attr': {'rows': '4', 'class': 'form-control', 'style': 'width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);'}}) }}
+          <div style="color: red; font-size: 13px; margin-top: 4px;">{{ form_errors(form.description) }}</div>
         </div>
 
         <div style="display:flex; gap:12px; margin-top:32px;">
           <button type="submit" class="btn btn-primary" style="flex:1;">Save Activity</button>
           <a href="{{ path('admin_activities') }}" class="btn btn-secondary" style="flex:1; text-align:center;">Cancel</a>
         </div>
-      </form>
+      {{ form_end(form) }}
     </div>
   </div>
 </div>

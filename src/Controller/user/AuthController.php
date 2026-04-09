@@ -6,7 +6,7 @@ use App\Entity\User;
 use App\Entity\Preference;
 use App\service\AuthService;
 use App\service\PreferenceService;
-use App\form\RegistrationFormType;
+use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;

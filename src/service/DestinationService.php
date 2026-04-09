@@ -3,37 +3,31 @@
 namespace App\service;
 
 use App\Entity\Destination;
+use App\Repository\DestinationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class DestinationService
 {
-    private $em;
+    private EntityManagerInterface $em;
+    private DestinationRepository $repository;
 
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
+        $this->repository = $em->getRepository(Destination::class);
     }
 
     public function getAll(string $query = ''): array
     {
-        $qb = $this->em->createQueryBuilder()
-            ->select('d')
-            ->from(Destination::class, 'd');
-
-        if (!empty($query)) {
-            $qb->where('d.name LIKE :query OR d.country LIKE :query OR d.type LIKE :query')
-               ->setParameter('query', '%' . $query . '%');
-        }
-
-        return $qb->getQuery()->getResult();
+        return $this->repository->search($query);
     }
 
-    public function find(int $id): ?Destination
+    public function find(string $id): ?Destination
     {
-        return $this->em->getRepository(Destination::class)->find($id);
+        return $this->repository->find($id);
     }
 
-    public function delete(int $id): bool
+    public function delete(string $id): bool
     {
         $dest = $this->find($id);
         if ($dest) {

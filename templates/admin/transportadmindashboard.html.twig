@@ -214,7 +214,7 @@
                 <a href="{{ path('admin_schedule_add') }}" class="btn btn-primary ripple-btn">+ New Schedule</a>
             {% elseif tab == 'booking' %}
             {% elseif tab == 'destination' %}
-                <a href="{{ path('admin_destination_add') }}" class="btn btn-primary ripple-btn">+ Add Destination</a>
+                <a href="{{ path('admin_trans_destination_add') }}" class="btn btn-primary ripple-btn">+ Add Destination</a>
             {% endif %}
         </div>
     </div>
@@ -230,7 +230,7 @@
         <a href="{{ path('admin_booking_list') }}" class="sub-nav-link {{ tab == 'booking' ? 'active' : '' }}">
             📋 Manage Bookings
         </a>
-        <a href="{{ path('admin_destination_list') }}" class="sub-nav-link {{ tab == 'destination' ? 'active' : '' }}">
+        <a href="{{ path('admin_trans_destination_list') }}" class="sub-nav-link {{ tab == 'destination' ? 'active' : '' }}">
             🌍 Manage Destinations
         </a>
     </div>
@@ -490,7 +490,7 @@
                     </div>
                     <div style="margin-top:24px; display:flex; gap:12px;">
                         <button type="submit" class="btn btn-primary">{{ formAction == 'edit' ? 'Save Changes' : 'Add Destination' }}</button>
-                        <a href="{{ path('admin_destination_list') }}" class="btn btn-secondary">Cancel</a>
+                        <a href="{{ path('admin_trans_destination_list') }}" class="btn btn-secondary">Cancel</a>
                     </div>
                 </form>
             </div>
@@ -528,8 +528,8 @@
                             </td>
                             <td style="text-align:right" class="actions-cell">
                                 <div style="display:flex; gap:8px; justify-content:flex-end">
-                                    <a href="{{ path('admin_destination_edit', {id: d.destinationId}) }}" class="btn btn-secondary btn-sm">Edit</a>
-                                    <a href="{{ path('admin_destination_delete', {id: d.destinationId}) }}" class="btn btn-primary btn-sm" onclick="return confirm('Delete this destination?')">Delete</a>
+                                    <a href="{{ path('admin_trans_destination_edit', {id: d.destinationId}) }}" class="btn btn-secondary btn-sm">Edit</a>
+                                    <a href="{{ path('admin_trans_destination_delete', {id: d.destinationId}) }}" class="btn btn-primary btn-sm" onclick="return confirm('Delete this destination?')">Delete</a>
                                 </div>
                             </td>
                         </tr>

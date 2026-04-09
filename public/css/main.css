@@ -113,7 +113,7 @@ body {
 a { color: inherit; text-decoration: none; }
 img { max-width: 100%; height: auto; display: block; }
 ul, ol { list-style: none; }
-button { cursor: auto; border: none; background: none; font-family: inherit; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
 
 /* ─── Custom Cursor ─── */
 
@@ -260,7 +260,7 @@ h3 { font-family: var(--font-body); font-size: 1.25rem; font-weight: 600; }
   border-radius: 20px;
   background: var(--bg-surface);
   border: 1.5px solid var(--border-color);
-  cursor: auto;
+  cursor: pointer;
   transition: background var(--transition-smooth);
   display: flex; align-items: center;
   padding: 3px;
@@ -314,7 +314,7 @@ h3 { font-family: var(--font-body); font-size: 1.25rem; font-weight: 600; }
   font-weight: 600;
   font-size: 0.95rem;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
-  cursor: auto;
+  cursor: pointer;
 }
 .btn:hover { transform: translateY(-3px); }
 .btn-primary {
@@ -393,6 +393,7 @@ h3 { font-family: var(--font-body); font-size: 1.25rem; font-weight: 600; }
   animation: aurora-spin 4s linear infinite;
   transition: opacity var(--transition-smooth);
   z-index: 0;
+  pointer-events: none;
 }
 .card:hover::before { opacity: 1; }
 @keyframes aurora-spin {
@@ -463,7 +464,7 @@ h3 { font-family: var(--font-body); font-size: 1.25rem; font-weight: 600; }
   text-transform: uppercase;
   color: var(--text-muted);
   background: var(--bg-surface);
-  cursor: auto;
+  cursor: pointer;
   transition: all var(--transition-fast);
 }
 .filter-pill:hover, .filter-pill.active {
@@ -629,7 +630,7 @@ h3 { font-family: var(--font-body); font-size: 1.25rem; font-weight: 600; }
   border-radius: 50%;
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-indigo));
   box-shadow: 0 0 30px rgba(14, 165, 255, 0.45), 0 8px 24px rgba(0, 0, 0, 0.40);
-  cursor: auto;
+  cursor: pointer;
   z-index: 999;
   display: flex;
   align-items: center;

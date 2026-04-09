@@ -411,13 +411,28 @@
 
       <span class="nav-section-label">Content</span>
       {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_DESTINATION') %}
-      <a href="{{ path('admin_destinations') }}" class="nav-item {% if app.request.get('_route') == 'admin_destinations' %}active{% endif %}" data-label="Destinations">
-        <span class="nav-icon">🌍</span><span class="nav-label">Destinations</span>
-      </a>
-      <a href="{{ path('admin_activities') }}" class="nav-item {% if app.request.get('_route') == 'admin_activities' %}active{% endif %}" data-label="Activities">
-        <span class="nav-icon">🧗</span><span class="nav-label">Activities</span>
-      </a>
+      {% set desRoutes = ['admin_destinations', 'admin_activities', 'admin_bookings_des_index'] %}
+      {% set desOpen = app.request.get('_route') in desRoutes or app.request.get('_route') starts with 'admin_bookings_des_' %}
+      <div class="nav-group">
+        <button class="nav-group-toggle {{ desOpen ? 'open' : '' }}" data-label="Destinations">
+          <span class="nav-icon">🌍</span>
+          <span class="nav-label">Destinations</span>
+          <span class="nav-group-arrow">▶</span>
+        </button>
+        <div class="nav-sub {{ desOpen ? 'open' : '' }}">
+          <a href="{{ path('admin_destinations') }}" class="nav-sub-item {% if app.request.get('_route') == 'admin_destinations' %}active{% endif %}">
+            📋 Destinations
+          </a>
+          <a href="{{ path('admin_activities') }}" class="nav-sub-item {% if app.request.get('_route') == 'admin_activities' %}active{% endif %}">
+            🧗 Activities
+          </a>
+          <a href="{{ path('admin_bookings_des_index') }}" class="nav-sub-item {% if app.request.get('_route') starts with 'admin_bookings_des_' %}active{% endif %}">
+            📅 Bookings
+          </a>
+        </div>
+      </div>
       {% endif %}
+
 
       {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_ACCOMODATION') %}
       {% set accRoutes = ['admin_accommodations_index', 'admin_accommodations_bookings_index'] %}

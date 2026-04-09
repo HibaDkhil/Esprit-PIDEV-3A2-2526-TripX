@@ -3,6 +3,8 @@
 namespace App\Controller\user;
 
 use App\service\BookingtransService;
+use App\service\BookingService;
+use App\service\DestinationService;
 use App\Repository\BookingAccRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,11 +14,19 @@ class MyBookingsController extends AbstractController
 {
     private BookingtransService $bookingTransService;
     private BookingAccRepository $bookingAccRepo;
+    private BookingService $bookingDesService;
+    private DestinationService $destinationService;
 
-    public function __construct(BookingtransService $bookingTransService, BookingAccRepository $bookingAccRepo)
-    {
+    public function __construct(
+        BookingtransService $bookingTransService,
+        BookingAccRepository $bookingAccRepo,
+        BookingService $bookingDesService,
+        DestinationService $destinationService,
+    ) {
         $this->bookingTransService = $bookingTransService;
         $this->bookingAccRepo = $bookingAccRepo;
+        $this->bookingDesService = $bookingDesService;
+        $this->destinationService = $destinationService;
     }
 
     #[Route('/my-bookings', name: 'my_bookings')]
@@ -36,10 +46,20 @@ class MyBookingsController extends AbstractController
         // Get Accommodation Bookings
         $accBookings = $this->bookingAccRepo->findBy(['userId' => $userId]);
 
+        // Get Destination/Activity Bookings
+        $desBookings = $this->bookingDesService->getByUser($userId);
+
+        // Build destination name map
+        $destNameMap = [];
+        $allDests = $this->destinationService->getAll();
+        foreach ($allDests as $d) {
+            $destNameMap[$d->getDestinationId()] = $d->getName();
+        }
+
         $totalSpent = 0;
         $confirmedCount = 0;
         $pendingCount = 0;
-        $totalBookings = count($transBookings) + count($accBookings);
+        $totalBookings = count($transBookings) + count($accBookings) + count($desBookings);
 
         foreach ($transBookings as $b) {
             if ($b->getBookingStatus() !== 'CANCELLED') {
@@ -55,6 +75,14 @@ class MyBookingsController extends AbstractController
             }
             if ($b->getStatus() === 'CONFIRMED') $confirmedCount++;
             if ($b->getStatus() === 'PENDING') $pendingCount++;
+        }
+
+        foreach ($desBookings as $b) {
+            if ($b->getStatus() !== 'cancelled') {
+                $totalSpent += (float) $b->getTotalAmount();
+            }
+            if ($b->getStatus() === 'confirmed') $confirmedCount++;
+            if ($b->getStatus() === 'pending') $pendingCount++;
         }
 
         // We sort them combined later in twig or here
@@ -79,6 +107,18 @@ class MyBookingsController extends AbstractController
                 'price' => $a->getTotalPrice(),
                 'date' => $a->getCreatedAt(),
                 'entity' => $a
+            ];
+        }
+
+        foreach ($desBookings as $d) {
+            $allBookings[] = [
+                'type' => 'destination',
+                'id' => $d->getBookingId(),
+                'status' => strtoupper($d->getStatus()),
+                'price' => (float) $d->getTotalAmount(),
+                'date' => $d->getCreatedAt(),
+                'entity' => $d,
+                'destName' => $destNameMap[$d->getDestinationId()] ?? 'Destination #' . $d->getDestinationId(),
             ];
         }
 

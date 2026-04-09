@@ -7,6 +7,10 @@ use App\service\DestinationService;
 use App\service\ActivityService;
 use App\service\TransportService;
 use App\service\BookingtransService;
+use App\Entity\Destination;
+use App\Entity\Activity;
+use App\Form\DestinationType;
+use App\Form\ActivityType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -321,6 +325,45 @@ class AdminController extends AbstractController
         ]); 
     }
 
+    #[Route('/destinations/api/sort', name: 'destinations_api_sort', methods: ['GET'])]
+    #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_DESTINATION')"))]
+    public function sortDestinations(Request $request, \App\Repository\DestinationRepository $repo): JsonResponse
+    {
+        $sort = $request->query->get('sort', 'destinationId');
+        $order = $request->query->get('order', 'ASC');
+        
+        $allowedSorts = ['destinationId', 'name', 'country', 'type', 'estimatedBudget'];
+        if (!in_array($sort, $allowedSorts)) {
+            $sort = 'destinationId';
+        }
+        
+        $qb = $repo->createQueryBuilder('d')->orderBy('d.' . $sort, $order);
+                   
+        $q = $request->query->get('q');
+        if (!empty($q)) {
+            $qb->where('d.name LIKE :q OR d.country LIKE :q OR d.type LIKE :q')
+               ->setParameter('q', '%' . $q . '%');
+        }
+        
+        $destinations = $qb->getQuery()->getResult();
+        
+        $data = [];
+        foreach ($destinations as $d) {
+            $data[] = [
+                'id' => $d->getDestinationId(),
+                'name' => $d->getName(),
+                'country' => $d->getCountry(),
+                'type' => $d->getType(),
+                'estimatedBudget' => $d->getEstimatedBudget(),
+                'imageUrl' => $d->getImageUrl(),
+                'url_edit' => $this->generateUrl('admin_destination_edit', ['id' => $d->getDestinationId()]),
+                'url_delete' => $this->generateUrl('admin_destination_delete', ['id' => $d->getDestinationId()]),
+            ];
+        }
+        
+        return new JsonResponse($data);
+    }
+
     /**
      * Shows a detailed profile of a specific user including their personal info and travel preferences.
      * This route leverages Doctrine's find and findOneBy to cross-reference entities.
@@ -341,24 +384,20 @@ class AdminController extends AbstractController
     #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_DESTINATION')"))]
     public function addDestination(Request $request): Response
     {
-        if ($request->isMethod('POST')) {
-            $dest = new \App\Entity\Destination();
-            $dest->setName($request->request->get('name'));
-            $dest->setCountry($request->request->get('country'));
-            $dest->setCity($request->request->get('city'));
-            $dest->setType($request->request->get('type'));
-            $dest->setBestSeason($request->request->get('bestSeason'));
-            $dest->setEstimatedBudget($request->request->get('estimatedBudget'));
-            $dest->setImageUrl($request->request->get('imageUrl'));
-            $dest->setDescription($request->request->get('description'));
-            $dest->setLatitude($request->request->get('latitude'));
-            $dest->setLongitude($request->request->get('longitude'));
-            
+        $dest = new Destination();
+        $form = $this->createForm(DestinationType::class, $dest);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
             $this->destinationService->save($dest);
             $this->addFlash('success', 'Destination added.');
             return $this->redirectToRoute('admin_destinations');
         }
-        return $this->render('admin/destination_form.html.twig', ['target_destination' => null]);
+
+        return $this->render('admin/destination_form.html.twig', [
+            'target_destination' => null,
+            'form' => $form->createView(),
+        ]);
     }
 
     #[Route('/destinations/edit/{id}', name: 'destination_edit', methods: ['GET', 'POST'])]
@@ -368,23 +407,19 @@ class AdminController extends AbstractController
         $dest = $this->destinationService->find($id);
         if (!$dest) return $this->redirectToRoute('admin_destinations');
 
-        if ($request->isMethod('POST')) {
-            $dest->setName($request->request->get('name'));
-            $dest->setCountry($request->request->get('country'));
-            $dest->setCity($request->request->get('city'));
-            $dest->setType($request->request->get('type'));
-            $dest->setBestSeason($request->request->get('bestSeason'));
-            $dest->setEstimatedBudget($request->request->get('estimatedBudget'));
-            $dest->setImageUrl($request->request->get('imageUrl'));
-            $dest->setDescription($request->request->get('description'));
-            $dest->setLatitude($request->request->get('latitude'));
-            $dest->setLongitude($request->request->get('longitude'));
-            
+        $form = $this->createForm(DestinationType::class, $dest);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
             $this->destinationService->save($dest);
             $this->addFlash('success', 'Destination updated.');
             return $this->redirectToRoute('admin_destinations');
         }
-        return $this->render('admin/destination_form.html.twig', ['target_destination' => $dest]);
+
+        return $this->render('admin/destination_form.html.twig', [
+            'target_destination' => $dest,
+            'form' => $form->createView(),
+        ]);
     }
 
     #[Route('/destinations/delete/{id}', name: 'destination_delete')]
@@ -424,27 +459,62 @@ class AdminController extends AbstractController
         ]); 
     }
 
+    #[Route('/activities/api/sort', name: 'activities_api_sort', methods: ['GET'])]
+    #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_DESTINATION')"))]
+    public function sortActivities(Request $request, \App\Repository\ActivityRepository $repo): JsonResponse
+    {
+        $sort = $request->query->get('sort', 'activityId');
+        $order = $request->query->get('order', 'ASC');
+        
+        $allowedSorts = ['activityId', 'name', 'category', 'price', 'durationMinutes'];
+        if (!in_array($sort, $allowedSorts)) {
+            $sort = 'activityId';
+        }
+        
+        $qb = $repo->createQueryBuilder('a')->orderBy('a.' . $sort, $order);
+                   
+        $q = $request->query->get('q');
+        if (!empty($q)) {
+            $qb->where('a.name LIKE :q OR a.category LIKE :q')
+               ->setParameter('q', '%' . $q . '%');
+        }
+        
+        $activities = $qb->getQuery()->getResult();
+        
+        $data = [];
+        foreach ($activities as $a) {
+            $data[] = [
+                'id' => $a->getActivityId(),
+                'name' => $a->getName(),
+                'category' => $a->getCategory(),
+                'price' => $a->getPrice(),
+                'duration' => $a->getDurationMinutes(),
+                'url_edit' => $this->generateUrl('admin_activity_edit', ['id' => $a->getActivityId()]),
+                'url_delete' => $this->generateUrl('admin_activity_delete', ['id' => $a->getActivityId()]),
+            ];
+        }
+        
+        return new JsonResponse($data);
+    }
+
     #[Route('/activities/add', name: 'activity_add', methods: ['GET', 'POST'])]
     #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_DESTINATION')"))]
     public function addActivity(Request $request): Response
     {
-        if ($request->isMethod('POST')) {
-            $act = new \App\Entity\Activity();
-            $act->setName($request->request->get('name'));
-            $act->setCategory($request->request->get('category'));
-            $act->setPrice($request->request->get('price'));
-            $act->setCurrency($request->request->get('currency', 'USD'));
-            $duration = $request->request->get('durationMinutes');
-            if ($duration) $act->setDurationMinutes((int)$duration);
-            $capacity = $request->request->get('capacity');
-            if ($capacity) $act->setCapacity((int)$capacity);
-            $act->setDescription($request->request->get('description'));
-            
+        $act = new Activity();
+        $form = $this->createForm(ActivityType::class, $act);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
             $this->activityService->save($act);
             $this->addFlash('success', 'Activity added.');
             return $this->redirectToRoute('admin_activities');
         }
-        return $this->render('admin/activity_form.html.twig', ['target_activity' => null]);
+
+        return $this->render('admin/activity_form.html.twig', [
+            'target_activity' => null,
+            'form' => $form->createView(),
+        ]);
     }
 
     #[Route('/activities/edit/{id}', name: 'activity_edit', methods: ['GET', 'POST'])]
@@ -454,22 +524,19 @@ class AdminController extends AbstractController
         $act = $this->activityService->find($id);
         if (!$act) return $this->redirectToRoute('admin_activities');
 
-        if ($request->isMethod('POST')) {
-            $act->setName($request->request->get('name'));
-            $act->setCategory($request->request->get('category'));
-            $act->setPrice($request->request->get('price'));
-            $act->setCurrency($request->request->get('currency', 'USD'));
-            $duration = $request->request->get('durationMinutes');
-            if ($duration !== '') $act->setDurationMinutes((int)$duration);
-            $capacity = $request->request->get('capacity');
-            if ($capacity !== '') $act->setCapacity((int)$capacity);
-            $act->setDescription($request->request->get('description'));
-            
+        $form = $this->createForm(ActivityType::class, $act);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
             $this->activityService->save($act);
             $this->addFlash('success', 'Activity updated.');
             return $this->redirectToRoute('admin_activities');
         }
-        return $this->render('admin/activity_form.html.twig', ['target_activity' => $act]);
+
+        return $this->render('admin/activity_form.html.twig', [
+            'target_activity' => $act,
+            'form' => $form->createView(),
+        ]);
     }
 
     #[Route('/activities/delete/{id}', name: 'activity_delete')]

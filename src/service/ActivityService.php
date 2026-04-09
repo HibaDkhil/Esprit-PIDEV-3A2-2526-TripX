@@ -3,34 +3,28 @@
 namespace App\service;
 
 use App\Entity\Activity;
+use App\Repository\ActivityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ActivityService
 {
-    private $em;
+    private EntityManagerInterface $em;
+    private ActivityRepository $repository;
 
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
+        $this->repository = $em->getRepository(Activity::class);
     }
 
     public function getAll(string $query = ''): array
     {
-        $qb = $this->em->createQueryBuilder()
-            ->select('a')
-            ->from(Activity::class, 'a');
-
-        if (!empty($query)) {
-            $qb->where('a.name LIKE :query OR a.category LIKE :query')
-               ->setParameter('query', '%' . $query . '%');
-        }
-
-        return $qb->getQuery()->getResult();
+        return $this->repository->search($query);
     }
 
     public function find(int $id): ?Activity
     {
-        return $this->em->getRepository(Activity::class)->find($id);
+        return $this->repository->find($id);
     }
 
     public function delete(int $id): bool

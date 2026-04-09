@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use DateTime;
 use Symfony\Component\Validator\Constraints as Assert;
 
-use App\form\ScheduleFieldsByType;
+use App\Form\ScheduleFieldsByType;
 
 #[ORM\Entity(repositoryClass: ScheduleRepository::class)]
 #[ORM\Table(name: 'schedule')]
