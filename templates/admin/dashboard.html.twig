@@ -1,6 +1,5 @@
 {% extends 'admin/admin_base.html.twig' %}
 
-
 {% block title %}Admin Dashboard — TripX{% endblock %}
 
 {% block breadcrumbs %}
@@ -66,6 +65,20 @@
     border-bottom: 1px dashed var(--border-color);
   }
   .activity-row:last-child { border-bottom: none; }
+
+  /* Transport KPI mini-cards (Restored from HEAD) */
+  .kpi-mini {
+    flex: 1; min-width: 110px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 14px; padding: 16px;
+    text-align: center;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .kpi-mini:hover { transform: translateY(-3px); border-color: var(--accent-primary); }
+  .kpi-icon { font-size: 22px; margin-bottom: 8px; }
+  .kpi-val { font-size: 22px; font-weight: 700; line-height: 1; }
+  .kpi-lbl { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
 {% endblock %}
 
 {% block content %}
@@ -92,6 +105,115 @@
     </div>
   </div>
 
+  {# ── TRANSPORT OVERVIEW & AI (Restored from HEAD) ── #}
+  {% if stats is defined %}
+  <div class="panel reveal stagger" style="margin-bottom:28px;">
+    <div class="panel-header">
+      <h2 style="font-family:var(--font-display);font-size:18px;margin:0;">🚗 Transport Overview</h2>
+      <div style="height:3px;width:120px;background:linear-gradient(to right,#F97316,#6D83F2);border-radius:2px;"></div>
+    </div>
+
+    {# KPI mini-cards #}
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;">
+      <div class="kpi-mini">
+        <div class="kpi-icon">🚗</div>
+        <div class="kpi-val" style="color:#6D83F2;">{{ stats.vehicles }}</div>
+        <div class="kpi-lbl">Vehicles</div>
+      </div>
+      <div class="kpi-mini">
+        <div class="kpi-icon">📋</div>
+        <div class="kpi-val" style="color:#F59E0B;">{{ stats.total }}</div>
+        <div class="kpi-lbl">Bookings</div>
+      </div>
+      <div class="kpi-mini">
+        <div class="kpi-icon">✅</div>
+        <div class="kpi-val" style="color:#10B981;">{{ stats.confirmed }}</div>
+        <div class="kpi-lbl">Confirmed</div>
+      </div>
+      <div class="kpi-mini">
+        <div class="kpi-icon">⏳</div>
+        <div class="kpi-val" style="color:#F97316;">{{ stats.pending }}</div>
+        <div class="kpi-lbl">Pending</div>
+      </div>
+      <div class="kpi-mini">
+        <div class="kpi-icon">❌</div>
+        <div class="kpi-val" style="color:#EF4444;">{{ stats.cancelled }}</div>
+        <div class="kpi-lbl">Cancelled</div>
+      </div>
+      <div class="kpi-mini">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-val" style="color:#8B5CF6;">{{ stats.revenue|number_format(0) }}</div>
+        <div class="kpi-lbl">EUR Revenue</div>
+      </div>
+    </div>
+
+    {# Rate chips #}
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
+      <div style="background:#F0F4FF;border-radius:8px;padding:10px 16px;flex:1;min-width:160px;">
+        <span style="font-size:12px;color:#64748B;">Confirmation Rate: </span>
+        <span style="font-weight:700;color:#6D83F2;">{{ stats.confirmationRate }}%</span>
+      </div>
+      <div style="background:#FFF7ED;border-radius:8px;padding:10px 16px;flex:1;min-width:160px;">
+        <span style="font-size:12px;color:#64748B;">Cancellation Rate: </span>
+        <span style="font-weight:700;color:#F97316;">{{ stats.cancellationRate }}%</span>
+      </div>
+      <div style="background:#F0FDF4;border-radius:8px;padding:10px 16px;flex:1;min-width:160px;">
+        <span style="font-size:12px;color:#64748B;">Avg Revenue/Booking: </span>
+        <span style="font-weight:700;color:#10B981;">{{ stats.avgRevenuePerBooking|number_format(2) }} EUR</span>
+      </div>
+    </div>
+
+    {# CHARTS ROW #}
+    <div style="display:flex; gap:20px; margin-bottom:24px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:280px; background:var(--bg-card); padding:20px; border-radius:12px; border:1px solid rgba(109,131,242,0.22);">
+            <div style="font-size:14px; font-weight:700; color:var(--text-primary); text-align:center; margin-bottom:16px;">Booking Statuses</div>
+            <div style="position:relative; height:240px; width:100%;">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+
+        <div style="flex:2; min-width:400px; background:var(--bg-card); padding:20px; border-radius:12px; border:1px solid rgba(109,131,242,0.22);">
+            <div style="font-size:14px; font-weight:700; color:var(--text-primary); text-align:center; margin-bottom:16px;">Revenue by Week (Last 8 Weeks)</div>
+            <div style="position:relative; height:240px; width:100%;">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div style="display:flex; gap:20px; margin-bottom:24px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:400px; background:var(--bg-card); padding:20px; border-radius:12px; border:1px solid rgba(109,131,242,0.22);">
+            <div style="font-size:14px; font-weight:700; color:var(--text-primary); text-align:center; margin-bottom:16px;">Top Providers by Confirmed Bookings</div>
+            <div style="position:relative; height:240px; width:100%;">
+                <canvas id="providerChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    {# AI Panel #}
+    <div style="background:linear-gradient(to bottom right,#F0F4FF,#FFF7ED);border-radius:12px;
+                padding:20px;border:1px solid rgba(109,131,242,0.22);">
+      <div style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:6px;">
+        🤖 &nbsp; AI Transport Insights — Powered by Groq
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">
+        Click 'Analyze' to get AI-powered analysis of your transport fleet performance and booking trends.
+      </div>
+      <textarea id="aiResult" readonly rows="6"
+                style="width:100%;padding:12px;border-radius:10px;border:1px solid rgba(109,131,242,0.18);
+                       background:var(--bg-card);color:var(--text-primary);resize:none;
+                       font-family:'Segoe UI',sans-serif;font-size:13px;box-sizing:border-box;margin-bottom:14px;">Click 'Analyze' to receive insights...</textarea>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <button id="analyzeBtn" onclick="analyzeTransport()"
+                style="padding:10px 26px;background:linear-gradient(to right,#F97316,#6D83F2);
+                       color:white;border:none;border-radius:22px;font-weight:700;font-size:13px;cursor:pointer;">
+          ✨ &nbsp; Analyze with AI
+        </button>
+        <span id="analyzeStatus" style="font-size:11px;color:var(--text-muted);"></span>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
   <div class="reveal stagger" style="margin-top: 40px;">
     <div class="panel" style="text-align: center;">
       <h2 style="font-family:var(--font-display);font-size:18px;margin-bottom:20px;">System Overview</h2>
@@ -101,14 +223,110 @@
 {% endblock %}
 
 {% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+async function analyzeTransport() {
+  const btn    = document.getElementById('analyzeBtn');
+  const result = document.getElementById('aiResult');
+  const status = document.getElementById('analyzeStatus');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Analyzing...';
+  status.textContent = 'Connecting to Groq AI...';
+  result.value = 'Generating insights, please wait...';
+
+  try {
+    const resp = await fetch('{{ path("admin_overview_analyze") }}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await resp.json();
+    result.value = data.result;
+    status.textContent = data.success ? 'Analysis complete. Updated just now.' : 'Analysis failed.';
+  } catch (e) {
+    result.value = 'Could not reach the server. Error: ' + e.message;
+    status.textContent = 'Analysis failed.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ Analyze with AI';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
     // PDF Export
     const exportBtn = document.getElementById('exportPDF');
     if (exportBtn) {
         exportBtn.addEventListener('click', () => {
             window.print();
         });
+    }
+
+    // Charts Initialization
+    const chartsUrl = '{{ path("admin_overview_charts")|default("") }}';
+    if (!chartsUrl) return;
+
+    try {
+        const response = await fetch(chartsUrl);
+        const data = await response.json();
+        
+        // 1. Doughnut Chart: Statuses
+        const statusCtx = document.getElementById('statusChart')?.getContext('2d');
+        if (statusCtx) {
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(data.statuses),
+                    datasets: [{
+                        data: Object.values(data.statuses),
+                        backgroundColor: ['#10B981', '#F97316', '#EF4444'], 
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        // 2. Line Chart: Weekly Revenue
+        const revCtx = document.getElementById('revenueChart')?.getContext('2d');
+        if (revCtx) {
+            new Chart(revCtx, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(data.weeklyRevenue),
+                    datasets: [{
+                        label: 'Revenue (EUR)',
+                        data: Object.values(data.weeklyRevenue),
+                        borderColor: '#6D83F2',
+                        backgroundColor: 'rgba(109, 131, 242, 0.2)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                           scales: { y: { beginAtZero: true } } }
+            });
+        }
+
+        // 3. Bar Chart: Top Providers
+        const provCtx = document.getElementById('providerChart')?.getContext('2d');
+        if (provCtx) {
+            new Chart(provCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(data.topProviders),
+                    datasets: [{
+                        label: 'Confirmed Bookings',
+                        data: Object.values(data.topProviders),
+                        backgroundColor: '#8B5CF6',
+                        borderRadius: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, 
+                           scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+        }
+    } catch (e) {
+        console.error('Failed to load chart data:', e);
     }
 });
 </script>

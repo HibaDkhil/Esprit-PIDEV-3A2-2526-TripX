@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>TripX Transport Fleet Report</title>
+    <style>
+        body { font-family: sans-serif; color: #333; margin: 0; padding: 20px; }
+        .header { border-bottom: 2px solid #1F294C; padding-bottom: 10px; margin-bottom: 30px; display: table; width: 100%; }
+        .logo { font-size: 24px; font-weight: bold; color: #1F294C; display: table-cell; }
+        .logo span { color: #ef4444; }
+        .report-info { display: table-cell; text-align: right; font-size: 12px; color: #666; vertical-align: bottom; }
+        h1 { font-size: 20px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th { background-color: #f8f9fa; color: #1F294C; text-align: left; padding: 10px; border-bottom: 2px solid #dee2e6; font-size: 12px; text-transform: uppercase; }
+        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 11px; vertical-align: middle; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 10px; font-size: 9px; font-weight: bold; text-transform: uppercase; }
+        .badge-active { background-color: #dcfce7; color: #15803d; }
+        .badge-inactive { background-color: #f3f4f6; color: #4b5563; }
+        .footer { position: fixed; bottom: 0; width: 100%; font-size: 10px; color: #999; text-align: center; border-top: 1px solid #eee; padding-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Trip<span>X</span> Transport Fleet</div>
+        <div class="report-info">Generated on: {{ date|date('d M Y H:i') }}</div>
+    </div>
+
+    <h1>Official Fleet Inventory</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Provider</th>
+                <th>Model</th>
+                <th>Base Price</th>
+                <th>Capacity</th>
+                <th>Eco Rating</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in transports %}
+            <tr>
+                <td>#{{ t.transportId }}</td>
+                <td>{{ t.transportType }}</td>
+                <td><strong>{{ t.providerName }}</strong></td>
+                <td>{{ t.vehicleModel }}</td>
+                <td>EUR {{ t.basePrice|number_format(2) }}</td>
+                <td>{{ t.capacity }} seats / {{ t.availableUnits }} units</td>
+                <td>{{ t.sustainabilityRating }} ★</td>
+                <td>
+                    <span class="badge {{ t.isActive ? 'badge-active' : 'badge-inactive' }}">
+                        {{ t.isActive ? 'ACTIVE' : 'INACTIVE' }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        &copy; {{ date|date('Y') }} TripX Management System - Internal Use Only
+    </div>
+</body>
+</html>

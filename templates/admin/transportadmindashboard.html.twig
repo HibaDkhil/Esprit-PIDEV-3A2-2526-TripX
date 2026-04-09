@@ -1,0 +1,829 @@
+{% extends 'admin/admin_base.html.twig' %}
+
+{% block title %}Manage Transport — TripX Admin{% endblock %}
+
+{% block page_styles %}
+/* Activities Theme Styles */
+/* KPI Cards */
+.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px; margin-bottom:30px; }
+.kpi-card {
+  height: 140px; border-radius: 20px; padding: 1.5rem; display: flex; flex-direction: column; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+.kpi-card-total { background: linear-gradient(135deg, #eef5ff 0%, #f8f0ff 100%); border: 1px solid rgba(126, 200, 247, 0.5); box-shadow: 0 6px 14px rgba(126, 200, 247, 0.12); }
+.kpi-card-active { background: linear-gradient(135deg, #e8fff6 0%, #e0f7ff 100%); border: 1px solid rgba(94, 224, 181, 0.5); box-shadow: 0 6px 14px rgba(94, 224, 181, 0.12); }
+.kpi-card-inactive { background: linear-gradient(135deg, #faf5ff 0%, #f5f0ff 100%); border: 1px solid rgba(196, 181, 253, 0.5); box-shadow: 0 6px 14px rgba(196, 181, 253, 0.12); }
+.kpi-top { display: flex; align-items: center; gap: 12px; position: relative; z-index: 3; }
+.kpi-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; background: rgba(255, 255, 255, 0.8); }
+.kpi-val { font-size: 2.2rem; font-weight: 800; line-height: 1; margin-top: auto; position: relative; z-index: 3; color:#1a2c3e; }
+.kpi-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #4a5568; }
+
+.dest-table { 
+    width: 100%; 
+    border-collapse: separate; 
+    border-spacing: 0; 
+    background: var(--bg-card); 
+    border: 1px solid var(--border-color); 
+    border-radius: var(--border-radius-lg); 
+    overflow: hidden; 
+}
+.dest-table th { 
+    background: rgba(0,166,237,0.05); 
+    text-align: left; 
+    padding: 16px 20px; 
+    font-family: var(--font-display); 
+    font-size: 14px; 
+}
+.dest-table td { 
+    padding: 16px 20px; 
+    border-bottom: 1px solid var(--border-color); 
+    font-size: 14px; 
+}
+.dest-table tr:last-child td { border-bottom: none; }
+
+.btn-action { 
+    padding: 8px; 
+    border-radius: 6px; 
+    border: 1px solid var(--border-color); 
+    cursor: pointer; 
+    text-decoration: none; 
+    display: inline-flex; 
+    align-items: center; 
+    justify-content: center; 
+    width: 32px; 
+    height: 32px; 
+    transition: all 0.2s;
+}
+.btn-delete { color: #ef4444; }
+.btn-delete:hover { border-color: #ef4444; background: rgba(239,68,68,0.1); }
+.btn-edit { color: #f59e0b; }
+.btn-edit:hover { border-color: #f59e0b; background: rgba(245,158,11,0.1); }
+.btn-toggle { color: #10b981; }
+.btn-toggle:hover { border-color: #10b981; background: rgba(16,185,129,0.1); }
+
+.search-wrap { margin-bottom: 24px; }
+.input-search { 
+    flex: 1; 
+    padding: 12px 16px; 
+    border-radius: 10px; 
+    border: 1px solid var(--border-color); 
+    background: var(--bg-card); 
+    color: var(--text-primary); 
+    font-size: 14px;
+}
+
+.stats-tab-bar {
+    display: flex; 
+    gap: 16px; 
+    margin-bottom: 24px; 
+    padding: 12px; 
+    background: var(--bg-card); 
+    border: 1px solid var(--border-color); 
+    border-radius: var(--border-radius-lg); 
+    box-shadow: var(--shadow-sm);
+}
+
+.sub-nav-tabs {
+    display: flex; 
+    gap: 8px; 
+    margin-bottom: 24px; 
+    flex-wrap: wrap;
+}
+.sub-nav-link {
+    padding: 10px 24px; 
+    text-decoration: none; 
+    border-radius: 10px; 
+    font-size: 14px; 
+    font-weight: 600;
+    transition: all 0.2s;
+    border: 1px solid var(--border-color);
+}
+.sub-nav-link.active {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+}
+.sub-nav-link:not(.active) {
+    background: var(--bg-card);
+    color: var(--text-muted);
+}
+.sub-nav-link:not(.active):hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+/* Form Styling */
+.form-card {
+    background: var(--bg-surface);
+    padding: 28px;
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--border-color);
+    margin-bottom: 32px;
+}
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.form-label {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-primary);
+}
+.form-control {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 14px;
+}
+.btn, .btn-action { 
+    cursor: pointer !important; 
+    pointer-events: auto !important; 
+}
+.actions-cell {
+    position: relative;
+    z-index: 5;
+}
+
+/* Inline Error Styling */
+.field-error {
+    color: #ef4444;
+    font-size: 11px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+}
+.form-control.has-error {
+    border-color: #ef4444 !important;
+    background: rgba(239,68,68,0.05) !important;
+}
+{% endblock %}
+
+{% block breadcrumbs %}
+  <a href="{{ path('admin_dashboard') }}" class="crumb">Dashboard</a>
+  <span class="sep">›</span>
+  {% if tab == 'transport' %}
+      <span class="crumb active">Manage Transport</span>
+  {% elseif tab == 'schedule' %}
+      <a href="{{ path('admin_transport_list') }}" class="crumb">Transport</a>
+      <span class="sep">›</span>
+      <span class="crumb active">Manage Schedules</span>
+  {% elseif tab == 'booking' %}
+      <a href="{{ path('admin_transport_list') }}" class="crumb">Transport</a>
+      <span class="sep">›</span>
+      <span class="crumb active">Manage Bookings</span>
+  {% else %}
+      <span class="crumb active">Transport</span>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div>{# Outer container without reveal to prevent global click-blocking #}
+    {# ═══ HEADER SECTION ═══ #}
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;">
+        <div>
+            <h1 class="display-sm" style="margin-bottom:4px">
+                {% if tab == 'transport' %}Transport Fleet
+                {% elseif tab == 'schedule' %}Transport Schedules
+                {% elseif tab == 'booking' %}Transport Bookings
+                {% elseif tab == 'destination' %}Destination Management
+                {% endif %}
+            </h1>
+            <p class="text-muted" style="font-size:14px">
+                {% if tab == 'transport' %}Configure vehicles, providers, and base pricing.
+                {% elseif tab == 'schedule' %}Manage intervals, classes, and real-time status.
+                {% elseif tab == 'booking' %}Review passenger reservations and payment status.
+                {% elseif tab == 'destination' %}Manage global destinations for the transport network.
+                {% endif %}
+            </p>
+        </div>
+        <div style="display:flex; gap:12px;">
+            {% if tab == 'transport' %}
+                <a href="{{ path('admin_transport_export_pdf') }}" class="btn btn-secondary ripple-btn">Export PDF</a>
+                <a href="{{ path('admin_transport_add') }}" class="btn btn-primary ripple-btn">+ Add Transport</a>
+            {% elseif tab == 'schedule' %}
+                <a href="{{ path('admin_schedule_export_csv') }}" class="btn btn-secondary ripple-btn">Export CSV</a>
+                <a href="{{ path('admin_schedule_add') }}" class="btn btn-primary ripple-btn">+ New Schedule</a>
+            {% elseif tab == 'booking' %}
+            {% elseif tab == 'destination' %}
+                <a href="{{ path('admin_destination_add') }}" class="btn btn-primary ripple-btn">+ Add Destination</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {# ═══ SUB-NAV TABS ═══ #}
+    <div class="sub-nav-tabs reveal" style="transition-delay:0.1s;">
+        <a href="{{ path('admin_transport_list') }}" class="sub-nav-link {{ tab == 'transport' ? 'active' : '' }}">
+            ✈ Manage Transport
+        </a>
+        <a href="{{ path('admin_schedule_list') }}" class="sub-nav-link {{ tab == 'schedule' ? 'active' : '' }}">
+            🗓 Manage Schedules
+        </a>
+        <a href="{{ path('admin_booking_list') }}" class="sub-nav-link {{ tab == 'booking' ? 'active' : '' }}">
+            📋 Manage Bookings
+        </a>
+        <a href="{{ path('admin_destination_list') }}" class="sub-nav-link {{ tab == 'destination' ? 'active' : '' }}">
+            🌍 Manage Destinations
+        </a>
+    </div>
+
+    {# ═══ STATS BAR ═══ #}
+    <div class="kpi-grid reveal">
+        <div class="kpi-card kpi-card-total">
+            <div class="kpi-top">
+                <div class="kpi-icon">✈</div>
+                <div class="kpi-label">
+                    {% if tab == 'transport' %}Total Fleet
+                    {% elseif tab == 'schedule' %}Total Schedules
+                    {% else %}Total Bookings
+                    {% endif %}
+                </div>
+            </div>
+            <div class="kpi-val">
+                {% if tab == 'transport' %}{{ stats.totalTransports|default(0) }}
+                {% elseif tab == 'schedule' %}{{ stats.totalSchedules|default(0) }}
+                {% else %}{{ stats.totalBookings|default(0) }}
+                {% endif %}
+            </div>
+        </div>
+        <div class="kpi-card kpi-card-active reveal-delay-1">
+            <div class="kpi-top">
+                <div class="kpi-icon">✅</div>
+                <div class="kpi-label">
+                    {% if tab == 'transport' %}Active Vehicles
+                    {% elseif tab == 'schedule' %}Active Schedules
+                    {% else %}Confirmed Bookings
+                    {% endif %}
+                </div>
+            </div>
+            <div class="kpi-val">
+                {% if tab == 'transport' %}{{ stats.activeTransports|default(0) }}
+                {% elseif tab == 'schedule' %}{{ stats.activeSchedules|default(0) }}
+                {% else %}{{ stats.confirmedBookings|default(0) }}
+                {% endif %}
+            </div>
+        </div>
+        <div class="kpi-card kpi-card-inactive reveal-delay-2">
+            <div class="kpi-top">
+                <div class="kpi-icon">🗓</div>
+                <div class="kpi-label">System Hub</div>
+            </div>
+            <div class="kpi-val" style="font-size: 1.5rem;">{{ stats.hub|default('Central Hub') }}</div>
+        </div>
+        <div class="kpi-card kpi-card-total reveal-delay-3" style="background:linear-gradient(135deg, #e6fffa 0%, #ebf8ff 100%);">
+            <div class="kpi-top">
+                <div class="kpi-icon">💰</div>
+                <div class="kpi-label">Revenue Overview</div>
+            </div>
+            <div class="kpi-val">€{{ (stats.revenue|default(0))|number_format(0) }}</div>
+        </div>
+    </div>
+
+    {# ═══ MAIN CARD ═══ #}
+    <div style="padding:0; overflow:hidden; border:none; background:transparent;">
+
+        {# ══════════════ TRANSPORT TAB ══════════════ #}
+        {% if tab == 'transport' %}
+            
+            {% if formAction is defined and formAction in ['add', 'edit'] %}
+            <div class="form-card reveal">
+                <h3 style="color:var(--text-primary); margin:0 0 24px; font-family:var(--font-display);">{{ formAction == 'edit' ? 'Update Vehicle' : 'Register New Vehicle' }}</h3>
+                <form method="POST" enctype="multipart/form-data" novalidate>
+                    <input type="hidden" name="_token" value="{{ csrf_token('transport_form') }}">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Transport Type</label>
+                            <select name="transportType" class="form-control {{ errors is defined and errors.transportType is defined ? 'has-error' : '' }}">
+                                <option value="FLIGHT" {{ (formData.transportType ?? (transport ? transport.transportType : '')) == 'FLIGHT' ? 'selected' : '' }}>FLIGHT</option>
+                                <option value="VEHICLE" {{ (formData.transportType ?? (transport ? transport.transportType : '')) == 'VEHICLE' ? 'selected' : '' }}>VEHICLE</option>
+                            </select>
+                            {% if errors is defined and errors.transportType is defined %}
+                                <div class="field-error">⚠ {{ errors.transportType|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Provider Name</label>
+                            <input type="text" name="providerName" value="{{ formData.providerName ?? (transport ? transport.providerName : '') }}" class="form-control {{ errors is defined and errors.providerName is defined ? 'has-error' : '' }}" placeholder="e.g. Air Tunis, Hertz">
+                            {% if errors is defined and errors.providerName is defined %}
+                                <div class="field-error">⚠ {{ errors.providerName|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Vehicle Model</label>
+                            <input type="text" name="vehicleModel" value="{{ formData.vehicleModel ?? (transport ? transport.vehicleModel : '') }}" class="form-control {{ errors is defined and errors.vehicleModel is defined ? 'has-error' : '' }}" placeholder="e.g. Boeing 737, Toyota Hilux">
+                            {% if errors is defined and errors.vehicleModel is defined %}
+                                <div class="field-error">⚠ {{ errors.vehicleModel|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Base Price (EUR)</label>
+                            <input type="number" step="0.01" name="basePrice" value="{{ formData.basePrice ?? (transport ? transport.basePrice : '') }}" class="form-control {{ errors is defined and errors.basePrice is defined ? 'has-error' : '' }}">
+                            {% if errors is defined and errors.basePrice is defined %}
+                                <div class="field-error">⚠ {{ errors.basePrice|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Capacity (Seats)</label>
+                            <input type="number" name="capacity" value="{{ formData.capacity ?? (transport ? transport.capacity : '') }}" class="form-control {{ errors is defined and errors.capacity is defined ? 'has-error' : '' }}">
+                            {% if errors is defined and errors.capacity is defined %}
+                                <div class="field-error">⚠ {{ errors.capacity|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Available Units</label>
+                            <input type="number" name="availableUnits" value="{{ formData.availableUnits ?? (transport ? transport.availableUnits : '') }}" class="form-control {{ errors is defined and errors.availableUnits is defined ? 'has-error' : '' }}">
+                            {% if errors is defined and errors.availableUnits is defined %}
+                                <div class="field-error">⚠ {{ errors.availableUnits|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sustainability Rating (0-5)</label>
+                            <input type="number" step="0.1" name="sustainabilityRating" value="{{ formData.sustainabilityRating ?? (transport ? transport.sustainabilityRating : '') }}" class="form-control {{ errors is defined and errors.sustainabilityRating is defined ? 'has-error' : '' }}">
+                            {% if errors is defined and errors.sustainabilityRating is defined %}
+                                <div class="field-error">⚠ {{ errors.sustainabilityRating|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Vehicle Image</label>
+                            <input type="file" name="imageFile" class="form-control {{ errors is defined and errors.imageFile is defined ? 'has-error' : '' }}" accept="image/*">
+                            {% if transport and transport.imageUrl %}
+                                <div style="margin-top:8px; font-size:11px; color:var(--text-muted)">
+                                    Current: <code style="font-size:10px">{{ transport.imageUrl }}</code>
+                                </div>
+                            {% endif %}
+                            {% if errors is defined and errors.imageFile is defined %}
+                                <div class="field-error">⚠ {{ errors.imageFile|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label class="form-label">Amenities</label>
+                            <textarea name="amenities" rows="2" class="form-control {{ errors is defined and errors.amenities is defined ? 'has-error' : '' }}" placeholder="WiFi, Air Conditioning, Breakfast... (comma separated)">{{ formData.amenities ?? (transport ? transport.amenities : '') }}</textarea>
+                            {% if errors is defined and errors.amenities is defined %}
+                                <div class="field-error">⚠ {{ errors.amenities|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div style="margin-top:24px; display:flex; gap:12px;">
+                        <button type="submit" class="btn btn-primary">{{ formAction == 'edit' ? 'Save Changes' : 'Register Vehicle' }}</button>
+                        <a href="{{ path('admin_transport_list') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+
+            <div class="card" style="padding:0; border:1px solid var(--border-color);">
+                <table class="dest-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Image</th>
+                            <th>Type</th>
+                            <th>Provider & Model</th>
+                            <th>Base Price</th>
+                            <th>Cap/Units</th>
+                            <th>Eco</th>
+                            <th>Active</th>
+                            <th style="text-align:right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in transports %}
+                        <tr>
+                            <td style="font-family:var(--font-mono); font-size:12px; opacity:0.6">#{{ t.transportId }}</td>
+                            <td>
+                                {% if t.imageUrl %}
+                                    <div style="width:48px; height:32px; border-radius:4px; overflow:hidden; border:1px solid var(--border-color); background:#eee;">
+                                        <img src="{{ asset(t.imageUrl) }}" alt="Vehicle" style="width:100%; height:100%; object-fit:cover;">
+                                    </div>
+                                {% else %}
+                                    <div style="width:48px; height:32px; border-radius:4px; border:1px dashed var(--border-color); display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--text-muted)">No img</div>
+                                {% endif %}
+                            </td>
+                            <td><span class="badge {{ t.transportType == 'FLIGHT' ? 'badge-indigo' : 'badge-teal' }}">{{ t.transportType }}</span></td>
+                            <td>
+                                <div style="font-weight:600">{{ t.providerName }}</div>
+                                <div style="font-size:12px; color:var(--text-muted)">{{ t.vehicleModel }}</div>
+                            </td>
+                            <td style="color:var(--accent-primary); font-weight:600">€{{ t.basePrice|number_format(0) }}</td>
+                            <td>{{ t.capacity }} / {{ t.availableUnits }}</td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:4px; color:#f59e0b">
+                                    <span style="font-weight:700">{{ t.sustainabilityRating }}</span>
+                                    <span style="font-size:10px">★</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge {{ t.isActive ? 'badge-teal' : 'badge-secondary' }}" style="opacity: {{ t.isActive ? 1 : 0.6 }}">
+                                    {{ t.isActive ? 'Active' : 'Inactive' }}
+                                </span>
+                            </td>
+                            <td style="text-align:right" class="actions-cell">
+                                <div style="display:flex; gap:8px; justify-content:flex-end">
+                                    <a href="{{ path('admin_transport_edit', {id: t.transportId}) }}" class="btn btn-secondary btn-sm">Edit</a>
+                                    <a href="{{ path('admin_transport_toggle', {id: t.transportId}) }}" class="btn btn-secondary btn-sm">Toggle</a>
+                                    <a href="{{ path('admin_transport_delete', {id: t.transportId}) }}" class="btn btn-primary btn-sm" onclick="return confirm('Delete this vehicle?')">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="9" style="text-align:center; padding:40px; color:var(--text-muted)">No vehicles found in the fleet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        {# ══════════════ DESTINATION TAB ══════════════ #}
+        {% elseif tab == 'destination' %}
+            
+            {% if formAction is defined and formAction in ['add', 'edit'] %}
+            <div class="form-card reveal">
+                <h3 style="color:var(--text-primary); margin:0 0 24px; font-family:var(--font-display);">{{ formAction == 'edit' ? 'Edit Destination' : 'Add New Destination' }}</h3>
+                <form method="POST" novalidate>
+                    <input type="hidden" name="_token" value="{{ csrf_token('transport_form') }}">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Destination Name</label>
+                            <input type="text" name="name" value="{{ formData.name ?? (destination ? destination.name : '') }}" class="form-control {{ errors is defined and errors.name is defined ? 'has-error' : '' }}" placeholder="Name">
+                            {% if errors is defined and errors.name is defined %}<div class="field-error">⚠ {{ errors.name|join(' ') }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Type</label>
+                            <input type="text" name="type" value="{{ formData.type ?? (destination ? destination.type : '') }}" class="form-control {{ errors is defined and errors.type is defined ? 'has-error' : '' }}" placeholder="e.g. City, Resort">
+                            {% if errors is defined and errors.type is defined %}<div class="field-error">⚠ {{ errors.type|join(' ') }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Country</label>
+                            <input type="text" name="country" value="{{ formData.country ?? (destination ? destination.country : '') }}" class="form-control {{ errors is defined and errors.country is defined ? 'has-error' : '' }}" placeholder="Country">
+                            {% if errors is defined and errors.country is defined %}<div class="field-error">⚠ {{ errors.country|join(' ') }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">City</label>
+                            <input type="text" name="city" value="{{ formData.city ?? (destination ? destination.city : '') }}" class="form-control {{ errors is defined and errors.city is defined ? 'has-error' : '' }}" placeholder="City">
+                            {% if errors is defined and errors.city is defined %}<div class="field-error">⚠ {{ errors.city|join(' ') }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Best Season</label>
+                            <input type="text" name="bestSeason" value="{{ formData.bestSeason ?? (destination ? destination.bestSeason : '') }}" class="form-control {{ errors is defined and errors.bestSeason is defined ? 'has-error' : '' }}" placeholder="e.g. Summer, Year-round">
+                            {% if errors is defined and errors.bestSeason is defined %}<div class="field-error">⚠ {{ errors.bestSeason|join(' ') }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Timezone</label>
+                            <input type="text" name="timezone" value="{{ formData.timezone ?? (destination ? destination.timezone : 'UTC') }}" class="form-control {{ errors is defined and errors.timezone is defined ? 'has-error' : '' }}">
+                            {% if errors is defined and errors.timezone is defined %}<div class="field-error">⚠ {{ errors.timezone|join(' ') }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Avg Rating (0-5)</label>
+                            <input type="number" step="0.1" name="averageRating" value="{{ formData.averageRating ?? (destination ? destination.averageRating : '0.0') }}" class="form-control">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" rows="2" class="form-control">{{ formData.description ?? (destination ? destination.description : '') }}</textarea>
+                        </div>
+                    </div>
+                    <div style="margin-top:24px; display:flex; gap:12px;">
+                        <button type="submit" class="btn btn-primary">{{ formAction == 'edit' ? 'Save Changes' : 'Add Destination' }}</button>
+                        <a href="{{ path('admin_destination_list') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+
+            <div class="card" style="padding:0; border:1px solid var(--border-color);">
+                <table class="dest-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Location</th>
+                            <th>Season</th>
+                            <th>Rating</th>
+                            <th style="text-align:right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in destinations %}
+                        <tr>
+                            <td style="font-family:var(--font-mono); font-size:12px; opacity:0.6">#{{ d.destinationId }}</td>
+                            <td style="font-weight:600">{{ d.name }}</td>
+                            <td><span class="badge badge-purple">{{ d.type }}</span></td>
+                            <td>
+                                <div style="font-weight:600">{{ d.city }}</div>
+                                <div style="font-size:12px; color:var(--text-muted)">{{ d.country }}</div>
+                            </td>
+                            <td>{{ d.bestSeason }}</td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:4px; color:#f59e0b">
+                                    <span style="font-weight:700">{{ d.averageRating }}</span>
+                                    <span style="font-size:10px">★</span>
+                                </div>
+                            </td>
+                            <td style="text-align:right" class="actions-cell">
+                                <div style="display:flex; gap:8px; justify-content:flex-end">
+                                    <a href="{{ path('admin_destination_edit', {id: d.destinationId}) }}" class="btn btn-secondary btn-sm">Edit</a>
+                                    <a href="{{ path('admin_destination_delete', {id: d.destinationId}) }}" class="btn btn-primary btn-sm" onclick="return confirm('Delete this destination?')">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="7" style="text-align:center; padding:40px; color:var(--text-muted)">No destinations registered yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        {# ══════════════ SCHEDULE TAB ══════════════ #}
+        {% elseif tab == 'schedule' %}
+            
+            {% if formAction is defined and formAction in ['add', 'edit'] %}
+            <div class="form-card reveal">
+                <h3 style="color:var(--text-primary); margin:0 0 24px; font-family:var(--font-display);">{{ formAction == 'edit' ? 'Adjust Schedule' : 'Create New Schedule' }}</h3>
+                <form method="POST" novalidate>
+                    <input type="hidden" name="_token" value="{{ csrf_token('schedule_form') }}">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Selected Transport</label>
+                            <select name="transportId" class="form-control {{ errors is defined and errors.transportId is defined ? 'has-error' : '' }}">
+                                <option value="">Select transport...</option>
+                                {% for t in transports %}
+                                <option value="{{ t.transportId }}" {{ (formData.transportId ?? (schedule ? schedule.transportId : '')) == t.transportId ? 'selected' : '' }}>
+                                    {{ t.providerName }} ({{ t.vehicleModel }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if errors is defined and errors.transportId is defined %}
+                                <div class="field-error">⚠ {{ errors.transportId|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Travel Class</label>
+                            <select name="travelClass" class="form-control {{ errors is defined and errors.travelClass is defined ? 'has-error' : '' }}">
+                                {% for cls in ['ECONOMY', 'PREMIUM', 'BUSINESS', 'FIRST'] %}
+                                <option value="{{ cls }}" {{ (formData.travelClass ?? (schedule ? schedule.travelClass : '')) == cls ? 'selected' : '' }}>{{ cls }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if errors is defined and errors.travelClass is defined %}
+                                <div class="field-error">⚠ {{ errors.travelClass|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Operation Status</label>
+                            <select name="status" class="form-control {{ errors is defined and errors.status is defined ? 'has-error' : '' }}">
+                                {% for st in ['ON_TIME', 'DELAYED', 'CANCELLED'] %}
+                                <option value="{{ st }}" {{ (formData.status ?? (schedule ? schedule.status : '')) == st ? 'selected' : '' }}>{{ st }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if errors is defined and errors.status is defined %}
+                                <div class="field-error">⚠ {{ errors.status|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Price Multiplier</label>
+                            <input type="number" step="0.01" name="priceMultiplier" value="{{ formData.priceMultiplier ?? (schedule ? schedule.priceMultiplier : '1.0') }}" class="form-control {{ errors is defined and errors.priceMultiplier is defined ? 'has-error' : '' }}">
+                            {% if errors is defined and errors.priceMultiplier is defined %}
+                                <div class="field-error">⚠ {{ errors.priceMultiplier|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Departure From</label>
+                            <select name="departureDestinationId" class="form-control {{ errors is defined and errors.departureDestinationId is defined ? 'has-error' : '' }}">
+                                <option value="">Select departure...</option>
+                                {% if destinations is defined %}
+                                    {% for dest in destinations %}
+                                        <option value="{{ dest.destinationId }}" {{ (formData.departureDestinationId ?? (schedule ? schedule.departureDestinationId : '')) == dest.destinationId ? 'selected' : '' }}>
+                                            {{ dest.city }}, {{ dest.country }}
+                                        </option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                            {% if errors is defined and errors.departureDestinationId is defined %}
+                                <div class="field-error">⚠ {{ errors.departureDestinationId|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Arrival To</label>
+                            <select name="arrivalDestinationId" class="form-control {{ errors is defined and errors.arrivalDestinationId is defined ? 'has-error' : '' }}">
+                                <option value="">Select arrival...</option>
+                                {% if destinations is defined %}
+                                    {% for dest in destinations %}
+                                        <option value="{{ dest.destinationId }}" {{ (formData.arrivalDestinationId ?? (schedule ? schedule.arrivalDestinationId : '')) == dest.destinationId ? 'selected' : '' }}>
+                                            {{ dest.city }}, {{ dest.country }}
+                                        </option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                            {% if errors is defined and errors.arrivalDestinationId is defined %}
+                                <div class="field-error">⚠ {{ errors.arrivalDestinationId|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Departure Datetime</label>
+                            <input type="datetime-local" name="departureDatetime" value="{{ formData.departureDatetime ?? (schedule and schedule.departureDatetime ? schedule.departureDatetime|date('Y-m-d\\TH:i') : '') }}" class="form-control {{ errors is defined and errors.departureDatetime is defined ? 'has-error' : '' }}">
+                            {% if errors is defined and errors.departureDatetime is defined %}
+                                <div class="field-error">⚠ {{ errors.departureDatetime|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Arrival Datetime</label>
+                            <input type="datetime-local" name="arrivalDatetime" value="{{ formData.arrivalDatetime ?? (schedule and schedule.arrivalDatetime ? schedule.arrivalDatetime|date('Y-m-d\\TH:i') : '') }}" class="form-control {{ errors is defined and errors.arrivalDatetime is defined ? 'has-error' : '' }}">
+                            {% if errors is defined and errors.arrivalDatetime is defined %}
+                                <div class="field-error">⚠ {{ errors.arrivalDatetime|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Rental Period (Start)</label>
+                            <input type="datetime-local" name="rentalStart" value="{{ formData.rentalStart ?? (schedule and schedule.rentalStart ? schedule.rentalStart|date('Y-m-d\\TH:i') : '') }}" class="form-control {{ errors is defined and errors.rentalStart is defined ? 'has-error' : '' }}">
+                            {% if errors is defined and errors.rentalStart is defined %}
+                                <div class="field-error">⚠ {{ errors.rentalStart|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Rental Period (End)</label>
+                            <input type="datetime-local" name="rentalEnd" value="{{ formData.rentalEnd ?? (schedule and schedule.rentalEnd ? schedule.rentalEnd|date('Y-m-d\\TH:i') : '') }}" class="form-control {{ errors is defined and errors.rentalEnd is defined ? 'has-error' : '' }}">
+                            {% if errors is defined and errors.rentalEnd is defined %}
+                                <div class="field-error">⚠ {{ errors.rentalEnd|join(' ') }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div style="margin-top:24px; display:flex; gap:12px;">
+                        <button type="submit" class="btn btn-primary">{{ formAction == 'edit' ? 'Update Schedule' : 'Launch Schedule' }}</button>
+                        <a href="{{ path('admin_schedule_list') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+
+            <div class="card" style="padding:0; border:1px solid var(--border-color);">
+                <table class="dest-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Transport Unit</th>
+                            <th>Route (Dep › Arr)</th>
+                            <th>Class</th>
+                            <th>Status</th>
+                            <th>Timing</th>
+                            <th style="text-align:right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in schedules %}
+                        <tr>
+                            <td style="font-family:var(--font-mono); font-size:12px; opacity:0.6">#{{ s.scheduleId }}</td>
+                            <td style="font-weight:600">Ref: {{ s.transportId }}</td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="font-weight:600">{{ s.departureDestinationId }}</span>
+                                    <span style="opacity:0.3">→</span>
+                                    <span style="font-weight:600">{{ s.arrivalDestinationId }}</span>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-secondary">{{ s.travelClass }}</span></td>
+                            <td>
+                                <span class="badge 
+                                    {{ s.status == 'ON_TIME' ? 'badge-teal' :
+                                       s.status == 'CANCELLED' ? 'badge-primary' :
+                                       s.status == 'DELAYED' ? 'badge-warning' :
+                                       s.status == 'BOARDING' ? 'badge-purple' :
+                                       s.status == 'COMPLETED' ? 'badge-secondary' : 'badge-muted' }}">
+                                    {{ s.status ? s.status|replace({'_': ' '}) : 'ON TIME' }}
+                                </span>
+                            </td>
+                            <td style="font-size:12px;">
+                                <div>{{ s.departureDatetime ? s.departureDatetime|date('d M, H:i') : '-' }}</div>
+                                <div style="opacity:0.6">Delay: {{ s.delayMinutes }}m</div>
+                            </td>
+                            <td style="text-align:right" class="actions-cell">
+                                <div style="display:flex; gap:8px; justify-content:flex-end">
+                                    <a href="{{ path('admin_schedule_edit', {id: s.scheduleId}) }}" class="btn btn-secondary btn-sm">Edit</a>
+                                    <form method="POST" action="{{ path('admin_schedule_delay', {id: s.scheduleId}) }}" style="display:inline;" onsubmit="var m=prompt('Delay in minutes:','30'); if(!m) return false; this.querySelector('[name=delayMinutes]').value=m;">
+                                        <input type="hidden" name="delayMinutes" value="30">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('schedule_action') }}">
+                                        <button type="submit" class="btn btn-secondary btn-sm">Delay</button>
+                                    </form>
+                                    <a href="{{ path('admin_schedule_cancel', {id: s.scheduleId}) }}" class="btn btn-secondary btn-sm">Cancel</a>
+                                    <a href="{{ path('admin_schedule_delete', {id: s.scheduleId}) }}" class="btn btn-primary btn-sm" onclick="return confirm('Delete this schedule?')">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="7" style="text-align:center; padding:40px; color:var(--text-muted)">No active schedules found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        {# ══════════════ BOOKING TAB ══════════════ #}
+        {% elseif tab == 'booking' %}
+            
+            {% if bookingDetails is defined and bookingDetails %}
+            <div class="form-card reveal" style="max-width:600px;">
+                <h3 style="color:var(--text-primary); margin:0 0 16px; font-family:var(--font-display);">Reservation #{{ bookingDetails.bookingId }}</h3>
+                <div class="dest-table" style="background:transparent; border:none; margin-bottom:20px;">
+                    <div style="display:grid; grid-template-columns: 140px 1fr; gap:12px; font-size:14px; padding:8px 0; border-bottom:1px solid var(--border-color);">
+                        <div class="text-muted">User ID</div><div style="font-weight:600">{{ bookingDetails.userId }}</div>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 140px 1fr; gap:12px; font-size:14px; padding:8px 0; border-bottom:1px solid var(--border-color);">
+                        <div class="text-muted">Passengers</div><div style="font-weight:600">{{ bookingDetails.adultsCount }} Adults, {{ bookingDetails.childrenCount }} Children</div>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 140px 1fr; gap:12px; font-size:14px; padding:8px 0; border-bottom:1px solid var(--border-color);">
+                        <div class="text-muted">Total Price</div><div style="font-weight:700; color:var(--accent-primary)">EUR {{ bookingDetails.totalPrice|number_format(2) }}</div>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 140px 1fr; gap:12px; font-size:14px; padding:8px 0; border-bottom:1px solid var(--border-color);">
+                        <div class="text-muted">Status</div>
+                        <div>
+                            <span class="badge {{ bookingDetails.bookingStatus == 'CONFIRMED' ? 'badge-teal' : bookingDetails.bookingStatus == 'CANCELLED' ? 'badge-primary' : 'badge-indigo' }}">
+                                {{ bookingDetails.bookingStatus }}
+                            </span>
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 140px 1fr; gap:12px; font-size:14px; padding:8px 0;">
+                        <div class="text-muted">Insurance</div><div style="font-weight:600">{{ bookingDetails.insuranceIncluded ? 'Covered' : 'N/A' }}</div>
+                    </div>
+                    {% if bookingDetails.qrCode %}
+                    <div style="margin-top:20px; border:1px solid var(--border-color); border-radius:8px; padding:12px; background:white; width:fit-content;">
+                        <div class="text-muted" style="font-size:11px; margin-bottom:8px; text-align:center;">RESERVATION QR CODE</div>
+                        <img src="{{ asset(bookingDetails.qrCode) }}" alt="QR Code" style="width:120px; height:120px; display:block;">
+                    </div>
+                    {% endif %}
+                </div>
+                <div style="margin-top:24px; display:flex; gap:12px;">
+                    <a href="{{ path('admin_booking_receipt_pdf', {id: bookingDetails.bookingId}) }}" class="btn btn-primary">📄 Download Receipt (PDF)</a>
+                    <a href="{{ path('admin_booking_list') }}" class="btn btn-secondary">← Close Details</a>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card" style="padding:0; border:1px solid var(--border-color);">
+                <table class="dest-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User ID</th>
+                            <th>Transpt</th>
+                            <th>Seats</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Payment & QR</th>
+                            <th style="text-align:right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in bookings %}
+                        <tr>
+                            <td style="font-family:var(--font-mono); font-size:12px; opacity:0.6">#{{ b.bookingId }}</td>
+                            <td style="font-weight:600">UID: {{ b.userId }}</td>
+                            <td>TID: {{ b.transportId }}</td>
+                            <td>{{ b.totalSeats }}</td>
+                            <td style="font-weight:600">€{{ b.totalPrice|number_format(0) }}</td>
+                            <td>
+                                <span class="badge {{ b.bookingStatus == 'CONFIRMED' ? 'badge-teal' : b.bookingStatus == 'CANCELLED' ? 'badge-primary' : 'badge-indigo' }}">
+                                    {{ b.bookingStatus }}
+                                </span>
+                            </td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span class="badge {{ b.paymentStatus == 'PAID' ? 'badge-teal' : b.paymentStatus == 'REFUNDED' ? 'badge-primary' : 'badge-muted' }}">
+                                        {{ b.paymentStatus }}
+                                    </span>
+                                    {% if b.qrCode %}
+                                        <img src="{{ asset(b.qrCode) }}" alt="QR" style="width:32px; height:32px; border-radius:4px; border:1px solid #eee;">
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td style="text-align:right" class="actions-cell">
+                                <div style="display:flex; gap:8px; justify-content:flex-end">
+                                    <a href="{{ path('admin_booking_details', {id: b.bookingId}) }}" class="btn btn-secondary btn-sm">Details</a>
+                                    <a href="{{ path('admin_booking_confirm', {id: b.bookingId}) }}" class="btn btn-secondary btn-sm" onclick="return confirm('Confirm booking?')">Confirm</a>
+                                    {% if b.paymentStatus == 'PAID' %}
+                                        <a href="{{ path('admin_booking_refund', {id: b.bookingId}) }}" class="btn btn-secondary btn-sm" onclick="return confirm('Refund this payment?')">Refund</a>
+                                    {% endif %}
+                                    <form method="POST" action="{{ path('admin_booking_cancel', {id: b.bookingId}) }}" style="display:inline;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('booking_action') }}">
+                                        <input type="hidden" name="cancellationReason" value="">
+                                        <button type="submit" class="btn btn-secondary btn-sm" onclick="var r=prompt('Reason:'); if(r!==null) this.form.cancellationReason.value=r; else return false;">Cancel</button>
+                                    </form>
+                                    <a href="{{ path('admin_booking_delete', {id: b.bookingId}) }}" class="btn btn-primary btn-sm" onclick="return confirm('Delete this booking?')">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="8" style="text-align:center; padding:40px; color:var(--text-muted)">No bookings recorded yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+    </div>{# end main card #}
+
+</div>
+{% endblock %}

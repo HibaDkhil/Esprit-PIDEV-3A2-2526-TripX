@@ -44,6 +44,9 @@
             "ref": "07a97ec434d43b7903c78069a04c92adb6442e52"
         }
     },
+    "knplabs/knp-paginator-bundle": {
+        "version": "v6.10.0"
+    },
     "symfony/console": {
         "version": "6.4",
         "recipe": {
@@ -88,6 +91,18 @@
             "./src/Kernel.php"
         ]
     },
+    "symfony/mailer": {
+        "version": "6.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "4.3",
+            "ref": "09051cfde49476e3c12cd3a0e44289ace1c75a4f"
+        },
+        "files": [
+            "./config/packages/mailer.yaml"
+        ]
+    },
     "symfony/maker-bundle": {
         "version": "1.67",
         "recipe": {
@@ -96,6 +111,18 @@
             "version": "1.0",
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
+    },
+    "symfony/notifier": {
+        "version": "6.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "5.0",
+            "ref": "178877daf79d2dbd62129dd03612cb1a2cb407cc"
+        },
+        "files": [
+            "./config/packages/notifier.yaml"
+        ]
     },
     "symfony/routing": {
         "version": "6.4",

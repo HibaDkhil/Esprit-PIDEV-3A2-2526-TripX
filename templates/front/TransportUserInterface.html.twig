@@ -1,0 +1,1168 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Transport — TripX{% endblock %}
+
+{% block stylesheets %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Montserrat:wght@100..900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  /* ── Page top (below fixed nav) ── */
+  .page-top { padding-top: calc(var(--nav-height) + 60px); padding-bottom: 40px; }
+
+  /* ── Tab bar  ── */
+  .transport-tab-bar {
+    display: flex; gap: 4px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: 6px; width: fit-content;
+    margin-bottom: 32px;
+  }
+  .transport-tab-btn {
+    padding: 10px 24px;
+    border-radius: var(--border-radius-sm);
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-muted); text-decoration: none;
+    transition: all var(--transition-fast);
+  }
+  .transport-tab-btn.active { background: var(--accent-primary); color: #fff; }
+  .transport-tab-btn:hover:not(.active) { background: var(--bg-card); color: var(--text-primary); }
+
+  /* ── Schedule / Transport cards ── */
+  .trip-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    transition: all var(--transition-smooth);
+  }
+  .trip-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--accent-primary); }
+  .trip-card-header {
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #1F294C, #0A4174);
+  }
+  .trip-card-header.vehicle { background: linear-gradient(135deg, #2C5F6E, #4E8EA2); }
+  .trip-card-header.unavailable { background: linear-gradient(135deg, #6b7280, #9ca3af); }
+  .trip-card-body { padding: 16px 20px; }
+  .trip-card-footer { display: flex; border-top: 1px solid var(--border-color); }
+  .trip-card-footer a, .trip-card-footer button {
+    flex: 1; padding: 12px; text-align: center;
+    font-weight: 700; font-size: 13px;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: filter 0.2s;
+  }
+  .trip-card-footer a:hover, .trip-card-footer button:hover { filter: brightness(1.1); }
+
+  /* Badges */
+  .badge-transport {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    padding: 3px 12px; border-radius: 99px;
+    letter-spacing: 0.06em; min-width: 60px; text-align: center;
+    white-space: nowrap;
+  }
+
+  /* booking card */
+  .booking-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    transition: all var(--transition-smooth);
+  }
+  .booking-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+  /* Search panel */
+  .search-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: 24px; margin-bottom: 28px;
+  }
+  .search-panel label {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted); display: block; margin-bottom: 6px;
+  }
+
+  /* Type select cards */
+  .type-select-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: 40px 32px;
+    text-align: center; text-decoration: none;
+    transition: all var(--transition-smooth);
+    display: flex; flex-direction: column;
+    align-items: center; gap: 14px;
+  }
+  .type-select-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); border-color: var(--accent-primary); }
+  .type-select-icon { font-size: 48px; }
+  .type-select-title { font-family: var(--font-display); font-size: 22px; color: var(--text-primary); font-weight: 700; }
+  .type-select-sub { font-size: 0.88rem; color: var(--text-muted); }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 28px;
+  }
+  .stat-chip {
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: 14px 20px; flex: 1; min-width: 120px; text-align: center;
+  }
+  .stat-chip-val { font-family: var(--font-display); font-size: 26px; color: var(--accent-primary); line-height: 1; }
+  .stat-chip-label { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 4px; }
+
+  /* Provider cards */
+  .provider-card {
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: 28px 20px; text-align: center; text-decoration: none;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    transition: all var(--transition-smooth);
+  }
+  .provider-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--accent-primary); }
+  .provider-name { font-weight: 700; font-size: 1rem; color: var(--text-primary); }
+  .provider-count { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
+
+  /* ── Strip matching templates/front/transport.html.twig (marketing page) ── */
+  .transport-tabs {
+    display: flex; gap: 0; flex-wrap: wrap;
+    background: var(--bg-surface); border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md); padding: 6px; margin-top: 20px;
+    margin-bottom: 0; width: fit-content;
+  }
+  .transport-tabs .transport-tab {
+    padding: 10px 24px; border-radius: var(--border-radius-sm);
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-muted); text-decoration: none;
+    transition: all var(--transition-fast); border: none; background: transparent; cursor: pointer;
+  }
+  .transport-tabs .transport-tab.active { background: var(--accent-primary); color: #fff; }
+  .transport-tabs .transport-tab:hover:not(.active) { background: var(--bg-card); color: var(--text-primary); }
+
+  .transport-search-extras {
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg); padding: 28px; margin-top: 28px; margin-bottom: 0;
+  }
+  .trip-type-row { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .radio-pill { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; cursor: pointer; }
+  .radio-pill input[type=radio] { accent-color: var(--accent-primary); width: 16px; height: 16px; }
+  .search-fields { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
+  @media (max-width: 900px) { .search-fields { grid-template-columns: 1fr 1fr; } }
+
+  .route-card {
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg); padding: 24px; margin-bottom: 16px;
+    transition: all var(--transition-smooth);
+  }
+  .route-card:hover { border-color: var(--accent-primary); transform: translateX(4px); }
+  .route-top { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+  .airline-logo {
+    width: 40px; height: 40px; border-radius: 8px; background: var(--bg-secondary);
+    display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+  }
+  .route-flight-info { flex: 1; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .route-time { font-family: var(--font-display); font-size: 28px; line-height: 1; }
+  .route-arrow { font-size: 20px; color: var(--text-muted); }
+  .route-city { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; color: var(--text-muted); margin-top: 4px; }
+  .route-duration { text-align: center; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+  .route-price { font-family: var(--font-display); font-size: 32px; color: var(--accent-primary); text-align: right; }
+  .price-pred {
+    background: rgba(0,245,212,0.06); border: 1px solid rgba(0,245,212,0.2);
+    border-radius: var(--border-radius-md); padding: 14px 18px;
+    display: flex; align-items: center; gap: 12px; font-size: 0.85rem; color: var(--text-secondary);
+  }
+  .carbon-row {
+    display: flex; gap: 10px; align-items: center; margin-top: 12px;
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+{# Cursor nodes: provided by base.html.twig only (avoid duplicate halos). #}
+{# ── nav is from base.html.twig ── #}
+
+{# ══════════════════════════════════════════
+   PAGE HEADER
+══════════════════════════════════════════ #}
+<div class="page-top">
+  <div class="container">
+    <div class="section-label reveal"><span>✈ Travel with TripX</span></div>
+    <h1 class="display-md reveal" style="margin-bottom:8px">
+      {% if tab == 'schedules' %}Find Your <span class="gradient-text">Schedule</span>
+      {% elseif tab == 'transport' %}Browse <span class="gradient-text">Transport</span>
+      {% elseif tab == 'booking_form' %}Book <span class="gradient-text">Your Trip</span>
+      {% elseif tab == 'my_bookings' %}My <span class="gradient-text">Bookings</span>
+      {% else %}Explore <span class="gradient-text">Transport</span>{% endif %}
+    </h1>
+    <p class="serif-mood text-muted reveal reveal-delay-1">
+      AI-powered schedules, real-time availability, and seamless booking — all in one place.
+    </p>
+
+    {# ── Tab navigation ── #}
+    <div class="transport-tab-bar reveal reveal-delay-2">
+      <a href="{{ path('user_transport_schedules') }}"
+         class="transport-tab-btn {{ tab in ['schedules'] ? 'active' : '' }}">
+        🗓 Schedules
+      </a>
+      <a href="{{ path('user_transport_browse') }}"
+         class="transport-tab-btn {{ tab in ['transport', 'booking_form'] ? 'active' : '' }}">
+        ✈ Transport
+      </a>
+      <a href="{{ path('user_transport_mybookings') }}"
+         class="transport-tab-btn {{ tab == 'my_bookings' ? 'active' : '' }}">
+        📋 My Bookings
+      </a>
+    </div>
+
+
+  </div>
+</div>
+
+{# ══════════════════════════════════════════
+   FLASH MESSAGES
+══════════════════════════════════════════ #}
+<div class="container" style="margin-bottom: 12px;">
+  {% for msg in app.flashes('success') %}
+    <div class="flash-message success">✅ {{ msg }}</div>
+  {% endfor %}
+  {% for msg in app.flashes('error') %}
+    <div class="flash-message error">❌ {{ msg }}</div>
+  {% endfor %}
+</div>
+
+{# ══════════════════════════════════════════
+   CONTENT
+══════════════════════════════════════════ #}
+<section class="section-sm">
+  <div class="container">
+
+    {# ══════ SCHEDULES TAB ══════ #}
+    {% if tab == 'schedules' %}
+
+      {# Filter pills (type) #}
+      <div style="display:flex; gap:16px; margin-bottom:28px; flex-wrap:wrap; align-items:center;" class="reveal">
+        <div class="filter-pills">
+          <a href="{{ path('user_transport_schedules', {type: 'all'}) }}"
+             class="filter-pill {{ type == 'all' ? 'active' : '' }}">All</a>
+          <a href="{{ path('user_transport_schedules', {type: 'flight'}) }}"
+             class="filter-pill {{ type == 'flight' ? 'active' : '' }}">✈ Flights</a>
+          <a href="{{ path('user_transport_schedules', {type: 'vehicle'}) }}"
+             class="filter-pill {{ type == 'vehicle' ? 'active' : '' }}">🚗 Vehicles</a>
+        </div>
+      </div>
+
+      {# ★ NEW — AJAX search panel (replaces GET form) #}
+      {% if type in ['flight', 'vehicle'] %}
+      <div class="search-panel reveal reveal-delay-1">
+        <div class="section-label" style="margin-bottom:16px"><span>{{ type == 'flight' ? 'Filter Flights' : 'Filter Vehicles' }}</span></div>
+        {# novalidate prevents browser pop-ups — our JS handles validation #}
+        <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end;">
+          {% if type == 'flight' %}
+            <div class="input-group" style="flex:1; min-width:160px;">
+              <label>Departure Date</label>
+              <input class="input" type="date" id="ajaxDepDate">
+            </div>
+            <div class="input-group" style="flex:1; min-width:140px;">
+              <label>Travel Class</label>
+              <select id="ajaxCls" class="input">
+                <option value="any">Any Class</option>
+                {% for c in ['ECONOMY','PREMIUM','BUSINESS','FIRST'] %}
+                  <option value="{{ c }}">{{ c }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          {% else %}
+            <div class="input-group" style="flex:1; min-width:160px;">
+              <label>Rental Start</label>
+              <input class="input" type="date" id="ajaxRsStart">
+            </div>
+            <div class="input-group" style="flex:1; min-width:160px;">
+              <label>Rental End</label>
+              <input class="input" type="date" id="ajaxRsEnd">
+            </div>
+          {% endif %}
+          <div style="display:flex; gap:8px; align-items:flex-end;">
+            <button type="button" onclick="doAjaxSearch()" class="btn btn-primary ripple-btn">Search</button>
+            <button type="button" onclick="resetAjaxSearch()" class="btn btn-secondary">Clear</button>
+          </div>
+        </div>
+        <div id="ajaxStatus" style="margin-top:10px; font-size:12px; color:var(--text-muted);"></div>
+      </div>
+      {% endif %}
+      {# ★ END new AJAX search panel #}
+
+      {# ★ NEW — schedule cards grid (now updated by JS, initial PHP render kept) #}
+      <div id="scheduleGrid" class="grid-3 stagger">
+        {% for s in schedules %}
+          {% set t = transportMap[s.transportId] ?? null %}
+          {% if t %}
+            {% set avail = availability[s.scheduleId] ?? {unavailable: true, text: 'N/A', color: '#888'} %}
+            {% set isFlight = t.transportType == 'FLIGHT' %}
+            {% set price = t.basePrice * s.priceMultiplier * (s.travelClass == 'PREMIUM' ? 1.5 : s.travelClass == 'BUSINESS' ? 2.2 : s.travelClass == 'FIRST' ? 3.0 : 1.0) %}
+
+            <div class="trip-card">
+              <div class="trip-card-header {{ avail.unavailable ? 'unavailable' : (isFlight ? '' : 'vehicle') }}">
+                <div style="color:white; font-weight:700; font-size:16px; margin-bottom:4px;">{{ t.providerName }}</div>
+                <div style="color:rgba(255,255,255,0.75); font-size:12px;">{{ t.vehicleModel }}</div>
+              </div>
+
+              <div class="trip-card-body">
+                {# Badges #}
+                <div style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:12px;">
+                  <span class="badge-transport" style="background:var(--accent-primary); color:#fff;">
+                    {{ t.transportType }}
+                  </span>
+                  <span class="badge-transport" style="background:{{ s.status == 'DELAYED' ? '#E07020' : s.status == 'CANCELLED' ? '#c0392b' : s.status == 'COMPLETED' ? '#4b5563' : s.status == 'BOARDING' ? '#8b5cf6' : '#27ae60' }}; color:#fff;">
+                    {{ (s.status|replace({'_': ' '}))|default('UNKNOWN') }}
+                  </span>
+                  <span class="badge-transport" style="background:{{ avail.color }}; color:#fff;">{{ avail.text|default('N/A') }}</span>
+                  {% if s.travelClass %}
+                    <span class="badge-transport" style="background:#7B68EE; color:#fff;">{{ s.travelClass }}</span>
+                  {% endif %}
+                </div>
+
+                {# Route info #}
+                <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); letter-spacing:0.08em; margin-bottom:8px;">
+                  DEST: {{ destMap[s.departureDestinationId] ?? ('#' ~ s.departureDestinationId) }} → {{ destMap[s.arrivalDestinationId] ?? ('#' ~ s.arrivalDestinationId) }}
+                </div>
+
+                {# Times #}
+                <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">
+                  {% if isFlight %}
+                    {{ s.departureDatetime ? s.departureDatetime|date('d M Y  H:i') : 'N/A' }}
+                    → {{ s.arrivalDatetime ? s.arrivalDatetime|date('H:i') : 'N/A' }}
+                  {% else %}
+                    Rental: {{ s.rentalStart ? s.rentalStart|date('d M Y') : 'N/A' }}
+                    – {{ s.rentalEnd ? s.rentalEnd|date('d M Y') : 'N/A' }}
+                  {% endif %}
+                </div>
+
+                <div style="font-family:var(--font-display); font-size:26px; color:var(--accent-primary); line-height:1;">
+                  {{ price|number_format(2) }} EUR
+                </div>
+                <div style="font-size:11px; color:var(--text-muted);">per person</div>
+                <div style="font-family:var(--font-mono); font-size:10px; color:var(--accent-teal); margin-top:6px;">
+                  🌿 Eco: {{ t.sustainabilityRating|number_format(1) }} / 5
+                </div>
+              </div>
+
+              <div class="trip-card-footer">
+                {% if avail.unavailable %}
+                  <div style="flex:1; padding:12px; text-align:center; background:var(--bg-surface); color:var(--text-muted); font-size:13px; font-weight:700;">
+                    Unavailable
+                  </div>
+                {% else %}
+                  <a href="{{ path('user_transport_book_form', {transportId: t.transportId, scheduleId: s.scheduleId}) }}"
+                     style="background:#27ae60; color:#fff;">
+                    Book Now
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+        {% else %}
+          <div style="grid-column:1/-1; text-align:center; padding:60px 0;">
+            <div style="font-size:48px; margin-bottom:16px;">🗓</div>
+            <p class="serif-mood text-muted">No schedules match your search. Try different filters.</p>
+          </div>
+        {% endfor %}
+      </div>
+
+      {# ★ NEW — AJAX search + JS card renderer (add at the bottom of the schedules tab, before {% endif %}) #}
+      <script>
+      const SCHEDULE_SEARCH_URL = '{{ path("user_transport_schedules_search") }}';
+      const CURRENT_TYPE        = '{{ type }}';
+
+      async function doAjaxSearch() {
+          const status = document.getElementById('ajaxStatus');
+          status.textContent = '⏳ Searching...';
+
+          const params = new URLSearchParams({ type: CURRENT_TYPE });
+          if (CURRENT_TYPE === 'flight') {
+              params.set('depDate', document.getElementById('ajaxDepDate')?.value || '');
+              params.set('cls',     document.getElementById('ajaxCls')?.value    || 'any');
+          } else {
+              params.set('rsStart', document.getElementById('ajaxRsStart')?.value || '');
+              params.set('rsEnd',   document.getElementById('ajaxRsEnd')?.value   || '');
+          }
+
+          try {
+              const resp = await fetch(SCHEDULE_SEARCH_URL + '?' + params);
+              const data = await resp.json();
+              renderScheduleCards(data.schedules);
+              status.textContent = `Found ${data.count} schedule(s).`;
+          } catch(e) {
+              status.textContent = '❌ Search failed: ' + e.message;
+          }
+      }
+
+      function resetAjaxSearch() {
+          ['ajaxDepDate','ajaxCls','ajaxRsStart','ajaxRsEnd'].forEach(id => {
+              const el = document.getElementById(id);
+              if (el) el.value = el.tagName === 'SELECT' ? 'any' : '';
+          });
+          document.getElementById('ajaxStatus').textContent = '';
+          location.reload(); // restore PHP-rendered initial list
+      }
+
+      function renderScheduleCards(schedules) {
+          const grid = document.getElementById('scheduleGrid');
+          if (!schedules.length) {
+              grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;">
+                  <div style="font-size:48px;margin-bottom:16px;">🗓</div>
+                  <p class="serif-mood text-muted">No schedules match your search.</p>
+                </div>`;
+              return;
+          }
+          grid.innerHTML = schedules.map(s => {
+              const isFlight  = s.transportType === 'FLIGHT';
+              const avail     = s.availability;
+              const hdrClass  = avail.unavailable ? '#6b7280,#9ca3af' : isFlight ? '#1F294C,#0A4174' : '#2C5F6E,#4E8EA2';
+              const statusClr = s.status === 'DELAYED' ? '#E07020' : 
+                                s.status === 'CANCELLED' ? '#c0392b' : 
+                                s.status === 'COMPLETED' ? '#4b5563' : 
+                                s.status === 'BOARDING' ? '#8b5cf6' : 
+                                '#27ae60';
+              const statusText = (s.status || 'UNKNOWN').replace(/_/g, ' ');
+              const timing    = isFlight
+                  ? `${s.departureDatetime || 'N/A'} → ${s.arrivalDatetime || 'N/A'}`
+                  : `Rental: ${s.rentalStart || 'N/A'} – ${s.rentalEnd || 'N/A'}`;
+              const footer    = avail.unavailable
+                  ? `<div style="flex:1;padding:12px;text-align:center;background:var(--bg-surface);color:var(--text-muted);font-weight:700;">Unavailable</div>`
+                  : `<a href="${s.bookUrl}" style="flex:1;padding:12px;text-align:center;background:#27ae60;color:#fff;font-weight:700;text-decoration:none;">Book Now</a>`;
+              return `
+                <div class="trip-card">
+                  <div class="trip-card-header" style="background:linear-gradient(135deg,${hdrClass});">
+                    <div style="color:white;font-weight:700;font-size:16px;">${s.providerName}</div>
+                    <div style="color:rgba(255,255,255,.75);font-size:12px;">${s.vehicleModel}</div>
+                  </div>
+                  <div class="trip-card-body">
+                    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;">
+                      <span class="badge-transport" style="background:var(--accent-primary);color:#fff;">${s.transportType}</span>
+                      <span class="badge-transport" style="background:${statusClr};color:#fff;">${statusText}</span>
+                      <span class="badge-transport" style="background:${avail.color};color:#fff;">${avail.text || 'N/A'}</span>
+                      ${s.travelClass ? `<span class="badge-transport" style="background:#7B68EE;color:#fff;">${s.travelClass}</span>` : ''}
+                    </div>
+                    <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:8px;">
+                      DEST: ${s.departureDestinationName || ('#'+s.departureDestinationId)} → ${s.arrivalDestinationName || ('#'+s.arrivalDestinationId)}
+                    </div>
+                    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">${timing}</div>
+                    <div style="font-family:var(--font-display);font-size:26px;color:var(--accent-primary);">${s.price.toFixed(2)} EUR</div>
+                    <div style="font-size:11px;color:var(--text-muted);">per person</div>
+                    <div style="font-family:var(--font-mono);font-size:10px;color:var(--accent-teal);margin-top:6px;">🌿 Eco: ${s.sustainabilityRating.toFixed(1)} / 5</div>
+                  </div>
+                  <div class="trip-card-footer">${footer}</div>
+                </div>`;
+          }).join('');
+      }
+      </script>
+      {# ★ END AJAX search block #}
+
+    {# ══════ TRANSPORT TAB ══════ #}
+    {% elseif tab == 'transport' %}
+
+      {# TYPE SELECTION #}
+      {% if view is not defined or view == 'type_select' %}
+        <div class="section-label reveal"><span>What are you looking for?</span></div>
+        <h2 class="display-md reveal" style="margin-bottom:32px">Choose Your <span class="gradient-text">Mode</span></h2>
+        <div class="grid-2 stagger" style="max-width:640px;">
+          <a href="{{ path('user_transport_browse', {transportType: 'FLIGHT'}) }}" class="type-select-card">
+            <div class="type-select-icon">✈</div>
+            <div class="type-select-title">Flights</div>
+            <div class="type-select-sub">Search &amp; book scheduled flights worldwide</div>
+            <span class="btn btn-primary btn-sm" style="margin-top:8px;">Browse Flights</span>
+          </a>
+          <a href="{{ path('user_transport_browse', {transportType: 'VEHICLE'}) }}" class="type-select-card">
+            <div class="type-select-icon">🚗</div>
+            <div class="type-select-title">Vehicle Rental</div>
+            <div class="type-select-sub">Rent a car or vehicle for your trip</div>
+            <span class="btn btn-primary btn-sm" style="margin-top:8px;">Browse Vehicles</span>
+          </a>
+        </div>
+
+      {# PROVIDERS LIST #}
+      {% elseif view == 'providers' %}
+        <div class="section-label reveal"><span>{{ transportType == 'FLIGHT' ? '✈ Flights' : '🚗 Vehicles' }}</span></div>
+        <h2 class="display-md reveal" style="margin-bottom:8px">Choose a <span class="gradient-text">Provider</span></h2>
+        <p class="serif-mood text-muted reveal reveal-delay-1" style="margin-bottom:32px">
+          Select your preferred airline or rental operator below.
+        </p>
+        <div style="margin-bottom:20px;">
+          <a href="{{ path('user_transport_browse') }}" class="btn btn-secondary btn-sm">← Back</a>
+        </div>
+        <div class="grid-3 stagger">
+          {% for prov, cnt in providers %}
+            <a href="{{ path('user_transport_provider', {transportType: transportType, provider: prov}) }}"
+               class="provider-card">
+              <div style="font-size:36px;">{{ transportType == 'FLIGHT' ? '✈' : '🚗' }}</div>
+              <div class="provider-name">{{ prov }}</div>
+              <div class="provider-count">{{ cnt }} transport{{ cnt > 1 ? 's' : '' }}</div>
+              <span class="btn btn-primary btn-sm" style="margin-top:8px;">View</span>
+            </a>
+          {% else %}
+            <div style="grid-column:1/-1; text-align:center; padding:40px 0;">
+              <p class="text-muted">No providers found.</p>
+            </div>
+          {% endfor %}
+        </div>
+
+      {# TRANSPORT CARDS #}
+      {% elseif view == 'transport_cards' %}
+        <div class="section-label reveal"><span>{{ transportType == 'FLIGHT' ? '✈ Flights' : '🚗 Vehicles' }}</span></div>
+        <h2 class="display-md reveal" style="margin-bottom:8px">{{ provider }}</h2>
+        <div style="margin-bottom:24px;">
+          <a href="{{ path('user_transport_browse', {transportType: transportType}) }}" class="btn btn-secondary btn-sm">← Back to Providers</a>
+        </div>
+        <div class="grid-3 stagger">
+          {% for t in transports %}
+            {% set isFlight = t.transportType == 'FLIGHT' %}
+            <div class="trip-card">
+              <div class="trip-card-header {{ isFlight ? '' : 'vehicle' }}">
+                <div style="color:white; font-weight:700; font-size:16px; margin-bottom:4px;">{{ t.providerName }}</div>
+                <div style="color:rgba(255,255,255,0.75); font-size:12px;">{{ t.vehicleModel }}</div>
+              </div>
+              <div class="trip-card-body">
+                <div style="display:flex; gap:6px; margin-bottom:12px;">
+                  <span class="badge-transport" style="background:var(--accent-primary); color:#fff;">{{ t.transportType }}</span>
+                  <span class="badge-transport" style="background:#27ae60; color:#fff;">🌿 Eco {{ t.sustainabilityRating|number_format(1) }}</span>
+                </div>
+                <div style="font-family:var(--font-display); font-size:26px; color:var(--accent-primary);">
+                  from {{ t.basePrice|number_format(2) }} EUR
+                </div>
+                <div style="font-size:12px; color:var(--text-muted); margin-top:6px;">
+                  Capacity: {{ t.capacity }} &nbsp;|&nbsp; {{ t.availableUnits }} unit(s)
+                </div>
+                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">{{ t.amenities ?? '—' }}</div>
+              </div>
+              <div class="trip-card-footer">
+                <a href="{{ path('user_transport_detail', {id: t.transportId}) }}"
+                   style="background:var(--bg-surface); color:var(--text-primary);">Details</a>
+                <a href="{{ path('user_transport_book_form', {transportId: t.transportId}) }}"
+                   style="background:#27ae60; color:#fff;">Book Direct</a>
+              </div>
+            </div>
+          {% else %}
+            <div style="grid-column:1/-1; text-align:center; padding:40px 0;">
+              <p class="text-muted">No transports found.</p>
+            </div>
+          {% endfor %}
+        </div>
+
+      {# TRANSPORT DETAIL #}
+      {% elseif view == 'detail' %}
+        {% set isFlight = transport.transportType == 'FLIGHT' %}
+        <div style="margin-bottom:20px;">
+          <a href="{{ path('user_transport_browse', {transportType: transport.transportType}) }}" class="btn btn-secondary btn-sm">← Back</a>
+        </div>
+        <div class="grid-2" style="gap:32px; align-items:start;">
+          {# Info card #}
+          <div class="trip-card">
+            <div class="trip-card-header {{ isFlight ? '' : 'vehicle' }}">
+              <div style="color:white; font-weight:700; font-size:18px;">{{ transport.providerName }}</div>
+              <div style="color:rgba(255,255,255,0.75); font-size:13px;">{{ transport.vehicleModel }}</div>
+            </div>
+            <div class="trip-card-body">
+              <table style="width:100%; font-size:13px; border-collapse:collapse;">
+                {% set rows = [
+                  ['Provider', transport.providerName],
+                  ['Model', transport.vehicleModel],
+                  ['Type', transport.transportType],
+                  ['Base Price', transport.basePrice|number_format(2) ~ ' EUR'],
+                  ['Capacity', transport.capacity],
+                  ['Units Available', transport.availableUnits],
+                  ['Eco Rating', transport.sustainabilityRating|number_format(1) ~ ' / 5'],
+                  ['Amenities', transport.amenities ?? 'None'],
+                  ['Status', transport.isActive ? 'Active' : 'Inactive'],
+                ] %}
+                {% for row in rows %}
+                  <tr style="border-bottom:1px solid var(--border-color);">
+                    <td style="padding:8px 0; font-weight:600; color:var(--text-muted); width:140px;">{{ row[0] }}</td>
+                    <td style="padding:8px 0; color:var(--text-primary);">{{ row[1] }}</td>
+                  </tr>
+                {% endfor %}
+              </table>
+              <a href="{{ path('user_transport_book_form', {transportId: transport.transportId}) }}"
+                 class="btn btn-primary ripple-btn" style="display:block; margin-top:20px; text-align:center;">
+                Book Direct (No Schedule)
+              </a>
+            </div>
+          </div>
+          {# Schedules panel #}
+          <div>
+            <div class="section-label" style="margin-bottom:16px;"><span>Available Schedules ({{ schedules|length }})</span></div>
+            {% for s in schedules %}
+              {% set avail = availability[s.scheduleId] ?? {unavailable: true, text: 'N/A'} %}
+              <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius-md);
+                          padding:12px 16px; margin-bottom:10px; display:flex; align-items:center; gap:14px;
+                          transition:all var(--transition-fast);"
+                   onmouseover="this.style.borderColor='var(--accent-primary)'"
+                   onmouseout="this.style.borderColor='var(--border-color)'">
+                <div style="flex:1; font-size:12px; color:var(--text-secondary);">
+                  <strong style="color:var(--text-primary);">#{{ s.scheduleId }}</strong> &nbsp;
+                  {% if isFlight %}
+                    Dest #{{ s.departureDestinationId }} → #{{ s.arrivalDestinationId }}<br>
+                    {{ s.departureDatetime ? s.departureDatetime|date('Y-m-d H:i') : 'N/A' }}
+                    → {{ s.arrivalDatetime ? s.arrivalDatetime|date('H:i') : 'N/A' }}<br>
+                    Class: {{ s.travelClass }} &nbsp;|&nbsp; {{ avail.text }}
+                  {% else %}
+                    Dest #{{ s.departureDestinationId }}<br>
+                    Rental: {{ s.rentalStart ? s.rentalStart|date('d M Y') : 'N/A' }}
+                    – {{ s.rentalEnd ? s.rentalEnd|date('d M Y') : 'N/A' }}<br>
+                    {{ avail.text }}
+                  {% endif %}
+                </div>
+                {% if avail.unavailable %}
+                  <span style="padding:6px 14px; background:var(--bg-surface); color:var(--text-muted); border-radius:var(--border-radius-sm); font-size:12px;">Unavailable</span>
+                {% else %}
+                  <a href="{{ path('user_transport_book_form', {transportId: transport.transportId, scheduleId: s.scheduleId}) }}"
+                     class="btn btn-primary btn-sm">Book</a>
+                {% endif %}
+              </div>
+            {% else %}
+              <p class="text-muted">No active schedules available.</p>
+            {% endfor %}
+          </div>
+        </div>
+
+      {% endif %}{# end transport views #}
+
+    {# ══════ BOOKING FORM TAB ══════ #}
+    {% elseif tab == 'booking_form' %}
+      {% set isFlight = transport.transportType == 'FLIGHT' %}
+
+      <div style="margin-bottom:20px;">
+        <a href="{{ path('user_transport_schedules') }}" class="btn btn-secondary btn-sm">← Back to Schedules</a>
+      </div>
+
+      <div class="section-label reveal"><span>Booking Details</span></div>
+      <h2 class="display-md reveal" style="margin-bottom:8px;">{{ transport.providerName }}</h2>
+      <p class="serif-mood text-muted reveal reveal-delay-1" style="margin-bottom:28px;">
+        {{ transport.transportType }} · {{ transport.vehicleModel }} · Base price {{ transport.basePrice|number_format(2) }} EUR
+      </p>
+
+      {# Schedule info banner #}
+      {% if schedule %}
+      <div style="background:rgba(0,166,237,0.08); border:1px solid rgba(0,166,237,0.25);
+                  border-radius:var(--border-radius-md); padding:14px 18px; margin-bottom:20px; font-size:13px; color:var(--text-primary);">
+        {% if isFlight %}
+          ✈ &nbsp; Dest #{{ schedule.departureDestinationId }} → #{{ schedule.arrivalDestinationId }}
+          &nbsp;|&nbsp; Dep: {{ schedule.departureDatetime ? schedule.departureDatetime|date('Y-m-d H:i') : 'N/A' }}
+          &nbsp;|&nbsp; Arr: {{ schedule.arrivalDatetime ? schedule.arrivalDatetime|date('H:i') : 'N/A' }}
+          &nbsp;|&nbsp; Status: <strong>{{ schedule.status }}</strong>
+        {% else %}
+          🚗 &nbsp; Vehicle Rental · Dest #{{ schedule.departureDestinationId }}
+          &nbsp;|&nbsp; {{ schedule.rentalStart ? schedule.rentalStart|date('d M Y') : 'N/A' }}
+          to {{ schedule.rentalEnd ? schedule.rentalEnd|date('d M Y') : 'N/A' }}
+        {% endif %}
+      </div>
+      {% endif %}
+
+        {# ★ novalidate on booking form — disables HTML5 browser popups #}
+        <form method="POST" action="{{ path('user_transport_book_submit') }}" id="bookingForm" novalidate>
+          <input type="hidden" name="_token" value="{{ csrf_token('booking_form') }}">
+          <input type="hidden" name="transportId" value="{{ transport.transportId }}">
+          <input type="hidden" name="scheduleId" value="{{ schedule ? schedule.scheduleId : 0 }}">
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+
+            <div class="input-group">
+              <div class="input-label">Travel Class</div>
+              <select name="travelClass" id="travelClass" class="input {{ errors is defined and errors.travelClass is defined ? 'has-error' : '' }}">
+                {% for c in ['ECONOMY','PREMIUM','BUSINESS','FIRST'] %}
+                  <option value="{{ c }}" {{ (formData.travelClass ?? (schedule and schedule.travelClass == c ? 'selected' : (c == 'ECONOMY' ? 'selected' : ''))) == c ? 'selected' : '' }}>{{ c }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="input-group">
+              <div class="input-label">Adults</div>
+              <input class="input {{ errors is defined and errors.adultsCount is defined ? 'has-error' : '' }}"
+                     type="number" name="adults" id="adults" min="1" max="20"
+                     value="{{ formData.adults ?? 1 }}">
+              {% if errors is defined and errors.adultsCount is defined %}
+                <div class="field-error" style="color:#ef4444;font-size:11px;margin-top:4px;">
+                  ⚠ {{ errors.adultsCount|join(' ') }}
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="input-group">
+              <div class="input-label">Children (0–11)</div>
+              <input class="input {{ errors is defined and errors.childrenCount is defined ? 'has-error' : '' }}"
+                     type="number" name="children" id="children" min="0" max="20"
+                     value="{{ formData.children ?? 0 }}">
+              {% if errors is defined and errors.childrenCount is defined %}
+                <div class="field-error" style="color:#ef4444;font-size:11px;margin-top:4px;">
+                  ⚠ {{ errors.childrenCount|join(' ') }}
+                </div>
+              {% endif %}
+            </div>
+
+            <div style="display:flex; align-items:center; gap:10px; padding-top:20px;">
+              <input type="checkbox" name="insurance" id="insurance" value="1"
+                     {{ (formData.insurance ?? '') ? 'checked' : '' }}
+                     style="accent-color:var(--accent-primary); width:16px; height:16px;">
+              <label for="insurance" style="font-size:13px; color:var(--text-secondary);">Travel insurance (+25 EUR/seat)</label>
+            </div>
+          </div>
+
+          {# ★ Global booking validation errors (totalPrice, totalSeats etc) #}
+          {% if errors is defined and errors|length > 0 %}
+            <div style="margin-top:16px; padding:12px 16px; background:rgba(239,68,68,.08);
+                        border:1px solid rgba(239,68,68,.3); border-radius:8px; font-size:13px; color:#ef4444;">
+              ⚠ Please fix the following errors:
+              <ul style="margin-top:6px; margin-left:16px;">
+                {% for field, msgs in errors %}
+                  {% if field not in ['adultsCount', 'childrenCount', 'travelClass'] %}
+                    {% for msg in msgs %}<li>{{ msg }}</li>{% endfor %}
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %} {# ★ END error summary #}
+
+          {# Vehicle-only: Map Picker #}
+          {% if not isFlight %}
+          <div style="margin-top:24px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--border-radius-md); padding:20px;">
+            <div class="section-label" style="margin-bottom:12px;"><span>📍 Pickup &amp; Drop-off</span></div>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">Enter coordinates or click "Pick on Map".</p>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:10px;">
+              <div class="input-group">
+                <div class="input-label">Pickup Latitude</div>
+                <input class="input" type="text" name="pickupLat" id="pickupLat" placeholder="e.g. 36.8065">
+              </div>
+              <div class="input-group">
+                <div class="input-label">Pickup Longitude</div>
+                <input class="input" type="text" name="pickupLon" id="pickupLon" placeholder="e.g. 10.1815">
+              </div>
+            </div>
+            <input type="hidden" name="pickupAddress" id="pickupAddress">
+            <div id="pickupAddressDisplay" style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">Address not resolved yet.</div>
+            <div style="display:flex; gap:8px; margin-bottom:20px;">
+              <button type="button" onclick="openMapPicker('pickup')" class="btn btn-secondary btn-sm">🗺 Pick on Map</button>
+              <button type="button" onclick="resolveAddress('pickup')" class="btn btn-secondary btn-sm">Resolve Pickup</button>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:10px;">
+              <div class="input-group">
+                <div class="input-label">Drop-off Latitude</div>
+                <input class="input" type="text" name="dropoffLat" id="dropoffLat" placeholder="e.g. 36.8999">
+              </div>
+              <div class="input-group">
+                <div class="input-label">Drop-off Longitude</div>
+                <input class="input" type="text" name="dropoffLon" id="dropoffLon" placeholder="e.g. 10.1890">
+              </div>
+            </div>
+            <input type="hidden" name="dropoffAddress" id="dropoffAddress">
+            <div id="dropoffAddressDisplay" style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">Address not resolved yet.</div>
+            <div style="display:flex; gap:8px; margin-bottom:16px;">
+              <button type="button" onclick="openMapPicker('dropoff')" class="btn btn-secondary btn-sm">🗺 Pick on Map</button>
+              <button type="button" onclick="resolveAddress('dropoff')" class="btn btn-secondary btn-sm">Resolve Drop-off</button>
+            </div>
+
+            <button type="button" id="routeAiBtn" onclick="findOptimalRoute()" class="btn btn-primary ripple-btn">
+              🤖 Find Optimal Route (AI)
+            </button>
+            <div id="routeResult" style="margin-top:12px; padding:14px; background:var(--bg-card); border:1px solid var(--border-color);
+                                         border-radius:var(--border-radius-md); font-size:12px; color:var(--text-primary);
+                                         display:none; white-space:pre-wrap;"></div>
+          </div>
+          {% endif %}
+
+          {# Price estimate #}
+          <div id="priceEstimate" style="margin-top:20px; padding:16px 20px; background:rgba(0,166,237,0.08);
+                                         border:1px solid rgba(0,166,237,0.2); border-radius:var(--border-radius-md);
+                                         font-weight:700; color:var(--accent-primary); font-size:15px;">
+            Calculating...
+          </div>
+
+          <div style="margin-top:24px; display:flex; gap:12px; justify-content:flex-end;">
+            <a href="{{ path('user_transport_schedules') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary btn-lg ripple-btn">✓ Confirm Booking</button>
+          </div>
+        </form>
+      </div>
+
+      {# MAP MODAL #}
+      <div id="mapModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6);
+                                z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
+        <div style="background:var(--bg-card); border-radius:var(--border-radius-lg); overflow:hidden; width:820px; max-width:95vw; box-shadow:var(--shadow-xl);">
+          <div style="background:linear-gradient(135deg,#1F294C,#0A4174); padding:16px 22px; color:white; font-weight:700;
+                      display:flex; justify-content:space-between; align-items:center;">
+            <span id="mapModalTitle">Pick Location</span>
+            <button onclick="closeMapModal()" style="background:none; border:none; color:white; font-size:22px; cursor:pointer;">✕</button>
+          </div>
+          <div id="leafletMap" style="height:480px;"></div>
+          <div style="padding:14px 20px; background:var(--bg-surface); display:flex; justify-content:flex-end; gap:10px; align-items:center;">
+            <span id="selectedCoords" style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); margin-right:auto;"></span>
+            <button onclick="confirmMapSelection()" class="btn btn-primary ripple-btn">Confirm Selection</button>
+            <button onclick="closeMapModal()" class="btn btn-secondary">Done</button>
+          </div>
+        </div>
+      </div>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+      <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+      <script>
+        const BASE_PRICE  = {{ transport.basePrice }};
+        const SCHED_MULT  = {{ schedule ? schedule.priceMultiplier : 1.0 }};
+        const MULTIPLIERS = {ECONOMY:1.0, PREMIUM:1.5, BUSINESS:2.2, FIRST:3.0};
+
+        function calcPrice() {
+          const cls      = document.getElementById('travelClass').value;
+          const adults   = parseInt(document.getElementById('adults').value) || 0;
+          const children = parseInt(document.getElementById('children').value) || 0;
+          const ins      = document.getElementById('insurance')?.checked;
+          const seats    = adults + children;
+          const cm       = MULTIPLIERS[cls] || 1.0;
+          const insVal   = ins ? 25.0 * seats : 0;
+          const total    = BASE_PRICE * SCHED_MULT * cm * seats + insVal;
+          document.getElementById('priceEstimate').textContent =
+            `Estimated Total: ${total.toFixed(2)} EUR — ` +
+            `Base ${(BASE_PRICE * SCHED_MULT).toFixed(2)} × ${cm} (${cls}) × ${seats} seat(s)` +
+            (ins ? ' + insurance' : '');
+        }
+
+        ['travelClass','adults','children'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.addEventListener('change', calcPrice);
+        });
+        const insEl = document.getElementById('insurance');
+        if (insEl) insEl.addEventListener('change', calcPrice);
+        calcPrice();
+
+        let leafletMap = null, leafletMarker = null, activeTarget = null, selectedLat = null, selectedLon = null;
+
+        function openMapPicker(target) {
+          activeTarget = target;
+          document.getElementById('mapModalTitle').textContent = target === 'pickup' ? 'Pick Pickup Location' : 'Pick Drop-off Location';
+          document.getElementById('mapModal').style.display = 'flex';
+          setTimeout(() => {
+            if (!leafletMap) {
+              leafletMap = L.map('leafletMap').setView([36.8065, 10.1815], 12);
+              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'© OpenStreetMap' }).addTo(leafletMap);
+              leafletMap.on('click', function(e) {
+                selectedLat = e.latlng.lat; selectedLon = e.latlng.lng;
+                if (leafletMarker) leafletMarker.setLatLng(e.latlng);
+                else leafletMarker = L.marker(e.latlng).addTo(leafletMap);
+                document.getElementById('selectedCoords').textContent = `Lat: ${selectedLat.toFixed(6)}, Lon: ${selectedLon.toFixed(6)}`;
+              });
+            }
+            leafletMap.invalidateSize();
+          }, 200);
+        }
+
+        function confirmMapSelection() {
+          if (selectedLat === null) { alert('Please click on the map to select a location.'); return; }
+          if (activeTarget === 'pickup') {
+            document.getElementById('pickupLat').value = selectedLat.toFixed(6);
+            document.getElementById('pickupLon').value = selectedLon.toFixed(6);
+            resolveAddress('pickup');
+          } else {
+            document.getElementById('dropoffLat').value = selectedLat.toFixed(6);
+            document.getElementById('dropoffLon').value = selectedLon.toFixed(6);
+            resolveAddress('dropoff');
+          }
+          closeMapModal();
+        }
+
+        function closeMapModal() { document.getElementById('mapModal').style.display = 'none'; }
+
+        async function resolveAddress(target) {
+          const lat = document.getElementById(target + 'Lat').value;
+          const lon = document.getElementById(target + 'Lon').value;
+          if (!lat || !lon) { alert('Enter coordinates first.'); return; }
+          try {
+            const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18`, { headers:{'Accept':'application/json','User-Agent':'tripx-web/1.0'} });
+            const data = await resp.json();
+            const addr = data.display_name || 'Address not found';
+            document.getElementById(target + 'Address').value = addr;
+            document.getElementById(target + 'AddressDisplay').textContent = addr;
+          } catch (e) { alert('Could not resolve address: ' + e.message); }
+        }
+
+        async function findOptimalRoute() {
+          const pLat = document.getElementById('pickupLat').value, pLon = document.getElementById('pickupLon').value;
+          const dLat = document.getElementById('dropoffLat').value, dLon = document.getElementById('dropoffLon').value;
+          if (!pLat || !pLon || !dLat || !dLon) { alert('Enter valid pickup and drop-off coordinates first.'); return; }
+          const btn = document.getElementById('routeAiBtn');
+          btn.disabled = true; btn.textContent = '⏳ Analyzing...';
+          const resultDiv = document.getElementById('routeResult');
+          resultDiv.style.display = 'block'; resultDiv.textContent = 'Please wait...';
+          try {
+            const resp = await fetch('{{ path("user_transport_route_ai") }}', {
+              method:'POST', headers:{'Content-Type':'application/json'},
+              body: JSON.stringify({ pickupLat:parseFloat(pLat), pickupLon:parseFloat(pLon),
+                dropoffLat:parseFloat(dLat), dropoffLon:parseFloat(dLon),
+                pickupAddress:document.getElementById('pickupAddress').value,
+                dropoffAddress:document.getElementById('dropoffAddress').value })
+            });
+            const data = await resp.json();
+            resultDiv.textContent = data.result;
+          } catch(e) {
+            resultDiv.textContent = 'Route analysis failed: ' + e.message;
+          } finally {
+            btn.disabled = false; btn.textContent = '🤖 Find Optimal Route (AI)';
+          }
+        }
+      </script>
+
+    {# ══════ MY BOOKINGS TAB ══════ #}
+    {% elseif tab == 'my_bookings' %}
+
+      {# Add-schedule sub-view #}
+      {% if view is defined and view == 'add_schedule' %}
+      <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius-lg);
+                  padding:28px; max-width:640px; margin-bottom:32px;" class="reveal">
+        <div class="section-label" style="margin-bottom:12px;"><span>Add Schedule to Booking #{{ booking.bookingId }}</span></div>
+        {% for s in schedules %}
+          <div style="background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--border-radius-md);
+                      padding:12px 16px; margin-bottom:10px; display:flex; align-items:center; gap:14px;">
+            <div style="flex:1; font-size:12px; color:var(--text-secondary);">
+              <strong style="color:var(--text-primary);">#{{ s.scheduleId }}</strong>
+              {% if transport and transport.transportType == 'FLIGHT' %}
+                Dest #{{ s.departureDestinationId }} → #{{ s.arrivalDestinationId }}<br>
+                {{ s.departureDatetime ? s.departureDatetime|date('Y-m-d H:i') : 'N/A' }}
+                → {{ s.arrivalDatetime ? s.arrivalDatetime|date('H:i') : 'N/A' }}&nbsp;|&nbsp;{{ s.travelClass }}
+              {% else %}
+                Dest #{{ s.departureDestinationId }}<br>
+                Rental: {{ s.rentalStart ? s.rentalStart|date('d M Y') : 'N/A' }}
+                – {{ s.rentalEnd ? s.rentalEnd|date('d M Y') : 'N/A' }}
+              {% endif %}
+            </div>
+            <form method="POST" action="{{ path('user_booking_add_schedule', {bookingId: booking.bookingId}) }}"
+                  onsubmit="return confirm('Link Schedule #{{ s.scheduleId }} to Booking #{{ booking.bookingId }}?')">
+              <input type="hidden" name="scheduleId" value="{{ s.scheduleId }}">
+              <input type="hidden" name="_token" value="{{ csrf_token('add_schedule') }}">
+              <button type="submit" class="btn btn-primary btn-sm">Select</button>
+            </form>
+          </div>
+        {% else %}
+          <p class="text-muted">No eligible schedules available.</p>
+        {% endfor %}
+        <a href="{{ path('user_transport_mybookings') }}" class="btn btn-secondary btn-sm" style="margin-top:12px;">Cancel</a>
+      </div>
+      {% endif %}
+
+      {# Stats bar #}
+      <div class="stats-bar reveal">
+        <div class="stat-chip">
+          <div class="stat-chip-val">{{ stats.total }}</div>
+          <div class="stat-chip-label">Total</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-chip-val" style="color:#27ae60;">{{ stats.conf }}</div>
+          <div class="stat-chip-label">Confirmed</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-chip-val" style="color:#F97316;">{{ stats.pend }}</div>
+          <div class="stat-chip-label">Pending</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-chip-val">{{ stats.spent|number_format(2) }}</div>
+          <div class="stat-chip-label">EUR Spent</div>
+        </div>
+      </div>
+
+      {# Booking cards #}
+      <div class="grid-3 stagger">
+        {% for b in bookings %}
+          {% set t = transportMap[b.transportId] ?? null %}
+          {% set sc = b.bookingStatus == 'CONFIRMED' ? '#27ae60' : b.bookingStatus == 'CANCELLED' ? '#c0392b' : '#E07020' %}
+          {% set pc = b.paymentStatus == 'PAID' ? '#27ae60' : b.paymentStatus == 'REFUNDED' ? '#3498db' : '#888' %}
+
+          <div class="booking-card">
+            {# Header #}
+            <div style="background:{{ sc }}; padding:14px 18px; border-radius:var(--border-radius-lg) var(--border-radius-lg) 0 0;">
+              <div style="color:white; font-weight:700; font-size:15px;">Booking #{{ b.bookingId }}</div>
+              <div style="color:rgba(255,255,255,0.85); font-size:12px;">
+                {{ t ? t.providerName : 'Transport #' ~ b.transportId }}
+                ({{ t ? t.transportType : 'UNKNOWN' }})
+              </div>
+            </div>
+
+            {# Body #}
+            <div style="padding:14px 18px;">
+              <div style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:10px;">
+                <span class="badge-transport" style="background:{{ sc }}; color:#fff;">{{ b.bookingStatus }}</span>
+                <span class="badge-transport" style="background:{{ pc }}; color:#fff;">{{ b.paymentStatus }}</span>
+                {% if t %}
+                  <span class="badge-transport" style="background:{{ t.transportType == 'FLIGHT' ? '#1F294C' : '#2C5F6E' }}; color:#fff;">{{ t.transportType }}</span>
+                {% endif %}
+              </div>
+              <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">
+                Booked: {{ b.bookingDate ? b.bookingDate|date('d M Y H:i') : 'N/A' }}
+              </div>
+              {% if t %}<div style="font-size:12px; color:var(--text-secondary); margin-bottom:4px;">{{ t.vehicleModel }}</div>{% endif %}
+              <div style="font-size:12px; color:var(--text-secondary); margin-bottom:4px;">
+                {{ b.totalSeats }} seat(s) · {{ b.adultsCount }} adults, {{ b.childrenCount }} children
+              </div>
+              <div style="font-size:12px; color:{{ b.scheduleId > 0 ? 'var(--accent-primary)' : '#E07020' }}; margin-bottom:8px;">
+                {{ b.scheduleId > 0 ? 'Schedule #' ~ b.scheduleId : 'Direct booking' }}
+              </div>
+              <div style="font-family:var(--font-display); font-size:22px; color:var(--accent-primary);">
+                {{ b.totalPrice|number_format(2) }} EUR
+              </div>
+              <div style="font-size:11px; color:{{ b.insuranceIncluded ? '#27ae60' : 'var(--text-muted)' }}; margin-top:4px;">
+                Insurance: {{ b.insuranceIncluded ? '✓ Yes' : 'No' }}
+              </div>
+            </div>
+
+            {# Actions #}
+            <div class="trip-card-footer">
+              <button onclick="toggleDetails({{ b.bookingId }})"
+                      style="background:var(--bg-surface); color:var(--text-primary);">Details</button>
+
+              {% if b.scheduleId == 0 and b.bookingStatus != 'CANCELLED' %}
+                <a href="{{ path('user_booking_add_schedule', {bookingId: b.bookingId}) }}"
+                   style="background:var(--accent-primary); color:#fff; border-radius:0 0 var(--border-radius-lg) 0;">
+                  Add Schedule
+                </a>
+              {% elseif b.bookingStatus == 'PENDING' %}
+                <form method="POST" action="{{ path('user_booking_cancel', {id: b.bookingId}) }}"
+                      style="flex:1;" onsubmit="return confirm('Cancel booking #{{ b.bookingId }}?')">
+                  <input type="hidden" name="_token" value="{{ csrf_token('booking_cancel') }}">
+                  <button type="submit" style="width:100%; background:#c0392b; color:#fff; border-radius:0 0 var(--border-radius-lg) 0;">Cancel</button>
+                </form>
+              {% else %}
+                <div style="flex:1; padding:12px; text-align:center; background:var(--bg-surface); color:var(--text-muted); font-size:13px; font-weight:700; border-radius:0 0 var(--border-radius-lg) 0;">
+                  {{ b.bookingStatus == 'CANCELLED' ? 'Cancelled' : 'Confirmed' }}
+                </div>
+              {% endif %}
+            </div>
+
+            {# Expandable details #}
+            <div id="details-{{ b.bookingId }}" style="display:none; padding:14px 18px; border-top:1px solid var(--border-color);
+                    font-size:12px; color:var(--text-secondary); background:var(--bg-surface);">
+              {% if t %}
+                <div><strong>Provider:</strong> {{ t.providerName }}</div>
+                <div><strong>Type:</strong> {{ t.transportType }}</div>
+                <div><strong>Model:</strong> {{ t.vehicleModel }}</div>
+              {% endif %}
+              <div><strong>Schedule:</strong> {{ b.scheduleId > 0 ? 'Schedule #' ~ b.scheduleId : 'Direct (no schedule)' }}</div>
+              <div><strong>Adults:</strong> {{ b.adultsCount }} / <strong>Children:</strong> {{ b.childrenCount }} / <strong>Seats:</strong> {{ b.totalSeats }}</div>
+              <div><strong>Total Price:</strong> {{ b.totalPrice|number_format(2) }} EUR</div>
+              <div><strong>Payment:</strong> {{ b.paymentStatus }}</div>
+              <div><strong>Insurance:</strong> {{ b.insuranceIncluded ? 'Yes (+25 EUR/seat)' : 'No' }}</div>
+              {% if b.pickupAddress %}
+                <div style="margin-top:8px; color:var(--accent-primary); font-weight:600;">Pickup &amp; Drop-off</div>
+                <div><strong>Pickup:</strong> {{ b.pickupAddress }}</div>
+                <div><strong>Drop-off:</strong> {{ b.dropoffAddress }}</div>
+                {% if b.pickupLatitude %}
+                  <div><strong>Pickup coords:</strong> {{ b.pickupLatitude|number_format(6) }}, {{ b.pickupLongitude|number_format(6) }}</div>
+                  <div><strong>Drop-off coords:</strong> {{ b.dropoffLatitude|number_format(6) }}, {{ b.dropoffLongitude|number_format(6) }}</div>
+                {% endif %}
+              {% endif %}
+              <div style="margin-top:12px; display:flex; gap:8px; align-items:center;">
+                {% if b.qrCode %}
+                  <div style="padding:10px; background:white; border-radius:8px; border:1px solid var(--border-color); width:fit-content;">
+                    <img src="{{ asset(b.qrCode) }}" alt="QR" style="width:100px; height:100px; display:block;">
+                  </div>
+                {% endif %}
+                <a href="{{ path('user_booking_receipt_pdf', {id: b.bookingId}) }}" class="btn btn-primary btn-sm" style="height:fit-content;">
+                  📄 Download Receipt (PDF)
+                </a>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div style="grid-column:1/-1; text-align:center; padding:60px 0;">
+            <div style="font-size:48px; margin-bottom:16px;">📋</div>
+            <p class="serif-mood text-muted">No bookings yet. Start browsing schedules!</p>
+            <a href="{{ path('user_transport_schedules') }}" class="btn btn-primary ripple-btn" style="margin-top:16px;">
+              Browse Schedules
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+
+      <script>
+        function toggleDetails(id) {
+          const el = document.getElementById('details-' + id);
+          el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Custom Validation for Booking Form
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('bookingForm');
+            if (!form) return;
+
+            form.addEventListener('submit', function(e) {
+                // Clear old errors
+                document.querySelectorAll('.js-error').forEach(el => el.remove());
+                document.querySelectorAll('.has-error').forEach(el => el.classList.remove('has-error'));
+
+                let hasError = false;
+                
+                const adults = document.getElementById('adults');
+                const children = document.getElementById('children');
+
+                if (adults && children) {
+                    const aVal = parseInt(adults.value) || 0;
+                    const cVal = parseInt(children.value) || 0;
+
+                    if (aVal < 1) {
+                        showError(adults, 'At least 1 adult is required.');
+                        hasError = true;
+                    }
+                    if (cVal < 0) {
+                        showError(children, 'Children count cannot be negative.');
+                        hasError = true;
+                    }
+                    if (aVal + cVal > 20) {
+                        showError(adults, 'Maximum 20 total seats allowed.');
+                        hasError = true;
+                    }
+                }
+
+                if (hasError) {
+                    e.preventDefault();
+                }
+            });
+
+            function showError(input, message) {
+                input.classList.add('has-error');
+                const errDiv = document.createElement('div');
+                errDiv.className = 'field-error js-error';
+                errDiv.style.cssText = 'color:#ef4444;font-size:11px;margin-top:4px;';
+                errDiv.textContent = '⚠ ' + message;
+                input.parentNode.appendChild(errDiv);
+            }
+        });
+      </script>
+
+    {% endif %}{# end all tabs #}
+
+  </div>{# end container #}
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 TripX. All rights reserved.</div>
+      <a href="{{ path('index') }}" class="footer-copy" style="color:var(--accent-primary)">← Back to Home</a>
+    </div>
+  </div>
+</footer>
+
+<button class="aria-orb" id="aria-orb" aria-label="Open ARIA">✦</button>
+<div class="aria-panel" id="aria-panel">
+  <div class="aria-header">
+    <div class="aria-avatar">✦</div>
+    <div><span class="aria-name">ARIA</span><span class="aria-status">Transport Intelligence</span></div>
+    <button id="aria-close" style="margin-left:auto;font-size:18px;color:var(--text-muted);cursor:none">✕</button>
+  </div>
+  <div class="aria-messages" id="aria-messages">
+    <div class="aria-msg bot"><div class="aria-bubble">I can help you find the best schedules, compare prices, and choose the right travel class. What are you planning? ✈</div></div>
+  </div>
+  <div class="aria-input-row">
+    <input class="aria-input" id="aria-input" type="text" placeholder="Ask about transport...">
+    <button class="aria-send" id="aria-send">➤</button>
+  </div>
+</div>
+<script src="/assets.php?f=js/main.js"></script>
+{% endblock %}

@@ -43,6 +43,7 @@ class Accommodation
     private ?string $country = null;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 8, nullable: true)]
+    #[Assert\NotBlank(message: 'Please pick a location from the map')]
     #[Assert\Range(
         min: -90,
         max: 90,
@@ -51,6 +52,7 @@ class Accommodation
     private ?string $latitude = null;
 
     #[ORM\Column(type: 'decimal', precision: 11, scale: 8, nullable: true)]
+    #[Assert\NotBlank(message: 'Please pick a location from the map')]
     #[Assert\Range(
         min: -180,
         max: 180,
@@ -104,7 +106,6 @@ class Accommodation
     #[Assert\Length(
         min: 8,
         max: 15,
-        exactMessage: 'Phone number must be between {{ min }} and {{ max }} digits',
         minMessage: 'Phone number must be at least {{ limit }} digits',
         maxMessage: 'Phone number cannot exceed {{ limit }} digits'
     )]
@@ -112,18 +113,16 @@ class Accommodation
         pattern: '/^[0-9\+][0-9\s\-\(\)]+$/',
         message: 'Phone number must contain only numbers, spaces, dashes, parentheses, or a plus sign'
     )]
-    #[Assert\Regex(
-        pattern: '/^[0-9]{8,15}$/',
-        message: 'Phone number must contain only digits (8-15 digits)'
-    )]
     private ?string $phone = null;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[Assert\NotBlank(message: 'Email address is required')]
     #[Assert\Email(message: 'Please enter a valid email address (e.g., name@example.com)')]
     #[Assert\Length(max: 100, maxMessage: 'Email cannot exceed {{ limit }} characters')]
     private ?string $email = null;
 
     #[ORM\Column(type: 'string', length: 200, nullable: true)]
+    #[Assert\NotBlank(message: 'Website URL is required')]
     #[Assert\Url(message: 'Please enter a valid URL (e.g., https://example.com)')]
     #[Assert\Length(max: 200, maxMessage: 'Website URL cannot exceed {{ limit }} characters')]
     private ?string $website = null;

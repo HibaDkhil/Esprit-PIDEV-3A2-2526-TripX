@@ -1,15 +1,13 @@
 parameters:
-    
+    env(TRANSPORTAI): ''
+    env(RAGHED_GEMINI): ''
+    env(SERPAPI_API_KEY): ''
+    env(OPENWEATHER_API_KEY): ''
 
 services:
     _defaults:
         autowire: true
         autoconfigure: true
-        bind:
-            string $serpApiKey: '%env(SERPAPI_API_KEY)%'
-            string $openWeatherApiKey: '%env(OPENWEATHER_API_KEY)%'
-            string $groqApiKey: '%env(GROQ_API_KEY)%'
-            string $raggedGemini: '%env(RAGHED_GEMINI)%'
 
     App\:
         resource: '../src/'
@@ -18,32 +16,71 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    App\service\Accommodation\GoogleCalendarAccService:
-        arguments:
-            $projectDir: '%kernel.project_dir%'
-
     App\Security\LoginSuccessHandler:
         arguments:
             - '@router'
             - '@doctrine.orm.entity_manager'
             - '@App\service\PreferenceService'
-    
+
+    App\service\GeminiService:
+        arguments:
+            $httpClient: '@http_client'
+            $geminiApiKey: '%env(GEMINI_API_KEY)%'
+            $geminiModel: '%env(GEMINI_MODEL)%'
+
+    # Inject services into AuthController via setters
+    # Inject services into AuthController via setters
+    App\Controller\user\AuthController:
+        calls:
+            - setAuthService: ['@App\service\AuthService']
+            - setSecurity: ['@Symfony\Bundle\SecurityBundle\Security']
+            - setPreferenceService: ['@App\service\PreferenceService']
+
     App\service\Accommodation\CacheService:
         arguments:
             $projectDir: '%kernel.project_dir%'
-    
+
     App\service\Accommodation\WeatherService:
         arguments:
             $openWeatherApiKey: '%env(OPENWEATHER_API_KEY)%'
-    
+
     App\service\Accommodation\SerpApiService:
         arguments:
             $serpApiKey: '%env(SERPAPI_API_KEY)%'
-    
+
+    App\service\Accommodation\FlightService:
+        arguments:
+            $serpApiKey: '%env(SERPAPI_API_KEY)%'
+
+    App\service\Accommodation\ImageService:
+        arguments:
+            $serpApiKey: '%env(SERPAPI_API_KEY)%'
+
     App\service\Accommodation\ItineraryService:
         arguments:
             $geminiApiKey: '%env(RAGHED_GEMINI)%'
-            
+
     App\service\Accommodation\RoomInsightsService:
         arguments:
             $raggedGemini: '%env(RAGHED_GEMINI)%'
+
+    App\service\Accommodation\GoogleCalendarAccService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    App\service\Accommodation\LocalService:
+        arguments:
+            $serpApiKey: '%env(SERPAPI_API_KEY)%'
+
+    App\service\Accommodation\ReviewService:
+        arguments:
+            $serpApiKey: '%env(SERPAPI_API_KEY)%'
+
+    App\service\TransportOptimalRouteService:
+        arguments:
+            $groqApiKey: '%env(TRANSPORTAI)%'
+
+    App\Controller\admin\OverviewController:
+        arguments:
+            $groqApiKey: '%env(TRANSPORTAI)%'
+        tags: ['controller.service_arguments']

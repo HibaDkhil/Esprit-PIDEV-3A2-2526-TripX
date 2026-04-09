@@ -40,4 +40,43 @@ class UserActivityLogRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+    /**
+     * Calculates the average time spent on the website by users.
+     * Selects all TIME_SPENT logs and averages out the durations per active user.
+     * 
+     * @return int The average time in minutes.
+     */
+    public function getGlobalAverageTimeSpent(): int
+    {
+        // We select the raw targetId (which tracks seconds in TIME_SPENT logs) 
+        // and the user who triggered it to calculate distinct user average.
+        $logs = $this->createQueryBuilder('l')
+            ->select('l.targetId, l.userId')
+            ->where('l.activityType = :type')
+            ->setParameter('type', 'TIME_SPENT')
+            ->getQuery()
+            ->getArrayResult();
+
+        if (count($logs) === 0) {
+            return 0; // No time logged yet
+        }
+
+        $totalSeconds = 0;
+        $uniqueUsers = [];
+
+        foreach ($logs as $log) {
+            // PHP handles numeric coercion smoothly without failing on DB engines
+            $totalSeconds += (int) $log['targetId'];
+            $uniqueUsers[$log['userId']] = true; // Track unique active users
+        }
+
+        $activeUserCount = count($uniqueUsers);
+        if ($activeUserCount === 0) return 0;
+
+        $averageSeconds = $totalSeconds / $activeUserCount;
+        
+        // Convert to minutes
+        return (int) round($averageSeconds / 60);
+    }
 }

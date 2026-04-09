@@ -682,6 +682,62 @@ async function refreshRoomCard(roomId) {
     const card = document.getElementById(`room-card-${roomId}`);
     if (!card) return;
     
+    // Update availability badge
+    const availBadge = card.querySelector('.avail-badge');
+    if (availBadge) {
+      availBadge.className = `avail-badge ${data.isAvailable ? 'avail-yes' : 'avail-no'}`;
+      availBadge.textContent = data.isAvailable ? 'Available' : 'Unavailable';
+    }
+    
+    // Update room name
+    const nameEl = card.querySelector('.room-name');
+    if (nameEl) nameEl.textContent = data.roomName;
+    
+    // Update room type
+    const typeEl = card.querySelector('.room-type-pill');
+    if (typeEl) {
+      if (data.roomType) {
+        typeEl.textContent = data.roomType;
+        typeEl.style.display = 'inline-block';
+      } else {
+        typeEl.style.display = 'none';
+      }
+    }
+    
+    // Update info row
+    const infoRow = card.querySelector('.room-info-row');
+    if (infoRow) {
+      let infoHtml = '';
+      if (data.capacity) infoHtml += `<span class="room-info-item">👥 ${data.capacity} person(s)</span>`;
+      if (data.size) infoHtml += `<span class="room-info-item">📐 ${data.size} m²</span>`;
+      infoRow.innerHTML = infoHtml;
+    }
+    
+    // Update price
+    const priceEl = card.querySelector('.room-price');
+    if (priceEl) {
+      if (data.pricePerNight) {
+        priceEl.innerHTML = `€${parseFloat(data.pricePerNight).toFixed(2)} <span style="font-size:13px;font-weight:400;color:var(--text-muted)">/ night</span>`;
+      } else {
+        priceEl.innerHTML = '';
+      }
+    }
+    
+    // Update amenities
+    const amenitiesEl = card.querySelector('.room-amenities');
+    if (amenitiesEl && data.amenities) {
+      const amenities = data.amenities.split(',').map(a => a.trim());
+      let amenitiesHtml = '';
+      amenities.slice(0, 4).forEach(am => {
+        amenitiesHtml += `<span class="room-amenity-tag">${am}</span>`;
+      });
+      if (amenities.length > 4) {
+        amenitiesHtml += `<span class="room-amenity-tag" style="color:var(--text-muted)">+${amenities.length - 4} more</span>`;
+      }
+      amenitiesEl.innerHTML = amenitiesHtml;
+    }
+    
+    // Update images
     const images = data.images || [];
     const trackDiv = card.querySelector('.carousel-track');
     const dotsContainer = card.querySelector('.carousel-dots');
@@ -745,6 +801,10 @@ async function refreshRoomCard(roomId) {
         }
       }
     }
+    
+    // Update stats after card refresh
+    updateStats();
+    
   } catch(e) {
     console.error('Failed to refresh room card:', e);
   }
@@ -840,6 +900,17 @@ function validateRoomName(name) {
   return { valid: true, message: '' };
 }
 
+function validateRoomType(type) {
+  if (!type || type.trim().length === 0) {
+    return { valid: false, message: 'Room type is required' };
+  }
+  const validTypes = ['Single Room', 'Double Room', 'Twin Room', 'Suite', 'Family Room', 'Deluxe Room', 'Penthouse', 'Studio'];
+  if (!validTypes.includes(type)) {
+    return { valid: false, message: 'Please select a valid room type' };
+  }
+  return { valid: true, message: '' };
+}
+
 function validatePrice(price) {
   if (!price || price.toString().trim().length === 0) {
     return { valid: false, message: 'Price per night is required' };
@@ -876,14 +947,14 @@ function validateCapacity(capacity) {
 
 function validateSize(size) {
   if (!size || size.toString().trim().length === 0) {
-    return { valid: true, message: '' };
+    return { valid: false, message: 'Room size is required' };
   }
   const sizeNum = parseFloat(size);
   if (isNaN(sizeNum)) {
     return { valid: false, message: 'Size must be a valid number' };
   }
-  if (sizeNum < 0) {
-    return { valid: false, message: 'Size cannot be negative' };
+  if (sizeNum <= 0) {
+    return { valid: false, message: 'Size must be greater than 0' };
   }
   if (sizeNum > 1000) {
     return { valid: false, message: 'Size cannot exceed 1000 m²' };
@@ -894,6 +965,7 @@ function validateSize(size) {
 // ── Save room ─────────────────────────────────────────────
 async function saveRoom() {
   const name = document.getElementById('f-roomName').value.trim();
+  const type = document.getElementById('f-roomType').value;
   const price = document.getElementById('f-pricePerNight').value.trim();
   const capacity = document.getElementById('f-capacity').value.trim();
   const size = document.getElementById('f-size').value.trim();
@@ -910,6 +982,16 @@ async function saveRoom() {
     nameField.style.borderColor = '#ef4444';
     nameField.style.borderWidth = '2px';
     nameField.focus();
+    return;
+  }
+  
+  const typeValidation = validateRoomType(type);
+  if (!typeValidation.valid) {
+    showToast('❌ ' + typeValidation.message, 'error');
+    const typeField = document.getElementById('f-roomType');
+    typeField.style.borderColor = '#ef4444';
+    typeField.style.borderWidth = '2px';
+    typeField.focus();
     return;
   }
   
@@ -954,11 +1036,11 @@ async function saveRoom() {
 
   const fd = new FormData();
   fd.append('roomName',      name);
-  fd.append('roomType',      document.getElementById('f-roomType').value);
+  fd.append('roomType',      type);
   fd.append('isAvailable',   document.getElementById('f-isAvailable').value);
   fd.append('pricePerNight', parseFloat(price));
   fd.append('capacity',      parseInt(capacity));
-  fd.append('size',          size || '');
+  fd.append('size',          size);
   fd.append('amenities',     amenities);
   
   pendingFiles.forEach(f => fd.append('images[]', f));
@@ -976,7 +1058,9 @@ async function saveRoom() {
         await refreshRoomCard(editingId);
         await loadAiInsights();
       } else {
-        location.reload();
+        // Add new room without page refresh
+        await addNewRoomCard(data.id);
+        await loadAiInsights();
       }
     } else {
       if (data.errors) {
@@ -1025,6 +1109,133 @@ async function saveRoom() {
   btn.disabled = false;
 }
 
+// ── Add new room card without page refresh ─────────────────
+async function addNewRoomCard(roomId) {
+  try {
+    const res = await fetch(VIEW_URL(roomId), { headers: AJAX_H });
+    const data = await res.json();
+    
+    const grid = document.getElementById('rooms-grid');
+    
+    // Remove empty state if present
+    const emptyState = grid.querySelector('.empty-rooms');
+    if (emptyState) emptyState.remove();
+    
+    // Create new card
+    const card = document.createElement('div');
+    card.className = 'room-card';
+    card.id = `room-card-${roomId}`;
+    
+    // Build carousel HTML
+    let carouselHtml = '';
+    if (!data.images || data.images.length === 0) {
+      carouselHtml = `
+        <div class="carousel" id="carousel-${roomId}">
+          <div class="carousel-track">
+            <div class="carousel-slide"><div class="no-img">🛏️</div></div>
+          </div>
+          <span class="avail-badge ${data.isAvailable ? 'avail-yes' : 'avail-no'}">
+            ${data.isAvailable ? 'Available' : 'Unavailable'}
+          </span>
+        </div>
+      `;
+    } else {
+      const imgSrc = (path) => {
+        if (!path) return '';
+        if (path.startsWith('http')) return path;
+        return '/' + path.replace(/^\/+/, '');
+      };
+      
+      const slidesHtml = data.images.map(img => `
+        <div class="carousel-slide">
+          <img src="${imgSrc(img.filePath)}" alt="${data.roomName}" loading="lazy">
+        </div>
+      `).join('');
+      
+      const dotsHtml = data.images.length > 1 ? `
+        <div class="carousel-dots" id="dots-${roomId}">
+          ${data.images.map((_, i) => `
+            <div class="carousel-dot ${i === 0 ? 'active' : ''}" onclick="carouselGoTo('${roomId}', ${i})"></div>
+          `).join('')}
+        </div>
+        <button class="carousel-btn prev" onclick="carouselPrev('${roomId}')">‹</button>
+        <button class="carousel-btn next" onclick="carouselNext('${roomId}')">›</button>
+        <div class="carousel-count">${data.images.length} 📷</div>
+      ` : '';
+      
+      carouselHtml = `
+        <div class="carousel" id="carousel-${roomId}">
+          <div class="carousel-track" id="track-${roomId}">
+            ${slidesHtml}
+          </div>
+          ${dotsHtml}
+          <span class="avail-badge ${data.isAvailable ? 'avail-yes' : 'avail-no'}">
+            ${data.isAvailable ? 'Available' : 'Unavailable'}
+          </span>
+        </div>
+      `;
+    }
+    
+    // Build amenities HTML
+    let amenitiesHtml = '';
+    if (data.amenities) {
+      const amenities = data.amenities.split(',').map(a => a.trim());
+      amenities.slice(0, 4).forEach(am => {
+        amenitiesHtml += `<span class="room-amenity-tag">${am}</span>`;
+      });
+      if (amenities.length > 4) {
+        amenitiesHtml += `<span class="room-amenity-tag" style="color:var(--text-muted)">+${amenities.length - 4} more</span>`;
+      }
+    }
+    
+    // Build info row
+    let infoRowHtml = '';
+    if (data.capacity) infoRowHtml += `<span class="room-info-item">👥 ${data.capacity} person(s)</span>`;
+    if (data.size) infoRowHtml += `<span class="room-info-item">📐 ${data.size} m²</span>`;
+    
+    card.innerHTML = `
+      ${carouselHtml}
+      <div class="room-body">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;">
+          <div class="room-name">${data.roomName}</div>
+          <div style="display: flex; gap: 6px;">
+            ${data.roomType ? `<span class="room-type-pill">${data.roomType}</span>` : ''}
+            <span class="room-quality-badge" id="quality-badge-${roomId}" style="display: none;"></span>
+          </div>
+        </div>
+        <div class="room-info-row">
+          ${infoRowHtml}
+        </div>
+        ${data.pricePerNight ? `
+        <div class="room-price">€${parseFloat(data.pricePerNight).toFixed(2)} <span style="font-size:13px;font-weight:400;color:var(--text-muted)">/ night</span></div>
+        ` : ''}
+        ${amenitiesHtml ? `<div class="room-amenities">${amenitiesHtml}</div>` : ''}
+        <div class="room-actions">
+          <button class="room-btn rb-images" onclick="openImgMgr(${roomId}, '${data.roomName.replace(/'/g, "\\'")}')">🖼 Images (${data.images ? data.images.length : 0})</button>
+          <button class="room-btn rb-edit" onclick="editRoom(${roomId})">✏️ Edit</button>
+          <button class="room-btn rb-del" onclick="confirmDel(${roomId}, '${data.roomName.replace(/'/g, "\\'")}')">🗑</button>
+        </div>
+      </div>
+    `;
+    
+    grid.appendChild(card);
+    
+    // Initialize carousel if there are images
+    if (data.images && data.images.length > 0) {
+      const primaryIndex = data.images.findIndex(img => img.isPrimary);
+      carouselInit(roomId.toString(), data.images.length, primaryIndex >= 0 ? primaryIndex : 0);
+    }
+    
+    // Update stats
+    updateStats();
+    
+  } catch(e) {
+    console.error('Failed to add new room card:', e);
+    // Fallback to page reload if something goes wrong
+    location.reload();
+  }
+}
+
 // ── Edit room ─────────────────────────────────────────────
 async function editRoom(id) {
   try {
@@ -1066,20 +1277,52 @@ async function doDelete() {
     if (data.success) {
       showToast('✅ ' + data.message, 'success');
       closeDel();
+      
+      // Remove the card from DOM
       const card = document.getElementById(`room-card-${deleteId}`);
-      if (card) card.remove();
+      if (card) {
+        card.remove();
+      }
+      
+      // Update stats
       updateStats();
+      
+      // Refresh AI insights
       await loadAiInsights();
-    } else { showToast('❌ ' + (data.error || 'Delete failed'), 'error'); }
-  } catch(e) { showToast('❌ Network error: ' + e.message, 'error'); }
+      
+      // Check if grid is empty
+      const grid = document.getElementById('rooms-grid');
+      const remainingCards = grid.querySelectorAll('.room-card');
+      if (remainingCards.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-rooms" style="grid-column:1/-1">
+            <div class="ei">🛏️</div>
+            <h3 style="font-family:var(--font-display);margin-bottom:8px">No rooms yet</h3>
+            <p>Click "Add Room" to create the first room for this accommodation.</p>
+          </div>
+        `;
+      }
+    } else { 
+      showToast('❌ ' + (data.error || 'Delete failed'), 'error'); 
+    }
+  } catch(e) { 
+    showToast('❌ Network error: ' + e.message, 'error'); 
+  }
 }
 
 function updateStats() {
-  const cards = document.querySelectorAll('.room-card').length;
-  const avail = document.querySelectorAll('.avail-yes').length;
-  document.getElementById('stat-total').textContent  = cards;
-  document.getElementById('stat-avail').textContent  = avail;
-  document.getElementById('stat-unavail').textContent = cards - avail;
+  const cards = document.querySelectorAll('.room-card');
+  const total = cards.length;
+  const available = document.querySelectorAll('.avail-yes').length;
+  const unavailable = total - available;
+  
+  const totalEl = document.getElementById('stat-total');
+  const availEl = document.getElementById('stat-avail');
+  const unavailEl = document.getElementById('stat-unavail');
+  
+  if (totalEl) totalEl.textContent = total;
+  if (availEl) availEl.textContent = available;
+  if (unavailEl) unavailEl.textContent = unavailable;
 }
 
 // ── Image Manager ─────────────────────────────────────────
@@ -1336,7 +1579,6 @@ function renderAiInsights(data) {
     
    let insightHtml = '';
 if (summary.aiInsights && summary.aiInsights.insights) {
-    // Convert markdown bold/newlines to HTML
     const formatted = summary.aiInsights.insights
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')

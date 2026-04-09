@@ -1,0 +1,215 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Bookings — TripX{% endblock %}
+
+{% block stylesheets %}
+<style>
+  .page-top { padding-top: calc(var(--nav-height) + 60px); padding-bottom: 40px; }
+  
+  .stats-bar {
+    display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 32px;
+  }
+  .stat-chip {
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: 16px 20px; flex: 1; min-width: 140px; text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: transform 0.3s;
+  }
+  .stat-chip:hover { transform: translateY(-4px); border-color: var(--accent-primary); }
+  .stat-chip-val { font-family: var(--font-display); font-size: 32px; color: var(--accent-primary); line-height: 1; }
+  .stat-chip-label { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 8px; }
+  
+  /* Tabs */
+  .bookings-tabs {
+    display: flex; gap: 8px; margin-bottom: 24px;
+    background: var(--bg-surface); padding: 8px; border-radius: 50px;
+    width: fit-content; border: 1px solid var(--border-color);
+  }
+  .bookings-tab {
+    padding: 8px 24px; border-radius: 50px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; color: var(--text-muted); border: none; background: transparent;
+  }
+  .bookings-tab.active {
+    background: var(--accent-primary); color: white; box-shadow: 0 4px 12px rgba(167,139,250,0.3);
+  }
+  .bookings-tab:not(.active):hover { color: var(--text-primary); }
+  
+  .booking-row {
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 16px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    animation: slideUp 0.4s ease forwards; opacity: 0; transform: translateY(20px);
+  }
+  .booking-row:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-color: var(--accent-primary); }
+  
+  @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+  
+  .booking-row-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 24px; border-bottom: 1px solid var(--border-color);
+    background: rgba(255,255,255,0.02);
+  }
+  .booking-type-icon { font-size: 24px; }
+  .booking-status {
+    padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  
+  .booking-row-body { display: grid; grid-template-columns: 1fr 1fr auto; gap: 24px; padding: 24px; align-items: center; }
+  @media (max-width: 768px) { .booking-row-body { grid-template-columns: 1fr; } }
+  
+  .booking-detail-label { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+  .booking-detail-value { font-size: 15px; font-weight: 500; color: var(--text-primary); }
+  
+  .booking-price { text-align: right; }
+  @media (max-width: 768px) { .booking-price { text-align: left; } }
+  
+  .booking-price-val { font-family: var(--font-display); font-size: 28px; color: var(--accent-primary); font-weight: 700; line-height: 1; margin-bottom: 12px; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-top">
+  <div class="container">
+    <div class="section-label reveal"><span>Overview</span></div>
+    <h1 class="display-md reveal" style="margin-bottom:8px">My <span class="gradient-text">Bookings</span></h1>
+    <p class="serif-mood text-muted reveal reveal-delay-1" style="margin-bottom:32px;">
+      Manage all your accommodations and transport reservations.
+    </p>
+
+    {# Stats #}
+    <div class="stats-bar reveal reveal-delay-2">
+      <div class="stat-chip">
+        <div class="stat-chip-val">{{ totalBookings }}</div>
+        <div class="stat-chip-label">Total Valid</div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-chip-val" style="color:#27ae60;">{{ confirmedCount }}</div>
+        <div class="stat-chip-label">Confirmed</div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-chip-val" style="color:#F97316;">{{ pendingCount }}</div>
+        <div class="stat-chip-label">Pending</div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-chip-val" style="color:var(--text-primary);">{{ totalSpent|number_format(2) }}€</div>
+        <div class="stat-chip-label">Total Spent</div>
+      </div>
+    </div>
+
+    {# Filter Tabs #}
+    <div class="bookings-tabs reveal reveal-delay-3">
+      <button class="bookings-tab active" onclick="filterBookings('all', this)">All Bookings</button>
+      <button class="bookings-tab" onclick="filterBookings('accommodation', this)">Accommodations</button>
+      <button class="bookings-tab" onclick="filterBookings('transport', this)">Transport</button>
+      <button class="bookings-tab" onclick="filterBookings('activity', this)">Activities <span style="font-size:10px; opacity:0.6;">(Soon)</span></button>
+    </div>
+
+    {# List #}
+    <div id="bookings-list" class="reveal reveal-delay-3">
+      {% for b in allBookings %}
+        <div class="booking-row" data-type="{{ b.type }}" style="animation-delay: {{ loop.index0 * 50 }}ms;">
+          {% set isAcc = b.type == 'accommodation' %}
+          {% set statusColor = b.status == 'CONFIRMED' ? '#27ae60' : b.status == 'CANCELLED' ? '#ef4444' : '#F97316' %}
+          
+          <div class="booking-row-header">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span class="booking-type-icon">{{ isAcc ? '🏨' : '✈️' }}</span>
+              <div>
+                <div style="font-weight:600; color:var(--text-primary);">
+                  {{ isAcc ? b.entity.room.accommodation.name : 'Transport Booking #' ~ b.id }}
+                </div>
+                <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+                  Booked on {{ b.date ? b.date|date('M d, Y') : 'Unknown' }}
+                </div>
+              </div>
+            </div>
+            <div class="booking-status" style="background: {{ statusColor }}20; color: {{ statusColor }}; border: 1px solid {{ statusColor }}40;">
+              {{ b.status }}
+            </div>
+          </div>
+
+          <div class="booking-row-body">
+            <div>
+              <div class="booking-detail-label">{{ isAcc ? 'Check In / Out' : 'Details' }}</div>
+              <div class="booking-detail-value">
+                {% if isAcc %}
+                  {{ b.entity.checkIn|date('M d') }} - {{ b.entity.checkOut|date('M d, Y') }}
+                {% else %}
+                  Route/Schedule: #{{ b.entity.scheduleId > 0 ? b.entity.scheduleId : 'Direct' }}
+                  <br><span style="font-size:12px;color:var(--text-muted);">{{ b.entity.totalSeats }} Seats · Insured: {{ b.entity.insuranceIncluded ? 'Yes' : 'No' }}</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <div>
+              <div class="booking-detail-label">{{ isAcc ? 'Room' : 'Payment' }}</div>
+              <div class="booking-detail-value">
+                {% if isAcc %}
+                  {{ b.entity.room.roomType }}
+                  <br><span style="font-size:12px;color:var(--text-muted);">(Guest #{{ b.entity.userId }})</span>
+                {% else %}
+                  {{ b.entity.paymentStatus }}
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="booking-price">
+              <div class="booking-price-val">{{ b.price|number_format(2) }}€</div>
+              <a href="{{ isAcc ? path('accommodation_details', {'id': b.entity.room.accommodation.id}) : path('user_booking_receipt_pdf', {'id': b.id}) }}" 
+                 class="btn btn-secondary btn-sm" style="width:100%; justify-content:center;">
+                View Details
+              </a>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div style="text-align:center; padding:60px 0; background:var(--bg-card); border-radius:var(--border-radius-lg); border:1px solid var(--border-color);">
+          <div style="font-size:48px; margin-bottom:16px;">🧳</div>
+          <p class="serif-mood text-muted">You have no bookings yet.</p>
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+
+<script>
+function filterBookings(type, btn) {
+  // Update active button
+  document.querySelectorAll('.bookings-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  // Filter rows
+  const rows = document.querySelectorAll('.booking-row');
+  let visibleCount = 0;
+  rows.forEach(row => {
+    if (type === 'all' || row.dataset.type === type) {
+      row.style.display = 'block';
+      visibleCount++;
+      // reset animation
+      row.style.animation = 'none';
+      row.offsetHeight; /* trigger reflow */
+      row.style.animation = null; 
+    } else {
+      row.style.display = 'none';
+    }
+  });
+
+  // Handle empty state
+  let emptyState = document.getElementById('empty-state');
+  if (visibleCount === 0) {
+    if (!emptyState) {
+      emptyState = document.createElement('div');
+      emptyState.id = 'empty-state';
+      emptyState.style.cssText = 'text-align:center; padding:60px 0; background:var(--bg-card); border-radius:var(--border-radius-lg); border:1px solid var(--border-color);';
+      emptyState.innerHTML = '<div style="font-size:48px; margin-bottom:16px;">🧳</div><p class="serif-mood text-muted">No bookings found for this category.</p>';
+      document.getElementById('bookings-list').appendChild(emptyState);
+    }
+    emptyState.style.display = 'block';
+  } else if (emptyState) {
+    emptyState.style.display = 'none';
+  }
+}
+</script>
+{% endblock %}

@@ -1129,30 +1129,31 @@ function setStar(n) {
   document.querySelectorAll('.star-btn').forEach((b, i) => {
     b.classList.toggle('lit', i < n);
   });
-  
-  // Remove error styling if stars are selected
   if (n > 0) {
     const starsContainer = document.querySelector('.star-picker');
     if (starsContainer) starsContainer.style.border = '';
   }
 }
 
+// ── Field error highlight helper ──────────────────────────
+function highlightField(id, duration = 3000) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.borderColor = '#ef4444';
+  el.style.borderWidth = '2px';
+  setTimeout(() => { el.style.borderColor = ''; el.style.borderWidth = ''; }, duration);
+}
+
 // Phone number validation helper
 function validatePhoneNumber(phone) {
-  // Remove spaces, dashes, parentheses for validation
   const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
-  
-  // Check if it contains only digits (optionally starting with +)
   const digitsOnly = cleanPhone.replace(/^\+/, '');
-  
   if (!/^\d+$/.test(digitsOnly)) {
     return { valid: false, message: 'Phone number must contain only numbers, spaces, dashes, or parentheses' };
   }
-  
   if (digitsOnly.length < 8 || digitsOnly.length > 15) {
     return { valid: false, message: 'Phone number must be between 8 and 15 digits' };
   }
-  
   return { valid: true, message: '' };
 }
 
@@ -1164,80 +1165,110 @@ function previewImg(input) {
   r.readAsDataURL(file);
 }
 
-// ── Save (UPDATED with full validation) ──────────────────────────────────
+// ── Save ──────────────────────────────────────────────────
 async function saveAcc() {
-  // Validate required fields
+
+  // Basic tab
   const name = document.getElementById('f-name').value.trim();
-  if (!name) { 
-    showToast('❌ Name is required', 'error'); 
-    switchTab('basic'); 
+  if (!name) {
+    showToast('❌ Name is required', 'error');
+    switchTab('basic');
     document.getElementById('f-name').focus();
-    return; 
+    return;
   }
-  
-  const city = document.getElementById('f-city').value.trim();
-  if (!city) { 
-    showToast('❌ City is required', 'error'); 
-    switchTab('location'); 
-    document.getElementById('f-city').focus();
-    return; 
-  }
-  
-  const country = document.getElementById('f-country').value.trim();
-  if (!country) { 
-    showToast('❌ Country is required', 'error'); 
-    switchTab('location'); 
-    document.getElementById('f-country').focus();
-    return; 
-  }
-  
-  // Validate stars (required)
+
   const stars = parseInt(document.getElementById('f-stars').value);
-  if (!stars || stars < 1 || stars > 5) { 
-    showToast('❌ Star rating is required (1-5 stars)', 'error'); 
-    switchTab('basic'); 
-    // Highlight stars picker
+  if (!stars || stars < 1 || stars > 5) {
+    showToast('❌ Star rating is required (1–5 stars)', 'error');
+    switchTab('basic');
     const starsContainer = document.querySelector('.star-picker');
-    starsContainer.style.border = '2px solid #ef4444';
+    starsContainer.style.border       = '2px solid #ef4444';
     starsContainer.style.borderRadius = '8px';
-    starsContainer.style.padding = '8px';
-    setTimeout(() => {
-      starsContainer.style.border = '';
-      starsContainer.style.padding = '';
-    }, 3000);
-    return; 
+    starsContainer.style.padding      = '8px';
+    setTimeout(() => { starsContainer.style.border = ''; starsContainer.style.padding = ''; }, 3000);
+    return;
   }
-  
-  // Validate phone number
+
+  // Location tab
+  const latitude  = document.getElementById('f-latitude').value.trim();
+  const longitude = document.getElementById('f-longitude').value.trim();
+  if (!latitude || !longitude) {
+    showToast('❌ Please pick a location from the map', 'error');
+    switchTab('location');
+    const mapBtn = document.querySelector('.pick-map-btn');
+    mapBtn.style.border = '2px solid #ef4444';
+    setTimeout(() => { mapBtn.style.border = ''; }, 3000);
+    return;
+  }
+
+  const city = document.getElementById('f-city').value.trim();
+  if (!city) {
+    showToast('❌ City is required', 'error');
+    switchTab('location');
+    document.getElementById('f-city').focus();
+    return;
+  }
+
+  const country = document.getElementById('f-country').value.trim();
+  if (!country) {
+    showToast('❌ Country is required', 'error');
+    switchTab('location');
+    document.getElementById('f-country').focus();
+    return;
+  }
+
+  // Contact tab
   const phone = document.getElementById('f-phone').value.trim();
-  if (!phone) { 
-    showToast('❌ Phone number is required', 'error'); 
-    switchTab('contact'); 
+  if (!phone) {
+    showToast('❌ Phone number is required', 'error');
+    switchTab('contact');
     document.getElementById('f-phone').focus();
-    return; 
+    return;
   }
-  
   const phoneValidation = validatePhoneNumber(phone);
   if (!phoneValidation.valid) {
     showToast('❌ ' + phoneValidation.message, 'error');
-    const phoneField = document.getElementById('f-phone');
-    phoneField.style.borderColor = '#ef4444';
-    phoneField.style.borderWidth = '2px';
-    setTimeout(() => {
-      phoneField.style.borderColor = '';
-      phoneField.style.borderWidth = '';
-    }, 3000);
+    highlightField('f-phone');
     switchTab('contact');
     return;
   }
 
+  const email = document.getElementById('f-email').value.trim();
+  if (!email) {
+    showToast('❌ Email address is required', 'error');
+    switchTab('contact');
+    document.getElementById('f-email').focus();
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showToast('❌ Please enter a valid email address (e.g., name@example.com)', 'error');
+    highlightField('f-email');
+    switchTab('contact');
+    return;
+  }
+
+  const website = document.getElementById('f-website').value.trim();
+  if (!website) {
+    showToast('❌ Website URL is required', 'error');
+    switchTab('contact');
+    document.getElementById('f-website').focus();
+    return;
+  }
+  if (!/^https?:\/\/.+\..+/.test(website)) {
+    showToast('❌ Please enter a valid URL (e.g., https://example.com)', 'error');
+    highlightField('f-website');
+    switchTab('contact');
+    return;
+  }
+
+  // Submit
   const btn = document.getElementById('save-btn');
   const originalText = btn.textContent;
-  btn.textContent = '⏳ Saving…'; 
+  btn.textContent = '⏳ Saving…';
   btn.disabled = true;
 
-  const checked = [...document.querySelectorAll('.amenity-cb:checked')].map(c => c.value);
-  const custom  = document.getElementById('f-custom-amenities').value.split(',').map(s => s.trim()).filter(Boolean);
+  const checked   = [...document.querySelectorAll('.amenity-cb:checked')].map(c => c.value);
+  const custom    = document.getElementById('f-custom-amenities').value.split(',').map(s => s.trim()).filter(Boolean);
   const amenities = [...checked, ...custom].join(',');
 
   const fd = new FormData();
@@ -1249,11 +1280,11 @@ async function saveAcc() {
   fd.append('city',        city);
   fd.append('country',     country);
   fd.append('postalCode',  document.getElementById('f-postalCode').value);
-  fd.append('latitude',    document.getElementById('f-latitude').value);
-  fd.append('longitude',   document.getElementById('f-longitude').value);
+  fd.append('latitude',    latitude);
+  fd.append('longitude',   longitude);
   fd.append('phone',       phone);
-  fd.append('email',       document.getElementById('f-email').value);
-  fd.append('website',     document.getElementById('f-website').value);
+  fd.append('email',       email);
+  fd.append('website',     website);
   fd.append('stars',       stars);
   fd.append('amenities',   amenities);
 
@@ -1264,48 +1295,25 @@ async function saveAcc() {
   try {
     const res  = await fetch(url, { method: 'POST', body: fd, headers: AJAX_HEADERS });
     const data = await res.json();
-    
+
     if (data.success) {
       showToast('✅ ' + data.message, 'success');
       closeDrawer();
       doSearch();
       refreshStats();
     } else {
-      // Handle validation errors from server
       if (data.errors) {
-        let errorMsg = "❌ Validation failed:\n\n";
+        const labels = {
+          name: 'Name', city: 'City', country: 'Country', email: 'Email',
+          website: 'Website', phone: 'Phone', stars: 'Stars', rating: 'Rating',
+          latitude: 'Latitude', longitude: 'Longitude', type: 'Accommodation Type',
+          status: 'Status', address: 'Address', postalCode: 'Postal Code',
+          description: 'Description'
+        };
+        let errorMsg = '❌ Validation failed:\n\n';
         for (const [field, msg] of Object.entries(data.errors)) {
-          let fieldLabel = field;
-          const labels = {
-            'name': 'Name',
-            'city': 'City',
-            'country': 'Country',
-            'email': 'Email',
-            'website': 'Website',
-            'phone': 'Phone',
-            'stars': 'Stars',
-            'rating': 'Rating',
-            'latitude': 'Latitude',
-            'longitude': 'Longitude',
-            'type': 'Accommodation Type',
-            'status': 'Status',
-            'address': 'Address',
-            'postalCode': 'Postal Code',
-            'description': 'Description'
-          };
-          fieldLabel = labels[field] || field;
-          errorMsg += `• ${fieldLabel}: ${msg}\n`;
-          
-          // Highlight the field in red
-          const fieldElement = document.getElementById(`f-${field}`);
-          if (fieldElement) {
-            fieldElement.style.borderColor = '#ef4444';
-            fieldElement.style.borderWidth = '2px';
-            setTimeout(() => {
-              fieldElement.style.borderColor = '';
-              fieldElement.style.borderWidth = '';
-            }, 3000);
-          }
+          errorMsg += `• ${labels[field] || field}: ${msg}\n`;
+          highlightField('f-' + field);
         }
         showToast(errorMsg, 'error');
       } else {
@@ -1315,6 +1323,7 @@ async function saveAcc() {
   } catch(e) {
     showToast('❌ Network error: ' + e.message, 'error');
   }
+
   btn.textContent = originalText;
   btn.disabled = false;
 }

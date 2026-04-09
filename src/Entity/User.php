@@ -5,8 +5,10 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity]
+
+#[ORM\Entity(repositoryClass: \App\Repository\UserRepository::class)]
 #[ORM\Table(name: 'user')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -15,13 +17,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'user_id', type: 'integer')]
     private ?int $userId = null;
 
+    /* Form requirements houni  */
     #[ORM\Column(name: 'first_name', type: 'string', length: 80)]
+    #[Assert\NotBlank(message: 'First name is required')]
+    #[Assert\Length(min: 2, max: 80, minMessage: 'First name must be at least 2 characters')]
     private ?string $firstName = null;
 
+
     #[ORM\Column(name: 'last_name', type: 'string', length: 80)]
+    #[Assert\NotBlank(message: 'Last name is required')]
+    #[Assert\Length(min: 2, max: 80, minMessage: 'Last name must be at least 2 characters')]
     private ?string $lastName = null;
 
+
     #[ORM\Column(type: 'string', length: 180, unique: true)]
+    #[Assert\NotBlank(message: 'Email is required')]
+    #[Assert\Email(message: 'Please enter a valid email address')]
     private ?string $email = null;
 
     #[ORM\Column(type: 'string')]
@@ -57,6 +68,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'updated_at', type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private \DateTimeInterface $updatedAt;
 
+    #[Assert\NotBlank(message: 'Password is required')]
+    #[Assert\Length(min: 8, minMessage: 'Password must be at least 8 characters')]
+    private ?string $plainPassword = null;
+
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
@@ -65,59 +81,176 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /* ── Getters / Setters ── */
 
-    public function getId(): ?int { return $this->userId; }
-    public function getUserId(): ?int { return $this->userId; }
+    public function getId(): ?int
+    {
+        return $this->userId;
+    }
+    public function getUserId(): ?int
+    {
+        return $this->userId;
+    }
 
-    public function getFirstName(): ?string { return $this->firstName; }
-    public function setFirstName(string $firstName): static { $this->firstName = $firstName; return $this; }
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+    public function setFirstName(string $firstName): static
+    {
+        $this->firstName = $firstName;
+        return $this;
+    }
 
-    public function getLastName(): ?string { return $this->lastName; }
-    public function setLastName(string $lastName): static { $this->lastName = $lastName; return $this; }
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+    public function setLastName(string $lastName): static
+    {
+        $this->lastName = $lastName;
+        return $this;
+    }
 
-    public function getEmail(): ?string { return $this->email; }
-    public function setEmail(string $email): static { $this->email = $email; return $this; }
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
+        return $this;
+    }
 
-    public function getPassword(): ?string { return $this->password; }
-    public function setPassword(string $password): static { $this->password = $password; return $this; }
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+    public function setPassword(string $password): static
+    {
+        $this->password = $password;
+        return $this;
+    }
 
-    public function getPhoneNumber(): ?string { return $this->phoneNumber; }
-    public function setPhoneNumber(?string $phoneNumber): static { $this->phoneNumber = $phoneNumber; return $this; }
+    public function getPhoneNumber(): ?string
+    {
+        return $this->phoneNumber;
+    }
+    public function setPhoneNumber(?string $phoneNumber): static
+    {
+        $this->phoneNumber = $phoneNumber;
+        return $this;
+    }
 
-    public function getRole(): string { return $this->role; }
-    public function setRole(string $role): static { $this->role = $role; return $this; }
+    public function getRole(): string
+    {
+        return $this->role;
+    }
+    public function setRole(string $role): static
+    {
+        $this->role = $role;
+        return $this;
+    }
 
-    public function getStatus(): string { return $this->status; }
-    public function setStatus(string $status): static { $this->status = $status; return $this; }
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
+        return $this;
+    }
 
-    public function isEmailVerified(): bool { return $this->emailVerified; }
-    public function setEmailVerified(bool $emailVerified): static { $this->emailVerified = $emailVerified; return $this; }
+    public function isEmailVerified(): bool
+    {
+        return $this->emailVerified;
+    }
+    public function setEmailVerified(bool $emailVerified): static
+    {
+        $this->emailVerified = $emailVerified;
+        return $this;
+    }
 
-    public function getGender(): ?string { return $this->gender; }
-    public function setGender(?string $gender): static { $this->gender = $gender; return $this; }
+    public function getGender(): ?string
+    {
+        return $this->gender;
+    }
+    public function setGender(?string $gender): static
+    {
+        $this->gender = $gender;
+        return $this;
+    }
 
-    public function getBirthYear(): ?string { return $this->birthYear; }
-    public function setBirthYear(?string $birthYear): static { $this->birthYear = $birthYear; return $this; }
+    public function getBirthYear(): ?string
+    {
+        return $this->birthYear;
+    }
+    public function setBirthYear(?string $birthYear): static
+    {
+        $this->birthYear = $birthYear;
+        return $this;
+    }
 
-    public function getBio(): ?string { return $this->bio; }
-    public function setBio(?string $bio): static { $this->bio = $bio; return $this; }
+    public function getBio(): ?string
+    {
+        return $this->bio;
+    }
+    public function setBio(?string $bio): static
+    {
+        $this->bio = $bio;
+        return $this;
+    }
 
-    public function getAvatarId(): ?int { return $this->avatarId; }
-    public function setAvatarId(?int $avatarId): static { $this->avatarId = $avatarId; return $this; }
+    public function getAvatarId(): ?int
+    {
+        return $this->avatarId;
+    }
+    public function setAvatarId(?int $avatarId): static
+    {
+        $this->avatarId = $avatarId;
+        return $this;
+    }
 
-    public function getCreatedAt(): \DateTimeInterface { return $this->createdAt; }
-    public function setCreatedAt(\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
+    public function getCreatedAt(): \DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
 
-    public function getUpdatedAt(): \DateTimeInterface { return $this->updatedAt; }
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): static { $this->updatedAt = $updatedAt; return $this; }
+    public function getUpdatedAt(): \DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+        return $this;
+    }
 
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword(?string $plainPassword): static
+    {
+        $this->plainPassword = $plainPassword;
+        return $this;
+    }
     /* ── UserInterface ── */
 
-    public function getUserIdentifier(): string { return (string) $this->email; }
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
 
     public function getRoles(): array
     {
         $roles = ['ROLE_USER'];
-        
+
         // Map the single "role" column to Symfony's ROLE_ format
         switch ($this->role) {
             case 'admin':
@@ -147,4 +280,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // Clear any temporary sensitive data
     }
+
 }

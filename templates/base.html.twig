@@ -2,19 +2,20 @@
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token('price_alert') }}">
     <title>{% block title %}TripX — Future of Travel{% endblock %}</title>
     <link rel="stylesheet" href="/assets.php?f=css/main.css">
     <link rel="stylesheet" href="/assets.php?f=css/animations.css">
     {% block stylesheets %}{% endblock %}
 </head>
-<body class="page-wipe-container">
-    <div id="cursor-dot"></div><div id="cursor-halo"></div>
+<body class="page-wipe-container"{% if app.user %} data-auth="1"{% endif %}>
+    <div id="cursor-dot"></div>
     <div id="cursor-halo"></div>
 
     <nav class="nav" id="main-nav" style="position: relative; z-index: 1000;">
         <div class="nav-inner">
             <a href="{{ path('index') }}" class="nav-logo">
-                <img src="/images/tripx-logo.png" alt="TripX" style="height: 38px;" onerror="this.style.display='none'">
+                <img src="/images/tripx-logo.png" alt="TripX" class="nav-logo-img" onerror="this.style.display='none'">
                 Trip<span>X</span>
             </a>
             
@@ -29,8 +30,11 @@
             </div>
 
             <div class="nav-actions">
-                <button id="theme-toggle" class="nav-link" style="font-size: 1.2rem; cursor: pointer; background: none; border: none; padding: 0 10px;">🌓</button>
-                <a href="{{ path('users') }}" class="nav-link">My Bookings</a>
+                <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle dark mode">
+                    <span class="toggle-icon icon-sun">☀️</span>
+                    <span class="toggle-icon icon-moon">🌙</span>
+                </button>
+                <a href="{{ path('my_bookings') }}" class="nav-link">My Bookings</a>
                 <a href="{{ path('users') }}" class="btn-nav-primary ripple-btn">Profile</a>
                 <a href="{{ path('app_logout') }}" class="Btn-logout" style="margin-left: 8px;">
                   <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" /></svg></div>
@@ -40,12 +44,14 @@
         </div>
     </nav>
 
+    <div class="tripx-toast" id="tripxToast" role="status" aria-live="polite" aria-atomic="true"></div>
+
     <main>
         {% for label, messages in app.flashes %}
-            <div class="flash-container">
+            <div class="flash-container" style="position: fixed; top: 120px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px;">
                 {% for message in messages %}
-                    <div class="flash-message {{ label }}">
-                        {% if label == 'success' %}✅{% else %}❌{% endif %}
+                    <div class="flash-message {{ label }}" style="background: {{ label == 'success' ? '#10b981' : '#ef4444' }}; color: white; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; font-family: var(--font-display, sans-serif); font-size: 14px; transition: opacity 0.3s ease, margin-top 0.3s ease;">
+                        <i class="fas {{ label == 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' }}"></i>
                         {{ message }}
                     </div>
                 {% endfor %}

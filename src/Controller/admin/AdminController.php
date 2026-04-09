@@ -5,6 +5,8 @@ namespace App\Controller\admin;
 use App\service\AdminService;
 use App\service\DestinationService;
 use App\service\ActivityService;
+use App\service\TransportService;
+use App\service\BookingtransService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,19 +14,37 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\User;
+use App\Entity\Preference;
+use App\Repository\UserRepository;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Knp\Component\Pager\PaginatorInterface;
+use App\Repository\RoomRepository;
+use App\Repository\RoomImagesRepository;
+use App\Entity\Room;
 
 #[Route('/admin', name: 'admin_')]
 #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_DESTINATION') or is_granted('ROLE_ADMIN_ACCOMODATION') or is_granted('ROLE_ADMIN_OFFERS') or is_granted('ROLE_ADMIN_BLOG') or is_granted('ROLE_ADMIN_TRANSPORT')"))]
 class AdminController extends AbstractController
 {
+    private AdminService $adminService;
     private $destinationService;
     private $activityService;
+    private TransportService $transportService;
+    private BookingtransService $bookingService;
 
-    public function __construct(AdminService $adminService, DestinationService $destinationService, ActivityService $activityService)
-    {
+    public function __construct(
+        AdminService $adminService,
+        DestinationService $destinationService,
+        ActivityService $activityService,
+        TransportService $transportService,
+        BookingtransService $bookingService
+    ) {
         $this->adminService = $adminService;
         $this->destinationService = $destinationService;
         $this->activityService = $activityService;
+        $this->transportService = $transportService;
+        $this->bookingService = $bookingService;
     }
 
     #[Route('/profile', name: 'profile')]
@@ -39,9 +59,16 @@ class AdminController extends AbstractController
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
         if ($user) {
-            $user->setFirstName($request->request->get('firstName'));
-            $user->setLastName($request->request->get('lastName'));
-            $user->setEmail($request->request->get('email'));
+            $firstName = trim((string) $request->request->get('firstName'));
+            $lastName = trim((string) $request->request->get('lastName'));
+            $email = trim((string) $request->request->get('email'));
+            if ($firstName === '' || $lastName === '' || $email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $this->addFlash('error', 'Please fill valid profile fields.');
+                return $this->redirectToRoute('admin_profile');
+            }
+            $user->setFirstName($firstName);
+            $user->setLastName($lastName);
+            $user->setEmail($email);
             $em->flush();
             $this->addFlash('success', 'Profile updated successfully.');
         }
@@ -65,37 +92,130 @@ class AdminController extends AbstractController
         return $this->redirectToRoute('admin_profile');
     }
 
+    /**
+     * Renders the administrative dashboard view.
+     * Fetches top-level statistics from the AdminService and transport-specific stats.
+     */
     #[Route('/dashboard', name: 'dashboard')]
     public function dashboard(): Response
     {
-        $stats = $this->adminService->getDashboardStats();
-        return $this->render('admin/dashboard.html.twig', $stats);
+        $userStats = $this->adminService->getDashboardStats();
+
+        // Build transport KPI stats for the Overview & AI panel (Restored from HEAD)
+        $transports = $this->transportService->getAllTransports();
+        $bookings   = $this->bookingService->getAllBookings();
+        $confirmed = $pending = $cancelled = 0;
+        $revenue = 0.0;
+        foreach ($bookings as $b) {
+            $status = strtoupper((string)$b->getBookingStatus());
+            if ($status === 'CONFIRMED')  { $confirmed++; $revenue += $b->getTotalPrice(); }
+            elseif ($status === 'PENDING')   { $pending++; }
+            elseif ($status === 'CANCELLED') { $cancelled++; }
+        }
+        $total = count($bookings);
+        $transportStats = [
+            'vehicles'             => count($transports),
+            'total'                => $total,
+            'confirmed'            => $confirmed,
+            'pending'              => $pending,
+            'cancelled'            => $cancelled,
+            'revenue'              => round($revenue, 2),
+            'confirmationRate'     => $total > 0 ? round($confirmed * 100.0 / $total, 1) : 0,
+            'cancellationRate'     => $total > 0 ? round($cancelled * 100.0 / $total, 1) : 0,
+            'avgRevenuePerBooking' => $confirmed > 0 ? round($revenue / $confirmed, 2) : 0,
+        ];
+
+        return $this->render('admin/dashboard.html.twig', array_merge($userStats, [
+            'stats' => $transportStats,
+        ]));
     }
 
+    #[Route('/rooms', name: 'rooms_all', methods: ['GET'])]
+    public function allRooms(RoomRepository $roomRepo, RoomImagesRepository $imgRepo): Response
+    {
+        $rooms = $roomRepo->findAll();
+        
+        $roomsData = array_map(function(Room $r) use ($imgRepo) {
+            $primaryImg = $imgRepo->findOneBy(['room' => $r, 'isPrimary' => true])
+                       ?? $imgRepo->findOneBy(['room' => $r], ['displayOrder' => 'ASC']);
+            $allImages  = $imgRepo->findBy(['room' => $r], ['displayOrder' => 'ASC']);
+            return [
+                'room'        => $r,
+                'primaryImg'  => $primaryImg,
+                'allImages'   => $allImages,
+                'imageCount'  => count($allImages),
+                'acc'         => $r->getAccommodation()
+            ];
+        }, $rooms);
+
+        return $this->render('admin/rooms_all.html.twig', [
+            'roomsData' => $roomsData,
+            'total'     => count($rooms),
+            'available' => count(array_filter($rooms, fn($r) => $r->isAvailable())),
+        ]);
+    }
+
+    /**
+     * Lists all platform users with options for sorting, searching, and pagination.
+     * Integrates with KnpPaginator by receiving a Doctrine QueryBuilder from the AdminService/Repository.
+     */
     #[Route('/users', name: 'users')]
     #[IsGranted('ROLE_ADMIN')]
-    public function users(Request $request): Response 
+    public function users(Request $request, PaginatorInterface $paginator): Response 
     { 
         $query = $request->query->get('q', '');
-        $sortBy = $request->query->get('sort', 'userId');
+        $sortBy = $request->query->get('s', 'userId');
         $order = $request->query->get('order', 'ASC');
 
         // Whitelist sort fields
-        $allowedSort = ['userId', 'email', 'firstName', 'lastName', 'status'];
+        $allowedSort = ['userId', 'email', 'firstName', 'lastName', 'role', 'status', 'birthYear', 'gender'];
         if (!in_array($sortBy, $allowedSort)) {
             $sortBy = 'userId';
         }
 
-        $users = $this->adminService->getAllUsers($query, $sortBy, $order);
+        $usersQuery = $this->adminService->getAllUsers($query, $sortBy, $order);
         $stats = $this->adminService->getDashboardStats();
         
+        $pagination = $paginator->paginate(
+            $usersQuery, // query or array
+            $request->query->getInt('page', 1), // current page number
+            10 // limit per page
+        );
+        
         return $this->render('admin/users.html.twig', [
-            'users' => $users,
+            'users' => $pagination,
             'stats' => $stats,
             'currentQuery' => $query,
             'currentSort' => $sortBy,
             'currentOrder' => $order
         ]); 
+    }
+
+    /**
+     * Internal API endpoint to handle the live AJAX search without page reloading.
+     * It connects directly to the UserRepository's searchByDQL method.
+     */
+    #[Route('/users/search', name: 'users_search', methods: ['GET'])]
+    public function searchUsers(Request $request, UserRepository $repo): JsonResponse
+    {
+        $q = $request->query->get('q', '');
+        $users = $repo->searchByDQL($q);
+        
+        $data = [];
+        foreach ($users as $u) {
+            $data[] = [
+                'userId' => $u->getId(),
+                'firstName' => $u->getFirstName(),
+                'lastName' => $u->getLastName(),
+                'email' => $u->getEmail(),
+                'role' => $u->getRole(),
+                'status' => $u->getStatus(),
+                'gender' => $u->getGender(),
+                'birthYear' => $u->getBirthYear(),
+            ];
+        }
+        
+        return new JsonResponse($data);
     }
 
     #[Route('/users/edit/{id}', name: 'user_edit', methods: ['GET', 'POST'])]
@@ -109,9 +229,16 @@ class AdminController extends AbstractController
         }
 
         if ($request->isMethod('POST')) {
-            $user->setFirstName($request->request->get('firstName'));
-            $user->setLastName($request->request->get('lastName'));
-            $user->setEmail($request->request->get('email'));
+            $firstName = trim((string) $request->request->get('firstName'));
+            $lastName = trim((string) $request->request->get('lastName'));
+            $email = trim((string) $request->request->get('email'));
+            if ($firstName === '' || $lastName === '' || $email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $this->addFlash('error', 'Invalid user fields. Please check and try again.');
+                return $this->redirectToRoute('admin_user_edit', ['id' => $id]);
+            }
+            $user->setFirstName($firstName);
+            $user->setLastName($lastName);
+            $user->setEmail($email);
             $user->setRole($request->request->get('role', 'user'));
             $user->setUpdatedAt(new \DateTime());
             
@@ -142,8 +269,27 @@ class AdminController extends AbstractController
     #[IsGranted('ROLE_ADMIN')]
     public function deleteUser(int $id): Response
     {
-        if ($this->adminService->deleteUser($id)) {
-            $this->addFlash('success', 'User removed successfully.');
+        try {
+            if ($this->adminService->deleteUser($id)) {
+                $this->addFlash('success', 'User removed successfully.');
+            } else {
+                $this->addFlash('error', 'User not found.');
+            }
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Error: ' . $e->getMessage());
+        }
+        return $this->redirectToRoute('admin_users');
+    }
+
+    #[Route('/users/unban/{id}', name: 'user_unban')]
+    #[IsGranted('ROLE_ADMIN')]
+    public function unbanUser(int $id, EntityManagerInterface $em): Response
+    {
+        $user = $em->getRepository(\App\Entity\User::class)->find($id);
+        if ($user) {
+            $user->setStatus('active');
+            $em->flush();
+            $this->addFlash('success', 'User has been unbanned.');
         }
         return $this->redirectToRoute('admin_users');
     }
@@ -173,6 +319,22 @@ class AdminController extends AbstractController
                 'avg_rating' => round($avgRating, 1)
             ]
         ]); 
+    }
+
+    /**
+     * Shows a detailed profile of a specific user including their personal info and travel preferences.
+     * This route leverages Doctrine's find and findOneBy to cross-reference entities.
+     */
+    #[Route('/users/detail/{id}', name: 'user_detail')]
+    public function userDetail(int $id, EntityManagerInterface $em): Response
+    {
+        $user = $em->getRepository(User::class)->find($id);
+        $preferences = $em->getRepository(Preference::class)->findOneBy(['userId' => $id]);
+        
+        return $this->render('admin/user_detail.html.twig', [
+            'user' => $user,
+            'preferences' => $preferences
+        ]);
     }
 
     #[Route('/destinations/add', name: 'destination_add', methods: ['GET', 'POST'])]
@@ -277,8 +439,6 @@ class AdminController extends AbstractController
             $capacity = $request->request->get('capacity');
             if ($capacity) $act->setCapacity((int)$capacity);
             $act->setDescription($request->request->get('description'));
-            // Hardcoded dummy destination id to respect foreign key constraint if needed by DB mapping
-            // Note: Since destination_id can be null or zero, we don't necessarily have to set it.
             
             $this->activityService->save($act);
             $this->addFlash('success', 'Activity added.');
@@ -326,10 +486,6 @@ class AdminController extends AbstractController
     #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_ACCOMODATION')"))]
     public function accommodations(): Response { return $this->render('admin/accommodations.html.twig'); }
 
-    #[Route('/transport', name: 'transport')]
-    #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_TRANSPORT')"))]
-    public function transport(): Response { return $this->render('admin/transport.html.twig'); }
-
     #[Route('/offers', name: 'offers')]
     #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_OFFERS')"))]
     public function offers(): Response { return $this->render('admin/offers.html.twig'); }
@@ -337,6 +493,5 @@ class AdminController extends AbstractController
     #[Route('/blog', name: 'blog')]
     #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_BLOG')"))]
     public function blog(): Response { return $this->render('admin/blog.html.twig'); }
-
 
 }

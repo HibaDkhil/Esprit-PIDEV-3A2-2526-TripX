@@ -30,6 +30,7 @@ class Room
     private ?string $roomName = null;
 
     #[ORM\Column(name: 'room_type', type: 'string', length: 50, nullable: true)]
+    #[Assert\NotBlank(message: 'Room type is required')]
     #[Assert\Choice(
         choices: ['Single Room', 'Double Room', 'Twin Room', 'Suite', 'Family Room', 'Deluxe Room', 'Penthouse', 'Studio'],
         message: 'Please select a valid room type'
@@ -59,9 +60,10 @@ class Room
     private ?int $capacity = null;
 
     #[ORM\Column(type: 'decimal', precision: 8, scale: 2, nullable: true)]
-    #[Assert\PositiveOrZero(message: 'Size must be zero or positive')]
+    #[Assert\NotBlank(message: 'Room size is required')]
+    #[Assert\Positive(message: 'Size must be greater than 0')]
     #[Assert\Range(
-        min: 0,
+        min: 1,
         max: 1000,
         notInRangeMessage: 'Size must be between {{ min }} and {{ max }} m²'
     )]

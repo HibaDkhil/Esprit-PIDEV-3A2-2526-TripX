@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * =============================================================================
+ * ACCOMMODATION MODULE (public listing + AJAX search for users)
+ * =============================================================================
+ * Route GET /accommodations — catalog with room price bounds and filters.
+ * Route GET /accommodations/search — JSON for live filter UI.
+ *
+ * Detail page: AccommodationDetailsController (/accommodations/{id})
+ * Bookings:    AccommodationDetailsController (POST booking) + BookingAcc entity
+ * Admin CRUD:   controllers under App\Controller\admin for accommodations/rooms
+ * =============================================================================
+ */
 namespace App\Controller\user;
 
 use App\Entity\Accommodation;

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Helvetica', sans-serif; color: #1f294c; padding: 20px; line-height: 1.4; }
+        .header { border-bottom: 2px solid #1f294c; padding-bottom: 15px; margin-bottom: 30px; }
+        .logo { font-size: 28px; font-weight: bold; color: #1f294c; }
+        .receipt-title { font-size: 18px; text-transform: uppercase; letter-spacing: 2px; text-align: right; margin-top: -30px; opacity: 0.7; }
+        .booking-info { margin-bottom: 40px; }
+        .info-table { width: 100%; border-collapse: collapse; }
+        .info-table td { vertical-align: top; width: 50%; }
+        .label { font-size: 9px; color: #6b7280; text-transform: uppercase; margin-bottom: 3px; font-weight: bold; }
+        .value { font-size: 13px; font-weight: bold; margin-bottom: 15px; }
+        .trip-details { background: #f8fafc; padding: 25px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #e2e8f0; }
+        .trip-table { width: 100%; border-collapse: collapse; }
+        .trip-table td { padding: 12px 0; border-bottom: 1px solid #e2e8f0; }
+        .trip-table tr:last-child td { border-bottom: none; }
+        .qr-section { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px dashed #cbd5e1; }
+        .qr-code { width: 140px; height: 140px; margin-bottom: 10px; border: 1px solid #e2e8f0; padding: 10px; background: white; }
+        .footer { margin-top: 60px; text-align: center; font-size: 10px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 20px; }
+        .price-section { text-align: right; margin-top: 20px; }
+        .total-price { font-size: 28px; color: #1f294c; font-weight: bold; margin-top: 5px; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; text-transform: uppercase; }
+        .confirmed { background: #dcfce7; color: #166534; }
+        .pending { background: #fef9c3; color: #854d0e; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">TRIPX TRANSPORT</div>
+        <div class="receipt-title">Official Receipt</div>
+    </div>
+
+    <div class="booking-info">
+        <table class="info-table">
+            <tr>
+                <td>
+                    <div class="label">Booking Reference</div>
+                    <div class="value">#TX-{{ booking.bookingId }}</div>
+                    <div class="label">Passenger Name</div>
+                    <div class="value">User Account #{{ booking.userId }}</div>
+                </td>
+                <td style="text-align: right;">
+                    <div class="label">Issuance Date</div>
+                    <div class="value">{{ "now"|date("d M Y H:i") }}</div>
+                    <div class="label">Booking Status</div>
+                    <div class="value">
+                        <span class="status-badge {{ booking.bookingStatus == 'CONFIRMED' ? 'confirmed' : 'pending' }}">
+                            {{ booking.bookingStatus }}
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="trip-details">
+        <h3 style="margin-top: 0; font-size: 16px; margin-bottom: 20px; color: #0f172a;">Reservation Summary</h3>
+        <table class="trip-table">
+            <tr>
+                <td>
+                    <div class="label">Transport Provider & Model</div>
+                    <div class="value">{{ transport.providerName }} — {{ transport.vehicleModel }} ({{ transport.transportType }})</div>
+                </td>
+            </tr>
+            {% if schedule %}
+            <tr>
+                <td>
+                    <div class="label">Route Details</div>
+                    <div class="value">{{ destMap[schedule.departureDestinationId] ?? ('Departure Destination #' ~ schedule.departureDestinationId) }} → {{ destMap[schedule.arrivalDestinationId] ?? ('Arrival Destination #' ~ schedule.arrivalDestinationId) }}</div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="label">Travel Schedule</div>
+                    <div class="value">
+                        {% if transport.transportType == 'FLIGHT' %}
+                            Departs: {{ schedule.departureDatetime|date('d M Y H:i') }} | Arrives: {{ schedule.arrivalDatetime|date('H:i') }}
+                        {% else %}
+                            Rental Period: {{ schedule.rentalStart|date('d M Y') }} to {{ schedule.rentalEnd|date('d M Y') }}
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td>
+                    <div class="label">Tickets & Accommodation</div>
+                    <div class="value">{{ booking.totalSeats }} Seat(s) [{{ booking.adultsCount }} Adults, {{ booking.childrenCount }} Children] — {{ booking.travelClass|default('ECONOMY') }}</div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="label">Additional Services</div>
+                    <div class="value">Travel Insurance: {{ booking.insuranceIncluded ? 'Included (Premium Coverage)' : 'Not Selected' }}</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="price-section">
+        <div class="label">Grand Total (Incl. VAT)</div>
+        <div class="total-price">{{ booking.totalPrice|number_format(2) }} EUR</div>
+        <div style="font-size: 11px; color: #64748b; margin-top: 5px;">Payment Status: <strong>{{ booking.paymentStatus }}</strong></div>
+    </div>
+
+    <div class="qr-section">
+        {% if qrCodeBase64 %}
+            <img src="{{ qrCodeBase64 }}" class="qr-code">
+            <div class="label">Digital Verification Code</div>
+            <div style="font-size: 10px; color: #94a3b8; font-family: monospace;">{{ booking.bookingId }}|RESERVATION|TX</div>
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        Thank you for booking with TripX. Please present this digital or printed receipt upon boarding/arrival.
+        <br>TripX Global Transport Solutions • contact@tripx.com • ref: #TX-{{ booking.bookingId }}
+    </div>
+</body>
+</html>

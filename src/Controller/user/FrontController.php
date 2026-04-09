@@ -3,6 +3,7 @@
 namespace App\Controller\user;
 
 use App\service\UserProfileService;
+use App\service\PricePredictionService;
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,12 +16,18 @@ class FrontController extends AbstractController
     private $profileService;
     private $destinationService;
     private $activityService;
+    private PricePredictionService $pricePredictionService;
 
-    public function __construct(UserProfileService $profileService, \App\service\DestinationService $destinationService, \App\service\ActivityService $activityService)
-    {
+    public function __construct(
+        UserProfileService $profileService,
+        \App\service\DestinationService $destinationService,
+        \App\service\ActivityService $activityService,
+        PricePredictionService $pricePredictionService,
+    ) {
         $this->profileService = $profileService;
         $this->destinationService = $destinationService;
         $this->activityService = $activityService;
+        $this->pricePredictionService = $pricePredictionService;
     }
 
     #[Route('/home', name: 'index')]
@@ -29,7 +36,12 @@ class FrontController extends AbstractController
         if (!$this->getUser()) {
             return $this->redirectToRoute('app_login');
         }
-        return $this->render('front/index.html.twig');
+        $user = $this->getUser();
+        $uid = $user instanceof User ? $user->getUserId() : null;
+
+        return $this->render('front/index.html.twig', [
+            'price_prediction_cards' => $this->pricePredictionService->buildHomeCarouselCards($uid),
+        ]);
     }
 
     #[Route('/destinations', name: 'destinations')]
@@ -50,17 +62,20 @@ class FrontController extends AbstractController
         ]);
     }
 
-    // REMOVE THIS METHOD - it's causing the conflict
-    // #[Route('/accommodations', name: 'accommodations')]
-    // public function accommodations(): Response
-    // {
-    //     return $this->render('front/accommodations.html.twig');
-    // }
+    /*
+     * Accommodations listing + AJAX search are handled by FrontAccommodationController
+     * (same path/name) — do not duplicate that route here.
+     * @see \App\Controller\user\FrontAccommodationController::index
+     */
 
+    /**
+     * Nav link "Transport" — forwards to the full transport module (schedules, bookings, API).
+     * Static mockup page: templates/front/transport.html.twig (reference design only).
+     */
     #[Route('/transport', name: 'transport')]
     public function transport(): Response
     {
-        return $this->render('front/transport.html.twig');
+        return $this->redirectToRoute('user_transport_index', [], Response::HTTP_FOUND);
     }
 
     #[Route('/offers', name: 'offers')]

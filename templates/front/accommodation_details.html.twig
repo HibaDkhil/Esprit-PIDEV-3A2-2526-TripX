@@ -1135,11 +1135,15 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
         <option value="00:00">After midnight</option>
       </select>
       <div class="stay-section-title">Phone Number</div>
-      <input type="tel" id="d-phone" class="drawer-input" placeholder="+1 234 567 8900" style="margin-bottom:12px;">
-      <div class="stay-section-title">Special Requests <span style="color:#475569;font-weight:400;text-transform:none;">(optional)</span></div>
-      <textarea id="d-requests" class="drawer-input" rows="3"
-        placeholder="Early check-in, high floor, quiet room..."
-        style="resize:none;line-height:1.5;"></textarea>
+<input type="tel" id="d-phone" class="drawer-input"
+       placeholder="+1 234 567 8900"
+       maxlength="16"
+       oninput="sanitizePhone(this)"
+       style="margin-bottom:12px;">
+<div class="stay-section-title">Special Requests <span style="color:#475569;font-weight:400;text-transform:none;">(optional)</span></div>
+<textarea id="d-requests" class="drawer-input" rows="3"
+  placeholder="Early check-in, high floor, quiet room..."
+  style="resize:none;line-height:1.5;"></textarea>
       <div class="price-breakdown" id="price-breakdown">
         <div class="price-row">
           <span id="price-row-label">€— × — nights</span>
@@ -1350,8 +1354,6 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const accommodationId = {{ accommodation.id }};
-
-{# Pass user name from PHP into JS safely #}
 const CURRENT_USER_NAME = {{ userName|json_encode|raw }};
 
 let map             = null;
@@ -1388,7 +1390,7 @@ function openModal(url) {
 function closeModal() { document.getElementById('image-modal').classList.remove('open'); }
 
 // ══════════════════════════════════════════════════════════
-// ITINERARY — defined at top level so onclick="generateItinerary()" works
+// ITINERARY
 // ══════════════════════════════════════════════════════════
 async function generateItinerary() {
   const btn       = document.getElementById('generate-itinerary-btn');
@@ -1408,9 +1410,7 @@ async function generateItinerary() {
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ days: parseInt(days) })
     });
-
     const data = await res.json();
-
     if (data.itinerary) {
       container.textContent = data.itinerary;
     } else {
@@ -1458,7 +1458,7 @@ function selectPayCard(network) {
   const hint = document.getElementById('pay-wallet-hint');
   hint.textContent = cfg.label + ' selected ✓';
   hint.className = 'pay-wallet-hint selected-hint';
-  const pill = document.getElementById('pay-format-pill');
+  const pill     = document.getElementById('pay-format-pill');
   const pillText = document.getElementById('pay-format-text');
   pill.style.display = 'inline-flex';
   pill.style.borderColor = cfg.pillColor + '44';
@@ -1510,6 +1510,12 @@ function populatePaymentStep() {
   hint.className = 'pay-wallet-hint';
   const pill = document.getElementById('pay-format-pill');
   if (pill) pill.style.display = 'none';
+  const numEl = document.getElementById('card-number');
+  if (numEl) { numEl.value = ''; numEl.placeholder = 'Select a card type above first'; }
+  const expEl = document.getElementById('card-expiry');
+  if (expEl) { expEl.value = ''; expEl.style.borderColor = ''; expEl.style.borderWidth = ''; }
+  const cvvEl = document.getElementById('card-cvv');
+  if (cvvEl) cvvEl.value = '';
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1782,7 +1788,10 @@ function validateStay() {
   const nights = getNights();
   if (nights <= 0) { showToast('Please select valid check-in and check-out dates', 'error'); return false; }
   if (nights > 90) { showToast('Maximum stay is 90 nights', 'error'); return false; }
-  if (!document.getElementById('d-phone').value.trim()) { showToast('Please enter a phone number', 'error'); return false; }
+  const phone = document.getElementById('d-phone').value.trim();
+  if (!phone) { showToast('Please enter a phone number', 'error'); return false; }
+  const cleanPhone = phone.replace(/[\s\-\(\)\+]/g, '');
+  if (!/^[0-9]{8,15}$/.test(cleanPhone)) { showToast('Phone number must contain 8–15 digits', 'error'); markError('d-phone'); return false; }
   return true;
 }
 
@@ -1801,6 +1810,15 @@ function populatePaymentRecap() {
   set('recap-total',  '€' + total.toFixed(2));
 }
 
+// ── Phone sanitizer ────────────────────────────────────────
+function sanitizePhone(input) {
+  let val = input.value.replace(/[^\d\s\+\-\(\)]/g, '');
+  const digits = val.replace(/\D/g, '');
+  if (digits.length > 15) val = val.slice(0, -1);
+  input.value = val;
+}
+
+// ── Card number formatter ──────────────────────────────────
 function formatCardNumber(input) {
   const isAmex = selectedNetwork === 'amex';
   let raw = input.value.replace(/\D/g, '');
@@ -1817,10 +1835,32 @@ function formatCardNumber(input) {
   }
 }
 
+// ── Expiry formatter + live validator ─────────────────────
 function formatExpiry(input) {
   let val = input.value.replace(/\D/g, '').substring(0, 4);
-  if (val.length >= 2) val = val.substring(0,2) + '/' + val.substring(2);
+  if (val.length >= 2) {
+    let month = parseInt(val.substring(0, 2), 10);
+    if (month < 1)  month = 1;
+    if (month > 12) month = 12;
+    val = String(month).padStart(2, '0') + '/' + val.substring(2);
+  }
   input.value = val;
+
+  if (val.length === 5) {
+    const month = parseInt(val.substring(0, 2), 10);
+    const year  = parseInt('20' + val.substring(3), 10);
+    const now   = new Date();
+    const el    = document.getElementById('card-expiry');
+    if (year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth() + 1)) {
+      el.style.borderColor = '#ef4444';
+      el.style.borderWidth = '2px';
+      el.title = 'This card has expired';
+    } else {
+      el.style.borderColor = '';
+      el.style.borderWidth = '';
+      el.title = '';
+    }
+  }
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1829,18 +1869,42 @@ function formatExpiry(input) {
 async function submitBooking() {
   const btn = document.getElementById('drawer-cta-btn');
   document.querySelectorAll('.drawer-input').forEach(el => { el.style.borderColor = ''; el.style.borderWidth = ''; });
+
   if (!selectedNetwork) { showToast('❌ Please select a card type from your wallet', 'error'); return; }
+
   const cfg    = NETWORK_CONFIG[selectedNetwork];
   const rawNum = document.getElementById('card-number').value.replace(/\s/g,'');
   const minLen = selectedNetwork === 'amex' ? 15 : 13;
   if (rawNum.length < minLen) { showToast(`❌ Enter a valid ${cfg.label} card number`, 'error'); markError('card-number'); return; }
+
   const expiry = document.getElementById('card-expiry').value;
-  if (!expiry || expiry.length < 5) { showToast('❌ Enter a valid expiry date (MM/YY)', 'error'); markError('card-expiry'); return; }
+  if (!expiry || expiry.length < 5) {
+    showToast('❌ Enter a valid expiry date (MM/YY)', 'error');
+    markError('card-expiry');
+    return;
+  }
+  const expMonth = parseInt(expiry.substring(0, 2), 10);
+  const expYear  = parseInt('20' + expiry.substring(3), 10);
+  const now      = new Date();
+  if (expMonth < 1 || expMonth > 12) {
+    showToast('❌ Expiry month must be between 01 and 12', 'error');
+    markError('card-expiry');
+    return;
+  }
+  if (expYear < now.getFullYear() || (expYear === now.getFullYear() && expMonth < now.getMonth() + 1)) {
+    showToast('❌ This card has expired', 'error');
+    markError('card-expiry');
+    return;
+  }
+
   const cvv = document.getElementById('card-cvv').value;
   if (!cvv || cvv.length < cfg.cvvLen) { showToast(`❌ Enter your ${cfg.cvvLen}-digit CVV`, 'error'); markError('card-cvv'); return; }
+
   const holder = document.getElementById('card-holder').value.trim();
   if (!holder) { showToast('❌ Enter the cardholder name', 'error'); markError('card-holder'); return; }
+
   if (btn) { btn.classList.add('loading'); btn.disabled = true; }
+
   try {
     const payload = {
       room_id:           currentRoom.id,
@@ -2018,7 +2082,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// Expose globals needed by inline onclick handlers
+// ── Expose globals ─────────────────────────────────────────
 window.showToast              = showToast;
 window.openModal              = openModal;
 window.closeModal             = closeModal;
@@ -2030,5 +2094,6 @@ window.carouselGoTo           = carouselGoTo;
 window.selectPayCard          = selectPayCard;
 window.syncCardHolderToWallet = syncCardHolderToWallet;
 window.generateItinerary      = generateItinerary;
+window.sanitizePhone          = sanitizePhone;
 </script>
 {% endblock %}

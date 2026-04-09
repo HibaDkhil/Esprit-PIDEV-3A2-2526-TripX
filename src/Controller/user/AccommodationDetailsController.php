@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * =============================================================================
+ * ACCOMMODATION DETAIL + BOOKING FLOWS (single property)
+ * =============================================================================
+ * GET /accommodations/{id} — gallery, rooms, reviews, weather-side data, booking UI.
+ * JSON endpoints for itinerary, reviews, etc. live in this controller.
+ * Listing/search: FrontAccommodationController
+ * =============================================================================
+ */
 namespace App\Controller\user;
 
 use App\Entity\Accommodation;
