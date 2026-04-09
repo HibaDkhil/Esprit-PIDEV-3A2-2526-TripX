@@ -144,7 +144,7 @@
 <!-- Destinations Grid -->
 <section class="section-sm">
   <div class="container">
-    <div class="dest-grid stagger">
+    <div class="dest-grid">
       {% for dest in destinations %}
         {% set shape = ['tall', 'mid', 'short', 'tall', 'mid', 'short'][loop.index0 % 6] %}
         <div class="dest-card-wrap {{ shape }}">
@@ -213,9 +213,3 @@
 <script src="/assets.php?f=js/main.js"></script>
 </body>
 </html>
-
-
-
-
-
-

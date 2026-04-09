@@ -21,7 +21,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="reveal">
+<div>
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;">
     <div>
       <h1 class="display-sm" style="margin-bottom:4px">Destinations</h1>
@@ -30,7 +30,7 @@
     <a href="{{ path('admin_destination_add') }}" class="btn btn-primary ripple-btn">+ Add New Destination</a>
   </div>
 
-  <div class="stats-tab-bar reveal" style="display:flex; gap:16px; margin-bottom:24px; padding:12px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius-lg); box-shadow:var(--shadow-sm);">
+  <div class="stats-tab-bar" style="display:flex; gap:16px; margin-bottom:24px; padding:12px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius-lg); box-shadow:var(--shadow-sm);">
     <div style="flex:1; padding:12px 20px; border-right:1px solid var(--border-color);">
       <div class="text-muted" style="font-size:12px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px; font-family:var(--font-mono);">Total Destinations</div>
       <div style="font-family:var(--font-display); font-size:28px; font-weight:700; color:var(--accent-primary);">{{ stats.total }}</div>
@@ -45,14 +45,14 @@
     </div>
   </div>
 
-  <div class="search-wrap reveal">
+  <div class="search-wrap">
     <form id="destSearchForm" style="display:flex; width:100%; gap:12px;">
       <input type="text" name="q" id="destSearchInput" value="{{ currentQuery }}" class="input-search" placeholder="Search by name, country or continent...">
       <button type="submit" class="btn btn-secondary">Search</button>
     </form>
   </div>
 
-  <div class="card reveal" style="padding:0; overflow:hidden;">
+  <div class="card" style="padding:0; overflow:hidden;">
     <table class="dest-table">
       <thead>
         <tr>

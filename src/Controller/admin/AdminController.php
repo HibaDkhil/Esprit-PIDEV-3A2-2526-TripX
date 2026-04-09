@@ -9,8 +9,8 @@ use App\service\TransportService;
 use App\service\BookingtransService;
 use App\Entity\Destination;
 use App\Entity\Activity;
-use App\Form\DestinationType;
-use App\Form\ActivityType;
+use App\form\DestinationType;
+use App\form\ActivityType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -96,16 +96,11 @@ class AdminController extends AbstractController
         return $this->redirectToRoute('admin_profile');
     }
 
-    /**
-     * Renders the administrative dashboard view.
-     * Fetches top-level statistics from the AdminService and transport-specific stats.
-     */
     #[Route('/dashboard', name: 'dashboard')]
     public function dashboard(): Response
     {
         $userStats = $this->adminService->getDashboardStats();
 
-        // Build transport KPI stats for the Overview & AI panel (Restored from HEAD)
         $transports = $this->transportService->getAllTransports();
         $bookings   = $this->bookingService->getAllBookings();
         $confirmed = $pending = $cancelled = 0;
@@ -159,10 +154,6 @@ class AdminController extends AbstractController
         ]);
     }
 
-    /**
-     * Lists all platform users with options for sorting, searching, and pagination.
-     * Integrates with KnpPaginator by receiving a Doctrine QueryBuilder from the AdminService/Repository.
-     */
     #[Route('/users', name: 'users')]
     #[IsGranted('ROLE_ADMIN')]
     public function users(Request $request, PaginatorInterface $paginator): Response 
@@ -171,7 +162,6 @@ class AdminController extends AbstractController
         $sortBy = $request->query->get('s', 'userId');
         $order = $request->query->get('order', 'ASC');
 
-        // Whitelist sort fields
         $allowedSort = ['userId', 'email', 'firstName', 'lastName', 'role', 'status', 'birthYear', 'gender'];
         if (!in_array($sortBy, $allowedSort)) {
             $sortBy = 'userId';
@@ -181,9 +171,9 @@ class AdminController extends AbstractController
         $stats = $this->adminService->getDashboardStats();
         
         $pagination = $paginator->paginate(
-            $usersQuery, // query or array
-            $request->query->getInt('page', 1), // current page number
-            10 // limit per page
+            $usersQuery,
+            $request->query->getInt('page', 1),
+            10
         );
         
         return $this->render('admin/users.html.twig', [
@@ -195,10 +185,6 @@ class AdminController extends AbstractController
         ]); 
     }
 
-    /**
-     * Internal API endpoint to handle the live AJAX search without page reloading.
-     * It connects directly to the UserRepository's searchByDQL method.
-     */
     #[Route('/users/search', name: 'users_search', methods: ['GET'])]
     public function searchUsers(Request $request, UserRepository $repo): JsonResponse
     {
@@ -364,10 +350,6 @@ class AdminController extends AbstractController
         return new JsonResponse($data);
     }
 
-    /**
-     * Shows a detailed profile of a specific user including their personal info and travel preferences.
-     * This route leverages Doctrine's find and findOneBy to cross-reference entities.
-     */
     #[Route('/users/detail/{id}', name: 'user_detail')]
     public function userDetail(int $id, EntityManagerInterface $em): Response
     {
@@ -560,5 +542,4 @@ class AdminController extends AbstractController
     #[Route('/blog', name: 'blog')]
     #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_BLOG')"))]
     public function blog(): Response { return $this->render('admin/blog.html.twig'); }
-
 }
