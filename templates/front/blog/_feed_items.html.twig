@@ -13,7 +13,7 @@
     <span class="ei">✈️</span>
     <h3>No posts found</h3>
     <p>
-      <a href="{{ path('blog') }}" class="tpill-link" data-type="" data-search="">Clear filters</a> or
+      <a href="{{ path('blog', {type:'all'}) }}" class="tpill-link" data-type="all" data-search="">Clear filters</a> or
       <a href="{{ path('post_create') }}">create the first post!</a>
     </p>
   </div>
@@ -329,9 +329,15 @@
       </article>
 
     {% elseif item.feedType == 'travel_story' %}
-      {# ─── TRAVEL STORY CARD ────────────────────────────── #}
       {% set story = item.entity %}
       {% set aName = authorMap[story.userId] ?? 'User #' ~ story.userId %}
+      {% set isOwner = (currentUserId is not null and currentUserId == story.userId) %}
+      {% set sid = story.id %}
+      {% set counts = storyReactionSummary[sid] ?? {like:0,love:0,haha:0,wow:0,sad:0,angry:0} %}
+      {% set myRxn = storyUserReactions[sid] ?? '' %}
+      {% set total = counts.like + counts.love + counts.haha + counts.wow + counts.sad + counts.angry %}
+      {% set comments = storyComments[sid] ?? [] %}
+      {% set nc = comments|length %}
 
       <article class="post-card ts-card" data-feed-type="travel_story">
         <div class="pc-head">
@@ -340,13 +346,13 @@
             <div class="pc-name" data-uname="{{ story.userId }}">{{ aName }}</div>
             <div class="pc-date">{% if story.createdAt %}{{ story.createdAt|date('M d, Y H:i') }}{% endif %}</div>
           </div>
-          <span class="pc-badge b-travel_story">🧳 Travel Story</span>
+          <span class="pc-badge b-travel_story">Travel Story</span>
         </div>
 
-        <a href="{{ path('travel_story_show', {id: story.id}) }}" class="pc-title">{{ story.title }}</a>
+        <a href="{{ path('travel_story_show', {id: sid}) }}" class="pc-title">{{ story.title }}</a>
 
         {% if story.destination %}
-          <div class="ts-destination">📍 {{ story.destination }}</div>
+          <div class="ts-destination">{{ story.destination }}</div>
         {% endif %}
 
         {% if story.coverImageUrl %}
@@ -357,12 +363,12 @@
         {% endif %}
 
         {% if story.summary %}
-          <div class="pc-body">{{ story.summary|length > 300 ? story.summary|slice(0,300) ~ '…' : story.summary }}</div>
+          <div class="pc-body">{{ story.summary|length > 300 ? story.summary|slice(0,300) ~ '...' : story.summary }}</div>
         {% endif %}
 
         <div class="ts-meta">
           {% if story.overallRating %}
-            <span class="ts-tag">⭐ {{ story.overallRating }}/5</span>
+            <span class="ts-tag">{{ story.overallRating }}/5</span>
           {% endif %}
           {% if story.travelType %}
             <span class="ts-tag">{{ story.travelType|capitalize }}</span>
@@ -375,13 +381,217 @@
           {% endif %}
         </div>
 
-        <a href="{{ path('travel_story_show', {id: story.id}) }}" class="pc-read">Read full story →</a>
+        <a href="{{ path('travel_story_show', {id: sid}) }}" class="pc-read">Read full story -></a>
 
         <div class="pc-actions">
-          <button type="button" class="act-btn"
-                  onclick="sharePost('{{ story.title|e('js') }}', '{{ url('travel_story_show', {id: story.id}) }}')">
-            🔗 Share
+          <div class="rxn-wrap" id="ts-rxnwrap-{{ sid }}">
+            <button type="button"
+                    class="rxn-btn {% if myRxn %}reacted-{{ myRxn }}{% endif %}"
+                    id="ts-rxnbtn-{{ sid }}"
+                    onclick="quickReact({{ sid }}, '{{ myRxn ?: '' }}', 'travel_story')">
+              <span id="ts-rxnicon-{{ sid }}">
+                {% if myRxn and rxnIcons[myRxn] is defined %}
+                  {{ rxnIcons[myRxn] }}
+                {% else %}??{% endif %}
+              </span>
+              <span id="ts-rxnlbl-{{ sid }}">
+                {% if myRxn and rxnLabels[myRxn] is defined %}
+                  {{ rxnLabels[myRxn] }}
+                {% else %}Like{% endif %}
+              </span>
+              {% if total > 0 %}
+                <span class="rxn-count" id="ts-rxntotal-{{ sid }}">{{ total }}</span>
+              {% else %}
+                <span class="rxn-count" id="ts-rxntotal-{{ sid }}" style="display:none;">0</span>
+              {% endif %}
+            </button>
+            <div class="rxn-picker">
+              {% for rtype, emoji in rxnIcons %}
+                <button type="button"
+                        class="emoji-btn {% if myRxn == rtype %}active-emoji{% endif %}"
+                        id="ts-rxnopt-{{ sid }}-{{ rtype }}"
+                        onclick="sendReaction({{ sid }}, '{{ rtype }}', 'travel_story')">
+                  <span class="e">{{ emoji }}</span>
+                  <span class="el">{{ rxnLabels[rtype] }}</span>
+                </button>
+              {% endfor %}
+            </div>
+          </div>
+
+          <button type="button" class="act-btn" onclick="toggleC('tsc{{ sid }}', this)">
+            ?? Comment
           </button>
+
+          {% if isOwner %}
+            <a href="{{ path('travel_story_edit', {id: sid}) }}" class="act-btn">Edit</a>
+            <form method="post" action="{{ path('travel_story_delete', {id: sid}) }}" class="inline-form"
+                  onsubmit="return confirm('Delete this travel story?');">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete_travel_story_' ~ sid) }}">
+              <button type="submit" class="act-btn">Delete</button>
+            </form>
+          {% endif %}
+
+          <button type="button" class="act-btn"
+                  onclick="sharePost('{{ story.title|e('js') }}', '{{ url('travel_story_show', {id: sid}) }}')">
+            Share
+          </button>
+        </div>
+
+        {% if total > 0 %}
+          <div class="rxn-tally">
+            {% for rtype, emoji in rxnIcons %}
+              {% if counts[rtype] is defined and counts[rtype] > 0 %}
+                <span>{{ emoji }} {{ counts[rtype] }}</span>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <button type="button" class="vcbtn" onclick="toggleC('tsc{{ sid }}', this)">
+          View comments ({{ nc }})
+        </button>
+
+        <div id="tsc{{ sid }}" class="cbox">
+          <div class="cbox-inner">
+            {% set topComments = comments|filter(c => c.parentCommentId is null or c.parentCommentId == 0) %}
+            {% set allReplies  = comments|filter(c => c.parentCommentId is not null and c.parentCommentId != 0) %}
+
+            {% if topComments|length > 0 %}
+              {% for comment in topComments %}
+                {% set cn = authorMap[comment.userId] ?? 'User #' ~ comment.userId %}
+                {% set commentReplies = allReplies|filter(r => r.parentCommentId == comment.id) %}
+
+                <div class="crow" id="comment-{{ comment.id }}">
+                  <div class="cav">{{ cn|first|upper }}</div>
+                  <div class="cbubble">
+                    <div class="cn" data-uname="{{ comment.userId }}">{{ cn }}</div>
+                    <div class="cb" id="cbody-{{ comment.id }}">{{ comment.body }}</div>
+
+                    <div class="edit-form" id="edit-{{ comment.id }}">
+                      <form method="post" action="{{ path('comment_edit', {id: comment.id}) }}" class="edit-inline-form">
+                        <input type="hidden" name="_token" value="{{ csrf_token('edit_comment_' ~ comment.id) }}">
+                        <textarea name="body" rows="1" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'">{{ comment.body }}</textarea>
+                        <button type="submit" class="edit-send">Save</button>
+                        <button type="button" class="edit-cancel" onclick="toggleEditForm('edit-{{ comment.id }}')">?</button>
+                      </form>
+                    </div>
+
+                    <div class="comment-actions">
+                      <div class="c-rxn-wrap">
+                        <button type="button" class="ca-btn" id="crxnbtn-{{ comment.id }}" onclick="quickReact({{ comment.id }}, '', 'comment')">?? Like</button>
+                        <div class="c-rxn-picker">
+                          {% for rtype, emoji in rxnIcons %}
+                            <button type="button" class="c-emoji-btn" onclick="sendReaction({{ comment.id }}, '{{ rtype }}', 'comment')" title="{{ rxnLabels[rtype] }}">{{ emoji }}</button>
+                          {% endfor %}
+                        </div>
+                      </div>
+                      <span class="c-rxn-tally" id="crxntally-{{ comment.id }}"></span>
+                      <span class="ca-sep">?</span>
+                      <button type="button" class="ca-btn" onclick="toggleReplyForm('reply-{{ comment.id }}')">?? Reply</button>
+                      <span class="ca-sep">?</span>
+                      <span class="comment-time">{% if comment.createdAt %}{{ comment.createdAt|date('M d ? H:i') }}{% endif %}</span>
+                      {% if app.user is not null and currentUserId is not null and currentUserId == comment.userId %}
+                        <span class="ca-sep">?</span>
+                        <button type="button" class="ca-btn" onclick="toggleEditForm('edit-{{ comment.id }}')">Edit</button>
+                      {% endif %}
+                      {% if app.user is not null and currentUserId is not null and (currentUserId == comment.userId or currentUserId == story.userId) %}
+                        <span class="ca-sep">?</span>
+                        <form method="post" action="{{ path('comment_delete', {id: comment.id}) }}" class="inline-form" onsubmit="return confirm('Delete this comment and its replies?');">
+                          <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_' ~ comment.id) }}">
+                          <button type="submit" class="ca-btn danger">Delete</button>
+                        </form>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="reply-form" id="reply-{{ comment.id }}">
+                  <form method="post" action="{{ path('travel_story_comment_create', {id: sid}) }}">
+                    <input type="hidden" name="parent_comment_id" value="{{ comment.id }}">
+                    <div class="reply-form-inner">
+                      <textarea name="body" rows="1" required placeholder="Reply to {{ cn|split(' ')|first }}..." oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+                      <button type="submit" class="reply-send">Reply</button>
+                      <button type="button" class="reply-cancel" onclick="toggleReplyForm('reply-{{ comment.id }}')">?</button>
+                    </div>
+                  </form>
+                </div>
+
+                {% if commentReplies|length > 0 %}
+                  <button type="button" class="replies-toggle" onclick="toggleReplies('replies-{{ comment.id }}', this)">
+                    <span>?</span> {{ commentReplies|length }} {{ commentReplies|length == 1 ? 'reply' : 'replies' }}
+                  </button>
+                  <div class="replies-wrap" id="replies-{{ comment.id }}" style="display:none;">
+                    {% for reply in commentReplies %}
+                      {% set rn = authorMap[reply.userId] ?? 'User #' ~ reply.userId %}
+                      <div class="crow crow-reply" id="comment-{{ reply.id }}">
+                        <div class="cav cav-small">{{ rn|first|upper }}</div>
+                        <div class="cbubble">
+                          <div class="cn" data-uname="{{ reply.userId }}">{{ rn }}</div>
+                          <div class="cb" id="cbody-{{ reply.id }}">{{ reply.body }}</div>
+
+                          <div class="edit-form" id="edit-{{ reply.id }}">
+                            <form method="post" action="{{ path('comment_edit', {id: reply.id}) }}" class="edit-inline-form">
+                              <input type="hidden" name="_token" value="{{ csrf_token('edit_comment_' ~ reply.id) }}">
+                              <textarea name="body" rows="1" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'">{{ reply.body }}</textarea>
+                              <button type="submit" class="edit-send">Save</button>
+                              <button type="button" class="edit-cancel" onclick="toggleEditForm('edit-{{ reply.id }}')">?</button>
+                            </form>
+                          </div>
+
+                          <div class="comment-actions">
+                            <div class="c-rxn-wrap">
+                              <button type="button" class="ca-btn" id="crxnbtn-{{ reply.id }}" onclick="quickReact({{ reply.id }}, '', 'comment')">?? Like</button>
+                              <div class="c-rxn-picker">
+                                {% for rtype, emoji in rxnIcons %}
+                                  <button type="button" class="c-emoji-btn" onclick="sendReaction({{ reply.id }}, '{{ rtype }}', 'comment')" title="{{ rxnLabels[rtype] }}">{{ emoji }}</button>
+                                {% endfor %}
+                              </div>
+                            </div>
+                            <span class="c-rxn-tally" id="crxntally-{{ reply.id }}"></span>
+                            <span class="ca-sep">?</span>
+                            <button type="button" class="ca-btn" onclick="toggleReplyForm('reply-{{ reply.id }}')">?? Reply</button>
+                            <span class="ca-sep">?</span>
+                            <span class="comment-time">{% if reply.createdAt %}{{ reply.createdAt|date('M d ? H:i') }}{% endif %}</span>
+                            {% if app.user is not null and currentUserId is not null and currentUserId == reply.userId %}
+                              <span class="ca-sep">?</span>
+                              <button type="button" class="ca-btn" onclick="toggleEditForm('edit-{{ reply.id }}')">Edit</button>
+                            {% endif %}
+                            {% if app.user is not null and currentUserId is not null and (currentUserId == reply.userId or currentUserId == story.userId) %}
+                              <span class="ca-sep">?</span>
+                              <form method="post" action="{{ path('comment_delete', {id: reply.id}) }}" class="inline-form" onsubmit="return confirm('Delete this reply?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_' ~ reply.id) }}">
+                                <button type="submit" class="ca-btn danger">Delete</button>
+                              </form>
+                            {% endif %}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="reply-form reply-form-nested" id="reply-{{ reply.id }}">
+                        <form method="post" action="{{ path('travel_story_comment_create', {id: sid}) }}">
+                          <input type="hidden" name="parent_comment_id" value="{{ reply.id }}">
+                          <div class="reply-form-inner">
+                            <textarea name="body" rows="1" required placeholder="Reply to {{ rn|split(' ')|first }}..." oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+                            <button type="submit" class="reply-send">Reply</button>
+                            <button type="button" class="reply-cancel" onclick="toggleReplyForm('reply-{{ reply.id }}')">?</button>
+                          </div>
+                        </form>
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              <p class="no-comments">No comments yet ? start the conversation!</p>
+            {% endif %}
+
+            <form method="post" action="{{ path('travel_story_comment_create', {id: sid}) }}">
+              <div class="cform-row">
+                <textarea name="body" rows="1" placeholder="Write a comment..." required oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+                <button type="submit" class="csend">Post</button>
+              </div>
+            </form>
+          </div>
         </div>
       </article>
     {% endif %}

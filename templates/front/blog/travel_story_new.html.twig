@@ -86,6 +86,19 @@
     resize: vertical;
     line-height: 1.7;
 }
+.cp-card input[type="date"].story-date-input {
+    min-height: 48px;
+    font-weight: 600;
+    letter-spacing: .01em;
+    cursor: pointer;
+}
+.cp-card input[type="date"].story-date-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: .7;
+}
+.cp-card input[type="date"].story-date-input:focus::-webkit-calendar-picker-indicator {
+    opacity: 1;
+}
 .cp-field {
     margin-bottom: 22px;
 }
@@ -314,7 +327,7 @@
 
 @media (max-width: 768px) {
     .cp-wrap {
-        padding: calc(var(--nav-height, 70px) + 24px) 12px 50px;
+        padding: 50px 12px 50px;
     }
     .cp-card {
         padding: 24px 18px;
@@ -455,13 +468,13 @@
             <div class="cp-grid">
                 <div class="cp-field">
                     {{ form_label(form.startDate, 'Start Date') }}
-                    {{ form_widget(form.startDate) }}
+                    {{ form_widget(form.startDate, {'attr': {'class': 'story-date-input'}}) }}
                     {{ form_errors(form.startDate) }}
                 </div>
 
                 <div class="cp-field">
                     {{ form_label(form.endDate, 'End Date') }}
-                    {{ form_widget(form.endDate) }}
+                    {{ form_widget(form.endDate, {'attr': {'class': 'story-date-input'}}) }}
                     {{ form_errors(form.endDate) }}
                 </div>
 
@@ -566,6 +579,8 @@
 const fileInput = document.querySelector('input[type="file"][multiple]');
 const previewGrid = document.getElementById('preview-grid');
 const uploadZone = document.getElementById('upload-zone');
+const startDateInput = document.getElementById('{{ form.startDate.vars.id }}');
+const endDateInput = document.getElementById('{{ form.endDate.vars.id }}');
 let selectedFiles = [];
 
 function syncFilesToInput() {
@@ -631,5 +646,46 @@ function toggleAdvancedFields(el) {
     box.classList.toggle('open');
     el.textContent = box.classList.contains('open') ? 'Hide advanced fields' : 'Advanced fields';
 }
+
+function setupDateConstraints() {
+    if (!startDateInput || !endDateInput) {
+        return;
+    }
+
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+
+    startDateInput.max = todayStr;
+    endDateInput.max = todayStr;
+
+    const syncDateBounds = () => {
+        if (startDateInput.value) {
+            endDateInput.min = startDateInput.value;
+            if (endDateInput.value && endDateInput.value < startDateInput.value) {
+                endDateInput.value = startDateInput.value;
+            }
+        } else {
+            endDateInput.removeAttribute('min');
+        }
+
+        if (endDateInput.value) {
+            startDateInput.max = endDateInput.value < todayStr ? endDateInput.value : todayStr;
+            if (startDateInput.value && startDateInput.value > endDateInput.value) {
+                startDateInput.value = endDateInput.value;
+            }
+        } else {
+            startDateInput.max = todayStr;
+        }
+    };
+
+    startDateInput.addEventListener('change', syncDateBounds);
+    endDateInput.addEventListener('change', syncDateBounds);
+    syncDateBounds();
+}
+
+setupDateConstraints();
 </script>
 {% endblock %}

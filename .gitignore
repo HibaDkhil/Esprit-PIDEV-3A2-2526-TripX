@@ -1,0 +1,28 @@
+### Symfony ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/var/cache/
+/var/log/
+/var/sessions/
+/vendor/
+/public/build/
+/public/bundles/
+
+### PHPUnit ###
+/.phpunit.result.cache
+
+### PHP CS Fixer ###
+/.php-cs-fixer.cache
+
+### Node ###
+/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+### IDE / OS ###
+/.idea/
+/.vscode/
+.DS_Store
+Thumbs.db

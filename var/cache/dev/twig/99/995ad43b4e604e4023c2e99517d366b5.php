@@ -72,8 +72,8 @@ class __TwigTemplate_4d582ebf615a9cd3013698f92d3848b2 extends Template
     <p>
       <a href=\"";
             // line 16
-            yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("blog");
-            yield "\" class=\"tpill-link\" data-type=\"\" data-search=\"\">Clear filters</a> or
+            yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("blog", ["type" => "all"]);
+            yield "\" class=\"tpill-link\" data-type=\"all\" data-search=\"\">Clear filters</a> or
       <a href=\"";
             // line 17
             yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("post_create");
@@ -904,147 +904,755 @@ class __TwigTemplate_4d582ebf615a9cd3013698f92d3848b2 extends Template
 $context["item"], "feedType", [], "any", false, false, false, 331) == "travel_story")) {
                     // line 332
                     yield "      ";
+                    $context["story"] = CoreExtension::getAttribute($this->env, $this->source, $context["item"], "entity", [], "any", false, false, false, 332);
                     // line 333
                     yield "      ";
-                    $context["story"] = CoreExtension::getAttribute($this->env, $this->source, $context["item"], "entity", [], "any", false, false, false, 333);
+                    $context["aName"] = ((((CoreExtension::getAttribute($this->env, $this->source, ($context["authorMap"] ?? null), CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 333, $this->source); })()), "userId", [], "any", false, false, false, 333), [], "array", true, true, false, 333) &&  !(null === CoreExtension::getAttribute($this->env, $this->source, (isset($context["authorMap"]) || array_key_exists("authorMap", $context) ? $context["authorMap"] : (function () { throw new RuntimeError('Variable "authorMap" does not exist.', 333, $this->source); })()), CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 333, $this->source); })()), "userId", [], "any", false, false, false, 333), [], "array", false, false, false, 333)))) ? (CoreExtension::getAttribute($this->env, $this->source, (isset($context["authorMap"]) || array_key_exists("authorMap", $context) ? $context["authorMap"] : (function () { throw new RuntimeError('Variable "authorMap" does not exist.', 333, $this->source); })()), CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 333, $this->source); })()), "userId", [], "any", false, false, false, 333), [], "array", false, false, false, 333)) : ("User #")) . CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 333, $this->source); })()), "userId", [], "any", false, false, false, 333));
                     // line 334
                     yield "      ";
-                    $context["aName"] = ((((CoreExtension::getAttribute($this->env, $this->source, ($context["authorMap"] ?? null), CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 334, $this->source); })()), "userId", [], "any", false, false, false, 334), [], "array", true, true, false, 334) &&  !(null === CoreExtension::getAttribute($this->env, $this->source, (isset($context["authorMap"]) || array_key_exists("authorMap", $context) ? $context["authorMap"] : (function () { throw new RuntimeError('Variable "authorMap" does not exist.', 334, $this->source); })()), CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 334, $this->source); })()), "userId", [], "any", false, false, false, 334), [], "array", false, false, false, 334)))) ? (CoreExtension::getAttribute($this->env, $this->source, (isset($context["authorMap"]) || array_key_exists("authorMap", $context) ? $context["authorMap"] : (function () { throw new RuntimeError('Variable "authorMap" does not exist.', 334, $this->source); })()), CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 334, $this->source); })()), "userId", [], "any", false, false, false, 334), [], "array", false, false, false, 334)) : ("User #")) . CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 334, $this->source); })()), "userId", [], "any", false, false, false, 334));
+                    $context["isOwner"] = ( !(null === (isset($context["currentUserId"]) || array_key_exists("currentUserId", $context) ? $context["currentUserId"] : (function () { throw new RuntimeError('Variable "currentUserId" does not exist.', 334, $this->source); })())) && ((isset($context["currentUserId"]) || array_key_exists("currentUserId", $context) ? $context["currentUserId"] : (function () { throw new RuntimeError('Variable "currentUserId" does not exist.', 334, $this->source); })()) == CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 334, $this->source); })()), "userId", [], "any", false, false, false, 334)));
                     // line 335
+                    yield "      ";
+                    $context["sid"] = CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 335, $this->source); })()), "id", [], "any", false, false, false, 335);
+                    // line 336
+                    yield "      ";
+                    $context["counts"] = (((CoreExtension::getAttribute($this->env, $this->source, ($context["storyReactionSummary"] ?? null), (isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 336, $this->source); })()), [], "array", true, true, false, 336) &&  !(null === CoreExtension::getAttribute($this->env, $this->source, (isset($context["storyReactionSummary"]) || array_key_exists("storyReactionSummary", $context) ? $context["storyReactionSummary"] : (function () { throw new RuntimeError('Variable "storyReactionSummary" does not exist.', 336, $this->source); })()), (isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 336, $this->source); })()), [], "array", false, false, false, 336)))) ? (CoreExtension::getAttribute($this->env, $this->source, (isset($context["storyReactionSummary"]) || array_key_exists("storyReactionSummary", $context) ? $context["storyReactionSummary"] : (function () { throw new RuntimeError('Variable "storyReactionSummary" does not exist.', 336, $this->source); })()), (isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 336, $this->source); })()), [], "array", false, false, false, 336)) : (["like" => 0, "love" => 0, "haha" => 0, "wow" => 0, "sad" => 0, "angry" => 0]));
+                    // line 337
+                    yield "      ";
+                    $context["myRxn"] = (((CoreExtension::getAttribute($this->env, $this->source, ($context["storyUserReactions"] ?? null), (isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 337, $this->source); })()), [], "array", true, true, false, 337) &&  !(null === CoreExtension::getAttribute($this->env, $this->source, (isset($context["storyUserReactions"]) || array_key_exists("storyUserReactions", $context) ? $context["storyUserReactions"] : (function () { throw new RuntimeError('Variable "storyUserReactions" does not exist.', 337, $this->source); })()), (isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 337, $this->source); })()), [], "array", false, false, false, 337)))) ? (CoreExtension::getAttribute($this->env, $this->source, (isset($context["storyUserReactions"]) || array_key_exists("storyUserReactions", $context) ? $context["storyUserReactions"] : (function () { throw new RuntimeError('Variable "storyUserReactions" does not exist.', 337, $this->source); })()), (isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 337, $this->source); })()), [], "array", false, false, false, 337)) : (""));
+                    // line 338
+                    yield "      ";
+                    $context["total"] = (((((CoreExtension::getAttribute($this->env, $this->source, (isset($context["counts"]) || array_key_exists("counts", $context) ? $context["counts"] : (function () { throw new RuntimeError('Variable "counts" does not exist.', 338, $this->source); })()), "like", [], "any", false, false, false, 338) + CoreExtension::getAttribute($this->env, $this->source, (isset($context["counts"]) || array_key_exists("counts", $context) ? $context["counts"] : (function () { throw new RuntimeError('Variable "counts" does not exist.', 338, $this->source); })()), "love", [], "any", false, false, false, 338)) + CoreExtension::getAttribute($this->env, $this->source, (isset($context["counts"]) || array_key_exists("counts", $context) ? $context["counts"] : (function () { throw new RuntimeError('Variable "counts" does not exist.', 338, $this->source); })()), "haha", [], "any", false, false, false, 338)) + CoreExtension::getAttribute($this->env, $this->source, (isset($context["counts"]) || array_key_exists("counts", $context) ? $context["counts"] : (function () { throw new RuntimeError('Variable "counts" does not exist.', 338, $this->source); })()), "wow", [], "any", false, false, false, 338)) + CoreExtension::getAttribute($this->env, $this->source, (isset($context["counts"]) || array_key_exists("counts", $context) ? $context["counts"] : (function () { throw new RuntimeError('Variable "counts" does not exist.', 338, $this->source); })()), "sad", [], "any", false, false, false, 338)) + CoreExtension::getAttribute($this->env, $this->source, (isset($context["counts"]) || array_key_exists("counts", $context) ? $context["counts"] : (function () { throw new RuntimeError('Variable "counts" does not exist.', 338, $this->source); })()), "angry", [], "any", false, false, false, 338));
+                    // line 339
+                    yield "      ";
+                    $context["comments"] = (((CoreExtension::getAttribute($this->env, $this->source, ($context["storyComments"] ?? null), (isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 339, $this->source); })()), [], "array", true, true, false, 339) &&  !(null === CoreExtension::getAttribute($this->env, $this->source, (isset($context["storyComments"]) || array_key_exists("storyComments", $context) ? $context["storyComments"] : (function () { throw new RuntimeError('Variable "storyComments" does not exist.', 339, $this->source); })()), (isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 339, $this->source); })()), [], "array", false, false, false, 339)))) ? (CoreExtension::getAttribute($this->env, $this->source, (isset($context["storyComments"]) || array_key_exists("storyComments", $context) ? $context["storyComments"] : (function () { throw new RuntimeError('Variable "storyComments" does not exist.', 339, $this->source); })()), (isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 339, $this->source); })()), [], "array", false, false, false, 339)) : ([]));
+                    // line 340
+                    yield "      ";
+                    $context["nc"] = Twig\Extension\CoreExtension::length($this->env->getCharset(), (isset($context["comments"]) || array_key_exists("comments", $context) ? $context["comments"] : (function () { throw new RuntimeError('Variable "comments" does not exist.', 340, $this->source); })()));
+                    // line 341
                     yield "
       <article class=\"post-card ts-card\" data-feed-type=\"travel_story\">
         <div class=\"pc-head\">
           <div class=\"pc-avatar\" data-uavatar=\"";
-                    // line 338
-                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 338, $this->source); })()), "userId", [], "any", false, false, false, 338), "html", null, true);
+                    // line 344
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 344, $this->source); })()), "userId", [], "any", false, false, false, 344), "html", null, true);
                     yield "\">";
-                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::upper($this->env->getCharset(), Twig\Extension\CoreExtension::first($this->env->getCharset(), (isset($context["aName"]) || array_key_exists("aName", $context) ? $context["aName"] : (function () { throw new RuntimeError('Variable "aName" does not exist.', 338, $this->source); })()))), "html", null, true);
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::upper($this->env->getCharset(), Twig\Extension\CoreExtension::first($this->env->getCharset(), (isset($context["aName"]) || array_key_exists("aName", $context) ? $context["aName"] : (function () { throw new RuntimeError('Variable "aName" does not exist.', 344, $this->source); })()))), "html", null, true);
                     yield "</div>
           <div class=\"pc-head-main\">
             <div class=\"pc-name\" data-uname=\"";
-                    // line 340
-                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 340, $this->source); })()), "userId", [], "any", false, false, false, 340), "html", null, true);
+                    // line 346
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 346, $this->source); })()), "userId", [], "any", false, false, false, 346), "html", null, true);
                     yield "\">";
-                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["aName"]) || array_key_exists("aName", $context) ? $context["aName"] : (function () { throw new RuntimeError('Variable "aName" does not exist.', 340, $this->source); })()), "html", null, true);
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["aName"]) || array_key_exists("aName", $context) ? $context["aName"] : (function () { throw new RuntimeError('Variable "aName" does not exist.', 346, $this->source); })()), "html", null, true);
                     yield "</div>
             <div class=\"pc-date\">";
-                    // line 341
-                    if ((($tmp = CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 341, $this->source); })()), "createdAt", [], "any", false, false, false, 341)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
-                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Twig\Extension\CoreExtension']->formatDate(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 341, $this->source); })()), "createdAt", [], "any", false, false, false, 341), "M d, Y H:i"), "html", null, true);
+                    // line 347
+                    if ((($tmp = CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 347, $this->source); })()), "createdAt", [], "any", false, false, false, 347)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Twig\Extension\CoreExtension']->formatDate(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 347, $this->source); })()), "createdAt", [], "any", false, false, false, 347), "M d, Y H:i"), "html", null, true);
                     }
                     yield "</div>
           </div>
-          <span class=\"pc-badge b-travel_story\">🧳 Travel Story</span>
+          <span class=\"pc-badge b-travel_story\">Travel Story</span>
         </div>
 
         <a href=\"";
-                    // line 346
-                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("travel_story_show", ["id" => CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 346, $this->source); })()), "id", [], "any", false, false, false, 346)]), "html", null, true);
+                    // line 352
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("travel_story_show", ["id" => (isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 352, $this->source); })())]), "html", null, true);
                     yield "\" class=\"pc-title\">";
-                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 346, $this->source); })()), "title", [], "any", false, false, false, 346), "html", null, true);
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 352, $this->source); })()), "title", [], "any", false, false, false, 352), "html", null, true);
                     yield "</a>
 
         ";
-                    // line 348
-                    if ((($tmp = CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 348, $this->source); })()), "destination", [], "any", false, false, false, 348)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
-                        // line 349
-                        yield "          <div class=\"ts-destination\">📍 ";
-                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 349, $this->source); })()), "destination", [], "any", false, false, false, 349), "html", null, true);
+                    // line 354
+                    if ((($tmp = CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 354, $this->source); })()), "destination", [], "any", false, false, false, 354)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
+                        // line 355
+                        yield "          <div class=\"ts-destination\">";
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 355, $this->source); })()), "destination", [], "any", false, false, false, 355), "html", null, true);
                         yield "</div>
         ";
                     }
-                    // line 351
+                    // line 357
                     yield "
         ";
-                    // line 352
-                    if ((($tmp = CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 352, $this->source); })()), "coverImageUrl", [], "any", false, false, false, 352)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
-                        // line 353
+                    // line 358
+                    if ((($tmp = CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 358, $this->source); })()), "coverImageUrl", [], "any", false, false, false, 358)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
+                        // line 359
                         yield "          <div class=\"pc-imgwrap\">
             <img src=\"";
-                        // line 354
-                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 354, $this->source); })()), "coverImageUrl", [], "any", false, false, false, 354), "html", null, true);
+                        // line 360
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 360, $this->source); })()), "coverImageUrl", [], "any", false, false, false, 360), "html", null, true);
                         yield "\" class=\"pc-img\" alt=\"";
-                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 354, $this->source); })()), "title", [], "any", false, false, false, 354), "html", null, true);
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 360, $this->source); })()), "title", [], "any", false, false, false, 360), "html", null, true);
                         yield "\"
                  loading=\"lazy\" onerror=\"this.parentElement.style.display='none'\">
           </div>
         ";
                     }
-                    // line 358
+                    // line 364
                     yield "
         ";
-                    // line 359
-                    if ((($tmp = CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 359, $this->source); })()), "summary", [], "any", false, false, false, 359)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
-                        // line 360
+                    // line 365
+                    if ((($tmp = CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 365, $this->source); })()), "summary", [], "any", false, false, false, 365)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
+                        // line 366
                         yield "          <div class=\"pc-body\">";
-                        yield (((Twig\Extension\CoreExtension::length($this->env->getCharset(), CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 360, $this->source); })()), "summary", [], "any", false, false, false, 360)) > 300)) ? ($this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((Twig\Extension\CoreExtension::slice($this->env->getCharset(), CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 360, $this->source); })()), "summary", [], "any", false, false, false, 360), 0, 300) . "…"), "html", null, true)) : ($this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 360, $this->source); })()), "summary", [], "any", false, false, false, 360), "html", null, true)));
+                        yield (((Twig\Extension\CoreExtension::length($this->env->getCharset(), CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 366, $this->source); })()), "summary", [], "any", false, false, false, 366)) > 300)) ? ($this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((Twig\Extension\CoreExtension::slice($this->env->getCharset(), CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 366, $this->source); })()), "summary", [], "any", false, false, false, 366), 0, 300) . "..."), "html", null, true)) : ($this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 366, $this->source); })()), "summary", [], "any", false, false, false, 366), "html", null, true)));
                         yield "</div>
         ";
                     }
-                    // line 362
+                    // line 368
                     yield "
         <div class=\"ts-meta\">
           ";
-                    // line 364
-                    if ((($tmp = CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 364, $this->source); })()), "overallRating", [], "any", false, false, false, 364)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
-                        // line 365
-                        yield "            <span class=\"ts-tag\">⭐ ";
-                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 365, $this->source); })()), "overallRating", [], "any", false, false, false, 365), "html", null, true);
-                        yield "/5</span>
-          ";
-                    }
-                    // line 367
-                    yield "          ";
-                    if ((($tmp = CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 367, $this->source); })()), "travelType", [], "any", false, false, false, 367)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
-                        // line 368
-                        yield "            <span class=\"ts-tag\">";
-                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::capitalize($this->env->getCharset(), CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 368, $this->source); })()), "travelType", [], "any", false, false, false, 368)), "html", null, true);
-                        yield "</span>
-          ";
-                    }
                     // line 370
-                    yield "          ";
-                    if ((($tmp = CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 370, $this->source); })()), "travelStyle", [], "any", false, false, false, 370)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
+                    if ((($tmp = CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 370, $this->source); })()), "overallRating", [], "any", false, false, false, 370)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
                         // line 371
                         yield "            <span class=\"ts-tag\">";
-                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::capitalize($this->env->getCharset(), CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 371, $this->source); })()), "travelStyle", [], "any", false, false, false, 371)), "html", null, true);
-                        yield "</span>
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 371, $this->source); })()), "overallRating", [], "any", false, false, false, 371), "html", null, true);
+                        yield "/5</span>
           ";
                     }
                     // line 373
                     yield "          ";
-                    if ((($tmp = CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 373, $this->source); })()), "totalBudget", [], "any", false, false, false, 373)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
+                    if ((($tmp = CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 373, $this->source); })()), "travelType", [], "any", false, false, false, 373)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
                         // line 374
                         yield "            <span class=\"ts-tag\">";
-                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 374, $this->source); })()), "currency", [], "any", false, false, false, 374), "html", null, true);
-                        yield " ";
-                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 374, $this->source); })()), "totalBudget", [], "any", false, false, false, 374), "html", null, true);
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::capitalize($this->env->getCharset(), CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 374, $this->source); })()), "travelType", [], "any", false, false, false, 374)), "html", null, true);
                         yield "</span>
           ";
                     }
                     // line 376
+                    yield "          ";
+                    if ((($tmp = CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 376, $this->source); })()), "travelStyle", [], "any", false, false, false, 376)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
+                        // line 377
+                        yield "            <span class=\"ts-tag\">";
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::capitalize($this->env->getCharset(), CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 377, $this->source); })()), "travelStyle", [], "any", false, false, false, 377)), "html", null, true);
+                        yield "</span>
+          ";
+                    }
+                    // line 379
+                    yield "          ";
+                    if ((($tmp = CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 379, $this->source); })()), "totalBudget", [], "any", false, false, false, 379)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
+                        // line 380
+                        yield "            <span class=\"ts-tag\">";
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 380, $this->source); })()), "currency", [], "any", false, false, false, 380), "html", null, true);
+                        yield " ";
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 380, $this->source); })()), "totalBudget", [], "any", false, false, false, 380), "html", null, true);
+                        yield "</span>
+          ";
+                    }
+                    // line 382
                     yield "        </div>
 
         <a href=\"";
-                    // line 378
-                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("travel_story_show", ["id" => CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 378, $this->source); })()), "id", [], "any", false, false, false, 378)]), "html", null, true);
-                    yield "\" class=\"pc-read\">Read full story →</a>
+                    // line 384
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("travel_story_show", ["id" => (isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 384, $this->source); })())]), "html", null, true);
+                    yield "\" class=\"pc-read\">Read full story -></a>
 
         <div class=\"pc-actions\">
+          <div class=\"rxn-wrap\" id=\"ts-rxnwrap-";
+                    // line 387
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 387, $this->source); })()), "html", null, true);
+                    yield "\">
+            <button type=\"button\"
+                    class=\"rxn-btn ";
+                    // line 389
+                    if ((($tmp = (isset($context["myRxn"]) || array_key_exists("myRxn", $context) ? $context["myRxn"] : (function () { throw new RuntimeError('Variable "myRxn" does not exist.', 389, $this->source); })())) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
+                        yield "reacted-";
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["myRxn"]) || array_key_exists("myRxn", $context) ? $context["myRxn"] : (function () { throw new RuntimeError('Variable "myRxn" does not exist.', 389, $this->source); })()), "html", null, true);
+                    }
+                    yield "\"
+                    id=\"ts-rxnbtn-";
+                    // line 390
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 390, $this->source); })()), "html", null, true);
+                    yield "\"
+                    onclick=\"quickReact(";
+                    // line 391
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 391, $this->source); })()), "html", null, true);
+                    yield ", '";
+                    yield (((isset($context["myRxn"]) || array_key_exists("myRxn", $context) ? $context["myRxn"] : (function () { throw new RuntimeError('Variable "myRxn" does not exist.', 391, $this->source); })())) ? ($this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($context["myRxn"], "html", null, true)) : (""));
+                    yield "', 'travel_story')\">
+              <span id=\"ts-rxnicon-";
+                    // line 392
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 392, $this->source); })()), "html", null, true);
+                    yield "\">
+                ";
+                    // line 393
+                    if (((isset($context["myRxn"]) || array_key_exists("myRxn", $context) ? $context["myRxn"] : (function () { throw new RuntimeError('Variable "myRxn" does not exist.', 393, $this->source); })()) && CoreExtension::getAttribute($this->env, $this->source, ($context["rxnIcons"] ?? null), (isset($context["myRxn"]) || array_key_exists("myRxn", $context) ? $context["myRxn"] : (function () { throw new RuntimeError('Variable "myRxn" does not exist.', 393, $this->source); })()), [], "array", true, true, false, 393))) {
+                        // line 394
+                        yield "                  ";
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["rxnIcons"]) || array_key_exists("rxnIcons", $context) ? $context["rxnIcons"] : (function () { throw new RuntimeError('Variable "rxnIcons" does not exist.', 394, $this->source); })()), (isset($context["myRxn"]) || array_key_exists("myRxn", $context) ? $context["myRxn"] : (function () { throw new RuntimeError('Variable "myRxn" does not exist.', 394, $this->source); })()), [], "array", false, false, false, 394), "html", null, true);
+                        yield "
+                ";
+                    } else {
+                        // line 395
+                        yield "??";
+                    }
+                    // line 396
+                    yield "              </span>
+              <span id=\"ts-rxnlbl-";
+                    // line 397
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 397, $this->source); })()), "html", null, true);
+                    yield "\">
+                ";
+                    // line 398
+                    if (((isset($context["myRxn"]) || array_key_exists("myRxn", $context) ? $context["myRxn"] : (function () { throw new RuntimeError('Variable "myRxn" does not exist.', 398, $this->source); })()) && CoreExtension::getAttribute($this->env, $this->source, ($context["rxnLabels"] ?? null), (isset($context["myRxn"]) || array_key_exists("myRxn", $context) ? $context["myRxn"] : (function () { throw new RuntimeError('Variable "myRxn" does not exist.', 398, $this->source); })()), [], "array", true, true, false, 398))) {
+                        // line 399
+                        yield "                  ";
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["rxnLabels"]) || array_key_exists("rxnLabels", $context) ? $context["rxnLabels"] : (function () { throw new RuntimeError('Variable "rxnLabels" does not exist.', 399, $this->source); })()), (isset($context["myRxn"]) || array_key_exists("myRxn", $context) ? $context["myRxn"] : (function () { throw new RuntimeError('Variable "myRxn" does not exist.', 399, $this->source); })()), [], "array", false, false, false, 399), "html", null, true);
+                        yield "
+                ";
+                    } else {
+                        // line 400
+                        yield "Like";
+                    }
+                    // line 401
+                    yield "              </span>
+              ";
+                    // line 402
+                    if (((isset($context["total"]) || array_key_exists("total", $context) ? $context["total"] : (function () { throw new RuntimeError('Variable "total" does not exist.', 402, $this->source); })()) > 0)) {
+                        // line 403
+                        yield "                <span class=\"rxn-count\" id=\"ts-rxntotal-";
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 403, $this->source); })()), "html", null, true);
+                        yield "\">";
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["total"]) || array_key_exists("total", $context) ? $context["total"] : (function () { throw new RuntimeError('Variable "total" does not exist.', 403, $this->source); })()), "html", null, true);
+                        yield "</span>
+              ";
+                    } else {
+                        // line 405
+                        yield "                <span class=\"rxn-count\" id=\"ts-rxntotal-";
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 405, $this->source); })()), "html", null, true);
+                        yield "\" style=\"display:none;\">0</span>
+              ";
+                    }
+                    // line 407
+                    yield "            </button>
+            <div class=\"rxn-picker\">
+              ";
+                    // line 409
+                    $context['_parent'] = $context;
+                    $context['_seq'] = CoreExtension::ensureTraversable((isset($context["rxnIcons"]) || array_key_exists("rxnIcons", $context) ? $context["rxnIcons"] : (function () { throw new RuntimeError('Variable "rxnIcons" does not exist.', 409, $this->source); })()));
+                    foreach ($context['_seq'] as $context["rtype"] => $context["emoji"]) {
+                        // line 410
+                        yield "                <button type=\"button\"
+                        class=\"emoji-btn ";
+                        // line 411
+                        if (((isset($context["myRxn"]) || array_key_exists("myRxn", $context) ? $context["myRxn"] : (function () { throw new RuntimeError('Variable "myRxn" does not exist.', 411, $this->source); })()) == $context["rtype"])) {
+                            yield "active-emoji";
+                        }
+                        yield "\"
+                        id=\"ts-rxnopt-";
+                        // line 412
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 412, $this->source); })()), "html", null, true);
+                        yield "-";
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($context["rtype"], "html", null, true);
+                        yield "\"
+                        onclick=\"sendReaction(";
+                        // line 413
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 413, $this->source); })()), "html", null, true);
+                        yield ", '";
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($context["rtype"], "html", null, true);
+                        yield "', 'travel_story')\">
+                  <span class=\"e\">";
+                        // line 414
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($context["emoji"], "html", null, true);
+                        yield "</span>
+                  <span class=\"el\">";
+                        // line 415
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["rxnLabels"]) || array_key_exists("rxnLabels", $context) ? $context["rxnLabels"] : (function () { throw new RuntimeError('Variable "rxnLabels" does not exist.', 415, $this->source); })()), $context["rtype"], [], "array", false, false, false, 415), "html", null, true);
+                        yield "</span>
+                </button>
+              ";
+                    }
+                    $_parent = $context['_parent'];
+                    unset($context['_seq'], $context['rtype'], $context['emoji'], $context['_parent']);
+                    $context = array_intersect_key($context, $_parent) + $_parent;
+                    // line 418
+                    yield "            </div>
+          </div>
+
+          <button type=\"button\" class=\"act-btn\" onclick=\"toggleC('tsc";
+                    // line 421
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 421, $this->source); })()), "html", null, true);
+                    yield "', this)\">
+            ?? Comment
+          </button>
+
+          ";
+                    // line 425
+                    if ((($tmp = (isset($context["isOwner"]) || array_key_exists("isOwner", $context) ? $context["isOwner"] : (function () { throw new RuntimeError('Variable "isOwner" does not exist.', 425, $this->source); })())) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
+                        // line 426
+                        yield "            <a href=\"";
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("travel_story_edit", ["id" => (isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 426, $this->source); })())]), "html", null, true);
+                        yield "\" class=\"act-btn\">Edit</a>
+            <form method=\"post\" action=\"";
+                        // line 427
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("travel_story_delete", ["id" => (isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 427, $this->source); })())]), "html", null, true);
+                        yield "\" class=\"inline-form\"
+                  onsubmit=\"return confirm('Delete this travel story?');\">
+              <input type=\"hidden\" name=\"_token\" value=\"";
+                        // line 429
+                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->env->getRuntime('Symfony\Component\Form\FormRenderer')->renderCsrfToken(("delete_travel_story_" . (isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 429, $this->source); })()))), "html", null, true);
+                        yield "\">
+              <button type=\"submit\" class=\"act-btn\">Delete</button>
+            </form>
+          ";
+                    }
+                    // line 433
+                    yield "
           <button type=\"button\" class=\"act-btn\"
                   onclick=\"sharePost('";
-                    // line 382
-                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 382, $this->source); })()), "title", [], "any", false, false, false, 382), "js"), "html", null, true);
+                    // line 435
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 435, $this->source); })()), "title", [], "any", false, false, false, 435), "js"), "html", null, true);
                     yield "', '";
-                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getUrl("travel_story_show", ["id" => CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 382, $this->source); })()), "id", [], "any", false, false, false, 382)]), "html", null, true);
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getUrl("travel_story_show", ["id" => (isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 435, $this->source); })())]), "html", null, true);
                     yield "')\">
-            🔗 Share
+            Share
           </button>
+        </div>
+
+        ";
+                    // line 440
+                    if (((isset($context["total"]) || array_key_exists("total", $context) ? $context["total"] : (function () { throw new RuntimeError('Variable "total" does not exist.', 440, $this->source); })()) > 0)) {
+                        // line 441
+                        yield "          <div class=\"rxn-tally\">
+            ";
+                        // line 442
+                        $context['_parent'] = $context;
+                        $context['_seq'] = CoreExtension::ensureTraversable((isset($context["rxnIcons"]) || array_key_exists("rxnIcons", $context) ? $context["rxnIcons"] : (function () { throw new RuntimeError('Variable "rxnIcons" does not exist.', 442, $this->source); })()));
+                        foreach ($context['_seq'] as $context["rtype"] => $context["emoji"]) {
+                            // line 443
+                            yield "              ";
+                            if ((CoreExtension::getAttribute($this->env, $this->source, ($context["counts"] ?? null), $context["rtype"], [], "array", true, true, false, 443) && (CoreExtension::getAttribute($this->env, $this->source, (isset($context["counts"]) || array_key_exists("counts", $context) ? $context["counts"] : (function () { throw new RuntimeError('Variable "counts" does not exist.', 443, $this->source); })()), $context["rtype"], [], "array", false, false, false, 443) > 0))) {
+                                // line 444
+                                yield "                <span>";
+                                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($context["emoji"], "html", null, true);
+                                yield " ";
+                                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["counts"]) || array_key_exists("counts", $context) ? $context["counts"] : (function () { throw new RuntimeError('Variable "counts" does not exist.', 444, $this->source); })()), $context["rtype"], [], "array", false, false, false, 444), "html", null, true);
+                                yield "</span>
+              ";
+                            }
+                            // line 446
+                            yield "            ";
+                        }
+                        $_parent = $context['_parent'];
+                        unset($context['_seq'], $context['rtype'], $context['emoji'], $context['_parent']);
+                        $context = array_intersect_key($context, $_parent) + $_parent;
+                        // line 447
+                        yield "          </div>
+        ";
+                    }
+                    // line 449
+                    yield "
+        <button type=\"button\" class=\"vcbtn\" onclick=\"toggleC('tsc";
+                    // line 450
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 450, $this->source); })()), "html", null, true);
+                    yield "', this)\">
+          View comments (";
+                    // line 451
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["nc"]) || array_key_exists("nc", $context) ? $context["nc"] : (function () { throw new RuntimeError('Variable "nc" does not exist.', 451, $this->source); })()), "html", null, true);
+                    yield ")
+        </button>
+
+        <div id=\"tsc";
+                    // line 454
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 454, $this->source); })()), "html", null, true);
+                    yield "\" class=\"cbox\">
+          <div class=\"cbox-inner\">
+            ";
+                    // line 456
+                    $context["topComments"] = Twig\Extension\CoreExtension::filter($this->env, (isset($context["comments"]) || array_key_exists("comments", $context) ? $context["comments"] : (function () { throw new RuntimeError('Variable "comments" does not exist.', 456, $this->source); })()), function ($__c__) use ($context, $macros) { $context["c"] = $__c__; return ((null === CoreExtension::getAttribute($this->env, $this->source, (isset($context["c"]) || array_key_exists("c", $context) ? $context["c"] : (function () { throw new RuntimeError('Variable "c" does not exist.', 456, $this->source); })()), "parentCommentId", [], "any", false, false, false, 456)) || (CoreExtension::getAttribute($this->env, $this->source, (isset($context["c"]) || array_key_exists("c", $context) ? $context["c"] : (function () { throw new RuntimeError('Variable "c" does not exist.', 456, $this->source); })()), "parentCommentId", [], "any", false, false, false, 456) == 0)); });
+                    // line 457
+                    yield "            ";
+                    $context["allReplies"] = Twig\Extension\CoreExtension::filter($this->env, (isset($context["comments"]) || array_key_exists("comments", $context) ? $context["comments"] : (function () { throw new RuntimeError('Variable "comments" does not exist.', 457, $this->source); })()), function ($__c__) use ($context, $macros) { $context["c"] = $__c__; return ( !(null === CoreExtension::getAttribute($this->env, $this->source, (isset($context["c"]) || array_key_exists("c", $context) ? $context["c"] : (function () { throw new RuntimeError('Variable "c" does not exist.', 457, $this->source); })()), "parentCommentId", [], "any", false, false, false, 457)) && (CoreExtension::getAttribute($this->env, $this->source, (isset($context["c"]) || array_key_exists("c", $context) ? $context["c"] : (function () { throw new RuntimeError('Variable "c" does not exist.', 457, $this->source); })()), "parentCommentId", [], "any", false, false, false, 457) != 0)); });
+                    // line 458
+                    yield "
+            ";
+                    // line 459
+                    if ((Twig\Extension\CoreExtension::length($this->env->getCharset(), (isset($context["topComments"]) || array_key_exists("topComments", $context) ? $context["topComments"] : (function () { throw new RuntimeError('Variable "topComments" does not exist.', 459, $this->source); })())) > 0)) {
+                        // line 460
+                        yield "              ";
+                        $context['_parent'] = $context;
+                        $context['_seq'] = CoreExtension::ensureTraversable((isset($context["topComments"]) || array_key_exists("topComments", $context) ? $context["topComments"] : (function () { throw new RuntimeError('Variable "topComments" does not exist.', 460, $this->source); })()));
+                        foreach ($context['_seq'] as $context["_key"] => $context["comment"]) {
+                            // line 461
+                            yield "                ";
+                            $context["cn"] = ((((CoreExtension::getAttribute($this->env, $this->source, ($context["authorMap"] ?? null), CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "userId", [], "any", false, false, false, 461), [], "array", true, true, false, 461) &&  !(null === CoreExtension::getAttribute($this->env, $this->source, (isset($context["authorMap"]) || array_key_exists("authorMap", $context) ? $context["authorMap"] : (function () { throw new RuntimeError('Variable "authorMap" does not exist.', 461, $this->source); })()), CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "userId", [], "any", false, false, false, 461), [], "array", false, false, false, 461)))) ? (CoreExtension::getAttribute($this->env, $this->source, (isset($context["authorMap"]) || array_key_exists("authorMap", $context) ? $context["authorMap"] : (function () { throw new RuntimeError('Variable "authorMap" does not exist.', 461, $this->source); })()), CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "userId", [], "any", false, false, false, 461), [], "array", false, false, false, 461)) : ("User #")) . CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "userId", [], "any", false, false, false, 461));
+                            // line 462
+                            yield "                ";
+                            $context["commentReplies"] = Twig\Extension\CoreExtension::filter($this->env, (isset($context["allReplies"]) || array_key_exists("allReplies", $context) ? $context["allReplies"] : (function () { throw new RuntimeError('Variable "allReplies" does not exist.', 462, $this->source); })()), function ($__r__) use ($context, $macros) { $context["r"] = $__r__; return (CoreExtension::getAttribute($this->env, $this->source, (isset($context["r"]) || array_key_exists("r", $context) ? $context["r"] : (function () { throw new RuntimeError('Variable "r" does not exist.', 462, $this->source); })()), "parentCommentId", [], "any", false, false, false, 462) == CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 462)); });
+                            // line 463
+                            yield "
+                <div class=\"crow\" id=\"comment-";
+                            // line 464
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 464), "html", null, true);
+                            yield "\">
+                  <div class=\"cav\">";
+                            // line 465
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::upper($this->env->getCharset(), Twig\Extension\CoreExtension::first($this->env->getCharset(), (isset($context["cn"]) || array_key_exists("cn", $context) ? $context["cn"] : (function () { throw new RuntimeError('Variable "cn" does not exist.', 465, $this->source); })()))), "html", null, true);
+                            yield "</div>
+                  <div class=\"cbubble\">
+                    <div class=\"cn\" data-uname=\"";
+                            // line 467
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "userId", [], "any", false, false, false, 467), "html", null, true);
+                            yield "\">";
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["cn"]) || array_key_exists("cn", $context) ? $context["cn"] : (function () { throw new RuntimeError('Variable "cn" does not exist.', 467, $this->source); })()), "html", null, true);
+                            yield "</div>
+                    <div class=\"cb\" id=\"cbody-";
+                            // line 468
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 468), "html", null, true);
+                            yield "\">";
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "body", [], "any", false, false, false, 468), "html", null, true);
+                            yield "</div>
+
+                    <div class=\"edit-form\" id=\"edit-";
+                            // line 470
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 470), "html", null, true);
+                            yield "\">
+                      <form method=\"post\" action=\"";
+                            // line 471
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("comment_edit", ["id" => CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 471)]), "html", null, true);
+                            yield "\" class=\"edit-inline-form\">
+                        <input type=\"hidden\" name=\"_token\" value=\"";
+                            // line 472
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->env->getRuntime('Symfony\Component\Form\FormRenderer')->renderCsrfToken(("edit_comment_" . CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 472))), "html", null, true);
+                            yield "\">
+                        <textarea name=\"body\" rows=\"1\" oninput=\"this.style.height='auto';this.style.height=this.scrollHeight+'px'\">";
+                            // line 473
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "body", [], "any", false, false, false, 473), "html", null, true);
+                            yield "</textarea>
+                        <button type=\"submit\" class=\"edit-send\">Save</button>
+                        <button type=\"button\" class=\"edit-cancel\" onclick=\"toggleEditForm('edit-";
+                            // line 475
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 475), "html", null, true);
+                            yield "')\">?</button>
+                      </form>
+                    </div>
+
+                    <div class=\"comment-actions\">
+                      <div class=\"c-rxn-wrap\">
+                        <button type=\"button\" class=\"ca-btn\" id=\"crxnbtn-";
+                            // line 481
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 481), "html", null, true);
+                            yield "\" onclick=\"quickReact(";
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 481), "html", null, true);
+                            yield ", '', 'comment')\">?? Like</button>
+                        <div class=\"c-rxn-picker\">
+                          ";
+                            // line 483
+                            $context['_parent'] = $context;
+                            $context['_seq'] = CoreExtension::ensureTraversable((isset($context["rxnIcons"]) || array_key_exists("rxnIcons", $context) ? $context["rxnIcons"] : (function () { throw new RuntimeError('Variable "rxnIcons" does not exist.', 483, $this->source); })()));
+                            foreach ($context['_seq'] as $context["rtype"] => $context["emoji"]) {
+                                // line 484
+                                yield "                            <button type=\"button\" class=\"c-emoji-btn\" onclick=\"sendReaction(";
+                                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 484), "html", null, true);
+                                yield ", '";
+                                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($context["rtype"], "html", null, true);
+                                yield "', 'comment')\" title=\"";
+                                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["rxnLabels"]) || array_key_exists("rxnLabels", $context) ? $context["rxnLabels"] : (function () { throw new RuntimeError('Variable "rxnLabels" does not exist.', 484, $this->source); })()), $context["rtype"], [], "array", false, false, false, 484), "html", null, true);
+                                yield "\">";
+                                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($context["emoji"], "html", null, true);
+                                yield "</button>
+                          ";
+                            }
+                            $_parent = $context['_parent'];
+                            unset($context['_seq'], $context['rtype'], $context['emoji'], $context['_parent']);
+                            $context = array_intersect_key($context, $_parent) + $_parent;
+                            // line 486
+                            yield "                        </div>
+                      </div>
+                      <span class=\"c-rxn-tally\" id=\"crxntally-";
+                            // line 488
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 488), "html", null, true);
+                            yield "\"></span>
+                      <span class=\"ca-sep\">?</span>
+                      <button type=\"button\" class=\"ca-btn\" onclick=\"toggleReplyForm('reply-";
+                            // line 490
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 490), "html", null, true);
+                            yield "')\">?? Reply</button>
+                      <span class=\"ca-sep\">?</span>
+                      <span class=\"comment-time\">";
+                            // line 492
+                            if ((($tmp = CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "createdAt", [], "any", false, false, false, 492)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
+                                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Twig\Extension\CoreExtension']->formatDate(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "createdAt", [], "any", false, false, false, 492), "M d ? H:i"), "html", null, true);
+                            }
+                            yield "</span>
+                      ";
+                            // line 493
+                            if ((( !(null === CoreExtension::getAttribute($this->env, $this->source, (isset($context["app"]) || array_key_exists("app", $context) ? $context["app"] : (function () { throw new RuntimeError('Variable "app" does not exist.', 493, $this->source); })()), "user", [], "any", false, false, false, 493)) &&  !(null === (isset($context["currentUserId"]) || array_key_exists("currentUserId", $context) ? $context["currentUserId"] : (function () { throw new RuntimeError('Variable "currentUserId" does not exist.', 493, $this->source); })()))) && ((isset($context["currentUserId"]) || array_key_exists("currentUserId", $context) ? $context["currentUserId"] : (function () { throw new RuntimeError('Variable "currentUserId" does not exist.', 493, $this->source); })()) == CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "userId", [], "any", false, false, false, 493)))) {
+                                // line 494
+                                yield "                        <span class=\"ca-sep\">?</span>
+                        <button type=\"button\" class=\"ca-btn\" onclick=\"toggleEditForm('edit-";
+                                // line 495
+                                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 495), "html", null, true);
+                                yield "')\">Edit</button>
+                      ";
+                            }
+                            // line 497
+                            yield "                      ";
+                            if ((( !(null === CoreExtension::getAttribute($this->env, $this->source, (isset($context["app"]) || array_key_exists("app", $context) ? $context["app"] : (function () { throw new RuntimeError('Variable "app" does not exist.', 497, $this->source); })()), "user", [], "any", false, false, false, 497)) &&  !(null === (isset($context["currentUserId"]) || array_key_exists("currentUserId", $context) ? $context["currentUserId"] : (function () { throw new RuntimeError('Variable "currentUserId" does not exist.', 497, $this->source); })()))) && (((isset($context["currentUserId"]) || array_key_exists("currentUserId", $context) ? $context["currentUserId"] : (function () { throw new RuntimeError('Variable "currentUserId" does not exist.', 497, $this->source); })()) == CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "userId", [], "any", false, false, false, 497)) || ((isset($context["currentUserId"]) || array_key_exists("currentUserId", $context) ? $context["currentUserId"] : (function () { throw new RuntimeError('Variable "currentUserId" does not exist.', 497, $this->source); })()) == CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 497, $this->source); })()), "userId", [], "any", false, false, false, 497))))) {
+                                // line 498
+                                yield "                        <span class=\"ca-sep\">?</span>
+                        <form method=\"post\" action=\"";
+                                // line 499
+                                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("comment_delete", ["id" => CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 499)]), "html", null, true);
+                                yield "\" class=\"inline-form\" onsubmit=\"return confirm('Delete this comment and its replies?');\">
+                          <input type=\"hidden\" name=\"_token\" value=\"";
+                                // line 500
+                                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->env->getRuntime('Symfony\Component\Form\FormRenderer')->renderCsrfToken(("delete_comment_" . CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 500))), "html", null, true);
+                                yield "\">
+                          <button type=\"submit\" class=\"ca-btn danger\">Delete</button>
+                        </form>
+                      ";
+                            }
+                            // line 504
+                            yield "                    </div>
+                  </div>
+                </div>
+
+                <div class=\"reply-form\" id=\"reply-";
+                            // line 508
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 508), "html", null, true);
+                            yield "\">
+                  <form method=\"post\" action=\"";
+                            // line 509
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("travel_story_comment_create", ["id" => (isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 509, $this->source); })())]), "html", null, true);
+                            yield "\">
+                    <input type=\"hidden\" name=\"parent_comment_id\" value=\"";
+                            // line 510
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 510), "html", null, true);
+                            yield "\">
+                    <div class=\"reply-form-inner\">
+                      <textarea name=\"body\" rows=\"1\" required placeholder=\"Reply to ";
+                            // line 512
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::first($this->env->getCharset(), Twig\Extension\CoreExtension::split($this->env->getCharset(), (isset($context["cn"]) || array_key_exists("cn", $context) ? $context["cn"] : (function () { throw new RuntimeError('Variable "cn" does not exist.', 512, $this->source); })()), " ")), "html", null, true);
+                            yield "...\" oninput=\"this.style.height='auto';this.style.height=this.scrollHeight+'px'\"></textarea>
+                      <button type=\"submit\" class=\"reply-send\">Reply</button>
+                      <button type=\"button\" class=\"reply-cancel\" onclick=\"toggleReplyForm('reply-";
+                            // line 514
+                            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 514), "html", null, true);
+                            yield "')\">?</button>
+                    </div>
+                  </form>
+                </div>
+
+                ";
+                            // line 519
+                            if ((Twig\Extension\CoreExtension::length($this->env->getCharset(), (isset($context["commentReplies"]) || array_key_exists("commentReplies", $context) ? $context["commentReplies"] : (function () { throw new RuntimeError('Variable "commentReplies" does not exist.', 519, $this->source); })())) > 0)) {
+                                // line 520
+                                yield "                  <button type=\"button\" class=\"replies-toggle\" onclick=\"toggleReplies('replies-";
+                                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 520), "html", null, true);
+                                yield "', this)\">
+                    <span>?</span> ";
+                                // line 521
+                                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::length($this->env->getCharset(), (isset($context["commentReplies"]) || array_key_exists("commentReplies", $context) ? $context["commentReplies"] : (function () { throw new RuntimeError('Variable "commentReplies" does not exist.', 521, $this->source); })())), "html", null, true);
+                                yield " ";
+                                yield (((Twig\Extension\CoreExtension::length($this->env->getCharset(), (isset($context["commentReplies"]) || array_key_exists("commentReplies", $context) ? $context["commentReplies"] : (function () { throw new RuntimeError('Variable "commentReplies" does not exist.', 521, $this->source); })())) == 1)) ? ("reply") : ("replies"));
+                                yield "
+                  </button>
+                  <div class=\"replies-wrap\" id=\"replies-";
+                                // line 523
+                                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["comment"], "id", [], "any", false, false, false, 523), "html", null, true);
+                                yield "\" style=\"display:none;\">
+                    ";
+                                // line 524
+                                $context['_parent'] = $context;
+                                $context['_seq'] = CoreExtension::ensureTraversable((isset($context["commentReplies"]) || array_key_exists("commentReplies", $context) ? $context["commentReplies"] : (function () { throw new RuntimeError('Variable "commentReplies" does not exist.', 524, $this->source); })()));
+                                foreach ($context['_seq'] as $context["_key"] => $context["reply"]) {
+                                    // line 525
+                                    yield "                      ";
+                                    $context["rn"] = ((((CoreExtension::getAttribute($this->env, $this->source, ($context["authorMap"] ?? null), CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "userId", [], "any", false, false, false, 525), [], "array", true, true, false, 525) &&  !(null === CoreExtension::getAttribute($this->env, $this->source, (isset($context["authorMap"]) || array_key_exists("authorMap", $context) ? $context["authorMap"] : (function () { throw new RuntimeError('Variable "authorMap" does not exist.', 525, $this->source); })()), CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "userId", [], "any", false, false, false, 525), [], "array", false, false, false, 525)))) ? (CoreExtension::getAttribute($this->env, $this->source, (isset($context["authorMap"]) || array_key_exists("authorMap", $context) ? $context["authorMap"] : (function () { throw new RuntimeError('Variable "authorMap" does not exist.', 525, $this->source); })()), CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "userId", [], "any", false, false, false, 525), [], "array", false, false, false, 525)) : ("User #")) . CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "userId", [], "any", false, false, false, 525));
+                                    // line 526
+                                    yield "                      <div class=\"crow crow-reply\" id=\"comment-";
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "id", [], "any", false, false, false, 526), "html", null, true);
+                                    yield "\">
+                        <div class=\"cav cav-small\">";
+                                    // line 527
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::upper($this->env->getCharset(), Twig\Extension\CoreExtension::first($this->env->getCharset(), (isset($context["rn"]) || array_key_exists("rn", $context) ? $context["rn"] : (function () { throw new RuntimeError('Variable "rn" does not exist.', 527, $this->source); })()))), "html", null, true);
+                                    yield "</div>
+                        <div class=\"cbubble\">
+                          <div class=\"cn\" data-uname=\"";
+                                    // line 529
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "userId", [], "any", false, false, false, 529), "html", null, true);
+                                    yield "\">";
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["rn"]) || array_key_exists("rn", $context) ? $context["rn"] : (function () { throw new RuntimeError('Variable "rn" does not exist.', 529, $this->source); })()), "html", null, true);
+                                    yield "</div>
+                          <div class=\"cb\" id=\"cbody-";
+                                    // line 530
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "id", [], "any", false, false, false, 530), "html", null, true);
+                                    yield "\">";
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "body", [], "any", false, false, false, 530), "html", null, true);
+                                    yield "</div>
+
+                          <div class=\"edit-form\" id=\"edit-";
+                                    // line 532
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "id", [], "any", false, false, false, 532), "html", null, true);
+                                    yield "\">
+                            <form method=\"post\" action=\"";
+                                    // line 533
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("comment_edit", ["id" => CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "id", [], "any", false, false, false, 533)]), "html", null, true);
+                                    yield "\" class=\"edit-inline-form\">
+                              <input type=\"hidden\" name=\"_token\" value=\"";
+                                    // line 534
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->env->getRuntime('Symfony\Component\Form\FormRenderer')->renderCsrfToken(("edit_comment_" . CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "id", [], "any", false, false, false, 534))), "html", null, true);
+                                    yield "\">
+                              <textarea name=\"body\" rows=\"1\" oninput=\"this.style.height='auto';this.style.height=this.scrollHeight+'px'\">";
+                                    // line 535
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "body", [], "any", false, false, false, 535), "html", null, true);
+                                    yield "</textarea>
+                              <button type=\"submit\" class=\"edit-send\">Save</button>
+                              <button type=\"button\" class=\"edit-cancel\" onclick=\"toggleEditForm('edit-";
+                                    // line 537
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "id", [], "any", false, false, false, 537), "html", null, true);
+                                    yield "')\">?</button>
+                            </form>
+                          </div>
+
+                          <div class=\"comment-actions\">
+                            <div class=\"c-rxn-wrap\">
+                              <button type=\"button\" class=\"ca-btn\" id=\"crxnbtn-";
+                                    // line 543
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "id", [], "any", false, false, false, 543), "html", null, true);
+                                    yield "\" onclick=\"quickReact(";
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "id", [], "any", false, false, false, 543), "html", null, true);
+                                    yield ", '', 'comment')\">?? Like</button>
+                              <div class=\"c-rxn-picker\">
+                                ";
+                                    // line 545
+                                    $context['_parent'] = $context;
+                                    $context['_seq'] = CoreExtension::ensureTraversable((isset($context["rxnIcons"]) || array_key_exists("rxnIcons", $context) ? $context["rxnIcons"] : (function () { throw new RuntimeError('Variable "rxnIcons" does not exist.', 545, $this->source); })()));
+                                    foreach ($context['_seq'] as $context["rtype"] => $context["emoji"]) {
+                                        // line 546
+                                        yield "                                  <button type=\"button\" class=\"c-emoji-btn\" onclick=\"sendReaction(";
+                                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "id", [], "any", false, false, false, 546), "html", null, true);
+                                        yield ", '";
+                                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($context["rtype"], "html", null, true);
+                                        yield "', 'comment')\" title=\"";
+                                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["rxnLabels"]) || array_key_exists("rxnLabels", $context) ? $context["rxnLabels"] : (function () { throw new RuntimeError('Variable "rxnLabels" does not exist.', 546, $this->source); })()), $context["rtype"], [], "array", false, false, false, 546), "html", null, true);
+                                        yield "\">";
+                                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($context["emoji"], "html", null, true);
+                                        yield "</button>
+                                ";
+                                    }
+                                    $_parent = $context['_parent'];
+                                    unset($context['_seq'], $context['rtype'], $context['emoji'], $context['_parent']);
+                                    $context = array_intersect_key($context, $_parent) + $_parent;
+                                    // line 548
+                                    yield "                              </div>
+                            </div>
+                            <span class=\"c-rxn-tally\" id=\"crxntally-";
+                                    // line 550
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "id", [], "any", false, false, false, 550), "html", null, true);
+                                    yield "\"></span>
+                            <span class=\"ca-sep\">?</span>
+                            <button type=\"button\" class=\"ca-btn\" onclick=\"toggleReplyForm('reply-";
+                                    // line 552
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "id", [], "any", false, false, false, 552), "html", null, true);
+                                    yield "')\">?? Reply</button>
+                            <span class=\"ca-sep\">?</span>
+                            <span class=\"comment-time\">";
+                                    // line 554
+                                    if ((($tmp = CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "createdAt", [], "any", false, false, false, 554)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) {
+                                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Twig\Extension\CoreExtension']->formatDate(CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "createdAt", [], "any", false, false, false, 554), "M d ? H:i"), "html", null, true);
+                                    }
+                                    yield "</span>
+                            ";
+                                    // line 555
+                                    if ((( !(null === CoreExtension::getAttribute($this->env, $this->source, (isset($context["app"]) || array_key_exists("app", $context) ? $context["app"] : (function () { throw new RuntimeError('Variable "app" does not exist.', 555, $this->source); })()), "user", [], "any", false, false, false, 555)) &&  !(null === (isset($context["currentUserId"]) || array_key_exists("currentUserId", $context) ? $context["currentUserId"] : (function () { throw new RuntimeError('Variable "currentUserId" does not exist.', 555, $this->source); })()))) && ((isset($context["currentUserId"]) || array_key_exists("currentUserId", $context) ? $context["currentUserId"] : (function () { throw new RuntimeError('Variable "currentUserId" does not exist.', 555, $this->source); })()) == CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "userId", [], "any", false, false, false, 555)))) {
+                                        // line 556
+                                        yield "                              <span class=\"ca-sep\">?</span>
+                              <button type=\"button\" class=\"ca-btn\" onclick=\"toggleEditForm('edit-";
+                                        // line 557
+                                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "id", [], "any", false, false, false, 557), "html", null, true);
+                                        yield "')\">Edit</button>
+                            ";
+                                    }
+                                    // line 559
+                                    yield "                            ";
+                                    if ((( !(null === CoreExtension::getAttribute($this->env, $this->source, (isset($context["app"]) || array_key_exists("app", $context) ? $context["app"] : (function () { throw new RuntimeError('Variable "app" does not exist.', 559, $this->source); })()), "user", [], "any", false, false, false, 559)) &&  !(null === (isset($context["currentUserId"]) || array_key_exists("currentUserId", $context) ? $context["currentUserId"] : (function () { throw new RuntimeError('Variable "currentUserId" does not exist.', 559, $this->source); })()))) && (((isset($context["currentUserId"]) || array_key_exists("currentUserId", $context) ? $context["currentUserId"] : (function () { throw new RuntimeError('Variable "currentUserId" does not exist.', 559, $this->source); })()) == CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "userId", [], "any", false, false, false, 559)) || ((isset($context["currentUserId"]) || array_key_exists("currentUserId", $context) ? $context["currentUserId"] : (function () { throw new RuntimeError('Variable "currentUserId" does not exist.', 559, $this->source); })()) == CoreExtension::getAttribute($this->env, $this->source, (isset($context["story"]) || array_key_exists("story", $context) ? $context["story"] : (function () { throw new RuntimeError('Variable "story" does not exist.', 559, $this->source); })()), "userId", [], "any", false, false, false, 559))))) {
+                                        // line 560
+                                        yield "                              <span class=\"ca-sep\">?</span>
+                              <form method=\"post\" action=\"";
+                                        // line 561
+                                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("comment_delete", ["id" => CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "id", [], "any", false, false, false, 561)]), "html", null, true);
+                                        yield "\" class=\"inline-form\" onsubmit=\"return confirm('Delete this reply?');\">
+                                <input type=\"hidden\" name=\"_token\" value=\"";
+                                        // line 562
+                                        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->env->getRuntime('Symfony\Component\Form\FormRenderer')->renderCsrfToken(("delete_comment_" . CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "id", [], "any", false, false, false, 562))), "html", null, true);
+                                        yield "\">
+                                <button type=\"submit\" class=\"ca-btn danger\">Delete</button>
+                              </form>
+                            ";
+                                    }
+                                    // line 566
+                                    yield "                          </div>
+                        </div>
+                      </div>
+
+                      <div class=\"reply-form reply-form-nested\" id=\"reply-";
+                                    // line 570
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "id", [], "any", false, false, false, 570), "html", null, true);
+                                    yield "\">
+                        <form method=\"post\" action=\"";
+                                    // line 571
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("travel_story_comment_create", ["id" => (isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 571, $this->source); })())]), "html", null, true);
+                                    yield "\">
+                          <input type=\"hidden\" name=\"parent_comment_id\" value=\"";
+                                    // line 572
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "id", [], "any", false, false, false, 572), "html", null, true);
+                                    yield "\">
+                          <div class=\"reply-form-inner\">
+                            <textarea name=\"body\" rows=\"1\" required placeholder=\"Reply to ";
+                                    // line 574
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::first($this->env->getCharset(), Twig\Extension\CoreExtension::split($this->env->getCharset(), (isset($context["rn"]) || array_key_exists("rn", $context) ? $context["rn"] : (function () { throw new RuntimeError('Variable "rn" does not exist.', 574, $this->source); })()), " ")), "html", null, true);
+                                    yield "...\" oninput=\"this.style.height='auto';this.style.height=this.scrollHeight+'px'\"></textarea>
+                            <button type=\"submit\" class=\"reply-send\">Reply</button>
+                            <button type=\"button\" class=\"reply-cancel\" onclick=\"toggleReplyForm('reply-";
+                                    // line 576
+                                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["reply"], "id", [], "any", false, false, false, 576), "html", null, true);
+                                    yield "')\">?</button>
+                          </div>
+                        </form>
+                      </div>
+                    ";
+                                }
+                                $_parent = $context['_parent'];
+                                unset($context['_seq'], $context['_key'], $context['reply'], $context['_parent']);
+                                $context = array_intersect_key($context, $_parent) + $_parent;
+                                // line 581
+                                yield "                  </div>
+                ";
+                            }
+                            // line 583
+                            yield "              ";
+                        }
+                        $_parent = $context['_parent'];
+                        unset($context['_seq'], $context['_key'], $context['comment'], $context['_parent']);
+                        $context = array_intersect_key($context, $_parent) + $_parent;
+                        // line 584
+                        yield "            ";
+                    } else {
+                        // line 585
+                        yield "              <p class=\"no-comments\">No comments yet ? start the conversation!</p>
+            ";
+                    }
+                    // line 587
+                    yield "
+            <form method=\"post\" action=\"";
+                    // line 588
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("travel_story_comment_create", ["id" => (isset($context["sid"]) || array_key_exists("sid", $context) ? $context["sid"] : (function () { throw new RuntimeError('Variable "sid" does not exist.', 588, $this->source); })())]), "html", null, true);
+                    yield "\">
+              <div class=\"cform-row\">
+                <textarea name=\"body\" rows=\"1\" placeholder=\"Write a comment...\" required oninput=\"this.style.height='auto';this.style.height=this.scrollHeight+'px'\"></textarea>
+                <button type=\"submit\" class=\"csend\">Post</button>
+              </div>
+            </form>
+          </div>
         </div>
       </article>
     ";
                 }
-                // line 388
+                // line 598
                 yield "  ";
             }
             $_parent = $context['_parent'];
@@ -1078,7 +1686,7 @@ $context["item"], "feedType", [], "any", false, false, false, 331) == "travel_st
      */
     public function getDebugInfo(): array
     {
-        return array (  1048 => 388,  1037 => 382,  1030 => 378,  1026 => 376,  1018 => 374,  1015 => 373,  1009 => 371,  1006 => 370,  1000 => 368,  997 => 367,  991 => 365,  989 => 364,  985 => 362,  979 => 360,  977 => 359,  974 => 358,  965 => 354,  962 => 353,  960 => 352,  957 => 351,  951 => 349,  949 => 348,  942 => 346,  932 => 341,  926 => 340,  919 => 338,  914 => 335,  911 => 334,  908 => 333,  906 => 332,  904 => 331,  889 => 319,  886 => 318,  880 => 314,  877 => 313,  871 => 312,  867 => 310,  856 => 305,  849 => 301,  843 => 298,  839 => 297,  835 => 296,  829 => 292,  822 => 288,  816 => 285,  813 => 284,  811 => 283,  808 => 282,  803 => 280,  799 => 278,  797 => 277,  793 => 275,  789 => 274,  782 => 270,  775 => 266,  771 => 264,  761 => 262,  755 => 261,  752 => 260,  748 => 259,  743 => 257,  739 => 256,  730 => 250,  724 => 247,  719 => 245,  714 => 243,  710 => 242,  703 => 240,  697 => 239,  692 => 237,  688 => 236,  685 => 235,  682 => 234,  678 => 233,  674 => 232,  667 => 230,  663 => 229,  660 => 228,  658 => 227,  650 => 222,  643 => 218,  637 => 215,  633 => 214,  629 => 213,  623 => 209,  616 => 205,  610 => 202,  607 => 201,  605 => 200,  602 => 199,  597 => 197,  593 => 195,  591 => 194,  587 => 192,  583 => 191,  576 => 187,  569 => 183,  565 => 181,  555 => 179,  549 => 178,  546 => 177,  542 => 176,  537 => 174,  533 => 173,  524 => 167,  518 => 164,  513 => 162,  508 => 160,  504 => 159,  497 => 157,  491 => 156,  486 => 154,  482 => 153,  479 => 152,  476 => 151,  473 => 150,  468 => 149,  466 => 148,  463 => 147,  460 => 146,  458 => 145,  452 => 142,  446 => 139,  442 => 138,  439 => 137,  435 => 135,  429 => 134,  421 => 132,  418 => 131,  414 => 130,  411 => 129,  409 => 128,  399 => 123,  391 => 118,  385 => 117,  381 => 116,  377 => 115,  370 => 111,  365 => 108,  356 => 105,  352 => 104,  346 => 103,  340 => 102,  334 => 101,  331 => 100,  327 => 99,  323 => 97,  317 => 95,  309 => 93,  307 => 92,  304 => 91,  301 => 90,  295 => 89,  293 => 88,  289 => 87,  286 => 86,  283 => 85,  277 => 84,  275 => 83,  271 => 82,  265 => 81,  261 => 80,  254 => 79,  249 => 77,  243 => 74,  239 => 73,  236 => 72,  233 => 71,  229 => 69,  216 => 65,  212 => 64,  207 => 63,  198 => 59,  195 => 58,  192 => 57,  189 => 56,  187 => 55,  180 => 53,  176 => 51,  169 => 47,  164 => 45,  159 => 44,  157 => 43,  151 => 42,  144 => 40,  138 => 39,  131 => 37,  126 => 34,  123 => 33,  120 => 32,  117 => 31,  114 => 30,  111 => 29,  108 => 28,  105 => 27,  102 => 26,  99 => 25,  96 => 24,  94 => 23,  91 => 22,  86 => 21,  79 => 17,  75 => 16,  69 => 12,  67 => 11,  64 => 10,  62 => 9,  60 => 8,  57 => 7,  55 => 6,  53 => 5,  51 => 4,  49 => 3,  47 => 2,  45 => 1,);
+        return array (  1656 => 598,  1643 => 588,  1640 => 587,  1636 => 585,  1633 => 584,  1627 => 583,  1623 => 581,  1612 => 576,  1607 => 574,  1602 => 572,  1598 => 571,  1594 => 570,  1588 => 566,  1581 => 562,  1577 => 561,  1574 => 560,  1571 => 559,  1566 => 557,  1563 => 556,  1561 => 555,  1555 => 554,  1550 => 552,  1545 => 550,  1541 => 548,  1526 => 546,  1522 => 545,  1515 => 543,  1506 => 537,  1501 => 535,  1497 => 534,  1493 => 533,  1489 => 532,  1482 => 530,  1476 => 529,  1471 => 527,  1466 => 526,  1463 => 525,  1459 => 524,  1455 => 523,  1448 => 521,  1443 => 520,  1441 => 519,  1433 => 514,  1428 => 512,  1423 => 510,  1419 => 509,  1415 => 508,  1409 => 504,  1402 => 500,  1398 => 499,  1395 => 498,  1392 => 497,  1387 => 495,  1384 => 494,  1382 => 493,  1376 => 492,  1371 => 490,  1366 => 488,  1362 => 486,  1347 => 484,  1343 => 483,  1336 => 481,  1327 => 475,  1322 => 473,  1318 => 472,  1314 => 471,  1310 => 470,  1303 => 468,  1297 => 467,  1292 => 465,  1288 => 464,  1285 => 463,  1282 => 462,  1279 => 461,  1274 => 460,  1272 => 459,  1269 => 458,  1266 => 457,  1264 => 456,  1259 => 454,  1253 => 451,  1249 => 450,  1246 => 449,  1242 => 447,  1236 => 446,  1228 => 444,  1225 => 443,  1221 => 442,  1218 => 441,  1216 => 440,  1206 => 435,  1202 => 433,  1195 => 429,  1190 => 427,  1185 => 426,  1183 => 425,  1176 => 421,  1171 => 418,  1162 => 415,  1158 => 414,  1152 => 413,  1146 => 412,  1140 => 411,  1137 => 410,  1133 => 409,  1129 => 407,  1123 => 405,  1115 => 403,  1113 => 402,  1110 => 401,  1107 => 400,  1101 => 399,  1099 => 398,  1095 => 397,  1092 => 396,  1089 => 395,  1083 => 394,  1081 => 393,  1077 => 392,  1071 => 391,  1067 => 390,  1060 => 389,  1055 => 387,  1049 => 384,  1045 => 382,  1037 => 380,  1034 => 379,  1028 => 377,  1025 => 376,  1019 => 374,  1016 => 373,  1010 => 371,  1008 => 370,  1004 => 368,  998 => 366,  996 => 365,  993 => 364,  984 => 360,  981 => 359,  979 => 358,  976 => 357,  970 => 355,  968 => 354,  961 => 352,  951 => 347,  945 => 346,  938 => 344,  933 => 341,  930 => 340,  927 => 339,  924 => 338,  921 => 337,  918 => 336,  915 => 335,  912 => 334,  909 => 333,  906 => 332,  904 => 331,  889 => 319,  886 => 318,  880 => 314,  877 => 313,  871 => 312,  867 => 310,  856 => 305,  849 => 301,  843 => 298,  839 => 297,  835 => 296,  829 => 292,  822 => 288,  816 => 285,  813 => 284,  811 => 283,  808 => 282,  803 => 280,  799 => 278,  797 => 277,  793 => 275,  789 => 274,  782 => 270,  775 => 266,  771 => 264,  761 => 262,  755 => 261,  752 => 260,  748 => 259,  743 => 257,  739 => 256,  730 => 250,  724 => 247,  719 => 245,  714 => 243,  710 => 242,  703 => 240,  697 => 239,  692 => 237,  688 => 236,  685 => 235,  682 => 234,  678 => 233,  674 => 232,  667 => 230,  663 => 229,  660 => 228,  658 => 227,  650 => 222,  643 => 218,  637 => 215,  633 => 214,  629 => 213,  623 => 209,  616 => 205,  610 => 202,  607 => 201,  605 => 200,  602 => 199,  597 => 197,  593 => 195,  591 => 194,  587 => 192,  583 => 191,  576 => 187,  569 => 183,  565 => 181,  555 => 179,  549 => 178,  546 => 177,  542 => 176,  537 => 174,  533 => 173,  524 => 167,  518 => 164,  513 => 162,  508 => 160,  504 => 159,  497 => 157,  491 => 156,  486 => 154,  482 => 153,  479 => 152,  476 => 151,  473 => 150,  468 => 149,  466 => 148,  463 => 147,  460 => 146,  458 => 145,  452 => 142,  446 => 139,  442 => 138,  439 => 137,  435 => 135,  429 => 134,  421 => 132,  418 => 131,  414 => 130,  411 => 129,  409 => 128,  399 => 123,  391 => 118,  385 => 117,  381 => 116,  377 => 115,  370 => 111,  365 => 108,  356 => 105,  352 => 104,  346 => 103,  340 => 102,  334 => 101,  331 => 100,  327 => 99,  323 => 97,  317 => 95,  309 => 93,  307 => 92,  304 => 91,  301 => 90,  295 => 89,  293 => 88,  289 => 87,  286 => 86,  283 => 85,  277 => 84,  275 => 83,  271 => 82,  265 => 81,  261 => 80,  254 => 79,  249 => 77,  243 => 74,  239 => 73,  236 => 72,  233 => 71,  229 => 69,  216 => 65,  212 => 64,  207 => 63,  198 => 59,  195 => 58,  192 => 57,  189 => 56,  187 => 55,  180 => 53,  176 => 51,  169 => 47,  164 => 45,  159 => 44,  157 => 43,  151 => 42,  144 => 40,  138 => 39,  131 => 37,  126 => 34,  123 => 33,  120 => 32,  117 => 31,  114 => 30,  111 => 29,  108 => 28,  105 => 27,  102 => 26,  99 => 25,  96 => 24,  94 => 23,  91 => 22,  86 => 21,  79 => 17,  75 => 16,  69 => 12,  67 => 11,  64 => 10,  62 => 9,  60 => 8,  57 => 7,  55 => 6,  53 => 5,  51 => 4,  49 => 3,  47 => 2,  45 => 1,);
     }
 
     public function getSourceContext(): Source
@@ -1098,7 +1706,7 @@ $context["item"], "feedType", [], "any", false, false, false, 331) == "travel_st
     <span class=\"ei\">✈️</span>
     <h3>No posts found</h3>
     <p>
-      <a href=\"{{ path('blog') }}\" class=\"tpill-link\" data-type=\"\" data-search=\"\">Clear filters</a> or
+      <a href=\"{{ path('blog', {type:'all'}) }}\" class=\"tpill-link\" data-type=\"all\" data-search=\"\">Clear filters</a> or
       <a href=\"{{ path('post_create') }}\">create the first post!</a>
     </p>
   </div>
@@ -1414,9 +2022,15 @@ $context["item"], "feedType", [], "any", false, false, false, 331) == "travel_st
       </article>
 
     {% elseif item.feedType == 'travel_story' %}
-      {# ─── TRAVEL STORY CARD ────────────────────────────── #}
       {% set story = item.entity %}
       {% set aName = authorMap[story.userId] ?? 'User #' ~ story.userId %}
+      {% set isOwner = (currentUserId is not null and currentUserId == story.userId) %}
+      {% set sid = story.id %}
+      {% set counts = storyReactionSummary[sid] ?? {like:0,love:0,haha:0,wow:0,sad:0,angry:0} %}
+      {% set myRxn = storyUserReactions[sid] ?? '' %}
+      {% set total = counts.like + counts.love + counts.haha + counts.wow + counts.sad + counts.angry %}
+      {% set comments = storyComments[sid] ?? [] %}
+      {% set nc = comments|length %}
 
       <article class=\"post-card ts-card\" data-feed-type=\"travel_story\">
         <div class=\"pc-head\">
@@ -1425,13 +2039,13 @@ $context["item"], "feedType", [], "any", false, false, false, 331) == "travel_st
             <div class=\"pc-name\" data-uname=\"{{ story.userId }}\">{{ aName }}</div>
             <div class=\"pc-date\">{% if story.createdAt %}{{ story.createdAt|date('M d, Y H:i') }}{% endif %}</div>
           </div>
-          <span class=\"pc-badge b-travel_story\">🧳 Travel Story</span>
+          <span class=\"pc-badge b-travel_story\">Travel Story</span>
         </div>
 
-        <a href=\"{{ path('travel_story_show', {id: story.id}) }}\" class=\"pc-title\">{{ story.title }}</a>
+        <a href=\"{{ path('travel_story_show', {id: sid}) }}\" class=\"pc-title\">{{ story.title }}</a>
 
         {% if story.destination %}
-          <div class=\"ts-destination\">📍 {{ story.destination }}</div>
+          <div class=\"ts-destination\">{{ story.destination }}</div>
         {% endif %}
 
         {% if story.coverImageUrl %}
@@ -1442,12 +2056,12 @@ $context["item"], "feedType", [], "any", false, false, false, 331) == "travel_st
         {% endif %}
 
         {% if story.summary %}
-          <div class=\"pc-body\">{{ story.summary|length > 300 ? story.summary|slice(0,300) ~ '…' : story.summary }}</div>
+          <div class=\"pc-body\">{{ story.summary|length > 300 ? story.summary|slice(0,300) ~ '...' : story.summary }}</div>
         {% endif %}
 
         <div class=\"ts-meta\">
           {% if story.overallRating %}
-            <span class=\"ts-tag\">⭐ {{ story.overallRating }}/5</span>
+            <span class=\"ts-tag\">{{ story.overallRating }}/5</span>
           {% endif %}
           {% if story.travelType %}
             <span class=\"ts-tag\">{{ story.travelType|capitalize }}</span>
@@ -1460,17 +2074,222 @@ $context["item"], "feedType", [], "any", false, false, false, 331) == "travel_st
           {% endif %}
         </div>
 
-        <a href=\"{{ path('travel_story_show', {id: story.id}) }}\" class=\"pc-read\">Read full story →</a>
+        <a href=\"{{ path('travel_story_show', {id: sid}) }}\" class=\"pc-read\">Read full story -></a>
 
         <div class=\"pc-actions\">
-          <button type=\"button\" class=\"act-btn\"
-                  onclick=\"sharePost('{{ story.title|e('js') }}', '{{ url('travel_story_show', {id: story.id}) }}')\">
-            🔗 Share
+          <div class=\"rxn-wrap\" id=\"ts-rxnwrap-{{ sid }}\">
+            <button type=\"button\"
+                    class=\"rxn-btn {% if myRxn %}reacted-{{ myRxn }}{% endif %}\"
+                    id=\"ts-rxnbtn-{{ sid }}\"
+                    onclick=\"quickReact({{ sid }}, '{{ myRxn ?: '' }}', 'travel_story')\">
+              <span id=\"ts-rxnicon-{{ sid }}\">
+                {% if myRxn and rxnIcons[myRxn] is defined %}
+                  {{ rxnIcons[myRxn] }}
+                {% else %}??{% endif %}
+              </span>
+              <span id=\"ts-rxnlbl-{{ sid }}\">
+                {% if myRxn and rxnLabels[myRxn] is defined %}
+                  {{ rxnLabels[myRxn] }}
+                {% else %}Like{% endif %}
+              </span>
+              {% if total > 0 %}
+                <span class=\"rxn-count\" id=\"ts-rxntotal-{{ sid }}\">{{ total }}</span>
+              {% else %}
+                <span class=\"rxn-count\" id=\"ts-rxntotal-{{ sid }}\" style=\"display:none;\">0</span>
+              {% endif %}
+            </button>
+            <div class=\"rxn-picker\">
+              {% for rtype, emoji in rxnIcons %}
+                <button type=\"button\"
+                        class=\"emoji-btn {% if myRxn == rtype %}active-emoji{% endif %}\"
+                        id=\"ts-rxnopt-{{ sid }}-{{ rtype }}\"
+                        onclick=\"sendReaction({{ sid }}, '{{ rtype }}', 'travel_story')\">
+                  <span class=\"e\">{{ emoji }}</span>
+                  <span class=\"el\">{{ rxnLabels[rtype] }}</span>
+                </button>
+              {% endfor %}
+            </div>
+          </div>
+
+          <button type=\"button\" class=\"act-btn\" onclick=\"toggleC('tsc{{ sid }}', this)\">
+            ?? Comment
           </button>
+
+          {% if isOwner %}
+            <a href=\"{{ path('travel_story_edit', {id: sid}) }}\" class=\"act-btn\">Edit</a>
+            <form method=\"post\" action=\"{{ path('travel_story_delete', {id: sid}) }}\" class=\"inline-form\"
+                  onsubmit=\"return confirm('Delete this travel story?');\">
+              <input type=\"hidden\" name=\"_token\" value=\"{{ csrf_token('delete_travel_story_' ~ sid) }}\">
+              <button type=\"submit\" class=\"act-btn\">Delete</button>
+            </form>
+          {% endif %}
+
+          <button type=\"button\" class=\"act-btn\"
+                  onclick=\"sharePost('{{ story.title|e('js') }}', '{{ url('travel_story_show', {id: sid}) }}')\">
+            Share
+          </button>
+        </div>
+
+        {% if total > 0 %}
+          <div class=\"rxn-tally\">
+            {% for rtype, emoji in rxnIcons %}
+              {% if counts[rtype] is defined and counts[rtype] > 0 %}
+                <span>{{ emoji }} {{ counts[rtype] }}</span>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <button type=\"button\" class=\"vcbtn\" onclick=\"toggleC('tsc{{ sid }}', this)\">
+          View comments ({{ nc }})
+        </button>
+
+        <div id=\"tsc{{ sid }}\" class=\"cbox\">
+          <div class=\"cbox-inner\">
+            {% set topComments = comments|filter(c => c.parentCommentId is null or c.parentCommentId == 0) %}
+            {% set allReplies  = comments|filter(c => c.parentCommentId is not null and c.parentCommentId != 0) %}
+
+            {% if topComments|length > 0 %}
+              {% for comment in topComments %}
+                {% set cn = authorMap[comment.userId] ?? 'User #' ~ comment.userId %}
+                {% set commentReplies = allReplies|filter(r => r.parentCommentId == comment.id) %}
+
+                <div class=\"crow\" id=\"comment-{{ comment.id }}\">
+                  <div class=\"cav\">{{ cn|first|upper }}</div>
+                  <div class=\"cbubble\">
+                    <div class=\"cn\" data-uname=\"{{ comment.userId }}\">{{ cn }}</div>
+                    <div class=\"cb\" id=\"cbody-{{ comment.id }}\">{{ comment.body }}</div>
+
+                    <div class=\"edit-form\" id=\"edit-{{ comment.id }}\">
+                      <form method=\"post\" action=\"{{ path('comment_edit', {id: comment.id}) }}\" class=\"edit-inline-form\">
+                        <input type=\"hidden\" name=\"_token\" value=\"{{ csrf_token('edit_comment_' ~ comment.id) }}\">
+                        <textarea name=\"body\" rows=\"1\" oninput=\"this.style.height='auto';this.style.height=this.scrollHeight+'px'\">{{ comment.body }}</textarea>
+                        <button type=\"submit\" class=\"edit-send\">Save</button>
+                        <button type=\"button\" class=\"edit-cancel\" onclick=\"toggleEditForm('edit-{{ comment.id }}')\">?</button>
+                      </form>
+                    </div>
+
+                    <div class=\"comment-actions\">
+                      <div class=\"c-rxn-wrap\">
+                        <button type=\"button\" class=\"ca-btn\" id=\"crxnbtn-{{ comment.id }}\" onclick=\"quickReact({{ comment.id }}, '', 'comment')\">?? Like</button>
+                        <div class=\"c-rxn-picker\">
+                          {% for rtype, emoji in rxnIcons %}
+                            <button type=\"button\" class=\"c-emoji-btn\" onclick=\"sendReaction({{ comment.id }}, '{{ rtype }}', 'comment')\" title=\"{{ rxnLabels[rtype] }}\">{{ emoji }}</button>
+                          {% endfor %}
+                        </div>
+                      </div>
+                      <span class=\"c-rxn-tally\" id=\"crxntally-{{ comment.id }}\"></span>
+                      <span class=\"ca-sep\">?</span>
+                      <button type=\"button\" class=\"ca-btn\" onclick=\"toggleReplyForm('reply-{{ comment.id }}')\">?? Reply</button>
+                      <span class=\"ca-sep\">?</span>
+                      <span class=\"comment-time\">{% if comment.createdAt %}{{ comment.createdAt|date('M d ? H:i') }}{% endif %}</span>
+                      {% if app.user is not null and currentUserId is not null and currentUserId == comment.userId %}
+                        <span class=\"ca-sep\">?</span>
+                        <button type=\"button\" class=\"ca-btn\" onclick=\"toggleEditForm('edit-{{ comment.id }}')\">Edit</button>
+                      {% endif %}
+                      {% if app.user is not null and currentUserId is not null and (currentUserId == comment.userId or currentUserId == story.userId) %}
+                        <span class=\"ca-sep\">?</span>
+                        <form method=\"post\" action=\"{{ path('comment_delete', {id: comment.id}) }}\" class=\"inline-form\" onsubmit=\"return confirm('Delete this comment and its replies?');\">
+                          <input type=\"hidden\" name=\"_token\" value=\"{{ csrf_token('delete_comment_' ~ comment.id) }}\">
+                          <button type=\"submit\" class=\"ca-btn danger\">Delete</button>
+                        </form>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+
+                <div class=\"reply-form\" id=\"reply-{{ comment.id }}\">
+                  <form method=\"post\" action=\"{{ path('travel_story_comment_create', {id: sid}) }}\">
+                    <input type=\"hidden\" name=\"parent_comment_id\" value=\"{{ comment.id }}\">
+                    <div class=\"reply-form-inner\">
+                      <textarea name=\"body\" rows=\"1\" required placeholder=\"Reply to {{ cn|split(' ')|first }}...\" oninput=\"this.style.height='auto';this.style.height=this.scrollHeight+'px'\"></textarea>
+                      <button type=\"submit\" class=\"reply-send\">Reply</button>
+                      <button type=\"button\" class=\"reply-cancel\" onclick=\"toggleReplyForm('reply-{{ comment.id }}')\">?</button>
+                    </div>
+                  </form>
+                </div>
+
+                {% if commentReplies|length > 0 %}
+                  <button type=\"button\" class=\"replies-toggle\" onclick=\"toggleReplies('replies-{{ comment.id }}', this)\">
+                    <span>?</span> {{ commentReplies|length }} {{ commentReplies|length == 1 ? 'reply' : 'replies' }}
+                  </button>
+                  <div class=\"replies-wrap\" id=\"replies-{{ comment.id }}\" style=\"display:none;\">
+                    {% for reply in commentReplies %}
+                      {% set rn = authorMap[reply.userId] ?? 'User #' ~ reply.userId %}
+                      <div class=\"crow crow-reply\" id=\"comment-{{ reply.id }}\">
+                        <div class=\"cav cav-small\">{{ rn|first|upper }}</div>
+                        <div class=\"cbubble\">
+                          <div class=\"cn\" data-uname=\"{{ reply.userId }}\">{{ rn }}</div>
+                          <div class=\"cb\" id=\"cbody-{{ reply.id }}\">{{ reply.body }}</div>
+
+                          <div class=\"edit-form\" id=\"edit-{{ reply.id }}\">
+                            <form method=\"post\" action=\"{{ path('comment_edit', {id: reply.id}) }}\" class=\"edit-inline-form\">
+                              <input type=\"hidden\" name=\"_token\" value=\"{{ csrf_token('edit_comment_' ~ reply.id) }}\">
+                              <textarea name=\"body\" rows=\"1\" oninput=\"this.style.height='auto';this.style.height=this.scrollHeight+'px'\">{{ reply.body }}</textarea>
+                              <button type=\"submit\" class=\"edit-send\">Save</button>
+                              <button type=\"button\" class=\"edit-cancel\" onclick=\"toggleEditForm('edit-{{ reply.id }}')\">?</button>
+                            </form>
+                          </div>
+
+                          <div class=\"comment-actions\">
+                            <div class=\"c-rxn-wrap\">
+                              <button type=\"button\" class=\"ca-btn\" id=\"crxnbtn-{{ reply.id }}\" onclick=\"quickReact({{ reply.id }}, '', 'comment')\">?? Like</button>
+                              <div class=\"c-rxn-picker\">
+                                {% for rtype, emoji in rxnIcons %}
+                                  <button type=\"button\" class=\"c-emoji-btn\" onclick=\"sendReaction({{ reply.id }}, '{{ rtype }}', 'comment')\" title=\"{{ rxnLabels[rtype] }}\">{{ emoji }}</button>
+                                {% endfor %}
+                              </div>
+                            </div>
+                            <span class=\"c-rxn-tally\" id=\"crxntally-{{ reply.id }}\"></span>
+                            <span class=\"ca-sep\">?</span>
+                            <button type=\"button\" class=\"ca-btn\" onclick=\"toggleReplyForm('reply-{{ reply.id }}')\">?? Reply</button>
+                            <span class=\"ca-sep\">?</span>
+                            <span class=\"comment-time\">{% if reply.createdAt %}{{ reply.createdAt|date('M d ? H:i') }}{% endif %}</span>
+                            {% if app.user is not null and currentUserId is not null and currentUserId == reply.userId %}
+                              <span class=\"ca-sep\">?</span>
+                              <button type=\"button\" class=\"ca-btn\" onclick=\"toggleEditForm('edit-{{ reply.id }}')\">Edit</button>
+                            {% endif %}
+                            {% if app.user is not null and currentUserId is not null and (currentUserId == reply.userId or currentUserId == story.userId) %}
+                              <span class=\"ca-sep\">?</span>
+                              <form method=\"post\" action=\"{{ path('comment_delete', {id: reply.id}) }}\" class=\"inline-form\" onsubmit=\"return confirm('Delete this reply?');\">
+                                <input type=\"hidden\" name=\"_token\" value=\"{{ csrf_token('delete_comment_' ~ reply.id) }}\">
+                                <button type=\"submit\" class=\"ca-btn danger\">Delete</button>
+                              </form>
+                            {% endif %}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class=\"reply-form reply-form-nested\" id=\"reply-{{ reply.id }}\">
+                        <form method=\"post\" action=\"{{ path('travel_story_comment_create', {id: sid}) }}\">
+                          <input type=\"hidden\" name=\"parent_comment_id\" value=\"{{ reply.id }}\">
+                          <div class=\"reply-form-inner\">
+                            <textarea name=\"body\" rows=\"1\" required placeholder=\"Reply to {{ rn|split(' ')|first }}...\" oninput=\"this.style.height='auto';this.style.height=this.scrollHeight+'px'\"></textarea>
+                            <button type=\"submit\" class=\"reply-send\">Reply</button>
+                            <button type=\"button\" class=\"reply-cancel\" onclick=\"toggleReplyForm('reply-{{ reply.id }}')\">?</button>
+                          </div>
+                        </form>
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              <p class=\"no-comments\">No comments yet ? start the conversation!</p>
+            {% endif %}
+
+            <form method=\"post\" action=\"{{ path('travel_story_comment_create', {id: sid}) }}\">
+              <div class=\"cform-row\">
+                <textarea name=\"body\" rows=\"1\" placeholder=\"Write a comment...\" required oninput=\"this.style.height='auto';this.style.height=this.scrollHeight+'px'\"></textarea>
+                <button type=\"submit\" class=\"csend\">Post</button>
+              </div>
+            </form>
+          </div>
         </div>
       </article>
     {% endif %}
   {% endfor %}
-{% endif %}", "front/blog/_feed_items.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\front\\blog\\_feed_items.html.twig");
+{% endif %}
+", "front/blog/_feed_items.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\front\\blog\\_feed_items.html.twig");
     }
 }

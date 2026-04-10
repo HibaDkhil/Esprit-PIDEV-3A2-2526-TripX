@@ -15,8 +15,8 @@
       font-size: .78rem; font-weight: 600;
       background: #f3f4f6; color: #374151;
     }
-    .b-travel_story { background: linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; }
-    .ts-card { border-left: 3px solid #f59e0b; }
+    .b-travel_story { background: linear-gradient(135deg,#2563eb,#38bdf8); color:#fff; }
+    .ts-card { border-left: 3px solid #3b82f6; }
     #feed-container.loading { opacity: .45; pointer-events: none; transition: opacity .15s; }
     .feed-spinner { display: none; text-align: center; padding: 40px 0; font-size: 1.1rem; color: #9ca3af; }
     .feed-spinner.visible { display: block; }
@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block body %}
-{% set typeFilter    = typeFilter    is defined ? typeFilter    : '' %}
+{% set typeFilter    = typeFilter    is defined ? typeFilter    : 'all' %}
 {% set search        = search        is defined ? search        : '' %}
 {% set authorMap     = authorMap     is defined ? authorMap     : {} %}
 {% set savedPostIds  = savedPostIds  is defined ? savedPostIds  : [] %}
@@ -56,17 +56,17 @@
     </div>
 
     <nav class="sidebar-nav">
-      <a href="{{ path('blog') }}" class="snav-item {% if typeFilter == '' and search == '' %}active{% endif %}"
-         data-filter-type="" onclick="return feedFilter(event, '')">
-        <span class="snav-icon">🏠</span> Feed
+      <a href="{{ path('blog', {type:'all'}) }}" class="snav-item {% if typeFilter == 'all' %}active{% endif %}"
+         data-filter-type="all" onclick="return feedFilter(event, 'all')">
+        <span class="snav-icon">🏠</span> All
+      </a>
+      <a href="{{ path('blog', {type:'posts'}) }}" class="snav-item {% if typeFilter == 'posts' %}active{% endif %}"
+         data-filter-type="posts" onclick="return feedFilter(event, 'posts')">
+        <span class="snav-icon">📝</span> Posts
       </a>
       <a href="{{ path('blog', {type:'travel_story'}) }}" class="snav-item {% if typeFilter == 'travel_story' %}active{% endif %}"
          data-filter-type="travel_story" onclick="return feedFilter(event, 'travel_story')">
         <span class="snav-icon">🧳</span> Travel Stories
-      </a>
-      <a href="{{ path('blog', {type:'story'}) }}" class="snav-item {% if typeFilter == 'story' %}active{% endif %}"
-         data-filter-type="story" onclick="return feedFilter(event, 'story')">
-        <span class="snav-icon">🔭</span> Explore
       </a>
       <a href="{{ path('blog_saved') }}" class="snav-item">
         <span class="snav-icon">🔖</span> Saved Posts
@@ -101,12 +101,10 @@
 
     {# ── Type pills (AJAX-driven) ──────────────────────── #}
     <div class="type-pills" id="type-pills">
-      <a href="#" class="tpill {% if typeFilter == '' %}active{% endif %}"
-         data-type="" onclick="return feedFilter(event, '')">All</a>
-      {% for t in ['inquiry','story','review','advice','other'] %}
-        <a href="#" class="tpill {% if typeFilter == t %}active{% endif %}"
-           data-type="{{ t }}" onclick="return feedFilter(event, '{{ t }}')">{{ t|capitalize }}</a>
-      {% endfor %}
+      <a href="#" class="tpill {% if typeFilter == 'all' %}active{% endif %}"
+        data-type="all" onclick="return feedFilter(event, 'all')">All</a>
+      <a href="#" class="tpill {% if typeFilter == 'posts' %}active{% endif %}"
+        data-type="posts" onclick="return feedFilter(event, 'posts')">Posts</a>
       <a href="#" class="tpill {% if typeFilter == 'travel_story' %}active{% endif %}"
          data-type="travel_story" onclick="return feedFilter(event, 'travel_story')">🧳 Travel Stories</a>
     </div>
@@ -146,6 +144,9 @@
         authorMap: authorMap,
         reactionSummary: reactionSummary,
         userReactions: userReactions,
+        storyReactionSummary: storyReactionSummary,
+        storyUserReactions: storyUserReactions,
+        storyComments: storyComments,
         savedPostIds: savedPostIds,
         currentUserId: currentUserId,
       } %}
@@ -277,7 +278,9 @@ const RXN_LABELS = {like:'Like',love:'Love',haha:'Haha',wow:'Wow',sad:'Sad',angr
 async function sendReaction(targetId, type, targetType) {
   const url = targetType === 'post'
     ? `/post/${targetId}/react/${type}`
-    : `/comment/${targetId}/react/${type}`;
+    : targetType === 'travel_story'
+      ? `/travel-story/${targetId}/react/${type}`
+      : `/comment/${targetId}/react/${type}`;
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -287,6 +290,8 @@ async function sendReaction(targetId, type, targetType) {
     const data = await res.json();
     if (targetType === 'post') {
       updatePostReaction(targetId, data.userReaction, data.counts);
+    } else if (targetType === 'travel_story') {
+      updateStoryReaction(targetId, data.userReaction, data.counts);
     } else {
       updateCommentReaction(targetId, data.userReaction, data.counts);
     }
@@ -357,6 +362,45 @@ function updateCommentReaction(cid, userReaction, counts) {
   }
 }
 
+function updateStoryReaction(sid, userReaction, counts) {
+  const btn = document.getElementById(`ts-rxnbtn-${sid}`);
+  const iconEl = document.getElementById(`ts-rxnicon-${sid}`);
+  const lblEl = document.getElementById(`ts-rxnlbl-${sid}`);
+  const totalEl = document.getElementById(`ts-rxntotal-${sid}`);
+  if (!btn) return;
+
+  btn.className = btn.className.replace(/reacted-\w+/g, '').trim();
+  if (userReaction) {
+    btn.classList.add(`reacted-${userReaction}`);
+    iconEl.textContent = RXN_ICONS[userReaction] || '👍';
+    lblEl.textContent = RXN_LABELS[userReaction] || 'Like';
+    btn.dataset.reaction = userReaction;
+    btn.setAttribute('onclick', `quickReact(${sid}, '${userReaction}', 'travel_story')`);
+  } else {
+    iconEl.textContent = '👍';
+    lblEl.textContent = 'Like';
+    btn.dataset.reaction = '';
+    btn.setAttribute('onclick', `quickReact(${sid}, '', 'travel_story')`);
+  }
+
+  Object.keys(RXN_ICONS).forEach(t => {
+    const opt = document.getElementById(`ts-rxnopt-${sid}-${t}`);
+    if (opt) opt.classList.toggle('active-emoji', t === userReaction);
+  });
+
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  if (total > 0) { totalEl.textContent = total; totalEl.style.display = ''; }
+  else { totalEl.style.display = 'none'; }
+
+  const tally = btn.closest('article')?.querySelector('.rxn-tally');
+  if (tally) {
+    tally.innerHTML = '';
+    Object.entries(counts).forEach(([t, n]) => {
+      if (n > 0) { const s = document.createElement('span'); s.textContent = `${RXN_ICONS[t]} ${n}`; tally.appendChild(s); }
+    });
+  }
+}
+
 async function sharePost(title, url) {
   if (navigator.share) { try { await navigator.share({ title, url }); return; } catch(e) { return; } }
   try { await navigator.clipboard.writeText(url); showToast('🔗 Link copied to clipboard!'); }
@@ -389,12 +433,13 @@ function hydrateUserNames() {
 
 document.addEventListener('DOMContentLoaded', () => {
   const hash = window.location.hash;
-  if (hash && hash.startsWith('#c')) {
+  if (hash && (hash.startsWith('#c') || hash.startsWith('#tsc'))) {
     const box = document.getElementById(hash.slice(1));
     if (box && box.classList.contains('cbox')) {
       box.classList.add('open');
-      const pid = hash.slice(2);
-      document.querySelectorAll(`[onclick*="'c${pid}'"]`).forEach(b => {
+      const key = hash.startsWith('#tsc') ? hash.slice(4) : hash.slice(2);
+      const prefix = hash.startsWith('#tsc') ? 'tsc' : 'c';
+      document.querySelectorAll(`[onclick*="'${prefix}${key}'"]`).forEach(b => {
         if (b.classList.contains('vcbtn')) { const m = b.textContent.match(/\((\d+)\)/); b.textContent = `Hide comments (${m ? m[1] : 0})`; }
       });
       setTimeout(() => { const rows = box.querySelectorAll('.crow'); (rows.length ? rows[rows.length-1] : box).scrollIntoView({behavior:'smooth',block:'center'}); }, 300);

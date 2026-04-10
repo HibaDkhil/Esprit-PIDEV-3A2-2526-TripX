@@ -302,6 +302,6 @@ class __TwigTemplate_b6a4ceed1181b4b035051695ab6b3185 extends Template
   </div>
 </div>
 {% endblock %}
-", "admin/user_edit.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\admin\\user_edit.html.twig");
+", "admin/user_edit.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\admin\\user_edit.html.twig");
     }
 }

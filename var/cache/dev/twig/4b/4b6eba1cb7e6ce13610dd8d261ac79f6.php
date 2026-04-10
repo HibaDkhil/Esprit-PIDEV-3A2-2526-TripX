@@ -1420,6 +1420,6 @@ class __TwigTemplate_326dfc6e0658ddbdad9d01a254cec847 extends Template
 </script>
 {% block page_scripts %}{% endblock %}
 {% endblock %}
-", "admin/admin_base.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\admin\\admin_base.html.twig");
+", "admin/admin_base.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\admin\\admin_base.html.twig");
     }
 }

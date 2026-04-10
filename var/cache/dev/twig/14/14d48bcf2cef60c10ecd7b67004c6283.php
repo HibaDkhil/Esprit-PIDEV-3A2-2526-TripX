@@ -269,6 +269,6 @@ class __TwigTemplate_f7acc917bf238dc909e5ab3b2f05f1d5 extends Template
   </div>
 </div>
 {% endblock %}
-", "admin/admin_profile.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\admin\\admin_profile.html.twig");
+", "admin/admin_profile.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\admin\\admin_profile.html.twig");
     }
 }

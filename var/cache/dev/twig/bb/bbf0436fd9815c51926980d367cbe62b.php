@@ -161,6 +161,6 @@ class __TwigTemplate_9616cee87d6c08871a958a06999842cb extends Template
   </div>
 </div>
 {% endblock %}
-", "admin/offers.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\admin\\offers.html.twig");
+", "admin/offers.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\admin\\offers.html.twig");
     }
 }

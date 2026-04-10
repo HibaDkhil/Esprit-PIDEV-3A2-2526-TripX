@@ -4,6 +4,7 @@ namespace App\Controller\user;
 
 use App\Entity\Comment;
 use App\Entity\Post;
+use App\Entity\TravelStory;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -60,6 +61,52 @@ class CommentController extends AbstractController
         return $this->redirect($this->getRedirectUrl($request, $id));
     }
 
+    #[Route('/travel-story/comment/create/{id}', name: 'travel_story_comment_create', methods: ['POST'])]
+    public function createForTravelStory(int $id, Request $request, EntityManagerInterface $em): Response
+    {
+        /** @var User|null $user */
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            $this->addFlash('error', 'You must be logged in to comment.');
+            return $this->redirectToRoute('blog');
+        }
+
+        $story = $em->getRepository(TravelStory::class)->find($id);
+        if (!$story) {
+            $this->addFlash('error', 'Travel story not found.');
+            return $this->redirectToRoute('blog');
+        }
+
+        $body = trim((string) $request->request->get('body', ''));
+        if ($body === '') {
+            $this->addFlash('error', 'Comment cannot be empty.');
+            return $this->redirect($this->getRedirectUrl($request, $id, 'tsc'));
+        }
+
+        $parentId = $request->request->get('parent_comment_id');
+        $parentId = ($parentId !== null && $parentId !== '') ? (int) $parentId : null;
+
+        $comment = new Comment();
+        $comment->setPost(null);
+        $comment->setTravelStoryId($id);
+        $comment->setUserId((int) $user->getUserId());
+        $comment->setParentCommentId($parentId);
+        $comment->setBody($body);
+        $comment->setCreatedAt(new \DateTime());
+
+        try {
+            $em->persist($comment);
+            $em->flush();
+        } catch (\Throwable $e) {
+            $this->addFlash('error', 'Comment failed: ' . $e->getMessage());
+            return $this->redirect($this->getRedirectUrl($request, $id, 'tsc'));
+        }
+
+        $this->addFlash('success', 'Comment added.');
+        return $this->redirect($this->getRedirectUrl($request, $id, 'tsc'));
+    }
+
     #[Route('/comment/{id}/edit', name: 'comment_edit', methods: ['POST'])]
     public function edit(int $id, Request $request, EntityManagerInterface $em): Response
     {
@@ -110,8 +157,14 @@ class CommentController extends AbstractController
         $currentUserId = (int) $user->getUserId();
         $isOwn = (int) $comment->getUserId() === $currentUserId;
         $isPostOwner = $comment->getPost() && (int) $comment->getPost()->getUserId() === $currentUserId;
+        $storyId = $comment->getTravelStoryId();
+        $isStoryOwner = false;
+        if ($storyId !== null) {
+            $story = $em->getRepository(TravelStory::class)->find($storyId);
+            $isStoryOwner = $story && (int) $story->getUserId() === $currentUserId;
+        }
 
-        if (!$isOwn && !$isPostOwner) {
+        if (!$isOwn && !$isPostOwner && !$isStoryOwner) {
             $this->addFlash('error', 'You cannot delete this comment.');
             return $this->redirect($this->getRedirectUrlFromReferer($request));
         }
@@ -132,11 +185,11 @@ class CommentController extends AbstractController
         return $this->redirect($this->getRedirectUrlFromReferer($request));
     }
 
-    private function getRedirectUrl(Request $request, int $postId): string
+    private function getRedirectUrl(Request $request, int $targetId, string $prefix = 'c'): string
     {
         $referer = $request->headers->get('referer');
         $base = $referer ? preg_replace('/#.*$/', '', $referer) : $this->generateUrl('blog');
-        return $base . '#c' . $postId;
+        return $base . '#' . $prefix . $targetId;
     }
 
     private function getRedirectUrlFromReferer(Request $request): string

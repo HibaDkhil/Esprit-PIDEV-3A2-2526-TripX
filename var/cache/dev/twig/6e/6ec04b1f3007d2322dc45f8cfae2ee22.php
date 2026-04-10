@@ -373,6 +373,6 @@ class __TwigTemplate_bda810712c938f9a723d977fdc22ddce extends Template
 
 
 
-", "base.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\base.html.twig");
+", "base.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\base.html.twig");
     }
 }

@@ -542,6 +542,6 @@ class __TwigTemplate_e7f5cfccdd60e77b2a2e28688b0c4809 extends Template
   };
 </script>
 {% endblock %}
-", "front/login.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\front\\login.html.twig");
+", "front/login.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\front\\login.html.twig");
     }
 }

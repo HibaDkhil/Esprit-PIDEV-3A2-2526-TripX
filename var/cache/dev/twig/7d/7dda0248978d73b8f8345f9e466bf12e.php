@@ -285,6 +285,6 @@ class __TwigTemplate_6808843f64a18132316d1a0eebfa9a3d extends Template
     {% endif %}
 </div>
 {% endblock %}
-", "front/blog/saved_posts.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\front\\blog\\saved_posts.html.twig");
+", "front/blog/saved_posts.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\front\\blog\\saved_posts.html.twig");
     }
 }

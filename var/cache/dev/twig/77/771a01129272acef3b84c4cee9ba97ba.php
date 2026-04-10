@@ -404,6 +404,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
-", "admin/dashboard.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\admin\\dashboard.html.twig");
+", "admin/dashboard.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\admin\\dashboard.html.twig");
     }
 }

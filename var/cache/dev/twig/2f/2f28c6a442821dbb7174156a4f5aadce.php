@@ -100,8 +100,8 @@ class __TwigTemplate_307c6114b5809a1b73a7771af61e18a3 extends Template
       font-size: .78rem; font-weight: 600;
       background: #f3f4f6; color: #374151;
     }
-    .b-travel_story { background: linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; }
-    .ts-card { border-left: 3px solid #f59e0b; }
+    .b-travel_story { background: linear-gradient(135deg,#2563eb,#38bdf8); color:#fff; }
+    .ts-card { border-left: 3px solid #3b82f6; }
     #feed-container.loading { opacity: .45; pointer-events: none; transition: opacity .15s; }
     .feed-spinner { display: none; text-align: center; padding: 40px 0; font-size: 1.1rem; color: #9ca3af; }
     .feed-spinner.visible { display: block; }
@@ -124,7 +124,7 @@ class __TwigTemplate_307c6114b5809a1b73a7771af61e18a3 extends Template
         $__internal_6f47bbe9983af81f1e7450e9a3e3768f->enter($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "block", "body"));
 
         // line 27
-        $context["typeFilter"] = ((array_key_exists("typeFilter", $context)) ? ((isset($context["typeFilter"]) || array_key_exists("typeFilter", $context) ? $context["typeFilter"] : (function () { throw new RuntimeError('Variable "typeFilter" does not exist.', 27, $this->source); })())) : (""));
+        $context["typeFilter"] = ((array_key_exists("typeFilter", $context)) ? ((isset($context["typeFilter"]) || array_key_exists("typeFilter", $context) ? $context["typeFilter"] : (function () { throw new RuntimeError('Variable "typeFilter" does not exist.', 27, $this->source); })())) : ("all"));
         // line 28
         $context["search"] = ((array_key_exists("search", $context)) ? ((isset($context["search"]) || array_key_exists("search", $context) ? $context["search"] : (function () { throw new RuntimeError('Variable "search" does not exist.', 28, $this->source); })())) : (""));
         // line 29
@@ -189,36 +189,36 @@ class __TwigTemplate_307c6114b5809a1b73a7771af61e18a3 extends Template
     <nav class=\"sidebar-nav\">
       <a href=\"";
         // line 59
-        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("blog");
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("blog", ["type" => "all"]);
         yield "\" class=\"snav-item ";
-        if ((((isset($context["typeFilter"]) || array_key_exists("typeFilter", $context) ? $context["typeFilter"] : (function () { throw new RuntimeError('Variable "typeFilter" does not exist.', 59, $this->source); })()) == "") && ((isset($context["search"]) || array_key_exists("search", $context) ? $context["search"] : (function () { throw new RuntimeError('Variable "search" does not exist.', 59, $this->source); })()) == ""))) {
+        if (((isset($context["typeFilter"]) || array_key_exists("typeFilter", $context) ? $context["typeFilter"] : (function () { throw new RuntimeError('Variable "typeFilter" does not exist.', 59, $this->source); })()) == "all")) {
             yield "active";
         }
         yield "\"
-         data-filter-type=\"\" onclick=\"return feedFilter(event, '')\">
-        <span class=\"snav-icon\">🏠</span> Feed
+         data-filter-type=\"all\" onclick=\"return feedFilter(event, 'all')\">
+        <span class=\"snav-icon\">🏠</span> All
       </a>
       <a href=\"";
         // line 63
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("blog", ["type" => "posts"]);
+        yield "\" class=\"snav-item ";
+        if (((isset($context["typeFilter"]) || array_key_exists("typeFilter", $context) ? $context["typeFilter"] : (function () { throw new RuntimeError('Variable "typeFilter" does not exist.', 63, $this->source); })()) == "posts")) {
+            yield "active";
+        }
+        yield "\"
+         data-filter-type=\"posts\" onclick=\"return feedFilter(event, 'posts')\">
+        <span class=\"snav-icon\">📝</span> Posts
+      </a>
+      <a href=\"";
+        // line 67
         yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("blog", ["type" => "travel_story"]);
         yield "\" class=\"snav-item ";
-        if (((isset($context["typeFilter"]) || array_key_exists("typeFilter", $context) ? $context["typeFilter"] : (function () { throw new RuntimeError('Variable "typeFilter" does not exist.', 63, $this->source); })()) == "travel_story")) {
+        if (((isset($context["typeFilter"]) || array_key_exists("typeFilter", $context) ? $context["typeFilter"] : (function () { throw new RuntimeError('Variable "typeFilter" does not exist.', 67, $this->source); })()) == "travel_story")) {
             yield "active";
         }
         yield "\"
          data-filter-type=\"travel_story\" onclick=\"return feedFilter(event, 'travel_story')\">
         <span class=\"snav-icon\">🧳</span> Travel Stories
-      </a>
-      <a href=\"";
-        // line 67
-        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("blog", ["type" => "story"]);
-        yield "\" class=\"snav-item ";
-        if (((isset($context["typeFilter"]) || array_key_exists("typeFilter", $context) ? $context["typeFilter"] : (function () { throw new RuntimeError('Variable "typeFilter" does not exist.', 67, $this->source); })()) == "story")) {
-            yield "active";
-        }
-        yield "\"
-         data-filter-type=\"story\" onclick=\"return feedFilter(event, 'story')\">
-        <span class=\"snav-icon\">🔭</span> Explore
       </a>
       <a href=\"";
         // line 71
@@ -275,38 +275,21 @@ class __TwigTemplate_307c6114b5809a1b73a7771af61e18a3 extends Template
         yield "    <div class=\"type-pills\" id=\"type-pills\">
       <a href=\"#\" class=\"tpill ";
         // line 104
-        if (((isset($context["typeFilter"]) || array_key_exists("typeFilter", $context) ? $context["typeFilter"] : (function () { throw new RuntimeError('Variable "typeFilter" does not exist.', 104, $this->source); })()) == "")) {
+        if (((isset($context["typeFilter"]) || array_key_exists("typeFilter", $context) ? $context["typeFilter"] : (function () { throw new RuntimeError('Variable "typeFilter" does not exist.', 104, $this->source); })()) == "all")) {
             yield "active";
         }
         yield "\"
-         data-type=\"\" onclick=\"return feedFilter(event, '')\">All</a>
-      ";
+        data-type=\"all\" onclick=\"return feedFilter(event, 'all')\">All</a>
+      <a href=\"#\" class=\"tpill ";
         // line 106
-        $context['_parent'] = $context;
-        $context['_seq'] = CoreExtension::ensureTraversable(["inquiry", "story", "review", "advice", "other"]);
-        foreach ($context['_seq'] as $context["_key"] => $context["t"]) {
-            // line 107
-            yield "        <a href=\"#\" class=\"tpill ";
-            if (((isset($context["typeFilter"]) || array_key_exists("typeFilter", $context) ? $context["typeFilter"] : (function () { throw new RuntimeError('Variable "typeFilter" does not exist.', 107, $this->source); })()) == $context["t"])) {
-                yield "active";
-            }
-            yield "\"
-           data-type=\"";
-            // line 108
-            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($context["t"], "html", null, true);
-            yield "\" onclick=\"return feedFilter(event, '";
-            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($context["t"], "html", null, true);
-            yield "')\">";
-            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::capitalize($this->env->getCharset(), $context["t"]), "html", null, true);
-            yield "</a>
-      ";
+        if (((isset($context["typeFilter"]) || array_key_exists("typeFilter", $context) ? $context["typeFilter"] : (function () { throw new RuntimeError('Variable "typeFilter" does not exist.', 106, $this->source); })()) == "posts")) {
+            yield "active";
         }
-        $_parent = $context['_parent'];
-        unset($context['_seq'], $context['_key'], $context['t'], $context['_parent']);
-        $context = array_intersect_key($context, $_parent) + $_parent;
-        // line 110
-        yield "      <a href=\"#\" class=\"tpill ";
-        if (((isset($context["typeFilter"]) || array_key_exists("typeFilter", $context) ? $context["typeFilter"] : (function () { throw new RuntimeError('Variable "typeFilter" does not exist.', 110, $this->source); })()) == "travel_story")) {
+        yield "\"
+        data-type=\"posts\" onclick=\"return feedFilter(event, 'posts')\">Posts</a>
+      <a href=\"#\" class=\"tpill ";
+        // line 108
+        if (((isset($context["typeFilter"]) || array_key_exists("typeFilter", $context) ? $context["typeFilter"] : (function () { throw new RuntimeError('Variable "typeFilter" does not exist.', 108, $this->source); })()) == "travel_story")) {
             yield "active";
         }
         yield "\"
@@ -314,7 +297,7 @@ class __TwigTemplate_307c6114b5809a1b73a7771af61e18a3 extends Template
     </div>
 
     ";
-        // line 115
+        // line 113
         yield "    <div class=\"stories-card\">
       <div class=\"stories-head\">
         <h3>Stories</h3>
@@ -326,66 +309,69 @@ class __TwigTemplate_307c6114b5809a1b73a7771af61e18a3 extends Template
           <span class=\"story-lbl\">Add</span>
         </div>
         ";
-        // line 125
+        // line 123
         $context["seenAuthors"] = [];
-        // line 126
+        // line 124
         yield "        ";
         $context['_parent'] = $context;
-        $context['_seq'] = CoreExtension::ensureTraversable(Twig\Extension\CoreExtension::slice($this->env->getCharset(), (isset($context["feed"]) || array_key_exists("feed", $context) ? $context["feed"] : (function () { throw new RuntimeError('Variable "feed" does not exist.', 126, $this->source); })()), 0, 14));
+        $context['_seq'] = CoreExtension::ensureTraversable(Twig\Extension\CoreExtension::slice($this->env->getCharset(), (isset($context["feed"]) || array_key_exists("feed", $context) ? $context["feed"] : (function () { throw new RuntimeError('Variable "feed" does not exist.', 124, $this->source); })()), 0, 14));
         foreach ($context['_seq'] as $context["_key"] => $context["item"]) {
-            // line 127
+            // line 125
             yield "          ";
-            $context["uid"] = CoreExtension::getAttribute($this->env, $this->source, CoreExtension::getAttribute($this->env, $this->source, $context["item"], "entity", [], "any", false, false, false, 127), "userId", [], "any", false, false, false, 127);
-            // line 128
+            $context["uid"] = CoreExtension::getAttribute($this->env, $this->source, CoreExtension::getAttribute($this->env, $this->source, $context["item"], "entity", [], "any", false, false, false, 125), "userId", [], "any", false, false, false, 125);
+            // line 126
             yield "          ";
-            if (!CoreExtension::inFilter((isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 128, $this->source); })()), (isset($context["seenAuthors"]) || array_key_exists("seenAuthors", $context) ? $context["seenAuthors"] : (function () { throw new RuntimeError('Variable "seenAuthors" does not exist.', 128, $this->source); })()))) {
+            if (!CoreExtension::inFilter((isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 126, $this->source); })()), (isset($context["seenAuthors"]) || array_key_exists("seenAuthors", $context) ? $context["seenAuthors"] : (function () { throw new RuntimeError('Variable "seenAuthors" does not exist.', 126, $this->source); })()))) {
+                // line 127
+                yield "            ";
+                $context["seenAuthors"] = Twig\Extension\CoreExtension::merge((isset($context["seenAuthors"]) || array_key_exists("seenAuthors", $context) ? $context["seenAuthors"] : (function () { throw new RuntimeError('Variable "seenAuthors" does not exist.', 127, $this->source); })()), [(isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 127, $this->source); })())]);
+                // line 128
+                yield "            ";
+                $context["aName"] = ((((CoreExtension::getAttribute($this->env, $this->source, ($context["authorMap"] ?? null), (isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 128, $this->source); })()), [], "array", true, true, false, 128) &&  !(null === CoreExtension::getAttribute($this->env, $this->source, (isset($context["authorMap"]) || array_key_exists("authorMap", $context) ? $context["authorMap"] : (function () { throw new RuntimeError('Variable "authorMap" does not exist.', 128, $this->source); })()), (isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 128, $this->source); })()), [], "array", false, false, false, 128)))) ? (CoreExtension::getAttribute($this->env, $this->source, (isset($context["authorMap"]) || array_key_exists("authorMap", $context) ? $context["authorMap"] : (function () { throw new RuntimeError('Variable "authorMap" does not exist.', 128, $this->source); })()), (isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 128, $this->source); })()), [], "array", false, false, false, 128)) : ("User #")) . (isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 128, $this->source); })()));
                 // line 129
-                yield "            ";
-                $context["seenAuthors"] = Twig\Extension\CoreExtension::merge((isset($context["seenAuthors"]) || array_key_exists("seenAuthors", $context) ? $context["seenAuthors"] : (function () { throw new RuntimeError('Variable "seenAuthors" does not exist.', 129, $this->source); })()), [(isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 129, $this->source); })())]);
-                // line 130
-                yield "            ";
-                $context["aName"] = ((((CoreExtension::getAttribute($this->env, $this->source, ($context["authorMap"] ?? null), (isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 130, $this->source); })()), [], "array", true, true, false, 130) &&  !(null === CoreExtension::getAttribute($this->env, $this->source, (isset($context["authorMap"]) || array_key_exists("authorMap", $context) ? $context["authorMap"] : (function () { throw new RuntimeError('Variable "authorMap" does not exist.', 130, $this->source); })()), (isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 130, $this->source); })()), [], "array", false, false, false, 130)))) ? (CoreExtension::getAttribute($this->env, $this->source, (isset($context["authorMap"]) || array_key_exists("authorMap", $context) ? $context["authorMap"] : (function () { throw new RuntimeError('Variable "authorMap" does not exist.', 130, $this->source); })()), (isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 130, $this->source); })()), [], "array", false, false, false, 130)) : ("User #")) . (isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 130, $this->source); })()));
-                // line 131
                 yield "            <div class=\"story-bbl\">
               <div class=\"story-ring\"><div class=\"story-inner\">";
-                // line 132
-                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::upper($this->env->getCharset(), Twig\Extension\CoreExtension::first($this->env->getCharset(), (isset($context["aName"]) || array_key_exists("aName", $context) ? $context["aName"] : (function () { throw new RuntimeError('Variable "aName" does not exist.', 132, $this->source); })()))), "html", null, true);
+                // line 130
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::upper($this->env->getCharset(), Twig\Extension\CoreExtension::first($this->env->getCharset(), (isset($context["aName"]) || array_key_exists("aName", $context) ? $context["aName"] : (function () { throw new RuntimeError('Variable "aName" does not exist.', 130, $this->source); })()))), "html", null, true);
                 yield "</div></div>
               <span class=\"story-lbl\">";
-                // line 133
-                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::first($this->env->getCharset(), Twig\Extension\CoreExtension::split($this->env->getCharset(), (isset($context["aName"]) || array_key_exists("aName", $context) ? $context["aName"] : (function () { throw new RuntimeError('Variable "aName" does not exist.', 133, $this->source); })()), " ")), "html", null, true);
+                // line 131
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::first($this->env->getCharset(), Twig\Extension\CoreExtension::split($this->env->getCharset(), (isset($context["aName"]) || array_key_exists("aName", $context) ? $context["aName"] : (function () { throw new RuntimeError('Variable "aName" does not exist.', 131, $this->source); })()), " ")), "html", null, true);
                 yield "</span>
             </div>
           ";
             }
-            // line 136
+            // line 134
             yield "          ";
-            if ((Twig\Extension\CoreExtension::length($this->env->getCharset(), (isset($context["seenAuthors"]) || array_key_exists("seenAuthors", $context) ? $context["seenAuthors"] : (function () { throw new RuntimeError('Variable "seenAuthors" does not exist.', 136, $this->source); })())) >= 7)) {
+            if ((Twig\Extension\CoreExtension::length($this->env->getCharset(), (isset($context["seenAuthors"]) || array_key_exists("seenAuthors", $context) ? $context["seenAuthors"] : (function () { throw new RuntimeError('Variable "seenAuthors" does not exist.', 134, $this->source); })())) >= 7)) {
             }
-            // line 137
+            // line 135
             yield "        ";
         }
         $_parent = $context['_parent'];
         unset($context['_seq'], $context['_key'], $context['item'], $context['_parent']);
         $context = array_intersect_key($context, $_parent) + $_parent;
-        // line 138
+        // line 136
         yield "      </div>
     </div>
 
     ";
-        // line 142
+        // line 140
         yield "    <div class=\"feed-spinner\" id=\"feed-spinner\">Loading…</div>
     <div id=\"feed-container\">
       ";
-        // line 144
-        yield from $this->load("front/blog/_feed_items.html.twig", 144)->unwrap()->yield(CoreExtension::merge($context, ["feed" =>         // line 145
-(isset($context["feed"]) || array_key_exists("feed", $context) ? $context["feed"] : (function () { throw new RuntimeError('Variable "feed" does not exist.', 145, $this->source); })()), "authorMap" =>         // line 146
-(isset($context["authorMap"]) || array_key_exists("authorMap", $context) ? $context["authorMap"] : (function () { throw new RuntimeError('Variable "authorMap" does not exist.', 146, $this->source); })()), "reactionSummary" =>         // line 147
-(isset($context["reactionSummary"]) || array_key_exists("reactionSummary", $context) ? $context["reactionSummary"] : (function () { throw new RuntimeError('Variable "reactionSummary" does not exist.', 147, $this->source); })()), "userReactions" =>         // line 148
-(isset($context["userReactions"]) || array_key_exists("userReactions", $context) ? $context["userReactions"] : (function () { throw new RuntimeError('Variable "userReactions" does not exist.', 148, $this->source); })()), "savedPostIds" =>         // line 149
-(isset($context["savedPostIds"]) || array_key_exists("savedPostIds", $context) ? $context["savedPostIds"] : (function () { throw new RuntimeError('Variable "savedPostIds" does not exist.', 149, $this->source); })()), "currentUserId" =>         // line 150
-(isset($context["currentUserId"]) || array_key_exists("currentUserId", $context) ? $context["currentUserId"] : (function () { throw new RuntimeError('Variable "currentUserId" does not exist.', 150, $this->source); })())]));
-        // line 152
+        // line 142
+        yield from $this->load("front/blog/_feed_items.html.twig", 142)->unwrap()->yield(CoreExtension::merge($context, ["feed" =>         // line 143
+(isset($context["feed"]) || array_key_exists("feed", $context) ? $context["feed"] : (function () { throw new RuntimeError('Variable "feed" does not exist.', 143, $this->source); })()), "authorMap" =>         // line 144
+(isset($context["authorMap"]) || array_key_exists("authorMap", $context) ? $context["authorMap"] : (function () { throw new RuntimeError('Variable "authorMap" does not exist.', 144, $this->source); })()), "reactionSummary" =>         // line 145
+(isset($context["reactionSummary"]) || array_key_exists("reactionSummary", $context) ? $context["reactionSummary"] : (function () { throw new RuntimeError('Variable "reactionSummary" does not exist.', 145, $this->source); })()), "userReactions" =>         // line 146
+(isset($context["userReactions"]) || array_key_exists("userReactions", $context) ? $context["userReactions"] : (function () { throw new RuntimeError('Variable "userReactions" does not exist.', 146, $this->source); })()), "storyReactionSummary" =>         // line 147
+(isset($context["storyReactionSummary"]) || array_key_exists("storyReactionSummary", $context) ? $context["storyReactionSummary"] : (function () { throw new RuntimeError('Variable "storyReactionSummary" does not exist.', 147, $this->source); })()), "storyUserReactions" =>         // line 148
+(isset($context["storyUserReactions"]) || array_key_exists("storyUserReactions", $context) ? $context["storyUserReactions"] : (function () { throw new RuntimeError('Variable "storyUserReactions" does not exist.', 148, $this->source); })()), "storyComments" =>         // line 149
+(isset($context["storyComments"]) || array_key_exists("storyComments", $context) ? $context["storyComments"] : (function () { throw new RuntimeError('Variable "storyComments" does not exist.', 149, $this->source); })()), "savedPostIds" =>         // line 150
+(isset($context["savedPostIds"]) || array_key_exists("savedPostIds", $context) ? $context["savedPostIds"] : (function () { throw new RuntimeError('Variable "savedPostIds" does not exist.', 150, $this->source); })()), "currentUserId" =>         // line 151
+(isset($context["currentUserId"]) || array_key_exists("currentUserId", $context) ? $context["currentUserId"] : (function () { throw new RuntimeError('Variable "currentUserId" does not exist.', 151, $this->source); })())]));
+        // line 153
         yield "    </div>
   </main>
 
@@ -398,15 +384,15 @@ class __TwigTemplate_307c6114b5809a1b73a7771af61e18a3 extends Template
     <div class=\"rcard\">
       <h4>Suggestions for you</h4>
       ";
-        // line 163
+        // line 164
         $context["sugColors"] = ["linear-gradient(135deg,#f59e0b,#ef4444)", "linear-gradient(135deg,#10b981,#3b82f6)", "linear-gradient(135deg,#a855f7,#ec4899)"];
-        // line 168
-        yield "      ";
-        $context["seen"] = [];
         // line 169
         yield "      ";
+        $context["seen"] = [];
+        // line 170
+        yield "      ";
         $context['_parent'] = $context;
-        $context['_seq'] = CoreExtension::ensureTraversable((isset($context["feed"]) || array_key_exists("feed", $context) ? $context["feed"] : (function () { throw new RuntimeError('Variable "feed" does not exist.', 169, $this->source); })()));
+        $context['_seq'] = CoreExtension::ensureTraversable((isset($context["feed"]) || array_key_exists("feed", $context) ? $context["feed"] : (function () { throw new RuntimeError('Variable "feed" does not exist.', 170, $this->source); })()));
         $context['_iterated'] = false;
         $context['loop'] = [
           'parent' => $context['_parent'],
@@ -422,37 +408,37 @@ class __TwigTemplate_307c6114b5809a1b73a7771af61e18a3 extends Template
             $context['loop']['last'] = 1 === $length;
         }
         foreach ($context['_seq'] as $context["_key"] => $context["item"]) {
-            // line 170
-            yield "        ";
-            $context["uid"] = CoreExtension::getAttribute($this->env, $this->source, CoreExtension::getAttribute($this->env, $this->source, $context["item"], "entity", [], "any", false, false, false, 170), "userId", [], "any", false, false, false, 170);
             // line 171
             yield "        ";
-            if ((!CoreExtension::inFilter((isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 171, $this->source); })()), (isset($context["seen"]) || array_key_exists("seen", $context) ? $context["seen"] : (function () { throw new RuntimeError('Variable "seen" does not exist.', 171, $this->source); })())) && (Twig\Extension\CoreExtension::length($this->env->getCharset(), (isset($context["seen"]) || array_key_exists("seen", $context) ? $context["seen"] : (function () { throw new RuntimeError('Variable "seen" does not exist.', 171, $this->source); })())) < 3))) {
-                // line 172
-                yield "          ";
-                $context["seen"] = Twig\Extension\CoreExtension::merge((isset($context["seen"]) || array_key_exists("seen", $context) ? $context["seen"] : (function () { throw new RuntimeError('Variable "seen" does not exist.', 172, $this->source); })()), [(isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 172, $this->source); })())]);
+            $context["uid"] = CoreExtension::getAttribute($this->env, $this->source, CoreExtension::getAttribute($this->env, $this->source, $context["item"], "entity", [], "any", false, false, false, 171), "userId", [], "any", false, false, false, 171);
+            // line 172
+            yield "        ";
+            if ((!CoreExtension::inFilter((isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 172, $this->source); })()), (isset($context["seen"]) || array_key_exists("seen", $context) ? $context["seen"] : (function () { throw new RuntimeError('Variable "seen" does not exist.', 172, $this->source); })())) && (Twig\Extension\CoreExtension::length($this->env->getCharset(), (isset($context["seen"]) || array_key_exists("seen", $context) ? $context["seen"] : (function () { throw new RuntimeError('Variable "seen" does not exist.', 172, $this->source); })())) < 3))) {
                 // line 173
                 yield "          ";
-                $context["sName"] = ((((CoreExtension::getAttribute($this->env, $this->source, ($context["authorMap"] ?? null), (isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 173, $this->source); })()), [], "array", true, true, false, 173) &&  !(null === CoreExtension::getAttribute($this->env, $this->source, (isset($context["authorMap"]) || array_key_exists("authorMap", $context) ? $context["authorMap"] : (function () { throw new RuntimeError('Variable "authorMap" does not exist.', 173, $this->source); })()), (isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 173, $this->source); })()), [], "array", false, false, false, 173)))) ? (CoreExtension::getAttribute($this->env, $this->source, (isset($context["authorMap"]) || array_key_exists("authorMap", $context) ? $context["authorMap"] : (function () { throw new RuntimeError('Variable "authorMap" does not exist.', 173, $this->source); })()), (isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 173, $this->source); })()), [], "array", false, false, false, 173)) : ("User #")) . (isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 173, $this->source); })()));
+                $context["seen"] = Twig\Extension\CoreExtension::merge((isset($context["seen"]) || array_key_exists("seen", $context) ? $context["seen"] : (function () { throw new RuntimeError('Variable "seen" does not exist.', 173, $this->source); })()), [(isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 173, $this->source); })())]);
                 // line 174
+                yield "          ";
+                $context["sName"] = ((((CoreExtension::getAttribute($this->env, $this->source, ($context["authorMap"] ?? null), (isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 174, $this->source); })()), [], "array", true, true, false, 174) &&  !(null === CoreExtension::getAttribute($this->env, $this->source, (isset($context["authorMap"]) || array_key_exists("authorMap", $context) ? $context["authorMap"] : (function () { throw new RuntimeError('Variable "authorMap" does not exist.', 174, $this->source); })()), (isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 174, $this->source); })()), [], "array", false, false, false, 174)))) ? (CoreExtension::getAttribute($this->env, $this->source, (isset($context["authorMap"]) || array_key_exists("authorMap", $context) ? $context["authorMap"] : (function () { throw new RuntimeError('Variable "authorMap" does not exist.', 174, $this->source); })()), (isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 174, $this->source); })()), [], "array", false, false, false, 174)) : ("User #")) . (isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 174, $this->source); })()));
+                // line 175
                 yield "          <div class=\"sug-row\">
             <div class=\"sug-av\" style=\"background:";
-                // line 175
-                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["sugColors"]) || array_key_exists("sugColors", $context) ? $context["sugColors"] : (function () { throw new RuntimeError('Variable "sugColors" does not exist.', 175, $this->source); })()), (CoreExtension::getAttribute($this->env, $this->source, $context["loop"], "index0", [], "any", false, false, false, 175) % 3), [], "array", false, false, false, 175), "html", null, true);
+                // line 176
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, (isset($context["sugColors"]) || array_key_exists("sugColors", $context) ? $context["sugColors"] : (function () { throw new RuntimeError('Variable "sugColors" does not exist.', 176, $this->source); })()), (CoreExtension::getAttribute($this->env, $this->source, $context["loop"], "index0", [], "any", false, false, false, 176) % 3), [], "array", false, false, false, 176), "html", null, true);
                 yield ";\">
               ";
-                // line 176
-                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::upper($this->env->getCharset(), Twig\Extension\CoreExtension::first($this->env->getCharset(), (isset($context["sName"]) || array_key_exists("sName", $context) ? $context["sName"] : (function () { throw new RuntimeError('Variable "sName" does not exist.', 176, $this->source); })()))), "html", null, true);
+                // line 177
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::upper($this->env->getCharset(), Twig\Extension\CoreExtension::first($this->env->getCharset(), (isset($context["sName"]) || array_key_exists("sName", $context) ? $context["sName"] : (function () { throw new RuntimeError('Variable "sName" does not exist.', 177, $this->source); })()))), "html", null, true);
                 yield "
             </div>
             <div>
               <div class=\"sug-name\">";
-                // line 179
-                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["sName"]) || array_key_exists("sName", $context) ? $context["sName"] : (function () { throw new RuntimeError('Variable "sName" does not exist.', 179, $this->source); })()), "html", null, true);
+                // line 180
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["sName"]) || array_key_exists("sName", $context) ? $context["sName"] : (function () { throw new RuntimeError('Variable "sName" does not exist.', 180, $this->source); })()), "html", null, true);
                 yield "</div>
               <div class=\"sug-handle\">@user";
-                // line 180
-                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 180, $this->source); })()), "html", null, true);
+                // line 181
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["uid"]) || array_key_exists("uid", $context) ? $context["uid"] : (function () { throw new RuntimeError('Variable "uid" does not exist.', 181, $this->source); })()), "html", null, true);
                 yield "</div>
             </div>
             <button class=\"flw-btn\"
@@ -461,7 +447,7 @@ class __TwigTemplate_307c6114b5809a1b73a7771af61e18a3 extends Template
           </div>
         ";
             }
-            // line 187
+            // line 188
             yield "      ";
             $context['_iterated'] = true;
             ++$context['loop']['index0'];
@@ -474,14 +460,14 @@ class __TwigTemplate_307c6114b5809a1b73a7771af61e18a3 extends Template
             }
         }
         if (!$context['_iterated']) {
-            // line 188
+            // line 189
             yield "        <p class=\"placeholder-text\">(placeholder)</p>
       ";
         }
         $_parent = $context['_parent'];
         unset($context['_seq'], $context['_key'], $context['item'], $context['_parent'], $context['_iterated'], $context['loop']);
         $context = array_intersect_key($context, $_parent) + $_parent;
-        // line 190
+        // line 191
         yield "    </div>
 
     <div class=\"rcard\">
@@ -500,12 +486,12 @@ class __TwigTemplate_307c6114b5809a1b73a7771af61e18a3 extends Template
    AJAX feed filtering
    ═══════════════════════════════════════════════════════════ */
 let _currentType   = '";
-        // line 207
-        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["typeFilter"]) || array_key_exists("typeFilter", $context) ? $context["typeFilter"] : (function () { throw new RuntimeError('Variable "typeFilter" does not exist.', 207, $this->source); })()), "js"), "html", null, true);
+        // line 208
+        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["typeFilter"]) || array_key_exists("typeFilter", $context) ? $context["typeFilter"] : (function () { throw new RuntimeError('Variable "typeFilter" does not exist.', 208, $this->source); })()), "js"), "html", null, true);
         yield "';
 let _currentSearch = '";
-        // line 208
-        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["search"]) || array_key_exists("search", $context) ? $context["search"] : (function () { throw new RuntimeError('Variable "search" does not exist.', 208, $this->source); })()), "js"), "html", null, true);
+        // line 209
+        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["search"]) || array_key_exists("search", $context) ? $context["search"] : (function () { throw new RuntimeError('Variable "search" does not exist.', 209, $this->source); })()), "js"), "html", null, true);
         yield "';
 let _ajaxCtrl      = null;
 
@@ -536,13 +522,13 @@ function loadFeed() {
   spinner.classList.add('visible');
 
   const newUrl = '";
-        // line 237
+        // line 238
         yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("blog");
         yield "' + (params.toString() ? '?' + params : '');
   history.replaceState(null, '', newUrl);
 
   fetch('";
-        // line 240
+        // line 241
         yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("blog_filter");
         yield "?' + params.toString(), {
     headers: { 'X-Requested-With': 'XMLHttpRequest' },
@@ -584,7 +570,9 @@ const RXN_LABELS = {like:'Like',love:'Love',haha:'Haha',wow:'Wow',sad:'Sad',angr
 async function sendReaction(targetId, type, targetType) {
   const url = targetType === 'post'
     ? `/post/\${targetId}/react/\${type}`
-    : `/comment/\${targetId}/react/\${type}`;
+    : targetType === 'travel_story'
+      ? `/travel-story/\${targetId}/react/\${type}`
+      : `/comment/\${targetId}/react/\${type}`;
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -594,6 +582,8 @@ async function sendReaction(targetId, type, targetType) {
     const data = await res.json();
     if (targetType === 'post') {
       updatePostReaction(targetId, data.userReaction, data.counts);
+    } else if (targetType === 'travel_story') {
+      updateStoryReaction(targetId, data.userReaction, data.counts);
     } else {
       updateCommentReaction(targetId, data.userReaction, data.counts);
     }
@@ -664,6 +654,45 @@ function updateCommentReaction(cid, userReaction, counts) {
   }
 }
 
+function updateStoryReaction(sid, userReaction, counts) {
+  const btn = document.getElementById(`ts-rxnbtn-\${sid}`);
+  const iconEl = document.getElementById(`ts-rxnicon-\${sid}`);
+  const lblEl = document.getElementById(`ts-rxnlbl-\${sid}`);
+  const totalEl = document.getElementById(`ts-rxntotal-\${sid}`);
+  if (!btn) return;
+
+  btn.className = btn.className.replace(/reacted-\\w+/g, '').trim();
+  if (userReaction) {
+    btn.classList.add(`reacted-\${userReaction}`);
+    iconEl.textContent = RXN_ICONS[userReaction] || '👍';
+    lblEl.textContent = RXN_LABELS[userReaction] || 'Like';
+    btn.dataset.reaction = userReaction;
+    btn.setAttribute('onclick', `quickReact(\${sid}, '\${userReaction}', 'travel_story')`);
+  } else {
+    iconEl.textContent = '👍';
+    lblEl.textContent = 'Like';
+    btn.dataset.reaction = '';
+    btn.setAttribute('onclick', `quickReact(\${sid}, '', 'travel_story')`);
+  }
+
+  Object.keys(RXN_ICONS).forEach(t => {
+    const opt = document.getElementById(`ts-rxnopt-\${sid}-\${t}`);
+    if (opt) opt.classList.toggle('active-emoji', t === userReaction);
+  });
+
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  if (total > 0) { totalEl.textContent = total; totalEl.style.display = ''; }
+  else { totalEl.style.display = 'none'; }
+
+  const tally = btn.closest('article')?.querySelector('.rxn-tally');
+  if (tally) {
+    tally.innerHTML = '';
+    Object.entries(counts).forEach(([t, n]) => {
+      if (n > 0) { const s = document.createElement('span'); s.textContent = `\${RXN_ICONS[t]} \${n}`; tally.appendChild(s); }
+    });
+  }
+}
+
 async function sharePost(title, url) {
   if (navigator.share) { try { await navigator.share({ title, url }); return; } catch(e) { return; } }
   try { await navigator.clipboard.writeText(url); showToast('🔗 Link copied to clipboard!'); }
@@ -696,12 +725,13 @@ function hydrateUserNames() {
 
 document.addEventListener('DOMContentLoaded', () => {
   const hash = window.location.hash;
-  if (hash && hash.startsWith('#c')) {
+  if (hash && (hash.startsWith('#c') || hash.startsWith('#tsc'))) {
     const box = document.getElementById(hash.slice(1));
     if (box && box.classList.contains('cbox')) {
       box.classList.add('open');
-      const pid = hash.slice(2);
-      document.querySelectorAll(`[onclick*=\"'c\${pid}'\"]`).forEach(b => {
+      const key = hash.startsWith('#tsc') ? hash.slice(4) : hash.slice(2);
+      const prefix = hash.startsWith('#tsc') ? 'tsc' : 'c';
+      document.querySelectorAll(`[onclick*=\"'\${prefix}\${key}'\"]`).forEach(b => {
         if (b.classList.contains('vcbtn')) { const m = b.textContent.match(/\\((\\d+)\\)/); b.textContent = `Hide comments (\${m ? m[1] : 0})`; }
       });
       setTimeout(() => { const rows = box.querySelectorAll('.crow'); (rows.length ? rows[rows.length-1] : box).scrollIntoView({behavior:'smooth',block:'center'}); }, 300);
@@ -764,7 +794,7 @@ function toggleReplies(id, btn) {
      */
     public function getDebugInfo(): array
     {
-        return array (  546 => 240,  540 => 237,  508 => 208,  504 => 207,  485 => 190,  478 => 188,  465 => 187,  455 => 180,  451 => 179,  445 => 176,  441 => 175,  438 => 174,  435 => 173,  432 => 172,  429 => 171,  426 => 170,  407 => 169,  404 => 168,  402 => 163,  389 => 152,  387 => 150,  386 => 149,  385 => 148,  384 => 147,  383 => 146,  382 => 145,  381 => 144,  377 => 142,  372 => 138,  366 => 137,  362 => 136,  356 => 133,  352 => 132,  349 => 131,  346 => 130,  343 => 129,  340 => 128,  337 => 127,  332 => 126,  330 => 125,  318 => 115,  308 => 110,  296 => 108,  289 => 107,  285 => 106,  278 => 104,  275 => 103,  268 => 98,  264 => 97,  255 => 91,  247 => 85,  237 => 77,  231 => 74,  225 => 71,  214 => 67,  203 => 63,  192 => 59,  182 => 52,  179 => 51,  173 => 47,  168 => 45,  162 => 44,  157 => 43,  155 => 42,  148 => 37,  146 => 36,  143 => 35,  141 => 34,  139 => 33,  137 => 32,  135 => 31,  133 => 30,  131 => 29,  129 => 28,  127 => 27,  117 => 26,  93 => 9,  86 => 6,  76 => 5,  59 => 3,  42 => 1,);
+        return array (  532 => 241,  526 => 238,  494 => 209,  490 => 208,  471 => 191,  464 => 189,  451 => 188,  441 => 181,  437 => 180,  431 => 177,  427 => 176,  424 => 175,  421 => 174,  418 => 173,  415 => 172,  412 => 171,  393 => 170,  390 => 169,  388 => 164,  375 => 153,  373 => 151,  372 => 150,  371 => 149,  370 => 148,  369 => 147,  368 => 146,  367 => 145,  366 => 144,  365 => 143,  364 => 142,  360 => 140,  355 => 136,  349 => 135,  345 => 134,  339 => 131,  335 => 130,  332 => 129,  329 => 128,  326 => 127,  323 => 126,  320 => 125,  315 => 124,  313 => 123,  301 => 113,  292 => 108,  285 => 106,  278 => 104,  275 => 103,  268 => 98,  264 => 97,  255 => 91,  247 => 85,  237 => 77,  231 => 74,  225 => 71,  214 => 67,  203 => 63,  192 => 59,  182 => 52,  179 => 51,  173 => 47,  168 => 45,  162 => 44,  157 => 43,  155 => 42,  148 => 37,  146 => 36,  143 => 35,  141 => 34,  139 => 33,  137 => 32,  135 => 31,  133 => 30,  131 => 29,  129 => 28,  127 => 27,  117 => 26,  93 => 9,  86 => 6,  76 => 5,  59 => 3,  42 => 1,);
     }
 
     public function getSourceContext(): Source
@@ -786,8 +816,8 @@ function toggleReplies(id, btn) {
       font-size: .78rem; font-weight: 600;
       background: #f3f4f6; color: #374151;
     }
-    .b-travel_story { background: linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; }
-    .ts-card { border-left: 3px solid #f59e0b; }
+    .b-travel_story { background: linear-gradient(135deg,#2563eb,#38bdf8); color:#fff; }
+    .ts-card { border-left: 3px solid #3b82f6; }
     #feed-container.loading { opacity: .45; pointer-events: none; transition: opacity .15s; }
     .feed-spinner { display: none; text-align: center; padding: 40px 0; font-size: 1.1rem; color: #9ca3af; }
     .feed-spinner.visible { display: block; }
@@ -795,7 +825,7 @@ function toggleReplies(id, btn) {
 {% endblock %}
 
 {% block body %}
-{% set typeFilter    = typeFilter    is defined ? typeFilter    : '' %}
+{% set typeFilter    = typeFilter    is defined ? typeFilter    : 'all' %}
 {% set search        = search        is defined ? search        : '' %}
 {% set authorMap     = authorMap     is defined ? authorMap     : {} %}
 {% set savedPostIds  = savedPostIds  is defined ? savedPostIds  : [] %}
@@ -827,17 +857,17 @@ function toggleReplies(id, btn) {
     </div>
 
     <nav class=\"sidebar-nav\">
-      <a href=\"{{ path('blog') }}\" class=\"snav-item {% if typeFilter == '' and search == '' %}active{% endif %}\"
-         data-filter-type=\"\" onclick=\"return feedFilter(event, '')\">
-        <span class=\"snav-icon\">🏠</span> Feed
+      <a href=\"{{ path('blog', {type:'all'}) }}\" class=\"snav-item {% if typeFilter == 'all' %}active{% endif %}\"
+         data-filter-type=\"all\" onclick=\"return feedFilter(event, 'all')\">
+        <span class=\"snav-icon\">🏠</span> All
+      </a>
+      <a href=\"{{ path('blog', {type:'posts'}) }}\" class=\"snav-item {% if typeFilter == 'posts' %}active{% endif %}\"
+         data-filter-type=\"posts\" onclick=\"return feedFilter(event, 'posts')\">
+        <span class=\"snav-icon\">📝</span> Posts
       </a>
       <a href=\"{{ path('blog', {type:'travel_story'}) }}\" class=\"snav-item {% if typeFilter == 'travel_story' %}active{% endif %}\"
          data-filter-type=\"travel_story\" onclick=\"return feedFilter(event, 'travel_story')\">
         <span class=\"snav-icon\">🧳</span> Travel Stories
-      </a>
-      <a href=\"{{ path('blog', {type:'story'}) }}\" class=\"snav-item {% if typeFilter == 'story' %}active{% endif %}\"
-         data-filter-type=\"story\" onclick=\"return feedFilter(event, 'story')\">
-        <span class=\"snav-icon\">🔭</span> Explore
       </a>
       <a href=\"{{ path('blog_saved') }}\" class=\"snav-item\">
         <span class=\"snav-icon\">🔖</span> Saved Posts
@@ -872,12 +902,10 @@ function toggleReplies(id, btn) {
 
     {# ── Type pills (AJAX-driven) ──────────────────────── #}
     <div class=\"type-pills\" id=\"type-pills\">
-      <a href=\"#\" class=\"tpill {% if typeFilter == '' %}active{% endif %}\"
-         data-type=\"\" onclick=\"return feedFilter(event, '')\">All</a>
-      {% for t in ['inquiry','story','review','advice','other'] %}
-        <a href=\"#\" class=\"tpill {% if typeFilter == t %}active{% endif %}\"
-           data-type=\"{{ t }}\" onclick=\"return feedFilter(event, '{{ t }}')\">{{ t|capitalize }}</a>
-      {% endfor %}
+      <a href=\"#\" class=\"tpill {% if typeFilter == 'all' %}active{% endif %}\"
+        data-type=\"all\" onclick=\"return feedFilter(event, 'all')\">All</a>
+      <a href=\"#\" class=\"tpill {% if typeFilter == 'posts' %}active{% endif %}\"
+        data-type=\"posts\" onclick=\"return feedFilter(event, 'posts')\">Posts</a>
       <a href=\"#\" class=\"tpill {% if typeFilter == 'travel_story' %}active{% endif %}\"
          data-type=\"travel_story\" onclick=\"return feedFilter(event, 'travel_story')\">🧳 Travel Stories</a>
     </div>
@@ -917,6 +945,9 @@ function toggleReplies(id, btn) {
         authorMap: authorMap,
         reactionSummary: reactionSummary,
         userReactions: userReactions,
+        storyReactionSummary: storyReactionSummary,
+        storyUserReactions: storyUserReactions,
+        storyComments: storyComments,
         savedPostIds: savedPostIds,
         currentUserId: currentUserId,
       } %}
@@ -1048,7 +1079,9 @@ const RXN_LABELS = {like:'Like',love:'Love',haha:'Haha',wow:'Wow',sad:'Sad',angr
 async function sendReaction(targetId, type, targetType) {
   const url = targetType === 'post'
     ? `/post/\${targetId}/react/\${type}`
-    : `/comment/\${targetId}/react/\${type}`;
+    : targetType === 'travel_story'
+      ? `/travel-story/\${targetId}/react/\${type}`
+      : `/comment/\${targetId}/react/\${type}`;
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -1058,6 +1091,8 @@ async function sendReaction(targetId, type, targetType) {
     const data = await res.json();
     if (targetType === 'post') {
       updatePostReaction(targetId, data.userReaction, data.counts);
+    } else if (targetType === 'travel_story') {
+      updateStoryReaction(targetId, data.userReaction, data.counts);
     } else {
       updateCommentReaction(targetId, data.userReaction, data.counts);
     }
@@ -1128,6 +1163,45 @@ function updateCommentReaction(cid, userReaction, counts) {
   }
 }
 
+function updateStoryReaction(sid, userReaction, counts) {
+  const btn = document.getElementById(`ts-rxnbtn-\${sid}`);
+  const iconEl = document.getElementById(`ts-rxnicon-\${sid}`);
+  const lblEl = document.getElementById(`ts-rxnlbl-\${sid}`);
+  const totalEl = document.getElementById(`ts-rxntotal-\${sid}`);
+  if (!btn) return;
+
+  btn.className = btn.className.replace(/reacted-\\w+/g, '').trim();
+  if (userReaction) {
+    btn.classList.add(`reacted-\${userReaction}`);
+    iconEl.textContent = RXN_ICONS[userReaction] || '👍';
+    lblEl.textContent = RXN_LABELS[userReaction] || 'Like';
+    btn.dataset.reaction = userReaction;
+    btn.setAttribute('onclick', `quickReact(\${sid}, '\${userReaction}', 'travel_story')`);
+  } else {
+    iconEl.textContent = '👍';
+    lblEl.textContent = 'Like';
+    btn.dataset.reaction = '';
+    btn.setAttribute('onclick', `quickReact(\${sid}, '', 'travel_story')`);
+  }
+
+  Object.keys(RXN_ICONS).forEach(t => {
+    const opt = document.getElementById(`ts-rxnopt-\${sid}-\${t}`);
+    if (opt) opt.classList.toggle('active-emoji', t === userReaction);
+  });
+
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  if (total > 0) { totalEl.textContent = total; totalEl.style.display = ''; }
+  else { totalEl.style.display = 'none'; }
+
+  const tally = btn.closest('article')?.querySelector('.rxn-tally');
+  if (tally) {
+    tally.innerHTML = '';
+    Object.entries(counts).forEach(([t, n]) => {
+      if (n > 0) { const s = document.createElement('span'); s.textContent = `\${RXN_ICONS[t]} \${n}`; tally.appendChild(s); }
+    });
+  }
+}
+
 async function sharePost(title, url) {
   if (navigator.share) { try { await navigator.share({ title, url }); return; } catch(e) { return; } }
   try { await navigator.clipboard.writeText(url); showToast('🔗 Link copied to clipboard!'); }
@@ -1160,12 +1234,13 @@ function hydrateUserNames() {
 
 document.addEventListener('DOMContentLoaded', () => {
   const hash = window.location.hash;
-  if (hash && hash.startsWith('#c')) {
+  if (hash && (hash.startsWith('#c') || hash.startsWith('#tsc'))) {
     const box = document.getElementById(hash.slice(1));
     if (box && box.classList.contains('cbox')) {
       box.classList.add('open');
-      const pid = hash.slice(2);
-      document.querySelectorAll(`[onclick*=\"'c\${pid}'\"]`).forEach(b => {
+      const key = hash.startsWith('#tsc') ? hash.slice(4) : hash.slice(2);
+      const prefix = hash.startsWith('#tsc') ? 'tsc' : 'c';
+      document.querySelectorAll(`[onclick*=\"'\${prefix}\${key}'\"]`).forEach(b => {
         if (b.classList.contains('vcbtn')) { const m = b.textContent.match(/\\((\\d+)\\)/); b.textContent = `Hide comments (\${m ? m[1] : 0})`; }
       });
       setTimeout(() => { const rows = box.querySelectorAll('.crow'); (rows.length ? rows[rows.length-1] : box).scrollIntoView({behavior:'smooth',block:'center'}); }, 300);
@@ -1200,6 +1275,7 @@ function toggleReplies(id, btn) {
   const arrow = btn.querySelector('span'); if (arrow) arrow.textContent = isOpen ? '▸' : '▾';
 }
 </script>
-{% endblock %}", "front/blog/blog.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\front\\blog\\blog.html.twig");
+{% endblock %}
+", "front/blog/blog.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\front\\blog\\blog.html.twig");
     }
 }

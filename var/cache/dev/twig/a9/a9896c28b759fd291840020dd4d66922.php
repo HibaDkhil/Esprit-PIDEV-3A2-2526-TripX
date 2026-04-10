@@ -422,6 +422,6 @@ class __TwigTemplate_28c5730c4ddcd42846b238bf44ae4706 extends Template
   </div>
 </div>
 {% endblock %}
-", "admin/profile.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\admin\\profile.html.twig");
+", "admin/profile.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\admin\\profile.html.twig");
     }
 }

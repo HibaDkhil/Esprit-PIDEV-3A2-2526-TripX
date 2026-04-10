@@ -30,6 +30,7 @@ return [
         '/onboarding' => [[['_route' => 'app_onboarding', '_controller' => 'App\\Controller\\user\\AuthController::onboarding'], null, null, null, false, false, null]],
         '/preferences/save' => [[['_route' => 'app_save_preferences', '_controller' => 'App\\Controller\\user\\AuthController::savePreferences'], null, ['POST' => 0], null, false, false, null]],
         '/blog/user-names' => [[['_route' => 'blog_user_names', '_controller' => 'App\\Controller\\user\\BlogController::userNames'], null, ['GET' => 0], null, false, false, null]],
+        '/blog' => [[['_route' => 'blog', '_controller' => 'App\\Controller\\user\\BlogController::index'], null, null, null, false, false, null]],
         '/blog/filter' => [[['_route' => 'blog_filter', '_controller' => 'App\\Controller\\user\\BlogController::filter'], null, ['GET' => 0], null, false, false, null]],
         '/home' => [[['_route' => 'index', '_controller' => 'App\\Controller\\user\\FrontController::index'], null, null, null, false, false, null]],
         '/destinations' => [[['_route' => 'destinations', '_controller' => 'App\\Controller\\user\\FrontController::destinations'], null, null, null, false, false, null]],
@@ -37,7 +38,7 @@ return [
         '/accommodations' => [[['_route' => 'accommodations', '_controller' => 'App\\Controller\\user\\FrontController::accommodations'], null, null, null, false, false, null]],
         '/transport' => [[['_route' => 'transport', '_controller' => 'App\\Controller\\user\\FrontController::transport'], null, null, null, false, false, null]],
         '/offers' => [[['_route' => 'offers', '_controller' => 'App\\Controller\\user\\FrontController::offers'], null, null, null, false, false, null]],
-        '/blog' => [[['_route' => 'blog', '_controller' => 'App\\Controller\\user\\FrontController::blog'], null, null, null, false, false, null]],
+        '/blog-legacy' => [[['_route' => 'blog_legacy', '_controller' => 'App\\Controller\\user\\FrontController::blog'], null, null, null, false, false, null]],
         '/users' => [[['_route' => 'users', '_controller' => 'App\\Controller\\user\\FrontController::users'], null, null, null, false, false, null]],
         '/profile/update' => [[['_route' => 'profile_update', '_controller' => 'App\\Controller\\user\\FrontController::updateProfile'], null, ['POST' => 0], null, false, false, null]],
         '/profile/password' => [[['_route' => 'profile_password', '_controller' => 'App\\Controller\\user\\FrontController::changePassword'], null, ['POST' => 0], null, false, false, null]],
@@ -81,18 +82,27 @@ return [
                         .'|react/([^/]++)(*:426)'
                     .')'
                 .')'
-                .'|/post/(?'
-                    .'|(\\d+)(*:450)'
-                    .'|(\\d+)/edit(*:468)'
-                    .'|(\\d+)/delete(*:488)'
-                    .'|([^/]++)/(?'
-                        .'|react/([^/]++)(*:522)'
-                        .'|save(*:534)'
+                .'|/travel\\-stor(?'
+                    .'|y/(?'
+                        .'|comment/create/([^/]++)(*:480)'
+                        .'|([^/]++)/react/([^/]++)(*:511)'
+                    .')'
+                    .'|ies/([^/]++)(?'
+                        .'|(*:535)'
+                        .'|/(?'
+                            .'|edit(*:551)'
+                            .'|delete(*:565)'
+                        .')'
                     .')'
                 .')'
-                .'|/travel\\-stories/([^/]++)(?'
-                    .'|(*:572)'
-                    .'|/edit(*:585)'
+                .'|/post/(?'
+                    .'|(\\d+)(*:590)'
+                    .'|(\\d+)/edit(*:608)'
+                    .'|(\\d+)/delete(*:628)'
+                    .'|([^/]++)/(?'
+                        .'|react/([^/]++)(*:662)'
+                        .'|save(*:674)'
+                    .')'
                 .')'
             .')/?$}sDu',
     ],
@@ -113,14 +123,17 @@ return [
         390 => [[['_route' => 'comment_edit', '_controller' => 'App\\Controller\\user\\CommentController::edit'], ['id'], ['POST' => 0], null, false, false, null]],
         404 => [[['_route' => 'comment_delete', '_controller' => 'App\\Controller\\user\\CommentController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
         426 => [[['_route' => 'comment_react', '_controller' => 'App\\Controller\\user\\ReactionController::reactToComment'], ['id', 'type'], ['POST' => 0], null, false, true, null]],
-        450 => [[['_route' => 'post_show', '_controller' => 'App\\Controller\\user\\PostController::show'], ['id'], null, null, false, true, null]],
-        468 => [[['_route' => 'post_edit', '_controller' => 'App\\Controller\\user\\PostController::edit'], ['id'], null, null, false, false, null]],
-        488 => [[['_route' => 'post_delete', '_controller' => 'App\\Controller\\user\\PostController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
-        522 => [[['_route' => 'post_react', '_controller' => 'App\\Controller\\user\\ReactionController::reactToPost'], ['id', 'type'], ['POST' => 0], null, false, true, null]],
-        534 => [[['_route' => 'post_save_toggle', '_controller' => 'App\\Controller\\user\\SavedPostController::toggle'], ['id'], ['POST' => 0], null, false, false, null]],
-        572 => [[['_route' => 'travel_story_show', '_controller' => 'App\\Controller\\user\\TravelStoryController::show'], ['id'], ['GET' => 0], null, false, true, null]],
-        585 => [
-            [['_route' => 'travel_story_edit', '_controller' => 'App\\Controller\\user\\TravelStoryController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null],
+        480 => [[['_route' => 'travel_story_comment_create', '_controller' => 'App\\Controller\\user\\CommentController::createForTravelStory'], ['id'], ['POST' => 0], null, false, true, null]],
+        511 => [[['_route' => 'travel_story_react', '_controller' => 'App\\Controller\\user\\ReactionController::reactToTravelStory'], ['id', 'type'], ['POST' => 0], null, false, true, null]],
+        535 => [[['_route' => 'travel_story_show', '_controller' => 'App\\Controller\\user\\TravelStoryController::show'], ['id'], ['GET' => 0], null, false, true, null]],
+        551 => [[['_route' => 'travel_story_edit', '_controller' => 'App\\Controller\\user\\TravelStoryController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        565 => [[['_route' => 'travel_story_delete', '_controller' => 'App\\Controller\\user\\TravelStoryController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
+        590 => [[['_route' => 'post_show', '_controller' => 'App\\Controller\\user\\PostController::show'], ['id'], null, null, false, true, null]],
+        608 => [[['_route' => 'post_edit', '_controller' => 'App\\Controller\\user\\PostController::edit'], ['id'], null, null, false, false, null]],
+        628 => [[['_route' => 'post_delete', '_controller' => 'App\\Controller\\user\\PostController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
+        662 => [[['_route' => 'post_react', '_controller' => 'App\\Controller\\user\\ReactionController::reactToPost'], ['id', 'type'], ['POST' => 0], null, false, true, null]],
+        674 => [
+            [['_route' => 'post_save_toggle', '_controller' => 'App\\Controller\\user\\SavedPostController::toggle'], ['id'], ['POST' => 0], null, false, false, null],
             [null, null, null, null, false, false, 0],
         ],
     ],

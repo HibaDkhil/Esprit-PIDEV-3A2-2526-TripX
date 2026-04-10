@@ -851,6 +851,6 @@ function switchTab(tab, btn) {
 }
 </script>
 
-{% endblock %}", "admin/blog/blog.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\admin\\blog\\blog.html.twig");
+{% endblock %}", "admin/blog/blog.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\admin\\blog\\blog.html.twig");
     }
 }

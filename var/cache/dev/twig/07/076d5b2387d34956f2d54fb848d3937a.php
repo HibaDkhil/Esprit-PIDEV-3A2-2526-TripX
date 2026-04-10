@@ -893,6 +893,6 @@ class __TwigTemplate_0049b159a16596b04d04b016cdb64e61 extends Template
 </script>
 <script src=\"{{ asset('js/onboarding.js') }}\"></script>
 {% endblock %}
-", "front/onboarding.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\front\\onboarding.html.twig");
+", "front/onboarding.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\front\\onboarding.html.twig");
     }
 }

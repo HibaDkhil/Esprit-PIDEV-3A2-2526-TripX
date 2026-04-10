@@ -24,6 +24,8 @@ class TravelStoryType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $today = (new \DateTimeImmutable('today'))->format('Y-m-d');
+
         $builder
 
             // ───────── BASIC INFO ─────────
@@ -47,11 +49,19 @@ class TravelStoryType extends AbstractType
             ->add('startDate', DateType::class, [
                 'widget' => 'single_text',
                 'required' => false,
+                'attr' => [
+                    'class' => 'story-date-input',
+                    'max' => $today,
+                ],
             ])
 
             ->add('endDate', DateType::class, [
                 'widget' => 'single_text',
                 'required' => false,
+                'attr' => [
+                    'class' => 'story-date-input',
+                    'max' => $today,
+                ],
             ])
 
             ->add('travelType', ChoiceType::class, [

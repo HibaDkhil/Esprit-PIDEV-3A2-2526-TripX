@@ -3,11 +3,13 @@
 namespace App\Controller\user;
 
 use App\Entity\TravelStory;
+use App\Entity\User;
 use App\Form\TravelStoryType;
 use App\Repository\TravelStoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,16 +50,16 @@ class TravelStoryController extends AbstractController
         EntityManagerInterface $entityManager,
         SluggerInterface $slugger
     ): Response {
-        $travelStory = new TravelStory();
+        $user = $this->getAuthenticatedUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
 
-        // Set userId BEFORE form handling so NotNull validation passes
-        $travelStory->setUserId(
-            $this->getUser() && method_exists($this->getUser(), 'getId')
-                ? $this->getUser()->getId()
-                : 1
-        );
+        $travelStory = new TravelStory();
+        $travelStory->setUserId($user->getId());
 
         $form = $this->createForm(TravelStoryType::class, $travelStory);
+        $this->populateSupplementalFields($form, $travelStory);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -114,7 +116,7 @@ class TravelStoryController extends AbstractController
 
             $this->addFlash('success', 'Travel story created successfully.');
 
-            return $this->redirectToRoute('travel_story_index');
+            return $this->redirectToRoute('blog');
         }
 
         return $this->render('front/blog/travel_story_new.html.twig', [
@@ -123,10 +125,18 @@ class TravelStoryController extends AbstractController
     }
 
     #[Route('/{id}', name: 'travel_story_show', methods: ['GET'])]
-    public function show(TravelStory $travelStory): Response
+    public function show(TravelStory $travelStory, EntityManagerInterface $entityManager): Response
     {
+        $author = $entityManager->getRepository(User::class)->find($travelStory->getUserId());
+        $authorName = $author instanceof User
+            ? trim((string) $author->getFirstName() . ' ' . (string) $author->getLastName())
+            : '';
+
         return $this->render('front/blog/travel_story_show.html.twig', [
             'story' => $travelStory,
+            'authorName' => $authorName !== '' ? $authorName : 'Traveler #' . $travelStory->getUserId(),
+            'tripLengthDays' => $this->calculateTripLengthDays($travelStory),
+            'canManageStory' => $this->canManageStory($travelStory),
         ]);
     }
 
@@ -137,7 +147,16 @@ class TravelStoryController extends AbstractController
         EntityManagerInterface $entityManager,
         SluggerInterface $slugger
     ): Response {
+        $user = $this->getAuthenticatedUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+        if (!$this->canManageStory($travelStory)) {
+            throw $this->createAccessDeniedException();
+        }
+
         $form = $this->createForm(TravelStoryType::class, $travelStory);
+        $this->populateSupplementalFields($form, $travelStory);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -201,6 +220,37 @@ class TravelStoryController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/delete', name: 'travel_story_delete', methods: ['POST'])]
+    public function delete(
+        Request $request,
+        TravelStory $travelStory,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $user = $this->getAuthenticatedUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+        if (!$this->canManageStory($travelStory)) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->isCsrfTokenValid('delete_travel_story_' . $travelStory->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Invalid delete request.');
+
+            return $this->redirectToRoute('travel_story_show', [
+                'id' => $travelStory->getId(),
+            ]);
+        }
+
+        $this->removeUploadedImages($travelStory);
+        $entityManager->remove($travelStory);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Travel story deleted.');
+
+        return $this->redirectToRoute('travel_story_index');
+    }
+
     private function textToArray(?string $text): array
     {
         if (!$text) {
@@ -212,5 +262,82 @@ class TravelStoryController extends AbstractController
         $items = array_filter($items, static fn ($item) => $item !== '');
 
         return array_values($items);
+    }
+
+    private function arrayToTextarea(?array $items): string
+    {
+        if (empty($items)) {
+            return '';
+        }
+
+        return implode("\n", array_filter(array_map(static fn ($item) => is_scalar($item) ? trim((string) $item) : '', $items)));
+    }
+
+    private function populateSupplementalFields(FormInterface $form, TravelStory $travelStory): void
+    {
+        $form->get('tagsText')->setData($this->arrayToTextarea($travelStory->getTagsJson()));
+        $form->get('favoritePlacesText')->setData($this->arrayToTextarea($travelStory->getFavoritePlacesJson()));
+        $form->get('mustVisitText')->setData($this->arrayToTextarea($travelStory->getMustVisitJson()));
+        $form->get('mustDoText')->setData($this->arrayToTextarea($travelStory->getMustDoJson()));
+        $form->get('mustTryText')->setData($this->arrayToTextarea($travelStory->getMustTryJson()));
+
+        $budgetJson = $travelStory->getBudgetJson();
+        $form->get('budgetText')->setData(
+            !empty($budgetJson)
+                ? (json_encode($budgetJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) ?: '')
+                : ''
+        );
+    }
+
+    private function getAuthenticatedUser(): ?User
+    {
+        $user = $this->getUser();
+
+        return $user instanceof User ? $user : null;
+    }
+
+    private function canManageStory(TravelStory $travelStory): bool
+    {
+        $user = $this->getAuthenticatedUser();
+        if (!$user instanceof User) {
+            return false;
+        }
+
+        return $travelStory->getUserId() === $user->getId()
+            || $this->isGranted('ROLE_ADMIN')
+            || $this->isGranted('ROLE_ADMIN_BLOG');
+    }
+
+    private function calculateTripLengthDays(TravelStory $travelStory): ?int
+    {
+        $startDate = $travelStory->getStartDate();
+        $endDate = $travelStory->getEndDate();
+
+        if (!$startDate instanceof \DateTimeInterface || !$endDate instanceof \DateTimeInterface) {
+            return null;
+        }
+
+        return ((int) $startDate->diff($endDate)->format('%a')) + 1;
+    }
+
+    private function removeUploadedImages(TravelStory $travelStory): void
+    {
+        $projectDir = (string) $this->getParameter('kernel.project_dir');
+        $filesystem = new Filesystem();
+        $paths = array_unique(array_filter(array_merge(
+            $travelStory->getImageUrlsJson() ?? [],
+            [$travelStory->getCoverImageUrl()]
+        )));
+
+        foreach ($paths as $publicPath) {
+            if (!is_string($publicPath) || !str_starts_with($publicPath, '/uploads/travel_stories/')) {
+                continue;
+            }
+
+            $absolutePath = $projectDir . '/public' . $publicPath;
+            if (is_file($absolutePath)) {
+                $filesystem->remove($absolutePath);
+            }
+        }
     }
 }

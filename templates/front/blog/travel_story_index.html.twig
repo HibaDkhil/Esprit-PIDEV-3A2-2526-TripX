@@ -2,98 +2,535 @@
 
 {% block title %}Travel Stories{% endblock %}
 
-{% block body %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Travel Stories</h1>
-        <a href="{{ path('travel_story_new') }}" class="btn btn-primary">Write a Travel Story</a>
-    </div>
+{% block stylesheets %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:wght@400;500;600;700;800&display=swap');
 
-    <form method="get" class="row g-3 mb-4">
-        <div class="col-md-3">
-            <input type="text" name="keyword" class="form-control" placeholder="Search by keyword" value="{{ app.request.get('keyword') }}">
+.story-index-page {
+    --story-bg-soft: #eef8f7;
+    --story-panel: #ffffff;
+    --story-text: #102027;
+    --story-muted: #56757f;
+    --story-border: #d4e7e5;
+    --story-primary: #0f766e;
+    --story-primary-strong: #115e59;
+    --story-highlight: #f59e0b;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 50px 18px 72px;
+    font-family: 'Sora', 'Segoe UI', sans-serif;
+    color: var(--story-text);
+}
+
+.story-hero {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 18px;
+    background: linear-gradient(135deg, #e8f4f3 0%, #f7faf8 50%, #fff6e6 100%);
+    border: 1px solid var(--story-border);
+    border-radius: 26px;
+    padding: 28px 28px 24px;
+    margin-bottom: 22px;
+}
+
+.story-hero::before,
+.story-hero::after {
+    content: '';
+    position: absolute;
+    border-radius: 999px;
+    pointer-events: none;
+}
+
+.story-hero::before {
+    width: 220px;
+    height: 220px;
+    right: -70px;
+    top: -90px;
+    background: radial-gradient(circle at center, rgba(21, 128, 119, 0.24), rgba(21, 128, 119, 0));
+}
+
+.story-hero::after {
+    width: 170px;
+    height: 170px;
+    left: -50px;
+    bottom: -85px;
+    background: radial-gradient(circle at center, rgba(245, 158, 11, 0.24), rgba(245, 158, 11, 0));
+}
+
+.story-hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+}
+
+.story-hero-label {
+    display: inline-block;
+    margin-bottom: 12px;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--story-primary-strong);
+}
+
+.story-hero h1 {
+    margin: 0;
+    line-height: 1.08;
+    font-size: clamp(34px, 5vw, 56px);
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-weight: 400;
+}
+
+.story-hero p {
+    margin: 12px 0 0;
+    max-width: 60ch;
+    color: var(--story-muted);
+    line-height: 1.7;
+    font-size: 14px;
+}
+
+.story-hero-actions {
+    position: relative;
+    z-index: 1;
+    align-self: flex-end;
+}
+
+.story-hero-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    border-radius: 999px;
+    border: 1px solid var(--story-primary);
+    background: var(--story-primary);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 12px 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    box-shadow: 0 10px 26px rgba(15, 118, 110, 0.22);
+}
+
+.story-hero-button:hover {
+    transform: translateY(-2px);
+    background: var(--story-primary-strong);
+    box-shadow: 0 14px 30px rgba(17, 94, 89, 0.28);
+}
+
+.story-filter {
+    background: var(--story-panel);
+    border: 1px solid var(--story-border);
+    border-radius: 22px;
+    padding: 20px;
+    margin-bottom: 28px;
+    box-shadow: 0 12px 28px rgba(16, 32, 39, 0.05);
+}
+
+.story-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.story-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.story-field label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    color: var(--story-muted);
+}
+
+.story-field input,
+.story-field select {
+    width: 100%;
+    border: 1px solid var(--story-border);
+    border-radius: 12px;
+    padding: 11px 12px;
+    background: #fcfefe;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--story-text);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.story-field input:focus,
+.story-field select:focus {
+    outline: none;
+    border-color: #59b5a8;
+    box-shadow: 0 0 0 3px rgba(89, 181, 168, 0.16);
+}
+
+.story-field.keyword { grid-column: span 3; }
+.story-field.destination { grid-column: span 2; }
+.story-field.type { grid-column: span 2; }
+.story-field.style { grid-column: span 2; }
+.story-field.rating { grid-column: span 2; }
+
+.story-filter-actions {
+    grid-column: span 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.story-filter-submit,
+.story-filter-reset {
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.story-filter-submit {
+    background: #111827;
+    color: #ffffff;
+}
+
+.story-filter-submit:hover {
+    background: #000000;
+}
+
+.story-filter-reset {
+    border-color: var(--story-border);
+    color: var(--story-muted);
+    background: #ffffff;
+}
+
+.story-filter-reset:hover {
+    border-color: #bcd7d4;
+    color: var(--story-text);
+}
+
+.story-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));
+    gap: 18px;
+}
+
+.story-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--story-panel);
+    border: 1px solid var(--story-border);
+    border-radius: 20px;
+    box-shadow: 0 10px 24px rgba(16, 32, 39, 0.06);
+    animation: cardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.story-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 36px rgba(16, 32, 39, 0.12);
+}
+
+.story-card-media {
+    height: 210px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #d7f2ee 0%, #ecf7f6 100%);
+}
+
+.story-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.story-card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 16px;
+}
+
+.story-card-location {
+    margin: 0;
+    font-size: 12px;
+    color: var(--story-muted);
+}
+
+.story-card-title {
+    margin: 6px 0 10px;
+    line-height: 1.35;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.story-card-title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.story-card-title a:hover {
+    color: var(--story-primary-strong);
+}
+
+.story-card-text {
+    margin: 0;
+    color: #3e5a62;
+    line-height: 1.65;
+    font-size: 13px;
+}
+
+.story-card-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 14px 0 12px;
+}
+
+.story-chip {
+    font-size: 11px;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-weight: 700;
+    border: 1px solid transparent;
+}
+
+.story-chip.rating {
+    background: #fff6df;
+    border-color: #f4dd9e;
+    color: #8a5a00;
+}
+
+.story-chip.type {
+    background: #e0f4f2;
+    border-color: #a5ddd7;
+    color: #0f5b57;
+}
+
+.story-chip.style {
+    background: #ecf2f7;
+    border-color: #cbd8e4;
+    color: #304a63;
+}
+
+.story-card-flags {
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px dashed #d8e8e6;
+    font-size: 12px;
+    color: var(--story-muted);
+    line-height: 1.6;
+}
+
+.story-card-flags strong {
+    color: #173b45;
+}
+
+.story-card-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 11px;
+    border: 1px solid var(--story-primary);
+    color: var(--story-primary-strong);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.story-card-link:hover {
+    background: #e8f5f3;
+}
+
+.story-empty {
+    background: var(--story-panel);
+    border: 1px dashed #bfded9;
+    border-radius: 20px;
+    padding: 34px;
+    text-align: center;
+    color: var(--story-muted);
+    line-height: 1.7;
+}
+
+.story-empty strong {
+    color: var(--story-text);
+}
+
+@keyframes cardIn {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 1024px) {
+    .story-field.keyword { grid-column: span 4; }
+    .story-field.destination { grid-column: span 4; }
+    .story-field.type { grid-column: span 4; }
+    .story-field.style { grid-column: span 4; }
+    .story-field.rating { grid-column: span 4; }
+    .story-filter-actions {
+        grid-column: 1 / -1;
+        flex-direction: row;
+    }
+}
+
+@media (max-width: 768px) {
+    .story-index-page {
+        padding: calc(var(--nav-height, 70px) + 16px) 12px 48px;
+    }
+
+    .story-hero {
+        border-radius: 18px;
+        padding: 22px 16px;
+    }
+
+    .story-field.keyword,
+    .story-field.destination,
+    .story-field.type,
+    .story-field.style,
+    .story-field.rating {
+        grid-column: span 12;
+    }
+
+    .story-filter {
+        border-radius: 16px;
+        padding: 14px;
+    }
+
+    .story-filter-actions {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="story-index-page">
+    <section class="story-hero">
+        <div class="story-hero-content">
+            <span class="story-hero-label">TripX Journal</span>
+            <h1>Travel stories from real explorers.</h1>
+            <p>
+                Discover routes, practical tips, and honest recommendations from travelers.
+                Filter by destination, style, and rating to find the stories that match your next trip.
+            </p>
         </div>
-        <div class="col-md-2">
-            <input type="text" name="destination" class="form-control" placeholder="Destination" value="{{ app.request.get('destination') }}">
+        <div class="story-hero-actions">
+            <a href="{{ path('travel_story_new') }}" class="story-hero-button">Write your story</a>
         </div>
-        <div class="col-md-2">
-            <select name="travelType" class="form-select">
-                <option value="">Travel type</option>
-                <option value="solo" {{ app.request.get('travelType') == 'solo' ? 'selected' : '' }}>Solo</option>
-                <option value="couple" {{ app.request.get('travelType') == 'couple' ? 'selected' : '' }}>Couple</option>
-                <option value="family" {{ app.request.get('travelType') == 'family' ? 'selected' : '' }}>Family</option>
-                <option value="friends" {{ app.request.get('travelType') == 'friends' ? 'selected' : '' }}>Friends</option>
-                <option value="business" {{ app.request.get('travelType') == 'business' ? 'selected' : '' }}>Business</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <select name="travelStyle" class="form-select">
-                <option value="">Travel style</option>
-                <option value="luxury" {{ app.request.get('travelStyle') == 'luxury' ? 'selected' : '' }}>Luxury</option>
-                <option value="budget" {{ app.request.get('travelStyle') == 'budget' ? 'selected' : '' }}>Budget</option>
-                <option value="adventure" {{ app.request.get('travelStyle') == 'adventure' ? 'selected' : '' }}>Adventure</option>
-                <option value="relax" {{ app.request.get('travelStyle') == 'relax' ? 'selected' : '' }}>Relax</option>
-                <option value="cultural" {{ app.request.get('travelStyle') == 'cultural' ? 'selected' : '' }}>Cultural</option>
-                <option value="roadtrip" {{ app.request.get('travelStyle') == 'roadtrip' ? 'selected' : '' }}>Roadtrip</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <select name="rating" class="form-select">
-                <option value="">Min rating</option>
-                {% for i in 1..5 %}
-                    <option value="{{ i }}" {{ app.request.get('rating') == i|striptags ? 'selected' : '' }}>{{ i }}+</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-1">
-            <button class="btn btn-dark w-100">Go</button>
+    </section>
+
+    <form method="get" class="story-filter">
+        <div class="story-filter-grid">
+            <div class="story-field keyword">
+                <label for="story_keyword">Keyword</label>
+                <input id="story_keyword" type="text" name="keyword" placeholder="Beach, city, food..." value="{{ app.request.get('keyword') }}">
+            </div>
+
+            <div class="story-field destination">
+                <label for="story_destination">Destination</label>
+                <input id="story_destination" type="text" name="destination" placeholder="Tunisia, Rome..." value="{{ app.request.get('destination') }}">
+            </div>
+
+            <div class="story-field type">
+                <label for="story_travel_type">Travel type</label>
+                <select id="story_travel_type" name="travelType">
+                    <option value="">Any type</option>
+                    <option value="solo" {{ app.request.get('travelType') == 'solo' ? 'selected' : '' }}>Solo</option>
+                    <option value="couple" {{ app.request.get('travelType') == 'couple' ? 'selected' : '' }}>Couple</option>
+                    <option value="family" {{ app.request.get('travelType') == 'family' ? 'selected' : '' }}>Family</option>
+                    <option value="friends" {{ app.request.get('travelType') == 'friends' ? 'selected' : '' }}>Friends</option>
+                    <option value="business" {{ app.request.get('travelType') == 'business' ? 'selected' : '' }}>Business</option>
+                </select>
+            </div>
+
+            <div class="story-field style">
+                <label for="story_travel_style">Travel style</label>
+                <select id="story_travel_style" name="travelStyle">
+                    <option value="">Any style</option>
+                    <option value="luxury" {{ app.request.get('travelStyle') == 'luxury' ? 'selected' : '' }}>Luxury</option>
+                    <option value="budget" {{ app.request.get('travelStyle') == 'budget' ? 'selected' : '' }}>Budget</option>
+                    <option value="adventure" {{ app.request.get('travelStyle') == 'adventure' ? 'selected' : '' }}>Adventure</option>
+                    <option value="relax" {{ app.request.get('travelStyle') == 'relax' ? 'selected' : '' }}>Relax</option>
+                    <option value="cultural" {{ app.request.get('travelStyle') == 'cultural' ? 'selected' : '' }}>Cultural</option>
+                    <option value="roadtrip" {{ app.request.get('travelStyle') == 'roadtrip' ? 'selected' : '' }}>Roadtrip</option>
+                </select>
+            </div>
+
+            <div class="story-field rating">
+                <label for="story_rating">Minimum rating</label>
+                <select id="story_rating" name="rating">
+                    <option value="">Any rating</option>
+                    {% for i in 1..5 %}
+                        <option value="{{ i }}" {{ app.request.get('rating') == i|striptags ? 'selected' : '' }}>{{ i }}+</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="story-filter-actions">
+                <button class="story-filter-submit" type="submit">Apply</button>
+                <a href="{{ path('travel_story_index') }}" class="story-filter-reset">Reset</a>
+            </div>
         </div>
     </form>
 
-    <div class="row">
+    <div class="story-grid">
         {% for story in stories %}
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card h-100 shadow-sm">
+            <article class="story-card">
+                <div class="story-card-media">
                     {% if story.coverImageUrl %}
-                        <img src="{{ story.coverImageUrl }}" class="card-img-top" alt="{{ story.title }}" style="height: 220px; object-fit: cover;">
+                        <img src="{{ story.coverImageUrl }}" alt="{{ story.title }}">
                     {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ story.title }}</h5>
-                        <p class="text-muted mb-2">
-                            {{ story.destination ?: 'Unknown destination' }}
-                        </p>
-
-                        <p class="card-text">
-                            {{ story.summary ? story.summary|slice(0, 140) ~ (story.summary|length > 140 ? '...' : '') : 'No summary yet.' }}
-                        </p>
-
-                        <div class="mb-2">
-                            {% if story.overallRating %}
-                                <span class="badge bg-warning text-dark">⭐ {{ story.overallRating }}/5</span>
-                            {% endif %}
-                            {% if story.travelType %}
-                                <span class="badge bg-info text-dark">{{ story.travelType }}</span>
-                            {% endif %}
-                            {% if story.travelStyle %}
-                                <span class="badge bg-secondary">{{ story.travelStyle }}</span>
-                            {% endif %}
-                        </div>
-
-                        <div class="small text-muted mb-3">
-                            Recommend:
-                            <strong>{{ story.wouldRecommend ? 'Yes' : 'No' }}</strong>
-                            |
-                            Go again:
-                            <strong>{{ story.wouldGoAgain ? 'Yes' : 'No' }}</strong>
-                        </div>
-
-                        <a href="{{ path('travel_story_show', {id: story.id}) }}" class="btn btn-outline-primary btn-sm">Read story</a>
-                    </div>
                 </div>
-            </div>
+
+                <div class="story-card-body">
+                    <p class="story-card-location">{{ story.destination ?: 'Unknown destination' }}</p>
+                    <h2 class="story-card-title">
+                        <a href="{{ path('travel_story_show', {id: story.id}) }}">{{ story.title }}</a>
+                    </h2>
+
+                    <p class="story-card-text">
+                        {{ story.summary ? story.summary|slice(0, 140) ~ (story.summary|length > 140 ? '...' : '') : 'No summary yet.' }}
+                    </p>
+
+                    <div class="story-card-chips">
+                        {% if story.overallRating %}
+                            <span class="story-chip rating">{{ story.overallRating }}/5 rating</span>
+                        {% endif %}
+                        {% if story.travelType %}
+                            <span class="story-chip type">{{ story.travelType|capitalize }}</span>
+                        {% endif %}
+                        {% if story.travelStyle %}
+                            <span class="story-chip style">{{ story.travelStyle|capitalize }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="story-card-flags">
+                        Recommend: <strong>{{ story.wouldRecommend ? 'Yes' : 'No' }}</strong><br>
+                        Go again: <strong>{{ story.wouldGoAgain ? 'Yes' : 'No' }}</strong>
+                    </div>
+
+                    <a href="{{ path('travel_story_show', {id: story.id}) }}" class="story-card-link">Read story</a>
+                </div>
+            </article>
         {% else %}
-            <div class="col-12">
-                <div class="alert alert-info">No travel stories found.</div>
+            <div class="story-empty">
+                <strong>No travel stories found.</strong><br>
+                Try broader filters or be the first to share a new experience.
             </div>
         {% endfor %}
     </div>

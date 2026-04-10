@@ -6,7 +6,8 @@
   display: grid;
   grid-template-columns: 260px 1fr 300px;
   min-height: calc(100vh - var(--nav-height, 70px));
-  padding-top: calc(var(--nav-height, 70px) + 20px);
+  padding-top: 50px;
+  /*padding-top: calc(var(--nav-height, 70px) + 20px);*/
   max-width: 1300px;
   margin: 0 auto;
   padding-left: 16px;
@@ -16,7 +17,7 @@
 
 .tg-left {
   position: sticky;
-  top: calc(var(--nav-height, 70px) + 20px);
+  top: 50px;
   height: calc(100vh - var(--nav-height, 70px) - 40px);
   overflow-y: auto;
   scrollbar-width: none;

@@ -9,6 +9,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TravelStoryRepository::class)]
 #[ORM\Table(name: 'travel_story')]
+#[Assert\Expression(
+    "this.getStartDate() === null or this.getEndDate() === null or this.getStartDate() <= this.getEndDate()",
+    message: "Start Date must be before or equal to End Date."
+)]
 class TravelStory
 {
     #[ORM\Id]
@@ -33,9 +37,11 @@ class TravelStory
     private ?string $summary = null;
 
     #[ORM\Column(name: 'start_date', type: Types::DATE_MUTABLE, nullable: true)]
+    #[Assert\LessThanOrEqual('today', message: 'Start Date cannot be in the future.')]
     private ?\DateTimeInterface $startDate = null;
 
     #[ORM\Column(name: 'end_date', type: Types::DATE_MUTABLE, nullable: true)]
+    #[Assert\LessThanOrEqual('today', message: 'End Date cannot be in the future.')]
     private ?\DateTimeInterface $endDate = null;
 
     #[ORM\Column(name: 'travel_type', type: 'string', length: 20, nullable: true)]
@@ -43,7 +49,7 @@ class TravelStory
     private ?string $travelType = null;
 
     #[ORM\Column(name: 'travel_style', type: 'string', length: 20, nullable: true)]
-    #[Assert\Choice(choices: ['luxury', 'budget', 'adventure', 'relax', 'cultural', 'roadtrip'])]
+    #[Assert\Choice(choices: ['luxury', 'budget', 'standard', 'backpacking', 'adventure'])]
     private ?string $travelStyle = null;
 
     #[ORM\Column(name: 'overall_rating', type: 'smallint', nullable: true, options: ['unsigned' => true])]

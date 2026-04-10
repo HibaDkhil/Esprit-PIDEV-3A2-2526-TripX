@@ -584,6 +584,6 @@ class __TwigTemplate_2be52b1faf71b965d2a593eb9b0ee2a0 extends Template
 
 
 
-", "front/activities.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\front\\activities.html.twig");
+", "front/activities.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\front\\activities.html.twig");
     }
 }

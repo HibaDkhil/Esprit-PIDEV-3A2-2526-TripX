@@ -716,6 +716,6 @@ class __TwigTemplate_43694d5bfea270697ee851b23eec597e extends Template
 
 
 
-", "front/index.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\front\\index.html.twig");
+", "front/index.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\front\\index.html.twig");
     }
 }

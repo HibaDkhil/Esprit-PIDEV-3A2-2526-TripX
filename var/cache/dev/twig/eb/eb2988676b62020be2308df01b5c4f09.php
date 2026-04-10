@@ -138,7 +138,7 @@ class __TwigTemplate_2e2b029764eab70abaf56b2e59e0d988 extends Template
         yield "
             ";
         // line 41
-        yield $this->env->getRuntime('Symfony\Component\Form\FormRenderer')->searchAndRenderBlock(CoreExtension::getAttribute($this->env, $this->source, (isset($context["form"]) || array_key_exists("form", $context) ? $context["form"] : (function () { throw new RuntimeError('Variable "form" does not exist.', 41, $this->source); })()), "image_url", [], "any", false, false, false, 41), 'row');
+        yield $this->env->getRuntime('Symfony\Component\Form\FormRenderer')->searchAndRenderBlock(CoreExtension::getAttribute($this->env, $this->source, (isset($context["form"]) || array_key_exists("form", $context) ? $context["form"] : (function () { throw new RuntimeError('Variable "form" does not exist.', 41, $this->source); })()), "imageFile", [], "any", false, false, false, 41), 'row');
         yield "
 
             <div class=\"actions-row\">
@@ -227,7 +227,7 @@ class __TwigTemplate_2e2b029764eab70abaf56b2e59e0d988 extends Template
             {{ form_row(form.title) }}
             {{ form_row(form.body) }}
             {{ form_row(form.type) }}
-            {{ form_row(form.image_url) }}
+            {{ form_row(form.imageFile) }}
 
             <div class=\"actions-row\">
                 <button type=\"submit\" class=\"btn-primary\">Save Changes</button>
@@ -237,6 +237,6 @@ class __TwigTemplate_2e2b029764eab70abaf56b2e59e0d988 extends Template
     </div>
 </div>
 {% endblock %}
-", "front/blog/edit_post.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\front\\blog\\edit_post.html.twig");
+", "front/blog/edit_post.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\front\\blog\\edit_post.html.twig");
     }
 }

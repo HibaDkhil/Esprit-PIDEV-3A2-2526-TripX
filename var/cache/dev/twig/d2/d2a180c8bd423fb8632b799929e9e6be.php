@@ -328,6 +328,6 @@ class __TwigTemplate_d34cd9bf60f51646e7c1da18513c017b extends Template
   </div>
 </div>
 {% endblock %}
-", "admin/activity_form.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\admin\\activity_form.html.twig");
+", "admin/activity_form.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\admin\\activity_form.html.twig");
     }
 }

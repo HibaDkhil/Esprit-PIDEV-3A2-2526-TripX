@@ -813,6 +813,6 @@ class __TwigTemplate_8c10a7f4e61dda1bc0286708efd8def3 extends Template
 
 
 
-", "front/accommodations.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\front\\accommodations.html.twig");
+", "front/accommodations.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\front\\accommodations.html.twig");
     }
 }

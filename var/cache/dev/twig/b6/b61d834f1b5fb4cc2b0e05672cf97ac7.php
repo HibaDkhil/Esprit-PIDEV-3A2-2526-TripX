@@ -384,6 +384,6 @@ class __TwigTemplate_95089f054e121e5c97e9df4587057d91 extends Template
     </div>
 </div>
 {% endblock %}
-", "front/search_results.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\front\\search_results.html.twig");
+", "front/search_results.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\front\\search_results.html.twig");
     }
 }

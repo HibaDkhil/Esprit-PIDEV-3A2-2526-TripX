@@ -71,7 +71,7 @@ class FrontController extends AbstractController
 
     
 
-   #[Route('/blog', name: 'blog')]
+    #[Route('/blog-legacy', name: 'blog_legacy')]
     public function blog(PostRepository $postRepository): Response
     {
     $posts = $postRepository->findAll();

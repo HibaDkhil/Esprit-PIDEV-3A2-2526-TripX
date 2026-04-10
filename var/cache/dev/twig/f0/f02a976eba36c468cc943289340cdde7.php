@@ -1450,6 +1450,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-", "front/users.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\front\\users.html.twig");
+", "front/users.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\front\\users.html.twig");
     }
 }

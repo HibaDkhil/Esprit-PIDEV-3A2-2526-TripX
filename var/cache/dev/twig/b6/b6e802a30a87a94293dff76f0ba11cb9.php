@@ -246,7 +246,7 @@ class __TwigTemplate_c0fba530dd958b1881ab76d9559d151b extends Template
         // line 151
         yield "<div class=\"cp-wrap\">
     <span class=\"cp-label\">✍️ Create</span>
-    <h1 class=\"cp-title\">Share your <span>Travel Story</span></h1>
+    <h1 class=\"cp-title\">Share your <span>thoughts</span></h1>
     <p class=\"cp-subtitle\">
         Post a story, review, tip or question with the TripX community.
         All posts are reviewed before going live.
@@ -646,7 +646,7 @@ function handleDrop(e) {
 {% block body %}
 <div class=\"cp-wrap\">
     <span class=\"cp-label\">✍️ Create</span>
-    <h1 class=\"cp-title\">Share your <span>Travel Story</span></h1>
+    <h1 class=\"cp-title\">Share your <span>thoughts</span></h1>
     <p class=\"cp-subtitle\">
         Post a story, review, tip or question with the TripX community.
         All posts are reviewed before going live.
@@ -797,6 +797,6 @@ function handleDrop(e) {
 }
 </script>
 {% endblock %}
-", "front/blog/create_post.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\front\\blog\\create_post.html.twig");
+", "front/blog/create_post.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\front\\blog\\create_post.html.twig");
     }
 }

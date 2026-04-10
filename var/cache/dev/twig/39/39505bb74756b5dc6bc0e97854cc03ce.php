@@ -227,6 +227,6 @@ class __TwigTemplate_b11e069fc7c00c5800f4488b2b57a461 extends Template
   {% block extra_js %}{% endblock %}
 </body>
 </html>
-", "front/base_auth.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\front\\base_auth.html.twig");
+", "front/base_auth.html.twig", "C:\\Users\\sbent\\Downloads\\composer\\templates\\front\\base_auth.html.twig");
     }
 }

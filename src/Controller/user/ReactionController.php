@@ -5,6 +5,7 @@ namespace App\Controller\user;
 use App\Entity\Comment;
 use App\Entity\Post;
 use App\Entity\Reaction;
+use App\Entity\TravelStory;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -71,6 +72,60 @@ class ReactionController extends AbstractController
         return $this->json([
             'userReaction' => $userReaction,
             'counts'       => $this->countsByPost($em, $id),
+        ]);
+    }
+
+    #[Route('/travel-story/{id}/react/{type}', name: 'travel_story_react', methods: ['POST'])]
+    public function reactToTravelStory(
+        int $id,
+        string $type,
+        Request $request,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        /** @var User|null $user */
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            return $this->json(['error' => 'Not logged in'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        if (!in_array($type, self::ALLOWED, true)) {
+            return $this->json(['error' => 'Invalid reaction'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $story = $em->getRepository(TravelStory::class)->find($id);
+        if (!$story) {
+            return $this->json(['error' => 'Travel story not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $userId = (int) $user->getId();
+        $repo   = $em->getRepository(Reaction::class);
+
+        $existing = $repo->findOneBy(['user_id' => $userId, 'travel_story_id' => $id]);
+
+        $userReaction = null;
+
+        if ($existing) {
+            if ($existing->getType() === $type) {
+                $em->remove($existing);
+            } else {
+                $existing->setType($type);
+                $userReaction = $type;
+            }
+        } else {
+            $r = new Reaction();
+            $r->setUserId($userId);
+            $r->setTravelStoryId($id);
+            $r->setType($type);
+            $em->persist($r);
+            $userReaction = $type;
+        }
+
+        $em->flush();
+
+        return $this->json([
+            'userReaction' => $userReaction,
+            'counts'       => $this->countsByTravelStory($em, $id),
         ]);
     }
 
@@ -141,6 +196,13 @@ class ReactionController extends AbstractController
     {
         return $this->buildCounts(
             $em->getRepository(Reaction::class)->findBy(['comment_id' => $commentId])
+        );
+    }
+
+    private function countsByTravelStory(EntityManagerInterface $em, int $storyId): array
+    {
+        return $this->buildCounts(
+            $em->getRepository(Reaction::class)->findBy(['travel_story_id' => $storyId])
         );
     }
 
