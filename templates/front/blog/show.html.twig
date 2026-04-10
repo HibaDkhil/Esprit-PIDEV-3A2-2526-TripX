@@ -1,0 +1,202 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ post.title }} — TripX Blog{% endblock %}
+
+{% block body %}
+<style>
+.show-wrap        { max-width: 780px; margin: 40px auto; padding: 0 16px 60px; }
+.back-link        { color: #2563eb; text-decoration: none; font-size: 14px; font-weight: 600;
+                     display: inline-flex; align-items: center; gap: 6px; margin-bottom: 24px; }
+.back-link:hover  { text-decoration: underline; }
+
+/* ── Post header ── */
+.show-meta        { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.avatar-lg        { width: 50px; height: 50px; border-radius: 50%;
+                     background: linear-gradient(135deg,#2563eb,#7c3aed);
+                     display: flex; align-items: center; justify-content: center;
+                     font-size: 20px; font-weight: 800; color: #fff; flex-shrink: 0; }
+.show-author      { font-weight: 700; font-size: 16px; color: #111; }
+.show-date        { font-size: 13px; color: #888; }
+.type-badge       { margin-left: auto; padding: 5px 12px; border-radius: 50px;
+                     font-size: 12px; font-weight: 700; text-transform: uppercase; }
+.badge-inquiry    { background:#dbeafe; color:#1d4ed8; }
+.badge-story      { background:#d1fae5; color:#065f46; }
+.badge-review     { background:#fef3c7; color:#92400e; }
+.badge-advice     { background:#ede9fe; color:#5b21b6; }
+.badge-other      { background:#f3f4f6; color:#374151; }
+
+h1.show-title     { font-size: 32px; font-weight: 900; color: #111; margin: 0 0 20px; line-height: 1.25; }
+.show-image       { width: 100%; max-height: 450px; object-fit: cover; border-radius: 16px; margin-bottom: 24px; }
+.show-body        { font-size: 16px; line-height: 1.8; color: #333; white-space: pre-line; }
+
+/* ── Reactions ── */
+.reactions-bar    { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+                     margin: 28px 0; padding: 16px 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+.reaction-wrapper { position: relative; display: inline-block; }
+.reaction-wrapper::before { content:''; position:absolute; left:0; bottom:100%; width:100%; height:14px; }
+.reaction-picker  { position:absolute; left:0; bottom:calc(100% + 10px); background:#fff;
+                     border:1px solid #e0e0e0; border-radius:40px; padding:6px 10px;
+                     display:flex; gap:4px; box-shadow:0 8px 24px rgba(0,0,0,.12);
+                     opacity:0; visibility:hidden; transform:translateY(8px);
+                     transition:all .2s; z-index:200; pointer-events:none; }
+.reaction-wrapper:hover .reaction-picker { opacity:1; visibility:visible; transform:translateY(0); pointer-events:auto; }
+.reaction-picker form { margin:0; }
+.reaction-emoji   { background:transparent; border:none; font-size:22px; cursor:pointer;
+                     padding:3px 5px; transition:transform .15s; }
+.reaction-emoji:hover { transform: scale(1.35); }
+.react-main-btn   { padding:9px 18px; border:1px solid #ddd; border-radius:50px; background:#f9f9f9;
+                     font-size:15px; font-weight:700; color:#333; cursor:pointer;
+                     display:inline-flex; align-items:center; gap:7px; }
+.react-main-btn.active { background:#2563eb; border-color:#2563eb; color:#fff; }
+.counts-row       { display:inline-flex; gap:8px; flex-wrap:wrap; font-size:14px; color:#666; }
+
+/* ── Owner actions ── */
+.owner-actions    { display:flex; gap:10px; margin-bottom:24px; }
+.btn-edit         { padding:9px 18px; border:1px solid #93c5fd; background:#eff6ff; color:#1d4ed8;
+                     border-radius:50px; font-weight:700; font-size:14px; text-decoration:none; }
+.btn-delete       { padding:9px 18px; border:1px solid #fca5a5; background:#fff1f2; color:#dc2626;
+                     border-radius:50px; font-weight:700; font-size:14px; cursor:pointer; }
+
+/* ── Comments ── */
+.comments-section { margin-top: 40px; }
+.comments-section h2 { font-size:22px; font-weight:800; margin-bottom:20px; }
+.comment-item     { display:flex; gap:12px; margin-bottom:16px; }
+.comment-avatar   { width:36px; height:36px; border-radius:50%;
+                     background:linear-gradient(135deg,#f59e0b,#ef4444);
+                     display:flex; align-items:center; justify-content:center;
+                     font-size:14px; font-weight:700; color:#fff; flex-shrink:0; }
+.comment-bubble   { flex:1; background:#f8f9fa; border-radius:14px; padding:12px 16px; }
+.comment-author   { font-weight:700; font-size:14px; color:#111; }
+.comment-body     { font-size:14px; color:#444; margin-top:4px; line-height:1.6; }
+.comment-footer   { font-size:12px; color:#aaa; margin-top:6px; display:flex; gap:12px; }
+
+/* ── Comment form ── */
+.comment-form-wrap { margin-top:28px; }
+.comment-form-wrap h3 { font-size:18px; font-weight:700; margin-bottom:14px; }
+.comment-form-wrap textarea { width:100%; padding:12px 16px; border:1px solid #ddd;
+                                border-radius:14px; font-size:14px; min-height:100px; resize:vertical; }
+.comment-form-wrap button  { margin-top:10px; padding:11px 24px; background:#2563eb;
+                               color:#fff; border:none; border-radius:50px; font-weight:700; cursor:pointer; }
+
+.flash-success { background:#d1fae5; color:#065f46; padding:12px 16px; border-radius:10px; margin-bottom:16px; }
+.flash-error   { background:#fee2e2; color:#991b1b; padding:12px 16px; border-radius:10px; margin-bottom:16px; }
+</style>
+
+<div class="show-wrap">
+
+    <a href="{{ path('blog') }}" class="back-link">← Back to Blog</a>
+
+    {# Flash #}
+    {% for msg in app.flashes('success') %}<div class="flash-success">✅ {{ msg }}</div>{% endfor %}
+    {% for msg in app.flashes('error') %}<div class="flash-error">❌ {{ msg }}</div>{% endfor %}
+
+    {# ── Post header ── #}
+    {% set authorName = authors[post.userId] ?? 'Anonymous' %}
+    <div class="show-meta">
+        <div class="avatar-lg">{{ authorName|first|upper }}</div>
+        <div>
+            <div class="show-author">{{ authorName }}</div>
+            {% if post.createdAt %}
+                <div class="show-date">{{ post.createdAt|date('d M Y · H:i') }}</div>
+            {% endif %}
+        </div>
+        <span class="type-badge badge-{{ post.type }}">{{ post.type }}</span>
+    </div>
+
+    {# Owner controls #}
+    {% set isOwner = (app.user is not null and app.user.id == post.userId) %}
+    {% if isOwner %}
+        <div class="owner-actions">
+            <a href="{{ path('post_edit', {id: post.id}) }}" class="btn-edit">✏️ Edit</a>
+            <form method="post" action="{{ path('post_delete', {id: post.id}) }}"
+                  onsubmit="return confirm('Delete this post?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete_post_' ~ post.id) }}">
+                <button type="submit" class="btn-delete">🗑 Delete</button>
+            </form>
+        </div>
+    {% endif %}
+
+    <h1 class="show-title">{{ post.title }}</h1>
+
+    {% if post.imageUrl %}
+        <img src="{{ post.imageUrl }}" class="show-image" alt="{{ post.title }}">
+    {% endif %}
+
+    <div class="show-body">{{ post.body }}</div>
+
+    {# ── Reactions ── #}
+    <div class="reactions-bar">
+        {% set icons = {like:'👍',love:'❤️',haha:'😂',wow:'😮',sad:'😢',angry:'😡'} %}
+        <div class="reaction-wrapper">
+            <button type="button" class="react-main-btn {% if userReaction %}active{% endif %}">
+                {% if userReaction and icons[userReaction] is defined %}
+                    {{ icons[userReaction] }} {{ userReaction|capitalize }}
+                {% else %}
+                    🙂 React
+                {% endif %}
+            </button>
+            <div class="reaction-picker">
+                {% for rtype, emoji in icons %}
+                    <form method="post" action="{{ path('post_react', {id: post.id, type: rtype}) }}">
+                        <button type="submit" class="reaction-emoji" title="{{ rtype|capitalize }}">{{ emoji }}</button>
+                    </form>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="counts-row">
+            {% for rtype, emoji in icons %}
+                {% if reactionMap[rtype] is defined and reactionMap[rtype] > 0 %}
+                    <span>{{ emoji }} {{ reactionMap[rtype] }}</span>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    {# ── Comments ── #}
+    <div class="comments-section">
+        <h2>💬 Comments ({{ post.comments|length }})</h2>
+
+        {% if post.comments|length > 0 %}
+            {% for comment in post.comments %}
+                {% set cAuthor = authors[comment.userId] ?? 'User #' ~ comment.userId %}
+                <div class="comment-item">
+                    <div class="comment-avatar">{{ cAuthor|first|upper }}</div>
+                    <div class="comment-bubble">
+                        <div class="comment-author">{{ cAuthor }}</div>
+                        <div class="comment-body">{{ comment.body }}</div>
+                        <div class="comment-footer">
+                            {% if comment.createdAt %}
+                                <span>{{ comment.createdAt|date('d M Y H:i') }}</span>
+                            {% endif %}
+                            {# Delete own comment #}
+                            {% if app.user is not null and app.user.id == comment.userId %}
+                                <form method="post" action="{{ path('comment_delete', {id: comment.id}) }}"
+                                      onsubmit="return confirm('Delete this comment?');" style="margin:0;">
+                                    <input type="hidden" name="_token"
+                                           value="{{ csrf_token('delete_comment_' ~ comment.id) }}">
+                                    <button type="submit"
+                                            style="background:none;border:none;color:#dc2626;font-size:12px;cursor:pointer;padding:0;">
+                                        Delete
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="color:#aaa;">No comments yet. Be the first to comment!</p>
+        {% endif %}
+
+        {# ── Add comment form ── #}
+        <div class="comment-form-wrap">
+            <h3>Leave a comment</h3>
+            <form method="post" action="{{ path('comment_create', {id: post.id}) }}">
+                <textarea name="body" placeholder="Share your thoughts…" required></textarea>
+                <br>
+                <button type="submit">Post Comment</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

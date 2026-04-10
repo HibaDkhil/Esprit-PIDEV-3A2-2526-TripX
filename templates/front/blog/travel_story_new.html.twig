@@ -1,0 +1,635 @@
+{% extends 'base.html.twig' %}
+{% block title %}Create Travel Story — TripX{% endblock %}
+
+{% block stylesheets %}
+<style>
+.cp-wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: calc(var(--nav-height, 70px) + 40px) 16px 80px;
+}
+.cp-label {
+    font-family: var(--font-mono, 'Space Mono');
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent-primary);
+    margin-bottom: 10px;
+    display: block;
+}
+.cp-title {
+    font-family: var(--font-display, 'Playfair Display');
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--text-primary);
+    margin: 0 0 8px;
+    line-height: 1.15;
+}
+.cp-title span {
+    color: var(--accent-primary);
+}
+.cp-subtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin: 0 0 32px;
+    line-height: 1.6;
+}
+.cp-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 36px 32px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.06);
+    animation: fadeUp .45s cubic-bezier(.22,1,.36,1) both;
+}
+.cp-card label,
+.cp-field-label {
+    display: block;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 7px;
+    font-family: var(--font-mono, 'Space Mono');
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+.cp-card input[type="text"],
+.cp-card input[type="date"],
+.cp-card input[type="number"],
+.cp-card textarea,
+.cp-card select {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color .2s, box-shadow .2s;
+    appearance: none;
+    box-sizing: border-box;
+}
+.cp-card input:focus,
+.cp-card textarea:focus,
+.cp-card select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+}
+.cp-card input::placeholder,
+.cp-card textarea::placeholder {
+    color: var(--text-muted);
+}
+.cp-card textarea {
+    resize: vertical;
+    line-height: 1.7;
+}
+.cp-field {
+    margin-bottom: 22px;
+}
+.cp-card ul {
+    padding: 0;
+    margin: 6px 0 0;
+    list-style: none;
+}
+.cp-card ul li {
+    color: #ef4444;
+    font-size: 13px;
+}
+
+.cp-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 22px;
+}
+.cp-span-2 {
+    grid-column: 1 / -1;
+}
+
+.select-wrap {
+    position: relative;
+}
+.select-wrap::after {
+    content: '▾';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+.select-wrap select {
+    padding-right: 40px;
+    cursor: pointer;
+}
+
+.cp-card .story-title-input {
+    font-size: 16px;
+    font-weight: 600;
+}
+.cp-card .story-summary {
+    min-height: 170px;
+}
+.cp-card .story-tips {
+    min-height: 120px;
+}
+
+.upload-zone {
+    display: block;
+    border: 2px dashed var(--border-color);
+    border-radius: 16px;
+    padding: 36px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    user-select: none;
+}
+.upload-zone:hover,
+.upload-zone.dragover {
+    border-color: var(--accent-primary);
+    background: rgba(99,102,241,.04);
+}
+.upload-icon {
+    font-size: 46px;
+    display: block;
+    margin-bottom: 12px;
+    transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.upload-zone:hover .upload-icon {
+    transform: scale(1.18) translateY(-5px);
+}
+.upload-zone-text {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+.upload-zone-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: var(--font-mono, 'Space Mono');
+}
+
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+}
+.preview-item {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 1;
+    border: 1px solid var(--border-color);
+    animation: fadeUp .3s cubic-bezier(.22,1,.36,1) both;
+}
+.preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.preview-remove {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0,0,0,.65);
+    color: #fff;
+    border: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .15s;
+}
+.preview-remove:hover {
+    background: #ef4444;
+}
+
+.cp-inline-checks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    align-items: center;
+    padding-top: 4px;
+}
+.cp-inline-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text-primary);
+    font-family: inherit;
+    text-transform: none;
+    letter-spacing: normal;
+    margin-bottom: 0;
+}
+.cp-inline-check input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+}
+
+.cp-advanced-toggle {
+    display: inline-block;
+    margin-top: 4px;
+    color: var(--accent-primary);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: var(--font-mono, 'Space Mono');
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+.cp-advanced-box {
+    display: none;
+    margin-top: 18px;
+    padding-top: 22px;
+    border-top: 1px solid var(--border-color);
+}
+.cp-advanced-box.open {
+    display: block;
+}
+
+.cp-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: rgba(245,158,11,.09);
+    border: 1px solid rgba(245,158,11,.28);
+    border-radius: 14px;
+    padding: 13px 16px;
+    font-size: 13px;
+    color: #92400e;
+    margin-bottom: 26px;
+    line-height: 1.5;
+}
+.cp-actions {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+}
+.cp-submit {
+    padding: 13px 32px;
+    background: linear-gradient(135deg, var(--accent-primary,#6366f1), #a855f7);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+    box-shadow: 0 4px 14px rgba(99,102,241,.3);
+}
+.cp-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 22px rgba(99,102,241,.42);
+}
+.cp-back {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 14px;
+    transition: color .18s;
+}
+.cp-back:hover {
+    color: var(--text-primary);
+}
+
+@keyframes fadeUp {
+    from { opacity:0; transform:translateY(20px); }
+    to   { opacity:1; transform:translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .cp-wrap {
+        padding: calc(var(--nav-height, 70px) + 24px) 12px 50px;
+    }
+    .cp-card {
+        padding: 24px 18px;
+    }
+    .cp-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    .cp-span-2 {
+        grid-column: auto;
+    }
+    .cp-actions {
+        flex-wrap: wrap;
+    }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="cp-wrap">
+    <span class="cp-label">🧳 Create</span>
+
+    {% if story is defined and story.id %}
+        <h1 class="cp-title">Edit <span>Travel Story</span></h1>
+        <p class="cp-subtitle">
+            Update your travel experience, recommendations, photos, and practical tips.
+        </p>
+    {% else %}
+        <h1 class="cp-title">Write a <span>Travel Story</span></h1>
+        <p class="cp-subtitle">
+            Share a complete travel experience with photos, recommendations, tips, and useful details for other travelers.
+        </p>
+    {% endif %}
+
+    {% for msg in app.flashes('error') %}
+        <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);
+                    border-radius:14px;padding:14px 18px;margin-bottom:20px;
+                    color:#b91c1c;font-size:14px;">❌ {{ msg }}</div>
+    {% endfor %}
+
+    {% for msg in app.flashes('success') %}
+        <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);
+                    border-radius:14px;padding:14px 18px;margin-bottom:20px;
+                    color:#166534;font-size:14px;">✅ {{ msg }}</div>
+    {% endfor %}
+
+    <div class="cp-card">
+        <div class="cp-notice">
+            ℹ️ Your travel story should be clear, helpful, and based on a real travel experience.
+        </div>
+
+        {{ form_start(form, {
+            'attr': {
+                'novalidate': 'novalidate',
+                'enctype': 'multipart/form-data'
+            }
+        }) }}
+
+            {{ form_errors(form) }}
+
+            <div class="cp-grid">
+                <div class="cp-field cp-span-2">
+                    {{ form_label(form.title, 'Title') }}
+                    {{ form_widget(form.title, {'attr': {
+                        'class': 'story-title-input',
+                        'placeholder': 'Give your travel story a clear, catchy title…'
+                    }}) }}
+                    {{ form_errors(form.title) }}
+                </div>
+
+                <div class="cp-field">
+                    {{ form_label(form.destination, 'Destination') }}
+                    <div class="select-wrap">
+                        {{ form_widget(form.destination) }}
+                    </div>
+                    {{ form_errors(form.destination) }}
+                </div>
+
+                <div class="cp-field">
+                    {{ form_label(form.travelType, 'Travel Type') }}
+                    <div class="select-wrap">
+                        {{ form_widget(form.travelType) }}
+                    </div>
+                    {{ form_errors(form.travelType) }}
+                </div>
+
+                <div class="cp-field cp-span-2">
+                    {{ form_label(form.summary, 'Summary') }}
+                    {{ form_widget(form.summary, {'attr': {
+                        'class': 'story-summary',
+                        'placeholder': 'Tell the story of your trip, what stood out, what readers should know…'
+                    }}) }}
+                    {{ form_errors(form.summary) }}
+                </div>
+
+                <div class="cp-field cp-span-2">
+                    {{ form_label(form.tips, 'Tips') }}
+                    {{ form_widget(form.tips, {'attr': {
+                        'class': 'story-tips',
+                        'placeholder': 'Practical advice, things to avoid, budget tips, best times, local recommendations…'
+                    }}) }}
+                    {{ form_errors(form.tips) }}
+                </div>
+            </div>
+
+            <div class="cp-field">
+                <span class="cp-field-label">🖼️ Images (optional — up to 5)</span>
+
+                {% set fileInputId = form.imageFile.vars.id %}
+
+                <div style="position:absolute;width:0;height:0;overflow:hidden;">
+                    {{ form_widget(form.imageFile, {'attr': {'multiple': 'multiple'}}) }}
+                </div>
+                {{ form_errors(form.imageFile) }}
+
+                <label for="{{ fileInputId }}" class="upload-zone" id="upload-zone"
+                       ondragover="handleDragOver(event)"
+                       ondragleave="handleDragLeave(event)"
+                       ondrop="handleDrop(event)">
+                    <span class="upload-icon">📷</span>
+                    <div class="upload-zone-text">Click to add photos — or drag & drop here</div>
+                    <div class="upload-zone-sub">
+                        JPG, PNG, WebP, GIF &nbsp;·&nbsp; max 5 MB each &nbsp;·&nbsp; up to 5 images
+                    </div>
+                </label>
+
+                <div class="preview-grid" id="preview-grid">
+                    {% if story is defined and story.imageUrlsJson is not empty %}
+                        {% for image in story.imageUrlsJson %}
+                            <div class="preview-item existing-image">
+                                <img src="{{ image }}" alt="Travel story image">
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="cp-grid">
+                <div class="cp-field">
+                    {{ form_label(form.startDate, 'Start Date') }}
+                    {{ form_widget(form.startDate) }}
+                    {{ form_errors(form.startDate) }}
+                </div>
+
+                <div class="cp-field">
+                    {{ form_label(form.endDate, 'End Date') }}
+                    {{ form_widget(form.endDate) }}
+                    {{ form_errors(form.endDate) }}
+                </div>
+
+                <div class="cp-field">
+                    {{ form_label(form.travelStyle, 'Travel Style') }}
+                    <div class="select-wrap">
+                        {{ form_widget(form.travelStyle) }}
+                    </div>
+                    {{ form_errors(form.travelStyle) }}
+                </div>
+
+                <div class="cp-field">
+                    {{ form_label(form.overallRating, 'Rating') }}
+                    <div class="select-wrap">
+                        {{ form_widget(form.overallRating) }}
+                    </div>
+                    {{ form_errors(form.overallRating) }}
+                </div>
+            </div>
+
+            <div class="cp-field">
+                <span class="cp-field-label">Recommendation</span>
+                <div class="cp-inline-checks">
+                    <label class="cp-inline-check">
+                        {{ form_widget(form.wouldRecommend) }}
+                        <span>Would recommend</span>
+                    </label>
+
+                    <label class="cp-inline-check">
+                        {{ form_widget(form.wouldGoAgain) }}
+                        <span>Would go again</span>
+                    </label>
+                </div>
+                {{ form_errors(form.wouldRecommend) }}
+                {{ form_errors(form.wouldGoAgain) }}
+            </div>
+
+            <span class="cp-advanced-toggle" onclick="toggleAdvancedFields(this)">Advanced fields</span>
+
+            <div class="cp-advanced-box" id="advanced-fields">
+                <div class="cp-grid">
+                    <div class="cp-field">
+                        {{ form_label(form.currency, 'Currency') }}
+                        {{ form_widget(form.currency, {'attr': {'placeholder': 'TND'}}) }}
+                        {{ form_errors(form.currency) }}
+                    </div>
+
+                    <div class="cp-field">
+                        {{ form_label(form.totalBudget, 'Total Budget') }}
+                        {{ form_widget(form.totalBudget, {'attr': {'placeholder': '0.00'}}) }}
+                        {{ form_errors(form.totalBudget) }}
+                    </div>
+
+                    <div class="cp-field">
+                        {{ form_label(form.tagsText, 'Tags') }}
+                        {{ form_widget(form.tagsText, {'attr': {'rows': 2, 'placeholder': 'beach, food, city, adventure'}}) }}
+                    </div>
+
+                    <div class="cp-field">
+                        {{ form_label(form.favoritePlacesText, 'Favorite Places') }}
+                        {{ form_widget(form.favoritePlacesText, {'attr': {'rows': 2, 'placeholder': 'comma separated'}}) }}
+                    </div>
+
+                    <div class="cp-field">
+                        {{ form_label(form.mustVisitText, 'Must Visit') }}
+                        {{ form_widget(form.mustVisitText, {'attr': {'rows': 2, 'placeholder': 'comma separated'}}) }}
+                    </div>
+
+                    <div class="cp-field">
+                        {{ form_label(form.mustDoText, 'Must Do') }}
+                        {{ form_widget(form.mustDoText, {'attr': {'rows': 2, 'placeholder': 'comma separated'}}) }}
+                    </div>
+
+                    <div class="cp-field">
+                        {{ form_label(form.mustTryText, 'Must Try') }}
+                        {{ form_widget(form.mustTryText, {'attr': {'rows': 2, 'placeholder': 'comma separated'}}) }}
+                    </div>
+
+                    <div class="cp-field">
+                        {{ form_label(form.budgetText, 'Detailed Budget JSON') }}
+                        {{ form_widget(form.budgetText, {'attr': {'rows': 3, 'placeholder': '{"hotel":200,"food":120,"transport":80}'}}) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="cp-actions">
+                <button type="submit" class="cp-submit">
+                    {% if story is defined and story.id %}
+                        💾 Update Story
+                    {% else %}
+                        🚀 Save Story
+                    {% endif %}
+                </button>
+                <a href="{{ path('blog') }}" class="cp-back">← Back to blog</a>
+            </div>
+
+        {{ form_end(form) }}
+    </div>
+</div>
+
+<script>
+const fileInput = document.querySelector('input[type="file"][multiple]');
+const previewGrid = document.getElementById('preview-grid');
+const uploadZone = document.getElementById('upload-zone');
+let selectedFiles = [];
+
+function syncFilesToInput() {
+    const dt = new DataTransfer();
+    selectedFiles.forEach(f => dt.items.add(f));
+    fileInput.files = dt.files;
+}
+
+function renderPreviews() {
+    previewGrid.innerHTML = '';
+    selectedFiles.forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const item = document.createElement('div');
+            item.className = 'preview-item';
+            item.style.animationDelay = (idx * 0.06) + 's';
+            item.innerHTML = `
+                <img src="${e.target.result}" alt="${file.name}">
+                <button type="button" class="preview-remove" onclick="removeFile(${idx})" title="Remove">✕</button>
+            `;
+            previewGrid.appendChild(item);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function removeFile(idx) {
+    selectedFiles.splice(idx, 1);
+    syncFilesToInput();
+    renderPreviews();
+}
+
+function addFiles(files) {
+    const arr = Array.from(files);
+    selectedFiles = [...selectedFiles, ...arr].slice(0, 5);
+    syncFilesToInput();
+    renderPreviews();
+}
+
+if (fileInput) {
+    fileInput.addEventListener('change', () => {
+        addFiles(fileInput.files);
+    });
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    uploadZone.classList.add('dragover');
+}
+
+function handleDragLeave(e) {
+    uploadZone.classList.remove('dragover');
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+}
+
+function toggleAdvancedFields(el) {
+    const box = document.getElementById('advanced-fields');
+    box.classList.toggle('open');
+    el.textContent = box.classList.contains('open') ? 'Hide advanced fields' : 'Advanced fields';
+}
+</script>
+{% endblock %}

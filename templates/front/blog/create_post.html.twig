@@ -1,0 +1,303 @@
+{% extends 'base.html.twig' %}
+{% block title %}Create a Post — TripX{% endblock %}
+
+{% block stylesheets %}
+<style>
+.cp-wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: calc(var(--nav-height, 70px) + 40px) 16px 80px;
+}
+.cp-label {
+    font-family: var(--font-mono, 'Space Mono');
+    font-size: 11px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--accent-primary);
+    margin-bottom: 10px; display: block;
+}
+.cp-title {
+    font-family: var(--font-display, 'Playfair Display');
+    font-size: 36px; font-weight: 900;
+    color: var(--text-primary); margin: 0 0 8px; line-height: 1.15;
+}
+.cp-title span { color: var(--accent-primary); }
+.cp-subtitle {
+    font-size: 15px; color: var(--text-muted);
+    margin: 0 0 32px; line-height: 1.6;
+}
+.cp-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 24px; padding: 36px 32px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.06);
+    animation: fadeUp .45s cubic-bezier(.22,1,.36,1) both;
+}
+.cp-card label, .cp-field-label {
+    display: block; font-weight: 700; font-size: 12px;
+    color: var(--text-muted); margin-bottom: 7px;
+    font-family: var(--font-mono, 'Space Mono');
+    text-transform: uppercase; letter-spacing: .06em;
+}
+.cp-card input[type="text"],
+.cp-card textarea,
+.cp-card select {
+    width: 100%; padding: 13px 16px;
+    border: 1px solid var(--border-color); border-radius: 14px;
+    background: var(--bg-surface); color: var(--text-primary);
+    font-size: 14px; font-family: inherit;
+    transition: border-color .2s, box-shadow .2s;
+    appearance: none;
+}
+.cp-card input:focus, .cp-card textarea:focus, .cp-card select:focus {
+    outline: none; border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+}
+.cp-card input::placeholder, .cp-card textarea::placeholder { color: var(--text-muted); }
+.cp-card textarea { min-height: 200px; resize: vertical; line-height: 1.7; }
+.select-wrap { position: relative; }
+.select-wrap::after {
+    content: '▾'; position: absolute; right: 16px; top: 50%;
+    transform: translateY(-50%); pointer-events: none;
+    color: var(--text-muted); font-size: 14px;
+}
+.select-wrap select { padding-right: 40px; cursor: pointer; }
+.cp-field { margin-bottom: 22px; }
+.cp-card ul { padding: 0; margin: 6px 0 0; list-style: none; }
+.cp-card ul li { color: #ef4444; font-size: 13px; }
+
+/* ── Image upload zone ── */
+.upload-zone {
+    display: block;                       /* label needs display:block */
+    border: 2px dashed var(--border-color);
+    border-radius: 16px; padding: 36px 20px;
+    text-align: center; cursor: pointer;
+    transition: border-color .2s, background .2s;
+    user-select: none;
+}
+.upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--accent-primary);
+    background: rgba(99,102,241,.04);
+}
+.upload-icon {
+    font-size: 46px; display: block; margin-bottom: 12px;
+    transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.upload-zone:hover .upload-icon { transform: scale(1.18) translateY(-5px); }
+.upload-zone-text {
+    font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px;
+}
+.upload-zone-sub {
+    font-size: 12px; color: var(--text-muted);
+    font-family: var(--font-mono, 'Space Mono');
+}
+
+/* ── Image preview grid ── */
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px; margin-top: 14px;
+}
+.preview-item {
+    position: relative; border-radius: 12px; overflow: hidden;
+    aspect-ratio: 1; border: 1px solid var(--border-color);
+    animation: fadeUp .3s cubic-bezier(.22,1,.36,1) both;
+}
+.preview-item img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.preview-remove {
+    position: absolute; top: 5px; right: 5px;
+    background: rgba(0,0,0,.65); color: #fff; border: none;
+    width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+    font-size: 13px; display: flex; align-items: center; justify-content: center;
+    transition: background .15s;
+}
+.preview-remove:hover { background: #ef4444; }
+
+/* ── Notice & actions ── */
+.cp-notice {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: rgba(245,158,11,.09); border: 1px solid rgba(245,158,11,.28);
+    border-radius: 14px; padding: 13px 16px;
+    font-size: 13px; color: #92400e; margin-bottom: 26px; line-height: 1.5;
+}
+.cp-actions {
+    display: flex; gap: 14px; align-items: center;
+    margin-top: 32px; padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+}
+.cp-submit {
+    padding: 13px 32px;
+    background: linear-gradient(135deg, var(--accent-primary,#6366f1), #a855f7);
+    color: #fff; border: none; border-radius: 50px;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+    box-shadow: 0 4px 14px rgba(99,102,241,.3);
+}
+.cp-submit:hover { transform: translateY(-2px); box-shadow: 0 7px 22px rgba(99,102,241,.42); }
+.cp-back {
+    text-decoration: none; color: var(--text-muted);
+    font-weight: 600; font-size: 14px; transition: color .18s;
+}
+.cp-back:hover { color: var(--text-primary); }
+
+@keyframes fadeUp {
+    from { opacity:0; transform:translateY(20px); }
+    to   { opacity:1; transform:translateY(0); }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="cp-wrap">
+    <span class="cp-label">✍️ Create</span>
+    <h1 class="cp-title">Share your <span>Travel Story</span></h1>
+    <p class="cp-subtitle">
+        Post a story, review, tip or question with the TripX community.
+        All posts are reviewed before going live.
+    </p>
+
+    {% for msg in app.flashes('error') %}
+        <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);
+                    border-radius:14px;padding:14px 18px;margin-bottom:20px;
+                    color:#b91c1c;font-size:14px;">❌ {{ msg }}</div>
+    {% endfor %}
+
+    <div class="cp-card">
+        <div class="cp-notice">
+            ℹ️ Your post will be reviewed by an admin before appearing publicly.
+        </div>
+
+        {{ form_start(form, {
+            'attr': {
+                'novalidate': 'novalidate',
+                'enctype': 'multipart/form-data'
+            }
+        }) }}
+
+            {{ form_errors(form) }}
+
+            {# Title #}
+            <div class="cp-field">
+                {{ form_label(form.title, 'Post Title') }}
+                {{ form_widget(form.title, {'attr': {'placeholder': 'Give your post a clear, catchy title…'}}) }}
+                {{ form_errors(form.title) }}
+            </div>
+
+            {# Body #}
+            <div class="cp-field">
+                {{ form_label(form.body, 'Content') }}
+                {{ form_widget(form.body, {'attr': {'placeholder': 'Tell your story, share your experience, ask your question…'}}) }}
+                {{ form_errors(form.body) }}
+            </div>
+
+            {# Type #}
+            <div class="cp-field">
+                {{ form_label(form.type, 'Post Type') }}
+                <div class="select-wrap">
+                    {{ form_widget(form.type) }}
+                </div>
+                {{ form_errors(form.type) }}
+            </div>
+
+            {# Image Upload #}
+            <div class="cp-field">
+                <span class="cp-field-label">🖼️ Images (optional — up to 5)</span>
+
+                {# Render the Symfony file widget — hidden visually but fully clickable via its label #}
+                {# We capture the real Symfony-generated ID so our <label for="..."> matches exactly #}
+                {% set fileInputId = form.imageFile.vars.id %}
+
+                <div style="position:absolute;width:0;height:0;overflow:hidden;">
+                    {{ form_widget(form.imageFile, {'attr': {'multiple': 'multiple'}}) }}
+                </div>
+                {{ form_errors(form.imageFile) }}
+
+                {# <label for="..."> natively triggers the input on click — zero JS needed #}
+                <label for="{{ fileInputId }}" class="upload-zone" id="upload-zone"
+                       ondragover="handleDragOver(event)"
+                       ondragleave="handleDragLeave(event)"
+                       ondrop="handleDrop(event)">
+                    <span class="upload-icon">📷</span>
+                    <div class="upload-zone-text">Click to add photos — or drag & drop here</div>
+                    <div class="upload-zone-sub">
+                        JPG, PNG, WebP, GIF &nbsp;·&nbsp; max 5 MB each &nbsp;·&nbsp; up to 5 images
+                    </div>
+                </label>
+
+                <div class="preview-grid" id="preview-grid"></div>
+            </div>
+
+            <div class="cp-actions">
+                <button type="submit" class="cp-submit">🚀 Publish Post</button>
+                <a href="{{ path('blog') }}" class="cp-back">← Back to blog</a>
+            </div>
+
+        {{ form_end(form) }}
+    </div>
+</div>
+
+<script>
+const fileInput  = document.querySelector('input[type="file"][multiple]');
+const previewGrid = document.getElementById('preview-grid');
+const uploadZone  = document.getElementById('upload-zone');
+let selectedFiles = [];
+
+// ── Sync our selectedFiles array to the real input ──────────────────
+function syncFilesToInput() {
+    const dt = new DataTransfer();
+    selectedFiles.forEach(f => dt.items.add(f));
+    fileInput.files = dt.files;
+}
+
+// ── Render preview grid ──────────────────────────────────────────────
+function renderPreviews() {
+    previewGrid.innerHTML = '';
+    selectedFiles.forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const item = document.createElement('div');
+            item.className = 'preview-item';
+            item.style.animationDelay = (idx * 0.06) + 's';
+            item.innerHTML = `
+                <img src="${e.target.result}" alt="${file.name}">
+                <button type="button" class="preview-remove" onclick="removeFile(${idx})" title="Remove">✕</button>
+            `;
+            previewGrid.appendChild(item);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function removeFile(idx) {
+    selectedFiles.splice(idx, 1);
+    syncFilesToInput();
+    renderPreviews();
+}
+
+function addFiles(files) {
+    const arr = Array.from(files);
+    selectedFiles = [...selectedFiles, ...arr].slice(0, 5); // max 5
+    syncFilesToInput();
+    renderPreviews();
+}
+
+// ── File input change ────────────────────────────────────────────────
+fileInput.addEventListener('change', () => {
+    addFiles(fileInput.files);
+});
+
+// ── Drag & drop ──────────────────────────────────────────────────────
+function handleDragOver(e) {
+    e.preventDefault();
+    uploadZone.classList.add('dragover');
+}
+function handleDragLeave(e) {
+    uploadZone.classList.remove('dragover');
+}
+function handleDrop(e) {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+}
+</script>
+{% endblock %}

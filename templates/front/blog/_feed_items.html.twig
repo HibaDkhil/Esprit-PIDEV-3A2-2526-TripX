@@ -1,0 +1,389 @@
+{% set authorMap       = authorMap       is defined ? authorMap       : {} %}
+{% set savedPostIds    = savedPostIds    is defined ? savedPostIds    : [] %}
+{% set currentUserId   = currentUserId   is defined ? currentUserId   : null %}
+{% set reactionSummary = reactionSummary is defined ? reactionSummary : {} %}
+{% set userReactions   = userReactions   is defined ? userReactions   : {} %}
+{% set feed            = feed            is defined ? feed            : [] %}
+
+{% set rxnIcons  = {like:'👍',love:'❤️',haha:'😂',wow:'😮',sad:'😢',angry:'😡'} %}
+{% set rxnLabels = {like:'Like',love:'Love',haha:'Haha',wow:'Wow',sad:'Sad',angry:'Angry'} %}
+
+{% if feed is empty %}
+  <div class="empty-state">
+    <span class="ei">✈️</span>
+    <h3>No posts found</h3>
+    <p>
+      <a href="{{ path('blog') }}" class="tpill-link" data-type="" data-search="">Clear filters</a> or
+      <a href="{{ path('post_create') }}">create the first post!</a>
+    </p>
+  </div>
+{% else %}
+  {% for item in feed %}
+    {% if item.feedType == 'post' %}
+      {# ─── POST CARD ─────────────────────────────────────── #}
+      {% set post   = item.entity %}
+      {% set pid    = post.id %}
+      {% set aName  = authorMap[post.userId] ?? 'User #' ~ post.userId %}
+      {% set isOwner = (currentUserId is not null and currentUserId == post.userId) %}
+      {% set isSaved = pid in savedPostIds %}
+      {% set counts = reactionSummary[pid] ?? {like:0,love:0,haha:0,wow:0,sad:0,angry:0} %}
+      {% set myRxn  = userReactions[pid] ?? '' %}
+      {% set total  = counts.like + counts.love + counts.haha + counts.wow + counts.sad + counts.angry %}
+      {% set comments = post.comments|default([]) %}
+      {% set nc = comments|length %}
+
+      <article class="post-card" data-feed-type="post">
+        <div class="pc-head">
+          <div class="pc-avatar" data-uavatar="{{ post.userId }}">{{ aName|first|upper }}</div>
+          <div class="pc-head-main">
+            <div class="pc-name" data-uname="{{ post.userId }}">{{ aName }}</div>
+            <div class="pc-date">{% if post.createdAt %}{{ post.createdAt|date('M d, Y H:i') }}{% endif %}</div>
+          </div>
+          <span class="pc-badge b-{{ post.type }}">{{ post.type }}</span>
+          {% if isOwner %}
+            <a href="{{ path('post_edit', {id: pid}) }}" class="head-action-btn" title="Edit post">✏️</a>
+            <form method="post" action="{{ path('post_delete', {id: pid}) }}" class="inline-form"
+                  onsubmit="return confirm('Delete this post?');">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete_post_' ~ pid) }}">
+              <button type="submit" class="head-action-btn head-danger" title="Delete post">🗑</button>
+            </form>
+          {% endif %}
+        </div>
+
+        <a href="{{ path('post_show', {id: pid}) }}" class="pc-title">{{ post.title }}</a>
+
+        {% if post.imageUrl %}
+          {% set imgUrls = post.imageUrl|split(',') %}
+          {% if imgUrls|length == 1 %}
+            <div class="pc-imgwrap">
+              <img src="{{ imgUrls[0]|trim }}" class="pc-img" alt="{{ post.title }}"
+                   loading="lazy" onerror="this.parentElement.style.display='none'">
+            </div>
+          {% else %}
+            <div class="pc-gridimgs cols-{{ imgUrls|length > 2 ? 3 : 2 }}">
+              {% for img in imgUrls|slice(0,4) %}
+                <img src="{{ img|trim }}" alt="{{ post.title }}"
+                     class="pc-gridimg"
+                     loading="lazy" onerror="this.style.display='none'">
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endif %}
+
+        <div class="pc-body">{{ post.body }}</div>
+        <a href="{{ path('post_show', {id: pid}) }}" class="pc-read">Read more →</a>
+
+        <div class="pc-actions">
+          <div class="rxn-wrap" id="rxnwrap-{{ pid }}">
+            <button type="button"
+                    class="rxn-btn {% if myRxn %}reacted-{{ myRxn }}{% endif %}"
+                    id="rxnbtn-{{ pid }}"
+                    onclick="quickReact({{ pid }}, '{{ myRxn ?: '' }}', 'post')">
+              <span id="rxnicon-{{ pid }}">
+                {% if myRxn and rxnIcons[myRxn] is defined %}
+                  {{ rxnIcons[myRxn] }}
+                {% else %}👍{% endif %}
+              </span>
+              <span id="rxnlbl-{{ pid }}">
+                {% if myRxn and rxnLabels[myRxn] is defined %}
+                  {{ rxnLabels[myRxn] }}
+                {% else %}Like{% endif %}
+              </span>
+              {% if total > 0 %}
+                <span class="rxn-count" id="rxntotal-{{ pid }}">{{ total }}</span>
+              {% else %}
+                <span class="rxn-count" id="rxntotal-{{ pid }}" style="display:none;">0</span>
+              {% endif %}
+            </button>
+            <div class="rxn-picker">
+              {% for rtype, emoji in rxnIcons %}
+                <button type="button"
+                        class="emoji-btn {% if myRxn == rtype %}active-emoji{% endif %}"
+                        id="rxnopt-{{ pid }}-{{ rtype }}"
+                        onclick="sendReaction({{ pid }}, '{{ rtype }}', 'post')">
+                  <span class="e">{{ emoji }}</span>
+                  <span class="el">{{ rxnLabels[rtype] }}</span>
+                </button>
+              {% endfor %}
+            </div>
+          </div>
+
+          <button type="button" class="act-btn" onclick="toggleC('c{{ pid }}', this)">
+            💬 Comment
+          </button>
+
+          <form method="post" action="{{ path('post_save_toggle', {id: pid}) }}" class="inline-form">
+            <input type="hidden" name="_token" value="{{ csrf_token('save_post_' ~ pid) }}">
+            <button type="submit" class="act-btn {% if isSaved %}saved{% endif %}">
+              🔖 {{ isSaved ? 'Saved' : 'Save' }}
+            </button>
+          </form>
+
+          <button type="button" class="act-btn"
+                  onclick="sharePost('{{ post.title|e('js') }}', '{{ url('post_show', {id: pid}) }}')">
+            🔗 Share
+          </button>
+        </div>
+
+        {% if total > 0 %}
+          <div class="rxn-tally">
+            {% for rtype, emoji in rxnIcons %}
+              {% if counts[rtype] is defined and counts[rtype] > 0 %}
+                <span>{{ emoji }} {{ counts[rtype] }}</span>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <button type="button" class="vcbtn" onclick="toggleC('c{{ pid }}', this)">
+          View comments ({{ nc }})
+        </button>
+
+        <div id="c{{ pid }}" class="cbox">
+          <div class="cbox-inner">
+
+            {% set topComments = comments|filter(c => c.parentCommentId is null or c.parentCommentId == 0) %}
+            {% set allReplies  = comments|filter(c => c.parentCommentId is not null and c.parentCommentId != 0) %}
+
+            {% if topComments|length > 0 %}
+              {% for comment in topComments %}
+                {% set cn = authorMap[comment.userId] ?? 'User #' ~ comment.userId %}
+                {% set commentReplies = allReplies|filter(r => r.parentCommentId == comment.id) %}
+
+                <div class="crow" id="comment-{{ comment.id }}">
+                  <div class="cav">{{ cn|first|upper }}</div>
+                  <div class="cbubble">
+                    <div class="cn" data-uname="{{ comment.userId }}">{{ cn }}</div>
+                    <div class="cb" id="cbody-{{ comment.id }}">{{ comment.body }}</div>
+
+                    <div class="edit-form" id="edit-{{ comment.id }}">
+                      <form method="post" action="{{ path('comment_edit', {id: comment.id}) }}"
+                            class="edit-inline-form">
+                        <input type="hidden" name="_token" value="{{ csrf_token('edit_comment_' ~ comment.id) }}">
+                        <textarea name="body" rows="1"
+                                  oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'">{{ comment.body }}</textarea>
+                        <button type="submit" class="edit-send">Save</button>
+                        <button type="button" class="edit-cancel"
+                                onclick="toggleEditForm('edit-{{ comment.id }}')">✕</button>
+                      </form>
+                    </div>
+
+                    <div class="comment-actions">
+                      <div class="c-rxn-wrap">
+                        <button type="button" class="ca-btn" id="crxnbtn-{{ comment.id }}"
+                                onclick="quickReact({{ comment.id }}, '', 'comment')">👍 Like</button>
+                        <div class="c-rxn-picker">
+                          {% for rtype, emoji in rxnIcons %}
+                            <button type="button" class="c-emoji-btn"
+                                    onclick="sendReaction({{ comment.id }}, '{{ rtype }}', 'comment')"
+                                    title="{{ rxnLabels[rtype] }}">{{ emoji }}</button>
+                          {% endfor %}
+                        </div>
+                      </div>
+                      <span class="c-rxn-tally" id="crxntally-{{ comment.id }}"></span>
+                      <span class="ca-sep">·</span>
+
+                      <button type="button" class="ca-btn"
+                              onclick="toggleReplyForm('reply-{{ comment.id }}')">💬 Reply</button>
+                      <span class="ca-sep">·</span>
+
+                      <span class="comment-time">
+                        {% if comment.createdAt %}{{ comment.createdAt|date('M d · H:i') }}{% endif %}
+                      </span>
+
+                      {% if app.user is not null and currentUserId is not null and currentUserId == comment.userId %}
+                        <span class="ca-sep">·</span>
+                        <button type="button" class="ca-btn"
+                                onclick="toggleEditForm('edit-{{ comment.id }}')">✏️ Edit</button>
+                      {% endif %}
+
+                      {% if app.user is not null and currentUserId is not null and (currentUserId == comment.userId or currentUserId == post.userId) %}
+                        <span class="ca-sep">·</span>
+                        <form method="post" action="{{ path('comment_delete', {id: comment.id}) }}"
+                              class="inline-form" onsubmit="return confirm('Delete this comment and its replies?');">
+                          <input type="hidden" name="_token"
+                                 value="{{ csrf_token('delete_comment_' ~ comment.id) }}">
+                          <button type="submit" class="ca-btn danger">🗑 Delete</button>
+                        </form>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="reply-form" id="reply-{{ comment.id }}">
+                  <form method="post" action="{{ path('comment_create', {id: pid}) }}">
+                    <input type="hidden" name="parent_comment_id" value="{{ comment.id }}">
+                    <div class="reply-form-inner">
+                      <textarea name="body" rows="1" required
+                                placeholder="Reply to {{ cn|split(' ')|first }}…"
+                                oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+                      <button type="submit" class="reply-send">Reply</button>
+                      <button type="button" class="reply-cancel"
+                              onclick="toggleReplyForm('reply-{{ comment.id }}')">✕</button>
+                    </div>
+                  </form>
+                </div>
+
+                {% if commentReplies|length > 0 %}
+                  <button type="button" class="replies-toggle"
+                          onclick="toggleReplies('replies-{{ comment.id }}', this)">
+                    <span>▸</span> {{ commentReplies|length }} {{ commentReplies|length == 1 ? 'reply' : 'replies' }}
+                  </button>
+                  <div class="replies-wrap" id="replies-{{ comment.id }}" style="display:none;">
+                    {% for reply in commentReplies %}
+                      {% set rn = authorMap[reply.userId] ?? 'User #' ~ reply.userId %}
+
+                      <div class="crow crow-reply" id="comment-{{ reply.id }}">
+                        <div class="cav cav-small">{{ rn|first|upper }}</div>
+                        <div class="cbubble">
+                          <div class="cn" data-uname="{{ reply.userId }}">{{ rn }}</div>
+                          <div class="cb" id="cbody-{{ reply.id }}">{{ reply.body }}</div>
+
+                          <div class="edit-form" id="edit-{{ reply.id }}">
+                            <form method="post" action="{{ path('comment_edit', {id: reply.id}) }}"
+                                  class="edit-inline-form">
+                              <input type="hidden" name="_token" value="{{ csrf_token('edit_comment_' ~ reply.id) }}">
+                              <textarea name="body" rows="1"
+                                        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'">{{ reply.body }}</textarea>
+                              <button type="submit" class="edit-send">Save</button>
+                              <button type="button" class="edit-cancel"
+                                      onclick="toggleEditForm('edit-{{ reply.id }}')">✕</button>
+                            </form>
+                          </div>
+
+                          <div class="comment-actions">
+                            <div class="c-rxn-wrap">
+                              <button type="button" class="ca-btn" id="crxnbtn-{{ reply.id }}"
+                                      onclick="quickReact({{ reply.id }}, '', 'comment')">👍 Like</button>
+                              <div class="c-rxn-picker">
+                                {% for rtype, emoji in rxnIcons %}
+                                  <button type="button" class="c-emoji-btn"
+                                          onclick="sendReaction({{ reply.id }}, '{{ rtype }}', 'comment')"
+                                          title="{{ rxnLabels[rtype] }}">{{ emoji }}</button>
+                                {% endfor %}
+                              </div>
+                            </div>
+                            <span class="c-rxn-tally" id="crxntally-{{ reply.id }}"></span>
+                            <span class="ca-sep">·</span>
+
+                            <button type="button" class="ca-btn"
+                                    onclick="toggleReplyForm('reply-{{ reply.id }}')">💬 Reply</button>
+                            <span class="ca-sep">·</span>
+
+                            <span class="comment-time">
+                              {% if reply.createdAt %}{{ reply.createdAt|date('M d · H:i') }}{% endif %}
+                            </span>
+
+                            {% if app.user is not null and currentUserId is not null and currentUserId == reply.userId %}
+                              <span class="ca-sep">·</span>
+                              <button type="button" class="ca-btn"
+                                      onclick="toggleEditForm('edit-{{ reply.id }}')">✏️ Edit</button>
+                            {% endif %}
+
+                            {% if app.user is not null and currentUserId is not null and (currentUserId == reply.userId or currentUserId == post.userId) %}
+                              <span class="ca-sep">·</span>
+                              <form method="post" action="{{ path('comment_delete', {id: reply.id}) }}"
+                                    class="inline-form" onsubmit="return confirm('Delete this reply?');">
+                                <input type="hidden" name="_token"
+                                       value="{{ csrf_token('delete_comment_' ~ reply.id) }}">
+                                <button type="submit" class="ca-btn danger">🗑 Delete</button>
+                              </form>
+                            {% endif %}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="reply-form reply-form-nested" id="reply-{{ reply.id }}">
+                        <form method="post" action="{{ path('comment_create', {id: pid}) }}">
+                          <input type="hidden" name="parent_comment_id" value="{{ reply.id }}">
+                          <div class="reply-form-inner">
+                            <textarea name="body" rows="1" required
+                                      placeholder="Reply to {{ rn|split(' ')|first }}…"
+                                      oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+                            <button type="submit" class="reply-send">Reply</button>
+                            <button type="button" class="reply-cancel"
+                                    onclick="toggleReplyForm('reply-{{ reply.id }}')">✕</button>
+                          </div>
+                        </form>
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              <p class="no-comments">
+                No comments yet — start the conversation!
+              </p>
+            {% endif %}
+
+            <form method="post" action="{{ path('comment_create', {id: pid}) }}">
+              <div class="cform-row">
+                <textarea name="body" rows="1" placeholder="Write a comment…" required
+                          oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+                <button type="submit" class="csend">Post</button>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      </article>
+
+    {% elseif item.feedType == 'travel_story' %}
+      {# ─── TRAVEL STORY CARD ────────────────────────────── #}
+      {% set story = item.entity %}
+      {% set aName = authorMap[story.userId] ?? 'User #' ~ story.userId %}
+
+      <article class="post-card ts-card" data-feed-type="travel_story">
+        <div class="pc-head">
+          <div class="pc-avatar" data-uavatar="{{ story.userId }}">{{ aName|first|upper }}</div>
+          <div class="pc-head-main">
+            <div class="pc-name" data-uname="{{ story.userId }}">{{ aName }}</div>
+            <div class="pc-date">{% if story.createdAt %}{{ story.createdAt|date('M d, Y H:i') }}{% endif %}</div>
+          </div>
+          <span class="pc-badge b-travel_story">🧳 Travel Story</span>
+        </div>
+
+        <a href="{{ path('travel_story_show', {id: story.id}) }}" class="pc-title">{{ story.title }}</a>
+
+        {% if story.destination %}
+          <div class="ts-destination">📍 {{ story.destination }}</div>
+        {% endif %}
+
+        {% if story.coverImageUrl %}
+          <div class="pc-imgwrap">
+            <img src="{{ story.coverImageUrl }}" class="pc-img" alt="{{ story.title }}"
+                 loading="lazy" onerror="this.parentElement.style.display='none'">
+          </div>
+        {% endif %}
+
+        {% if story.summary %}
+          <div class="pc-body">{{ story.summary|length > 300 ? story.summary|slice(0,300) ~ '…' : story.summary }}</div>
+        {% endif %}
+
+        <div class="ts-meta">
+          {% if story.overallRating %}
+            <span class="ts-tag">⭐ {{ story.overallRating }}/5</span>
+          {% endif %}
+          {% if story.travelType %}
+            <span class="ts-tag">{{ story.travelType|capitalize }}</span>
+          {% endif %}
+          {% if story.travelStyle %}
+            <span class="ts-tag">{{ story.travelStyle|capitalize }}</span>
+          {% endif %}
+          {% if story.totalBudget %}
+            <span class="ts-tag">{{ story.currency }} {{ story.totalBudget }}</span>
+          {% endif %}
+        </div>
+
+        <a href="{{ path('travel_story_show', {id: story.id}) }}" class="pc-read">Read full story →</a>
+
+        <div class="pc-actions">
+          <button type="button" class="act-btn"
+                  onclick="sharePost('{{ story.title|e('js') }}', '{{ url('travel_story_show', {id: story.id}) }}')">
+            🔗 Share
+          </button>
+        </div>
+      </article>
+    {% endif %}
+  {% endfor %}
+{% endif %}

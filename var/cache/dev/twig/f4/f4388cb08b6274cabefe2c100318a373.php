@@ -1,0 +1,866 @@
+<?php
+
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Extension\CoreExtension;
+use Twig\Extension\SandboxExtension;
+use Twig\Markup;
+use Twig\Sandbox\SecurityError;
+use Twig\Sandbox\SecurityNotAllowedTagError;
+use Twig\Sandbox\SecurityNotAllowedFilterError;
+use Twig\Sandbox\SecurityNotAllowedFunctionError;
+use Twig\Source;
+use Twig\Template;
+use Twig\TemplateWrapper;
+
+/* front/offers.html.twig */
+class __TwigTemplate_38ece9c583eb8db58fc857d8cbf29fa9 extends Template
+{
+    private Source $source;
+    /**
+     * @var array<string, Template>
+     */
+    private array $macros = [];
+
+    public function __construct(Environment $env)
+    {
+        parent::__construct($env);
+
+        $this->source = $this->getSourceContext();
+
+        $this->parent = false;
+
+        $this->blocks = [
+        ];
+    }
+
+    protected function doDisplay(array $context, array $blocks = []): iterable
+    {
+        $macros = $this->macros;
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f = $this->extensions["Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension"];
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->enter($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "template", "front/offers.html.twig"));
+
+        // line 1
+        yield "<!DOCTYPE html>
+<html lang=\"en\" data-theme=\"light\">
+<head>
+  <meta charset=\"UTF-8\">
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+  <meta name=\"description\" content=\"TripX Offers — Flash deals, personalized travel discounts, and loyalty rewards. AI-curated for you.\">
+  <title>Offers & Deals — TripX</title>
+  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">
+  <link href=\"https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Montserrat:wght@100..900&family=Space+Mono:wght@400;700&display=swap\" rel=\"stylesheet\">
+  <link rel=\"stylesheet\" href=\"/assets.php?f=css/main.css\">
+  <link rel=\"stylesheet\" href=\"/assets.php?f=css/animations.css\">
+  <style>
+    .page-top { padding-top: calc(var(--nav-height) + 60px); padding-bottom: 40px; }
+
+    /* Flash deal banner */
+    .flash-banner {
+      background: linear-gradient(135deg, #1a0a00 0%, #2d0a0a 100%);
+      border-radius: var(--border-radius-xl);
+      padding: 40px 48px;
+      position: relative;
+      overflow: hidden;
+      color: #F0F4F8;
+      margin-bottom: 48px;
+    }
+    .flash-banner-mesh {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 100% 50%, rgba(255,77,109,0.25) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .flash-price {
+      font-family: var(--font-display);
+      font-size: clamp(48px, 8vw, 96px);
+      line-height: 1;
+      color: var(--accent-primary);
+    }
+    .flash-was {
+      font-family: var(--font-display);
+      font-size: 32px;
+      text-decoration: line-through;
+      color: rgba(240,244,248,0.4);
+    }
+
+    /* Deal card */
+    .deal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+      transition: all var(--transition-smooth);
+      position: relative;
+    }
+    .deal-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--accent-primary); }
+    .deal-img {
+      height: 180px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 72px;
+      position: relative;
+    }
+    .deal-discount {
+      position: absolute; top: 14px; left: 14px;
+      background: var(--accent-primary);
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: 20px;
+      padding: 4px 12px;
+      border-radius: 8px;
+    }
+    .deal-body { padding: 18px; }
+    .deal-name { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+    .deal-reason { font-size: 0.78rem; color: var(--accent-teal); margin-bottom: 10px; font-style: italic; }
+    .deal-countdown-wrap { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .deal-footer { display: flex; justify-content: space-between; align-items: center; }
+    .deal-price-row { display: flex; align-items: baseline; gap: 8px; }
+    .deal-price-now { font-family: var(--font-display); font-size: 28px; color: var(--accent-primary); }
+    .deal-price-was { font-size: 0.85rem; text-decoration: line-through; color: var(--text-muted); }
+
+    /* Countdown small */
+    .cd-mini {
+      display: flex; gap: 4px; align-items: center;
+      font-family: var(--font-mono); font-size: 12px;
+    }
+    .cd-unit { background: var(--accent-primary); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 14px; min-width: 28px; text-align: center; }
+    .cd-col { color: var(--text-muted); }
+
+    /* Bundle card */
+    .bundle-card {
+      background: var(--bg-card);
+      border: 2px solid transparent;
+      background-clip: padding-box;
+      border-radius: var(--border-radius-lg);
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .bundle-card::before {
+      content: '';
+      position: absolute; inset: -2px;
+      border-radius: var(--border-radius-lg);
+      background: linear-gradient(135deg, var(--accent-gold), var(--accent-primary));
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+    <div id=\"cursor-dot\"></div><div id=\"cursor-halo\"></div>
+
+
+
+<nav class=\"nav\">
+  <div class=\"nav-inner\">
+    <a href=\"";
+        // line 111
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("index");
+        yield "\" class=\"nav-logo\">Trip<span>X</span></a>
+    <div class=\"nav-links\">
+      <a href=\"";
+        // line 113
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("index");
+        yield "\"          class=\"nav-link\">Home</a>
+      <a href=\"";
+        // line 114
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("destinations");
+        yield "\"   class=\"nav-link\">Destinations</a>
+      <a href=\"";
+        // line 115
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("activities");
+        yield "\"     class=\"nav-link\">Activities</a>
+      <a href=\"";
+        // line 116
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("accommodations");
+        yield "\" class=\"nav-link\">Accommodations</a>
+      <a href=\"";
+        // line 117
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("transport");
+        yield "\"      class=\"nav-link\">Transport</a>
+      <a href=\"";
+        // line 118
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("offers");
+        yield "\"         class=\"nav-link active\">Offers</a>
+      <a href=\"";
+        // line 119
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("blog");
+        yield "\" class=\"nav-link\">Blog</a><a href=\"#\" class=\"nav-link\">My Bookings</a>
+    </div>
+    <div class=\"nav-actions\">
+      <button id=\"theme-toggle\" class=\"theme-toggle\" aria-label=\"Toggle dark mode\">
+        <span class=\"toggle-icon icon-sun\">☀️</span>
+        <span class=\"toggle-icon icon-moon\">🌙</span>
+      </button>
+      <a href=\"";
+        // line 126
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("users");
+        yield "\" class=\"btn-nav-primary ripple-btn\">My Profile</a><a href=\"";
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("app_logout");
+        yield "\" class=\"Btn-logout\" style=\"margin-left: 8px;\">
+        <div class=\"sign\"><svg viewBox=\"0 0 512 512\"><path d=\"M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z\" /></svg></div>
+        <div class=\"text\">Logout</div>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class=\"page-top\">
+  <div class=\"container\">
+    <div class=\"section-label reveal\"><span>AI-Personalized Deals</span></div>
+    <h1 class=\"display-md reveal\" style=\"margin-bottom:8px\">Unbeatable <span class=\"gradient-text-warm\">Deals ✦</span></h1>
+    <p class=\"serif-mood text-muted reveal reveal-delay-1\">ARIA watches prices 24/7 so you never miss the perfect deal.</p>
+    <div class=\"filter-pills mt-24 reveal reveal-delay-2\">
+      <button class=\"filter-pill active\">All Deals</button>
+      <button class=\"filter-pill\">⚡ Flash</button>
+      <button class=\"filter-pill\">🌅 Early Bird</button>
+      <button class=\"filter-pill\">🔖 Last Minute</button>
+      <button class=\"filter-pill\">📦 Bundle</button>
+      <button class=\"filter-pill\">🕵️ Hidden</button>
+    </div>
+  </div>
+</div>
+
+<!-- FLASH Deal Banner -->
+<section class=\"section-sm\">
+  <div class=\"container\">
+    <div class=\"flash-banner reveal\">
+      <div class=\"flash-banner-mesh\"></div>
+      <div style=\"position:relative;z-index:1;display:flex;gap:48px;align-items:center;flex-wrap:wrap\">
+        <div>
+          <div class=\"fire-badge\"><span class=\"fire-icon\">🔥</span> FLASH DEAL — ENDS SOON</div>
+          <h2 style=\"font-family:var(--font-display);font-size:clamp(28px,5vw,56px);text-transform:uppercase;margin:12px 0;line-height:1\">Maldives 7-Night Escape<br><span style=\"color:var(--accent-primary)\">All Inclusive</span></h2>
+          <p style=\"color:rgba(240,244,248,0.7);max-width:440px;font-size:0.9rem;margin-bottom:20px\">Overwater bungalow · Return flights from Paris · 5-star resort · Full board</p>
+          <div style=\"display:flex;align-items:baseline;gap:16px;margin-bottom:24px\">
+            <div class=\"flash-price\">€1,240</div>
+            <div class=\"flash-was\">€2,100</div>
+            <span class=\"badge badge-coral\" style=\"font-size:16px;padding:6px 16px\">-41%</span>
+          </div>
+          <a href=\"#\" class=\"btn btn-primary btn-lg ripple-btn\" style=\"background:var(--accent-primary)\">Grab This Deal ✦</a>
+        </div>
+        <!-- Countdown -->
+        <div style=\"text-align:center\">
+          <div style=\"font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;color:rgba(240,244,248,0.6);margin-bottom:14px;text-transform:uppercase\">Deal Expires In</div>
+          <div class=\"countdown\" id=\"flash-main-countdown\" data-countdown=\"11\" style=\"justify-content:center\">
+            <div class=\"countdown-unit\"><div class=\"countdown-val\">11</div><div style=\"font-family:var(--font-mono);font-size:9px;color:rgba(240,244,248,0.5);margin-top:4px;text-transform:uppercase\">Hrs</div></div>
+            <div class=\"countdown-sep\" style=\"color:var(--accent-primary)\">:</div>
+            <div class=\"countdown-unit\"><div class=\"countdown-val\">47</div><div style=\"font-family:var(--font-mono);font-size:9px;color:rgba(240,244,248,0.5);margin-top:4px;text-transform:uppercase\">Min</div></div>
+            <div class=\"countdown-sep\" style=\"color:var(--accent-primary)\">:</div>
+            <div class=\"countdown-unit\"><div class=\"countdown-val\">18</div><div style=\"font-family:var(--font-mono);font-size:9px;color:rgba(240,244,248,0.5);margin-top:4px;text-transform:uppercase\">Sec</div></div>
+          </div>
+          <div style=\"font-family:var(--font-mono);font-size:10px;color:rgba(255,77,109,0.8);margin-top:12px\">⚡ Only 3 spots left</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Deal Grid -->
+<section class=\"section-sm\">
+  <div class=\"container\">
+    <div class=\"section-label reveal\"><span>Personalized For You</span></div>
+    <h2 class=\"display-md reveal\" style=\"margin-bottom:8px\">ARIA Found These <span class=\"text-coral\">For You</span></h2>
+    <p class=\"serif-mood text-muted reveal reveal-delay-1\" style=\"margin-bottom:32px\">Based on your search history and travel DNA.</p>
+
+    <div class=\"grid-4 stagger\">
+      <!-- Deal 1 -->
+      <div class=\"deal-card\">
+        <div class=\"deal-img\" style=\"background:linear-gradient(135deg,#003049,#d62828)\">🌊<span class=\"deal-discount\">-35%</span></div>
+        <div class=\"deal-body\">
+          <div class=\"deal-name\">Bali Boutique Villa Package</div>
+          <div class=\"deal-reason\">✦ Because you searched Bali 3 times</div>
+          <div class=\"deal-countdown-wrap\">
+            <div class=\"fire-badge\" style=\"font-size:10px\"><span class=\"fire-icon\">🔥</span> Flash</div>
+            <div class=\"cd-mini\">
+              <div class=\"cd-unit\">08</div><span class=\"cd-col\">:</span>
+              <div class=\"cd-unit\">32</div><span class=\"cd-col\">:</span>
+              <div class=\"cd-unit\">44</div>
+            </div>
+          </div>
+          <div class=\"deal-footer\">
+            <div class=\"deal-price-row\">
+              <div class=\"deal-price-now\">€640</div>
+              <div class=\"deal-price-was\">€985</div>
+            </div>
+            <button class=\"btn btn-primary btn-sm ripple-btn\">Grab</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deal 2 -->
+      <div class=\"deal-card\">
+        <div class=\"deal-img\" style=\"background:linear-gradient(135deg,#0a1628,#1e3c72)\">🌸<span class=\"deal-discount\">-28%</span></div>
+        <div class=\"deal-body\">
+          <div class=\"deal-name\">Kyoto Ryokan + Flights</div>
+          <div class=\"deal-reason\">✦ Matches your Cultural DNA score</div>
+          <div class=\"deal-countdown-wrap\">
+            <span class=\"badge badge-teal\">Early Bird</span>
+          </div>
+          <div class=\"deal-footer\">
+            <div class=\"deal-price-row\">
+              <div class=\"deal-price-now\">€890</div>
+              <div class=\"deal-price-was\">€1,240</div>
+            </div>
+            <button class=\"btn btn-primary btn-sm ripple-btn\">Grab</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deal 3 -->
+      <div class=\"deal-card\">
+        <div class=\"deal-img\" style=\"background:linear-gradient(135deg,#7b2d00,#ffd500)\">🏰<span class=\"deal-discount\">-40%</span></div>
+        <div class=\"deal-body\">
+          <div class=\"deal-name\">Santorini Couples Escape</div>
+          <div class=\"deal-reason\">✦ Last minute — departs in 4 days</div>
+          <div class=\"deal-countdown-wrap\">
+            <div class=\"fire-badge\" style=\"font-size:10px\"><span class=\"fire-icon\">🔥</span> Last Minute</div>
+          </div>
+          <div class=\"deal-footer\">
+            <div class=\"deal-price-row\">
+              <div class=\"deal-price-now\">€680</div>
+              <div class=\"deal-price-was\">€1,130</div>
+            </div>
+            <button class=\"btn btn-primary btn-sm ripple-btn\">Grab</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deal 4 -->
+      <div class=\"deal-card\">
+        <div class=\"deal-img\" style=\"background:linear-gradient(135deg,#185a37,#f9a825)\">🦁<span class=\"deal-discount\">-22%</span></div>
+        <div class=\"deal-body\">
+          <div class=\"deal-name\">Serengeti Safari Bundle</div>
+          <div class=\"deal-reason\">✦ Adventure DNA 88% — perfect fit</div>
+          <div class=\"deal-countdown-wrap\">
+            <span class=\"badge badge-gold\">Bundle & Save</span>
+          </div>
+          <div class=\"deal-footer\">
+            <div class=\"deal-price-row\">
+              <div class=\"deal-price-now\">€1,640</div>
+              <div class=\"deal-price-was\">€2,100</div>
+            </div>
+            <button class=\"btn btn-primary btn-sm ripple-btn\">Grab</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Bundle & Save + Hidden Deals -->
+<section class=\"section\" style=\"background:var(--bg-secondary)\">
+  <div class=\"container\">
+    <div class=\"grid-2\" style=\"gap:32px\">
+      <!-- Bundle -->
+      <div>
+        <div class=\"section-label reveal\"><span>Bundle & Save</span></div>
+        <h2 class=\"display-md reveal\" style=\"margin-bottom:24px\">Ultimate <span class=\"text-gold\">Packages</span></h2>
+        <div class=\"bundle-card reveal\">
+          <div style=\"display:flex;justify-content:space-between;align-items:start;margin-bottom:16px\">
+            <div>
+              <div style=\"font-family:var(--font-display);font-size:28px;text-transform:uppercase\">Asia Dream Package</div>
+              <div style=\"font-size:0.85rem;color:var(--text-muted);margin-top:6px\">Bangkok → Bali → Singapore · 21 nights</div>
+            </div>
+            <span class=\"badge badge-gold\" style=\"font-size:14px;padding:6px 16px\">SAVE €620</span>
+          </div>
+          <div style=\"display:flex;flex-direction:column;gap:8px;margin-bottom:20px\">
+            <div style=\"display:flex;gap:8px;align-items:center\"><span>✅</span><span style=\"font-size:0.85rem\">Return flights (Economy+)</span></div>
+            <div style=\"display:flex;gap:8px;align-items:center\"><span>✅</span><span style=\"font-size:0.85rem\">3 boutique hotels (5-star)</span></div>
+            <div style=\"display:flex;gap:8px;align-items:center\"><span>✅</span><span style=\"font-size:0.85rem\">8 ARIA-curated activities</span></div>
+            <div style=\"display:flex;gap:8px;align-items:center\"><span>✅</span><span style=\"font-size:0.85rem\">Airport transfers & travel insurance</span></div>
+          </div>
+          <div style=\"display:flex;justify-content:space-between;align-items:center\">
+            <div>
+              <div style=\"font-family:var(--font-display);font-size:40px;color:var(--accent-gold);line-height:1\">€2,840</div>
+              <div style=\"font-size:0.8rem;color:var(--text-muted)\">per person · was €3,460</div>
+            </div>
+            <button class=\"btn btn-primary btn-lg ripple-btn\">Book Package</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loyalty Points -->
+      <div>
+        <div class=\"section-label reveal\"><span>Your Rewards</span></div>
+        <h2 class=\"display-md reveal\" style=\"margin-bottom:24px\">Loyalty <span class=\"text-coral\">Tier</span></h2>
+        <div class=\"card reveal\">
+          <div class=\"card-body\">
+            <div style=\"display:flex;justify-content:space-between;margin-bottom:24px\">
+              <div>
+                <div style=\"font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px\">Your Points</div>
+                <div style=\"font-family:var(--font-display);font-size:48px;color:var(--accent-gold);line-height:1\">8,420</div>
+              </div>
+              <span class=\"badge badge-gold\" style=\"align-self:start;font-size:13px;padding:6px 16px\">EXPLORER</span>
+            </div>
+            <div class=\"loyalty-track\" style=\"margin-bottom:8px\">
+              <div class=\"loyalty-fill\" style=\"width:84%\"></div>
+              <div class=\"loyalty-glow\" style=\"right:16%\"></div>
+            </div>
+            <div style=\"font-size:0.8rem;color:var(--text-muted);margin-bottom:24px\">1,580 pts to Gold Tier 🥇</div>
+            <div style=\"display:flex;flex-direction:column;gap:10px\">
+              <div class=\"mini-card\" style=\"padding:14px;border-radius:12px\">
+                <div style=\"font-size:24px\">✈️</div>
+                <div><div style=\"font-weight:600;font-size:0.9rem\">Free return flight</div><div style=\"font-size:0.78rem;color:var(--text-muted)\">Redeem 5,000 pts → any European destination</div></div>
+                <button class=\"btn btn-secondary btn-sm\" style=\"margin-left:auto;flex-shrink:0\">Redeem</button>
+              </div>
+              <div class=\"mini-card\" style=\"padding:14px;border-radius:12px\">
+                <div style=\"font-size:24px\">🏨</div>
+                <div><div style=\"font-weight:600;font-size:0.9rem\">Free hotel night</div><div style=\"font-size:0.78rem;color:var(--text-muted)\">Redeem 3,500 pts → 4-star hotel</div></div>
+                <button class=\"btn btn-secondary btn-sm\" style=\"margin-left:auto;flex-shrink:0\">Redeem</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class=\"footer\">
+  <div class=\"container\">
+    <div class=\"footer-bottom\">
+      <div class=\"footer-copy\">© 2026 TripX. All rights reserved.</div>
+      <a href=\"";
+        // line 349
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("index");
+        yield "\" class=\"footer-copy\" style=\"color:var(--accent-primary)\">← Back to Home</a>
+    </div>
+  </div>
+</footer>
+
+<button class=\"aria-orb\" id=\"aria-orb\" aria-label=\"Open ARIA\">✦</button>
+<div class=\"aria-panel\" id=\"aria-panel\">
+  <div class=\"aria-header\">
+    <div class=\"aria-avatar\">✦</div>
+    <div><span class=\"aria-name\">ARIA</span><span class=\"aria-status\">Deal Hunter Mode 🎯</span></div>
+    <button id=\"aria-close\" style=\"margin-left:auto;font-size:18px;color:var(--text-muted);cursor:none\">✕</button>
+  </div>
+  <div class=\"aria-messages\" id=\"aria-messages\">
+    <div class=\"aria-msg bot\"><div class=\"aria-bubble\">I'm watching 240 active deals right now. The Maldives flash deal is incredible — 41% off and only 3 spots left! Shall I hold one for you? 🏝️</div></div>
+  </div>
+  <div class=\"aria-input-row\">
+    <input class=\"aria-input\" id=\"aria-input\" type=\"text\" placeholder=\"Find me a deal...\">
+    <button class=\"aria-send\" id=\"aria-send\">➤</button>
+  </div>
+</div>
+<script src=\"/assets.php?f=js/main.js\"></script>
+</body>
+</html>
+
+
+
+
+
+
+";
+        
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->leave($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof);
+
+        yield from [];
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function getTemplateName(): string
+    {
+        return "front/offers.html.twig";
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function isTraitable(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function getDebugInfo(): array
+    {
+        return array (  424 => 349,  196 => 126,  186 => 119,  182 => 118,  178 => 117,  174 => 116,  170 => 115,  166 => 114,  162 => 113,  157 => 111,  45 => 1,);
+    }
+
+    public function getSourceContext(): Source
+    {
+        return new Source("<!DOCTYPE html>
+<html lang=\"en\" data-theme=\"light\">
+<head>
+  <meta charset=\"UTF-8\">
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+  <meta name=\"description\" content=\"TripX Offers — Flash deals, personalized travel discounts, and loyalty rewards. AI-curated for you.\">
+  <title>Offers & Deals — TripX</title>
+  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">
+  <link href=\"https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Montserrat:wght@100..900&family=Space+Mono:wght@400;700&display=swap\" rel=\"stylesheet\">
+  <link rel=\"stylesheet\" href=\"/assets.php?f=css/main.css\">
+  <link rel=\"stylesheet\" href=\"/assets.php?f=css/animations.css\">
+  <style>
+    .page-top { padding-top: calc(var(--nav-height) + 60px); padding-bottom: 40px; }
+
+    /* Flash deal banner */
+    .flash-banner {
+      background: linear-gradient(135deg, #1a0a00 0%, #2d0a0a 100%);
+      border-radius: var(--border-radius-xl);
+      padding: 40px 48px;
+      position: relative;
+      overflow: hidden;
+      color: #F0F4F8;
+      margin-bottom: 48px;
+    }
+    .flash-banner-mesh {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 100% 50%, rgba(255,77,109,0.25) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .flash-price {
+      font-family: var(--font-display);
+      font-size: clamp(48px, 8vw, 96px);
+      line-height: 1;
+      color: var(--accent-primary);
+    }
+    .flash-was {
+      font-family: var(--font-display);
+      font-size: 32px;
+      text-decoration: line-through;
+      color: rgba(240,244,248,0.4);
+    }
+
+    /* Deal card */
+    .deal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+      transition: all var(--transition-smooth);
+      position: relative;
+    }
+    .deal-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--accent-primary); }
+    .deal-img {
+      height: 180px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 72px;
+      position: relative;
+    }
+    .deal-discount {
+      position: absolute; top: 14px; left: 14px;
+      background: var(--accent-primary);
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: 20px;
+      padding: 4px 12px;
+      border-radius: 8px;
+    }
+    .deal-body { padding: 18px; }
+    .deal-name { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+    .deal-reason { font-size: 0.78rem; color: var(--accent-teal); margin-bottom: 10px; font-style: italic; }
+    .deal-countdown-wrap { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .deal-footer { display: flex; justify-content: space-between; align-items: center; }
+    .deal-price-row { display: flex; align-items: baseline; gap: 8px; }
+    .deal-price-now { font-family: var(--font-display); font-size: 28px; color: var(--accent-primary); }
+    .deal-price-was { font-size: 0.85rem; text-decoration: line-through; color: var(--text-muted); }
+
+    /* Countdown small */
+    .cd-mini {
+      display: flex; gap: 4px; align-items: center;
+      font-family: var(--font-mono); font-size: 12px;
+    }
+    .cd-unit { background: var(--accent-primary); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 14px; min-width: 28px; text-align: center; }
+    .cd-col { color: var(--text-muted); }
+
+    /* Bundle card */
+    .bundle-card {
+      background: var(--bg-card);
+      border: 2px solid transparent;
+      background-clip: padding-box;
+      border-radius: var(--border-radius-lg);
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .bundle-card::before {
+      content: '';
+      position: absolute; inset: -2px;
+      border-radius: var(--border-radius-lg);
+      background: linear-gradient(135deg, var(--accent-gold), var(--accent-primary));
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+    <div id=\"cursor-dot\"></div><div id=\"cursor-halo\"></div>
+
+
+
+<nav class=\"nav\">
+  <div class=\"nav-inner\">
+    <a href=\"{{ path('index') }}\" class=\"nav-logo\">Trip<span>X</span></a>
+    <div class=\"nav-links\">
+      <a href=\"{{ path('index') }}\"          class=\"nav-link\">Home</a>
+      <a href=\"{{ path('destinations') }}\"   class=\"nav-link\">Destinations</a>
+      <a href=\"{{ path('activities') }}\"     class=\"nav-link\">Activities</a>
+      <a href=\"{{ path('accommodations') }}\" class=\"nav-link\">Accommodations</a>
+      <a href=\"{{ path('transport') }}\"      class=\"nav-link\">Transport</a>
+      <a href=\"{{ path('offers') }}\"         class=\"nav-link active\">Offers</a>
+      <a href=\"{{ path('blog') }}\" class=\"nav-link\">Blog</a><a href=\"#\" class=\"nav-link\">My Bookings</a>
+    </div>
+    <div class=\"nav-actions\">
+      <button id=\"theme-toggle\" class=\"theme-toggle\" aria-label=\"Toggle dark mode\">
+        <span class=\"toggle-icon icon-sun\">☀️</span>
+        <span class=\"toggle-icon icon-moon\">🌙</span>
+      </button>
+      <a href=\"{{ path('users') }}\" class=\"btn-nav-primary ripple-btn\">My Profile</a><a href=\"{{ path('app_logout') }}\" class=\"Btn-logout\" style=\"margin-left: 8px;\">
+        <div class=\"sign\"><svg viewBox=\"0 0 512 512\"><path d=\"M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z\" /></svg></div>
+        <div class=\"text\">Logout</div>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class=\"page-top\">
+  <div class=\"container\">
+    <div class=\"section-label reveal\"><span>AI-Personalized Deals</span></div>
+    <h1 class=\"display-md reveal\" style=\"margin-bottom:8px\">Unbeatable <span class=\"gradient-text-warm\">Deals ✦</span></h1>
+    <p class=\"serif-mood text-muted reveal reveal-delay-1\">ARIA watches prices 24/7 so you never miss the perfect deal.</p>
+    <div class=\"filter-pills mt-24 reveal reveal-delay-2\">
+      <button class=\"filter-pill active\">All Deals</button>
+      <button class=\"filter-pill\">⚡ Flash</button>
+      <button class=\"filter-pill\">🌅 Early Bird</button>
+      <button class=\"filter-pill\">🔖 Last Minute</button>
+      <button class=\"filter-pill\">📦 Bundle</button>
+      <button class=\"filter-pill\">🕵️ Hidden</button>
+    </div>
+  </div>
+</div>
+
+<!-- FLASH Deal Banner -->
+<section class=\"section-sm\">
+  <div class=\"container\">
+    <div class=\"flash-banner reveal\">
+      <div class=\"flash-banner-mesh\"></div>
+      <div style=\"position:relative;z-index:1;display:flex;gap:48px;align-items:center;flex-wrap:wrap\">
+        <div>
+          <div class=\"fire-badge\"><span class=\"fire-icon\">🔥</span> FLASH DEAL — ENDS SOON</div>
+          <h2 style=\"font-family:var(--font-display);font-size:clamp(28px,5vw,56px);text-transform:uppercase;margin:12px 0;line-height:1\">Maldives 7-Night Escape<br><span style=\"color:var(--accent-primary)\">All Inclusive</span></h2>
+          <p style=\"color:rgba(240,244,248,0.7);max-width:440px;font-size:0.9rem;margin-bottom:20px\">Overwater bungalow · Return flights from Paris · 5-star resort · Full board</p>
+          <div style=\"display:flex;align-items:baseline;gap:16px;margin-bottom:24px\">
+            <div class=\"flash-price\">€1,240</div>
+            <div class=\"flash-was\">€2,100</div>
+            <span class=\"badge badge-coral\" style=\"font-size:16px;padding:6px 16px\">-41%</span>
+          </div>
+          <a href=\"#\" class=\"btn btn-primary btn-lg ripple-btn\" style=\"background:var(--accent-primary)\">Grab This Deal ✦</a>
+        </div>
+        <!-- Countdown -->
+        <div style=\"text-align:center\">
+          <div style=\"font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;color:rgba(240,244,248,0.6);margin-bottom:14px;text-transform:uppercase\">Deal Expires In</div>
+          <div class=\"countdown\" id=\"flash-main-countdown\" data-countdown=\"11\" style=\"justify-content:center\">
+            <div class=\"countdown-unit\"><div class=\"countdown-val\">11</div><div style=\"font-family:var(--font-mono);font-size:9px;color:rgba(240,244,248,0.5);margin-top:4px;text-transform:uppercase\">Hrs</div></div>
+            <div class=\"countdown-sep\" style=\"color:var(--accent-primary)\">:</div>
+            <div class=\"countdown-unit\"><div class=\"countdown-val\">47</div><div style=\"font-family:var(--font-mono);font-size:9px;color:rgba(240,244,248,0.5);margin-top:4px;text-transform:uppercase\">Min</div></div>
+            <div class=\"countdown-sep\" style=\"color:var(--accent-primary)\">:</div>
+            <div class=\"countdown-unit\"><div class=\"countdown-val\">18</div><div style=\"font-family:var(--font-mono);font-size:9px;color:rgba(240,244,248,0.5);margin-top:4px;text-transform:uppercase\">Sec</div></div>
+          </div>
+          <div style=\"font-family:var(--font-mono);font-size:10px;color:rgba(255,77,109,0.8);margin-top:12px\">⚡ Only 3 spots left</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Deal Grid -->
+<section class=\"section-sm\">
+  <div class=\"container\">
+    <div class=\"section-label reveal\"><span>Personalized For You</span></div>
+    <h2 class=\"display-md reveal\" style=\"margin-bottom:8px\">ARIA Found These <span class=\"text-coral\">For You</span></h2>
+    <p class=\"serif-mood text-muted reveal reveal-delay-1\" style=\"margin-bottom:32px\">Based on your search history and travel DNA.</p>
+
+    <div class=\"grid-4 stagger\">
+      <!-- Deal 1 -->
+      <div class=\"deal-card\">
+        <div class=\"deal-img\" style=\"background:linear-gradient(135deg,#003049,#d62828)\">🌊<span class=\"deal-discount\">-35%</span></div>
+        <div class=\"deal-body\">
+          <div class=\"deal-name\">Bali Boutique Villa Package</div>
+          <div class=\"deal-reason\">✦ Because you searched Bali 3 times</div>
+          <div class=\"deal-countdown-wrap\">
+            <div class=\"fire-badge\" style=\"font-size:10px\"><span class=\"fire-icon\">🔥</span> Flash</div>
+            <div class=\"cd-mini\">
+              <div class=\"cd-unit\">08</div><span class=\"cd-col\">:</span>
+              <div class=\"cd-unit\">32</div><span class=\"cd-col\">:</span>
+              <div class=\"cd-unit\">44</div>
+            </div>
+          </div>
+          <div class=\"deal-footer\">
+            <div class=\"deal-price-row\">
+              <div class=\"deal-price-now\">€640</div>
+              <div class=\"deal-price-was\">€985</div>
+            </div>
+            <button class=\"btn btn-primary btn-sm ripple-btn\">Grab</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deal 2 -->
+      <div class=\"deal-card\">
+        <div class=\"deal-img\" style=\"background:linear-gradient(135deg,#0a1628,#1e3c72)\">🌸<span class=\"deal-discount\">-28%</span></div>
+        <div class=\"deal-body\">
+          <div class=\"deal-name\">Kyoto Ryokan + Flights</div>
+          <div class=\"deal-reason\">✦ Matches your Cultural DNA score</div>
+          <div class=\"deal-countdown-wrap\">
+            <span class=\"badge badge-teal\">Early Bird</span>
+          </div>
+          <div class=\"deal-footer\">
+            <div class=\"deal-price-row\">
+              <div class=\"deal-price-now\">€890</div>
+              <div class=\"deal-price-was\">€1,240</div>
+            </div>
+            <button class=\"btn btn-primary btn-sm ripple-btn\">Grab</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deal 3 -->
+      <div class=\"deal-card\">
+        <div class=\"deal-img\" style=\"background:linear-gradient(135deg,#7b2d00,#ffd500)\">🏰<span class=\"deal-discount\">-40%</span></div>
+        <div class=\"deal-body\">
+          <div class=\"deal-name\">Santorini Couples Escape</div>
+          <div class=\"deal-reason\">✦ Last minute — departs in 4 days</div>
+          <div class=\"deal-countdown-wrap\">
+            <div class=\"fire-badge\" style=\"font-size:10px\"><span class=\"fire-icon\">🔥</span> Last Minute</div>
+          </div>
+          <div class=\"deal-footer\">
+            <div class=\"deal-price-row\">
+              <div class=\"deal-price-now\">€680</div>
+              <div class=\"deal-price-was\">€1,130</div>
+            </div>
+            <button class=\"btn btn-primary btn-sm ripple-btn\">Grab</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deal 4 -->
+      <div class=\"deal-card\">
+        <div class=\"deal-img\" style=\"background:linear-gradient(135deg,#185a37,#f9a825)\">🦁<span class=\"deal-discount\">-22%</span></div>
+        <div class=\"deal-body\">
+          <div class=\"deal-name\">Serengeti Safari Bundle</div>
+          <div class=\"deal-reason\">✦ Adventure DNA 88% — perfect fit</div>
+          <div class=\"deal-countdown-wrap\">
+            <span class=\"badge badge-gold\">Bundle & Save</span>
+          </div>
+          <div class=\"deal-footer\">
+            <div class=\"deal-price-row\">
+              <div class=\"deal-price-now\">€1,640</div>
+              <div class=\"deal-price-was\">€2,100</div>
+            </div>
+            <button class=\"btn btn-primary btn-sm ripple-btn\">Grab</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Bundle & Save + Hidden Deals -->
+<section class=\"section\" style=\"background:var(--bg-secondary)\">
+  <div class=\"container\">
+    <div class=\"grid-2\" style=\"gap:32px\">
+      <!-- Bundle -->
+      <div>
+        <div class=\"section-label reveal\"><span>Bundle & Save</span></div>
+        <h2 class=\"display-md reveal\" style=\"margin-bottom:24px\">Ultimate <span class=\"text-gold\">Packages</span></h2>
+        <div class=\"bundle-card reveal\">
+          <div style=\"display:flex;justify-content:space-between;align-items:start;margin-bottom:16px\">
+            <div>
+              <div style=\"font-family:var(--font-display);font-size:28px;text-transform:uppercase\">Asia Dream Package</div>
+              <div style=\"font-size:0.85rem;color:var(--text-muted);margin-top:6px\">Bangkok → Bali → Singapore · 21 nights</div>
+            </div>
+            <span class=\"badge badge-gold\" style=\"font-size:14px;padding:6px 16px\">SAVE €620</span>
+          </div>
+          <div style=\"display:flex;flex-direction:column;gap:8px;margin-bottom:20px\">
+            <div style=\"display:flex;gap:8px;align-items:center\"><span>✅</span><span style=\"font-size:0.85rem\">Return flights (Economy+)</span></div>
+            <div style=\"display:flex;gap:8px;align-items:center\"><span>✅</span><span style=\"font-size:0.85rem\">3 boutique hotels (5-star)</span></div>
+            <div style=\"display:flex;gap:8px;align-items:center\"><span>✅</span><span style=\"font-size:0.85rem\">8 ARIA-curated activities</span></div>
+            <div style=\"display:flex;gap:8px;align-items:center\"><span>✅</span><span style=\"font-size:0.85rem\">Airport transfers & travel insurance</span></div>
+          </div>
+          <div style=\"display:flex;justify-content:space-between;align-items:center\">
+            <div>
+              <div style=\"font-family:var(--font-display);font-size:40px;color:var(--accent-gold);line-height:1\">€2,840</div>
+              <div style=\"font-size:0.8rem;color:var(--text-muted)\">per person · was €3,460</div>
+            </div>
+            <button class=\"btn btn-primary btn-lg ripple-btn\">Book Package</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loyalty Points -->
+      <div>
+        <div class=\"section-label reveal\"><span>Your Rewards</span></div>
+        <h2 class=\"display-md reveal\" style=\"margin-bottom:24px\">Loyalty <span class=\"text-coral\">Tier</span></h2>
+        <div class=\"card reveal\">
+          <div class=\"card-body\">
+            <div style=\"display:flex;justify-content:space-between;margin-bottom:24px\">
+              <div>
+                <div style=\"font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px\">Your Points</div>
+                <div style=\"font-family:var(--font-display);font-size:48px;color:var(--accent-gold);line-height:1\">8,420</div>
+              </div>
+              <span class=\"badge badge-gold\" style=\"align-self:start;font-size:13px;padding:6px 16px\">EXPLORER</span>
+            </div>
+            <div class=\"loyalty-track\" style=\"margin-bottom:8px\">
+              <div class=\"loyalty-fill\" style=\"width:84%\"></div>
+              <div class=\"loyalty-glow\" style=\"right:16%\"></div>
+            </div>
+            <div style=\"font-size:0.8rem;color:var(--text-muted);margin-bottom:24px\">1,580 pts to Gold Tier 🥇</div>
+            <div style=\"display:flex;flex-direction:column;gap:10px\">
+              <div class=\"mini-card\" style=\"padding:14px;border-radius:12px\">
+                <div style=\"font-size:24px\">✈️</div>
+                <div><div style=\"font-weight:600;font-size:0.9rem\">Free return flight</div><div style=\"font-size:0.78rem;color:var(--text-muted)\">Redeem 5,000 pts → any European destination</div></div>
+                <button class=\"btn btn-secondary btn-sm\" style=\"margin-left:auto;flex-shrink:0\">Redeem</button>
+              </div>
+              <div class=\"mini-card\" style=\"padding:14px;border-radius:12px\">
+                <div style=\"font-size:24px\">🏨</div>
+                <div><div style=\"font-weight:600;font-size:0.9rem\">Free hotel night</div><div style=\"font-size:0.78rem;color:var(--text-muted)\">Redeem 3,500 pts → 4-star hotel</div></div>
+                <button class=\"btn btn-secondary btn-sm\" style=\"margin-left:auto;flex-shrink:0\">Redeem</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class=\"footer\">
+  <div class=\"container\">
+    <div class=\"footer-bottom\">
+      <div class=\"footer-copy\">© 2026 TripX. All rights reserved.</div>
+      <a href=\"{{ path('index') }}\" class=\"footer-copy\" style=\"color:var(--accent-primary)\">← Back to Home</a>
+    </div>
+  </div>
+</footer>
+
+<button class=\"aria-orb\" id=\"aria-orb\" aria-label=\"Open ARIA\">✦</button>
+<div class=\"aria-panel\" id=\"aria-panel\">
+  <div class=\"aria-header\">
+    <div class=\"aria-avatar\">✦</div>
+    <div><span class=\"aria-name\">ARIA</span><span class=\"aria-status\">Deal Hunter Mode 🎯</span></div>
+    <button id=\"aria-close\" style=\"margin-left:auto;font-size:18px;color:var(--text-muted);cursor:none\">✕</button>
+  </div>
+  <div class=\"aria-messages\" id=\"aria-messages\">
+    <div class=\"aria-msg bot\"><div class=\"aria-bubble\">I'm watching 240 active deals right now. The Maldives flash deal is incredible — 41% off and only 3 spots left! Shall I hold one for you? 🏝️</div></div>
+  </div>
+  <div class=\"aria-input-row\">
+    <input class=\"aria-input\" id=\"aria-input\" type=\"text\" placeholder=\"Find me a deal...\">
+    <button class=\"aria-send\" id=\"aria-send\">➤</button>
+  </div>
+</div>
+<script src=\"/assets.php?f=js/main.js\"></script>
+</body>
+</html>
+
+
+
+
+
+
+", "front/offers.html.twig", "C:\\Users\\nmour\\Downloads\\Sym - Copy\\templates\\front\\offers.html.twig");
+    }
+}

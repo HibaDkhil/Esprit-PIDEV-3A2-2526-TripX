@@ -1,0 +1,263 @@
+{% extends 'admin/admin_base.html.twig' %}
+{% block title %}Blog Management — TripX Admin{% endblock %}
+
+{% block breadcrumbs %}
+  <span class="crumb active">Blog</span>
+{% endblock %}
+
+{% block content %}
+<style>
+.stats-row        { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:28px; }
+.stat-card        { flex:1; min-width:140px; background:var(--bg-card); border:1px solid var(--border-color);
+                     border-radius:var(--border-radius-md); padding:18px 20px; }
+.stat-card .num   { font-size:32px; font-weight:900; color:var(--accent-primary); }
+.stat-card .lbl   { font-size:13px; color:var(--text-muted); margin-top:2px; }
+
+.blog-table       { width:100%; border-collapse:collapse; background:var(--bg-card);
+                     border-radius:var(--border-radius-md); overflow:hidden;
+                     border:1px solid var(--border-color); }
+.blog-table th    { background:var(--bg-surface); padding:13px 16px; font-size:12px;
+                     font-weight:700; text-transform:uppercase; letter-spacing:.5px;
+                     color:var(--text-muted); text-align:left; border-bottom:1px solid var(--border-color); }
+.blog-table td    { padding:14px 16px; font-size:14px; border-bottom:1px solid var(--border-color);
+                     vertical-align:middle; }
+.blog-table tr:last-child td { border-bottom:none; }
+.blog-table tr:hover td      { background:var(--bg-surface); }
+
+.badge            { display:inline-block; padding:3px 10px; border-radius:50px; font-size:11px; font-weight:700; }
+.badge-pending    { background:#fef3c7; color:#92400e; }
+.badge-approved   { background:#d1fae5; color:#065f46; }
+.type-dot         { display:inline-block; padding:3px 8px; border-radius:50px; font-size:11px; font-weight:600; }
+.type-inquiry     { background:#dbeafe; color:#1d4ed8; }
+.type-story       { background:#d1fae5; color:#065f46; }
+.type-review      { background:#fef3c7; color:#92400e; }
+.type-advice      { background:#ede9fe; color:#5b21b6; }
+.type-other       { background:#f3f4f6; color:#374151; }
+.type-travel      { background:linear-gradient(135deg,#fef3c7,#fee2e2); color:#92400e; }
+
+.actions          { display:flex; gap:6px; flex-wrap:wrap; }
+.btn-approve      { padding:5px 12px; background:#d1fae5; color:#065f46; border:1px solid #6ee7b7;
+                     border-radius:50px; font-size:12px; font-weight:700; cursor:pointer; }
+.btn-reject       { padding:5px 12px; background:#fef3c7; color:#92400e; border:1px solid #fcd34d;
+                     border-radius:50px; font-size:12px; font-weight:700; cursor:pointer; }
+.btn-del          { padding:5px 12px; background:#fee2e2; color:#dc2626; border:1px solid #fca5a5;
+                     border-radius:50px; font-size:12px; font-weight:700; cursor:pointer; }
+.btn-view         { padding:5px 12px; background:#dbeafe; color:#1d4ed8; border:1px solid #93c5fd;
+                     border-radius:50px; font-size:12px; font-weight:700; cursor:pointer; text-decoration:none; }
+
+.post-title-cell  { max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:700; }
+.flash-success    { background:#d1fae5; color:#065f46; padding:12px 16px; border-radius:10px; margin-bottom:18px; }
+.flash-info       { background:#dbeafe; color:#1e40af; padding:12px 16px; border-radius:10px; margin-bottom:18px; }
+.empty-state      { text-align:center; padding:50px; color:var(--text-muted); }
+
+/* Tabs */
+.admin-tabs       { display:flex; gap:0; margin-bottom:24px; border-bottom:2px solid var(--border-color); }
+.admin-tab        { padding:12px 24px; font-size:14px; font-weight:700; cursor:pointer; border:none;
+                     background:none; color:var(--text-muted); position:relative; }
+.admin-tab.active { color:var(--accent-primary); }
+.admin-tab.active::after { content:''; position:absolute; bottom:-2px; left:0; right:0; height:2px;
+                     background:var(--accent-primary); }
+.admin-tab .tab-count { display:inline-block; margin-left:6px; padding:1px 8px; border-radius:50px;
+                     font-size:11px; font-weight:700; background:#f3f4f6; color:#374151; }
+.admin-tab.active .tab-count { background:var(--accent-primary); color:#fff; }
+.tab-panel        { display:none; }
+.tab-panel.active { display:block; }
+
+.story-cover-thumb { width:48px; height:36px; object-fit:cover; border-radius:6px; }
+.star-rating      { color:#f59e0b; font-size:13px; }
+</style>
+
+{# ── Flash messages ── #}
+{% for msg in app.flashes('success') %}<div class="flash-success">✅ {{ msg }}</div>{% endfor %}
+{% for msg in app.flashes('info') %}<div class="flash-info">ℹ️ {{ msg }}</div>{% endfor %}
+
+{# ── Stats ── #}
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="num">{{ stats.total }}</div>
+        <div class="lbl">Total Posts</div>
+    </div>
+    <div class="stat-card">
+        <div class="num" style="color:#f59e0b;">{{ stats.pending }}</div>
+        <div class="lbl">Pending Approval</div>
+    </div>
+    <div class="stat-card">
+        <div class="num" style="color:#10b981;">{{ stats.approved }}</div>
+        <div class="lbl">Approved</div>
+    </div>
+    <div class="stat-card">
+        <div class="num" style="color:#ef4444;">{{ stats.stories }}</div>
+        <div class="lbl">Travel Stories</div>
+    </div>
+</div>
+
+{# ── Tabs ── #}
+<div class="admin-tabs">
+    <button class="admin-tab active" onclick="switchTab('posts', this)">
+        📝 Posts <span class="tab-count">{{ posts|length }}</span>
+    </button>
+    <button class="admin-tab" onclick="switchTab('stories', this)">
+        🧳 Travel Stories <span class="tab-count">{{ stories|length }}</span>
+    </button>
+</div>
+
+{# ── Posts Tab ── #}
+<div class="tab-panel active" id="tab-posts">
+    {% if posts is empty %}
+        <div class="empty-state">
+            <p style="font-size:42px;">📭</p>
+            <p>No posts yet.</p>
+        </div>
+    {% else %}
+        <table class="blog-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in posts %}
+                    <tr>
+                        <td style="color:var(--text-muted); font-size:13px;">{{ post.id }}</td>
+                        <td class="post-title-cell" title="{{ post.title }}">{{ post.title }}</td>
+                        <td>{{ authorMap[post.userId] ?? 'User #' ~ post.userId }}</td>
+                        <td>
+                            <span class="type-dot type-{{ post.type }}">{{ post.type }}</span>
+                        </td>
+                        <td>
+                            {% if post.isConfirmed %}
+                                <span class="badge badge-approved">✅ Approved</span>
+                            {% else %}
+                                <span class="badge badge-pending">⏳ Pending</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size:13px; color:var(--text-muted);">
+                            {% if post.createdAt %}{{ post.createdAt|date('d M Y') }}{% endif %}
+                        </td>
+                        <td>
+                            <div class="actions">
+                                {% if not post.isConfirmed %}
+                                    <form method="post"
+                                          action="{{ path('admin_blog_approve', {id: post.id}) }}">
+                                        <input type="hidden" name="_token"
+                                               value="{{ csrf_token('admin_blog_' ~ post.id) }}">
+                                        <button type="submit" class="btn-approve">Approve</button>
+                                    </form>
+                                {% endif %}
+
+                                {% if post.isConfirmed %}
+                                    <form method="post"
+                                          action="{{ path('admin_blog_reject', {id: post.id}) }}">
+                                        <input type="hidden" name="_token"
+                                               value="{{ csrf_token('admin_blog_' ~ post.id) }}">
+                                        <button type="submit" class="btn-reject">Reject</button>
+                                    </form>
+                                {% endif %}
+
+                                <form method="post"
+                                      action="{{ path('admin_blog_delete', {id: post.id}) }}"
+                                      onsubmit="return confirm('Delete this post permanently?');">
+                                    <input type="hidden" name="_token"
+                                           value="{{ csrf_token('admin_blog_delete_' ~ post.id) }}">
+                                    <button type="submit" class="btn-del">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+
+{# ── Travel Stories Tab ── #}
+<div class="tab-panel" id="tab-stories">
+    {% if stories is empty %}
+        <div class="empty-state">
+            <p style="font-size:42px;">🧳</p>
+            <p>No travel stories yet.</p>
+        </div>
+    {% else %}
+        <table class="blog-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Cover</th>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Destination</th>
+                    <th>Type / Style</th>
+                    <th>Rating</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for story in stories %}
+                    <tr>
+                        <td style="color:var(--text-muted); font-size:13px;">{{ story.id }}</td>
+                        <td>
+                            {% if story.coverImageUrl %}
+                                <img src="{{ story.coverImageUrl }}" alt="" class="story-cover-thumb">
+                            {% else %}
+                                <span style="color:var(--text-muted); font-size:12px;">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="post-title-cell" title="{{ story.title }}">{{ story.title }}</td>
+                        <td>{{ authorMap[story.userId] ?? 'User #' ~ story.userId }}</td>
+                        <td>{{ story.destination ?? '—' }}</td>
+                        <td>
+                            {% if story.travelType %}
+                                <span class="type-dot type-travel">{{ story.travelType }}</span>
+                            {% endif %}
+                            {% if story.travelStyle %}
+                                <span class="type-dot" style="background:#ede9fe;color:#5b21b6;">{{ story.travelStyle }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if story.overallRating %}
+                                <span class="star-rating">
+                                    {% for i in 1..story.overallRating %}⭐{% endfor %}
+                                </span>
+                            {% else %}
+                                <span style="color:var(--text-muted);">—</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size:13px; color:var(--text-muted);">
+                            {% if story.createdAt %}{{ story.createdAt|date('d M Y') }}{% endif %}
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <a href="{{ path('travel_story_show', {id: story.id}) }}" class="btn-view">View</a>
+                                <form method="post"
+                                      action="{{ path('admin_story_delete', {id: story.id}) }}"
+                                      onsubmit="return confirm('Delete this travel story permanently?');">
+                                    <input type="hidden" name="_token"
+                                           value="{{ csrf_token('admin_story_delete_' ~ story.id) }}">
+                                    <button type="submit" class="btn-del">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+
+<script>
+function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    btn.classList.add('active');
+}
+</script>
+
+{% endblock %}

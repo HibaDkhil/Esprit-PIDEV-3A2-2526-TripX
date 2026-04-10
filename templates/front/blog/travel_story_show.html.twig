@@ -1,0 +1,114 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ story.title }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <a href="{{ path('travel_story_index') }}" class="btn btn-outline-secondary mb-4">← Back</a>
+
+    <div class="card shadow-sm">
+        {% if story.coverImageUrl %}
+            <img src="{{ story.coverImageUrl }}" alt="{{ story.title }}" style="width: 100%; max-height: 420px; object-fit: cover;">
+        {% endif %}
+
+        <div class="card-body">
+            <h1 class="mb-2">{{ story.title }}</h1>
+            <p class="text-muted">
+                {{ story.destination ?: 'Unknown destination' }}
+                {% if story.startDate %}
+                    | {{ story.startDate|date('Y-m-d') }}
+                {% endif %}
+                {% if story.endDate %}
+                    → {{ story.endDate|date('Y-m-d') }}
+                {% endif %}
+            </p>
+
+            <div class="mb-3">
+                {% if story.overallRating %}
+                    <span class="badge bg-warning text-dark">⭐ {{ story.overallRating }}/5</span>
+                {% endif %}
+                {% if story.travelType %}
+                    <span class="badge bg-info text-dark">{{ story.travelType }}</span>
+                {% endif %}
+                {% if story.travelStyle %}
+                    <span class="badge bg-secondary">{{ story.travelStyle }}</span>
+                {% endif %}
+            </div>
+
+            <p><strong>Would recommend:</strong> {{ story.wouldRecommend ? 'Yes' : 'No' }}</p>
+            <p><strong>Would go again:</strong> {{ story.wouldGoAgain ? 'Yes' : 'No' }}</p>
+
+            {% if story.summary %}
+                <h4>Summary</h4>
+                <p>{{ story.summary|nl2br }}</p>
+            {% endif %}
+
+            {% if story.tips %}
+                <h4>Tips</h4>
+                <p>{{ story.tips|nl2br }}</p>
+            {% endif %}
+
+            {% if story.totalBudget %}
+                <h4>Budget</h4>
+                <p>{{ story.totalBudget }} {{ story.currency }}</p>
+            {% endif %}
+
+            {% if story.tagsJson is not empty %}
+                <h4>Tags</h4>
+                <div class="mb-3">
+                    {% for tag in story.tagsJson %}
+                        <span class="badge bg-light text-dark border me-1">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% if story.mustVisitJson is not empty %}
+                <h4>Must Visit</h4>
+                <ul>
+                    {% for item in story.mustVisitJson %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if story.mustDoJson is not empty %}
+                <h4>Must Do</h4>
+                <ul>
+                    {% for item in story.mustDoJson %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if story.mustTryJson is not empty %}
+                <h4>Must Try</h4>
+                <ul>
+                    {% for item in story.mustTryJson %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if story.favoritePlacesJson is not empty %}
+                <h4>Favorite Places</h4>
+                <ul>
+                    {% for item in story.favoritePlacesJson %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if story.imageUrlsJson is not empty %}
+                <h4>Gallery</h4>
+                <div class="row">
+                    {% for image in story.imageUrlsJson %}
+                        <div class="col-md-4 mb-3">
+                            <img src="{{ image }}" alt="Travel image" class="img-fluid rounded shadow-sm">
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

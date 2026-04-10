@@ -1,0 +1,101 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Travel Stories{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Travel Stories</h1>
+        <a href="{{ path('travel_story_new') }}" class="btn btn-primary">Write a Travel Story</a>
+    </div>
+
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <input type="text" name="keyword" class="form-control" placeholder="Search by keyword" value="{{ app.request.get('keyword') }}">
+        </div>
+        <div class="col-md-2">
+            <input type="text" name="destination" class="form-control" placeholder="Destination" value="{{ app.request.get('destination') }}">
+        </div>
+        <div class="col-md-2">
+            <select name="travelType" class="form-select">
+                <option value="">Travel type</option>
+                <option value="solo" {{ app.request.get('travelType') == 'solo' ? 'selected' : '' }}>Solo</option>
+                <option value="couple" {{ app.request.get('travelType') == 'couple' ? 'selected' : '' }}>Couple</option>
+                <option value="family" {{ app.request.get('travelType') == 'family' ? 'selected' : '' }}>Family</option>
+                <option value="friends" {{ app.request.get('travelType') == 'friends' ? 'selected' : '' }}>Friends</option>
+                <option value="business" {{ app.request.get('travelType') == 'business' ? 'selected' : '' }}>Business</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="travelStyle" class="form-select">
+                <option value="">Travel style</option>
+                <option value="luxury" {{ app.request.get('travelStyle') == 'luxury' ? 'selected' : '' }}>Luxury</option>
+                <option value="budget" {{ app.request.get('travelStyle') == 'budget' ? 'selected' : '' }}>Budget</option>
+                <option value="adventure" {{ app.request.get('travelStyle') == 'adventure' ? 'selected' : '' }}>Adventure</option>
+                <option value="relax" {{ app.request.get('travelStyle') == 'relax' ? 'selected' : '' }}>Relax</option>
+                <option value="cultural" {{ app.request.get('travelStyle') == 'cultural' ? 'selected' : '' }}>Cultural</option>
+                <option value="roadtrip" {{ app.request.get('travelStyle') == 'roadtrip' ? 'selected' : '' }}>Roadtrip</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="rating" class="form-select">
+                <option value="">Min rating</option>
+                {% for i in 1..5 %}
+                    <option value="{{ i }}" {{ app.request.get('rating') == i|striptags ? 'selected' : '' }}>{{ i }}+</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-1">
+            <button class="btn btn-dark w-100">Go</button>
+        </div>
+    </form>
+
+    <div class="row">
+        {% for story in stories %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    {% if story.coverImageUrl %}
+                        <img src="{{ story.coverImageUrl }}" class="card-img-top" alt="{{ story.title }}" style="height: 220px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ story.title }}</h5>
+                        <p class="text-muted mb-2">
+                            {{ story.destination ?: 'Unknown destination' }}
+                        </p>
+
+                        <p class="card-text">
+                            {{ story.summary ? story.summary|slice(0, 140) ~ (story.summary|length > 140 ? '...' : '') : 'No summary yet.' }}
+                        </p>
+
+                        <div class="mb-2">
+                            {% if story.overallRating %}
+                                <span class="badge bg-warning text-dark">⭐ {{ story.overallRating }}/5</span>
+                            {% endif %}
+                            {% if story.travelType %}
+                                <span class="badge bg-info text-dark">{{ story.travelType }}</span>
+                            {% endif %}
+                            {% if story.travelStyle %}
+                                <span class="badge bg-secondary">{{ story.travelStyle }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="small text-muted mb-3">
+                            Recommend:
+                            <strong>{{ story.wouldRecommend ? 'Yes' : 'No' }}</strong>
+                            |
+                            Go again:
+                            <strong>{{ story.wouldGoAgain ? 'Yes' : 'No' }}</strong>
+                        </div>
+
+                        <a href="{{ path('travel_story_show', {id: story.id}) }}" class="btn btn-outline-primary btn-sm">Read story</a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">No travel stories found.</div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
