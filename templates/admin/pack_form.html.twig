@@ -1,0 +1,176 @@
+{% extends 'admin/admin_base.html.twig' %}
+{% block title %}{{ target_pack ? 'Edit' : 'Add' }} Pack — TripX Admin{% endblock %}
+
+{% block breadcrumbs %}
+  <a href="{{ path('admin_dashboard') }}" class="crumb">Dashboard</a>
+  <span class="sep">›</span>
+  <a href="{{ path('admin_packs') }}" class="crumb">Packs</a>
+  <span class="sep">›</span>
+  <span class="crumb active">{{ target_pack ? 'Edit ' ~ target_pack.title : 'Add Pack' }}</span>
+{% endblock %}
+
+{% block page_styles %}
+  select.form-control, input.form-control, textarea.form-control {
+    width: 100%; padding: 10px; border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card); color: var(--text-primary);
+    cursor: pointer !important;
+  }
+  .field-error { color: #ef4444; font-size: 12px; margin-top: 4px; display: none; }
+{% endblock %}
+
+{% block content %}
+<div class="reveal">
+  <div style="margin-bottom:32px;">
+    <h1 class="display-sm" style="margin-bottom:4px">{{ target_pack ? 'Edit' : 'Add' }} Pack</h1>
+    <p class="text-muted" style="font-size:14px">Fill in the details for the travel pack.</p>
+  </div>
+
+  <div class="card reveal" style="max-width:860px;">
+    <div class="card-body">
+      <form method="post" novalidate
+        action="{{ target_pack ? path('admin_pack_edit', {id: target_pack.idPack}) : path('admin_pack_add') }}">
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+
+          <div style="grid-column:1/-1; margin-bottom:4px;">
+            <label style="display:block;margin-bottom:8px;font-weight:600;">Title *</label>
+            <input type="text" name="title" value="{{ target_pack ? target_pack.title : '' }}"
+              class="form-control" required minlength="3" maxlength="255">
+            <div class="field-error" id="err-title">Title must be at least 3 characters.</div>
+          </div>
+
+          <div>
+            <label style="display:block;margin-bottom:8px;font-weight:600;">Category</label>
+            <select name="categoryId" class="form-control">
+              <option value="">— Select category —</option>
+              {% for cat in categories %}
+                <option value="{{ cat.idCategory }}"
+                  {% if target_pack and target_pack.categoryId == cat.idCategory %}selected{% endif %}>
+                  {{ cat.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label style="display:block;margin-bottom:8px;font-weight:600;">Destination</label>
+            <select name="destinationId" class="form-control">
+              <option value="">— Select destination —</option>
+              {% for dest in destinations %}
+                <option value="{{ dest.destinationId }}"
+                  {% if target_pack and target_pack.destinationId == dest.destinationId %}selected{% endif %}>
+                  {{ dest.name }} — {{ dest.country }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label style="display:block;margin-bottom:8px;font-weight:600;">Activity</label>
+            <select name="activityId" class="form-control">
+              <option value="">— Select activity —</option>
+              {% for act in activities %}
+                <option value="{{ act.activityId }}"
+                  {% if target_pack and target_pack.activityId == act.activityId %}selected{% endif %}>
+                  {{ act.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label style="display:block;margin-bottom:8px;font-weight:600;">Accommodation</label>
+            <select name="accommodationId" class="form-control">
+              <option value="">— Select accommodation —</option>
+              {% for acc in accommodations %}
+                <option value="{{ acc.id }}"
+                  {% if target_pack and target_pack.accommodationId == acc.id %}selected{% endif %}>
+                  {{ acc.name }} — {{ acc.city }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label style="display:block;margin-bottom:8px;font-weight:600;">Transport</label>
+            <select name="transportId" class="form-control">
+              <option value="">— Select transport —</option>
+              {% for t in transports %}
+                <option value="{{ t.id }}"
+                  {% if target_pack and target_pack.transportId == t.id %}selected{% endif %}>
+                  {{ t.providerName }} — {{ t.vehicleModel }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label style="display:block;margin-bottom:8px;font-weight:600;">Duration (days) *</label>
+            <input type="number" name="durationDays" min="1" max="365"
+              value="{{ target_pack ? target_pack.durationDays : '' }}"
+              class="form-control" required>
+            <div class="field-error" id="err-duration">Must be between 1 and 365 days.</div>
+          </div>
+
+          <div>
+            <label style="display:block;margin-bottom:8px;font-weight:600;">Base Price (€) *</label>
+            <input type="number" step="0.01" name="basePrice" min="0.01" max="99999.99"
+              value="{{ target_pack ? target_pack.basePrice : '' }}"
+              class="form-control" required>
+            <div class="field-error" id="err-price">Price must be greater than 0.</div>
+          </div>
+
+          <div>
+            <label style="display:block;margin-bottom:8px;font-weight:600;">Status</label>
+            <select name="status" class="form-control">
+              <option value="ACTIVE"   {% if not target_pack or target_pack.status == 'ACTIVE'   %}selected{% endif %}>Active</option>
+              <option value="INACTIVE" {% if target_pack and target_pack.status == 'INACTIVE' %}selected{% endif %}>Inactive</option>
+            </select>
+          </div>
+
+        </div>
+
+        <div style="margin-top:20px;margin-bottom:20px;">
+          <label style="display:block;margin-bottom:8px;font-weight:600;">Description</label>
+          <textarea name="description" rows="4" class="form-control" maxlength="2000">{{ target_pack ? target_pack.description : '' }}</textarea>
+          <div class="field-error" id="err-desc">Description cannot exceed 2000 characters.</div>
+        </div>
+
+        <div style="display:flex; gap:12px; margin-top:32px;">
+          <button type="submit" class="btn btn-primary" style="flex:1; cursor:pointer !important;">Save Pack</button>
+          <a href="{{ path('admin_packs') }}" class="btn btn-secondary" style="flex:1; text-align:center;">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+document.querySelector('form').addEventListener('submit', function(e) {
+  let valid = true;
+  document.querySelectorAll('.field-error').forEach(el => el.style.display = 'none');
+
+  const title    = this.querySelector('[name="title"]');
+  const duration = this.querySelector('[name="durationDays"]');
+  const price    = this.querySelector('[name="basePrice"]');
+  const desc     = this.querySelector('[name="description"]');
+
+  if (!title.value || title.value.length < 3) {
+    document.getElementById('err-title').style.display = 'block'; valid = false;
+  }
+  if (!duration.value || duration.value < 1 || duration.value > 365) {
+    document.getElementById('err-duration').style.display = 'block'; valid = false;
+  }
+  if (!price.value || price.value <= 0) {
+    document.getElementById('err-price').style.display = 'block'; valid = false;
+  }
+  if (desc.value.length > 2000) {
+    document.getElementById('err-desc').style.display = 'block'; valid = false;
+  }
+  if (!valid) e.preventDefault();
+});
+</script>
+{% endblock %}

@@ -1,16 +1,97 @@
 {% extends 'admin/admin_base.html.twig' %}
-{% block title %}Packs/Offers — TripX Admin{% endblock %}
+{% block title %}Manage Offers — TripX Admin{% endblock %}
+
+{% block page_styles %}
+  .dest-table { width:100%; border-collapse:separate; border-spacing:0; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius-lg); overflow:hidden; }
+  .dest-table th { background:rgba(0,166,237,0.05); text-align:left; padding:16px 20px; font-family:var(--font-display); font-size:14px; }
+  .dest-table td { padding:16px 20px; border-bottom:1px solid var(--border-color); font-size:14px; }
+  .dest-table tr:last-child td { border-bottom:none; }
+  .input-search { flex:1; padding:12px 16px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary); }
+  a, button { cursor: pointer !important; }
+{% endblock %}
 
 {% block breadcrumbs %}
+  <a href="{{ path('admin_dashboard') }}" class="crumb">Dashboard</a>
+  <span class="sep">›</span>
   <span class="crumb active">Offers</span>
 {% endblock %}
 
 {% block content %}
-<div style="display:flex; align-items:center; justify-content:center; min-height:60vh;">
-  <div style="text-align:center; color:var(--text-muted); padding:40px; border:1px dashed var(--border-color); border-radius:var(--border-radius-md);">
-    <h2 style="font-family:var(--font-display); margin-bottom:16px;">Module Space Prepared</h2>
-    <p>This blank page has been set up securely for the rest of your group to implement the functionality.</p>
-    <a href="{{ path('admin_dashboard') }}" class="btn btn-primary" style="margin-top:24px; text-decoration:none; display:inline-block;">Return to Dashboard</a>
+<div class="reveal">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;">
+    <div>
+      <h1 class="display-sm" style="margin-bottom:4px">Offers & Discounts</h1>
+      <p class="text-muted" style="font-size:14px">Manage promotional offers and discounts.</p>
+    </div>
+    <a href="{{ path('admin_offer_add') }}" class="btn btn-primary ripple-btn" style="cursor:pointer !important;">+ Add New Offer</a>
+  </div>
+
+  <div class="stats-tab-bar reveal" style="display:flex;gap:16px;margin-bottom:24px;padding:12px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--border-radius-lg);">
+    <div style="flex:1;padding:12px 20px;border-right:1px solid var(--border-color);">
+      <div class="text-muted" style="font-size:12px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Total Offers</div>
+      <div style="font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--accent-primary);">{{ stats.total }}</div>
+    </div>
+    <div style="flex:1;padding:12px 20px;">
+      <div class="text-muted" style="font-size:12px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Currently Active</div>
+      <div style="font-family:var(--font-display);font-size:28px;font-weight:700;color:#10b981;">{{ stats.active }}</div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:24px;">
+    <form method="get" action="{{ path('admin_offers') }}" style="display:flex;gap:12px;">
+      <input type="text" name="q" value="{{ currentQuery }}" class="input-search" placeholder="Search by title...">
+      <button type="submit" class="btn btn-secondary" style="cursor:pointer !important;">Search</button>
+    </form>
+  </div>
+
+  <div  style="padding:0;overflow:hidden;">
+    <table class="dest-table">
+      <thead>
+        <tr>
+          <th>ID</th><th>Title</th><th>Discount</th><th>Pack</th><th>Valid Period</th><th>Status</th><th style="text-align:right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td style="font-family:var(--font-mono);font-size:12px;opacity:0.6">#{{ item.idOffer }}</td>
+          <td style="font-weight:600">{{ item.title }}</td>
+          <td>
+            {% if item.discountType == 'PERCENTAGE' %}
+              <span class="badge badge-teal">{{ item.discountValue }}%</span>
+            {% else %}
+              <span class="badge badge-indigo">€{{ item.discountValue }}</span>
+            {% endif %}
+          </td>
+          <td style="font-family:var(--font-mono);font-size:12px;opacity:0.7">{{ item.packId ? '#' ~ item.packId : '—' }}</td>
+          <td style="font-size:12px;">
+            {{ item.startDate ? item.startDate|date('d M Y') : '—' }} → {{ item.endDate ? item.endDate|date('d M Y') : '—' }}
+          </td>
+          <td>
+            {% if item.isActive %}
+              <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(16,185,129,0.15);color:#10b981;">ACTIVE</span>
+            {% else %}
+              <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(239,68,68,0.15);color:#ef4444;">INACTIVE</span>
+            {% endif %}
+          </td>
+          <td style="text-align:right">
+            <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;">
+              <a href="{{ path('admin_offer_toggle', {id: item.idOffer}) }}"
+                 style="padding:6px 12px;border-radius:6px;border:1px solid var(--border-color);text-decoration:none;font-size:12px;font-weight:600;cursor:pointer !important;
+                 {% if item.isActive %}color:#ef4444;border-color:#ef4444;{% else %}color:#10b981;border-color:#10b981;{% endif %}">
+                {% if item.isActive %}Deactivate{% else %}Activate{% endif %}
+              </a>
+              <a href="{{ path('admin_offer_edit', {id: item.idOffer}) }}" class="btn btn-secondary btn-sm" style="cursor:pointer !important;">Edit</a>
+              <a href="{{ path('admin_offer_delete', {id: item.idOffer}) }}" class="btn btn-primary btn-sm" style="cursor:pointer !important;"
+                 onclick="return confirm('Delete this offer?')">Delete</a>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">No offers found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
 {% endblock %}

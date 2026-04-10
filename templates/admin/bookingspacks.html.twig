@@ -1,0 +1,85 @@
+{% extends 'admin/admin_base.html.twig' %}
+{% block title %}Manage Bookings — TripX Admin{% endblock %}
+
+{% block page_styles %}
+  .dest-table { width:100%; border-collapse:separate; border-spacing:0; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius-lg); overflow:hidden; }
+  .dest-table th { background:rgba(0,166,237,0.05); text-align:left; padding:14px 18px; font-family:var(--font-display); font-size:13px; }
+  .dest-table td { padding:14px 18px; border-bottom:1px solid var(--border-color); font-size:13px; }
+  .dest-table tr:last-child td { border-bottom:none; }
+  a, button { cursor: pointer !important; }
+{% endblock %}
+
+{% block breadcrumbs %}
+  <a href="{{ path('admin_dashboard') }}" class="crumb">Dashboard</a>
+  <span class="sep">›</span>
+  <span class="crumb active">Pack Bookings</span>
+{% endblock %}
+
+{% block content %}
+<div class="reveal">
+  <div style="margin-bottom:32px;">
+    <h1 class="display-sm" style="margin-bottom:4px">Pack Bookings</h1>
+    <p class="text-muted" style="font-size:14px">Review and manage all pack bookings.</p>
+  </div>
+
+  <div class="stats-tab-bar reveal" style="display:flex;gap:16px;margin-bottom:24px;padding:12px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--border-radius-lg);">
+    {% for key, val in stats %}
+    <div style="flex:1;padding:10px 16px;{% if not loop.last %}border-right:1px solid var(--border-color);{% endif %}">
+      <div class="text-muted" style="font-size:11px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">{{ key|capitalize }}</div>
+      <div style="font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--accent-primary);">{{ val }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div  style="padding:0;overflow:hidden;">
+    <table class="dest-table">
+      <thead>
+        <tr>
+          <th>ID</th><th>User</th><th>Pack</th><th>Travel Dates</th><th>Travelers</th><th>Final Price</th><th>Status</th><th style="text-align:right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        {% set statusColors = {'PENDING':'badge-gold','CONFIRMED':'badge-teal','CANCELLED':'badge-coral','COMPLETED':'badge-indigo'} %}
+        <tr>
+          <td style="font-family:var(--font-mono);font-size:11px;opacity:0.6">#{{ item.idBooking }}</td>
+          <td style="font-family:var(--font-mono);font-size:12px;">#{{ item.userId }}</td>
+          <td style="font-weight:600;">{{ packs[item.packId] is defined ? packs[item.packId].title : '#' ~ item.packId }}</td>
+          <td style="font-size:12px;">{{ item.travelStartDate|date('d M Y') }} → {{ item.travelEndDate|date('d M Y') }}</td>
+          <td>{{ item.numTravelers }}</td>
+          <td style="color:var(--accent-primary);font-weight:600;">€{{ item.finalPrice|number_format(2) }}</td>
+          <td><span class="badge {{ statusColors[item.status] ?? '' }}">{{ item.status }}</span></td>
+          <td style="text-align:right;">
+            <div style="display:flex;gap:6px;justify-content:flex-end;align-items:center;flex-wrap:wrap;">
+              {% if item.status == 'PENDING' %}
+                <a href="{{ path('admin_booking_status', {id: item.idBooking, status: 'CONFIRMED'}) }}"
+                   style="padding:6px 10px;border-radius:6px;border:1px solid #10b981;color:#10b981;text-decoration:none;font-size:12px;font-weight:600;cursor:pointer !important;">
+                  Confirm
+                </a>
+                <a href="{{ path('admin_booking_status', {id: item.idBooking, status: 'CANCELLED'}) }}"
+                   style="padding:6px 10px;border-radius:6px;border:1px solid #ef4444;color:#ef4444;text-decoration:none;font-size:12px;font-weight:600;cursor:pointer !important;"
+                   onclick="return confirm('Cancel this booking?')">
+                  Cancel
+                </a>
+              {% elseif item.status == 'CONFIRMED' %}
+                <a href="{{ path('admin_booking_status', {id: item.idBooking, status: 'COMPLETED'}) }}"
+                   style="padding:6px 10px;border-radius:6px;border:1px solid #6366f1;color:#6366f1;text-decoration:none;font-size:12px;font-weight:600;cursor:pointer !important;">
+                  Complete
+                </a>
+              {% endif %}
+              <a href="{{ path('admin_booking_delete', {id: item.idBooking}) }}"
+                 class="btn btn-primary btn-sm" style="cursor:pointer !important;"
+                 onclick="return confirm('Delete this booking permanently?')">
+                Delete
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">No bookings found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -3,6 +3,8 @@
 namespace App\form;
 
 use App\Entity\Activity;
+use App\Entity\Destination;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -11,15 +13,22 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 class ActivityType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('destinationId', HiddenType::class, [
-                'required' => false,
+            ->add('destination', EntityType::class, [
+                'class' => Destination::class,
+                'choice_label' => 'name',
+                'placeholder' => 'Select a destination',
+                'required' => true,
+                'label' => 'Destination *',
+                'attr' => [
+                    'class' => 'form-control',
+                    'style' => 'width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);'
+                ]
             ])
             ->add('name', TextType::class, ['required' => false])
             ->add('category', ChoiceType::class, [

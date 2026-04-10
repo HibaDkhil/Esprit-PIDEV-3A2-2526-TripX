@@ -1,0 +1,470 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Packs & Offers — TripX{% endblock %}
+
+{% block stylesheets %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Montserrat:wght@100..900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    .page-top { padding-top: calc(var(--nav-height) + 48px); padding-bottom: 60px; }
+
+    /* ── Filter Tabs (transport style) ── */
+    .section-tabs {
+      display: flex; gap: 0;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-md);
+      padding: 6px; margin-bottom: 40px;
+      width: fit-content;
+    }
+    .section-tab {
+      padding: 10px 24px;
+      border-radius: var(--border-radius-sm);
+      font-family: var(--font-mono); font-size: 11px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-muted);
+      cursor: pointer !important;
+      transition: all var(--transition-fast);
+      border: none; background: none;
+    }
+    .section-tab.active { background: var(--accent-primary); color: #fff; }
+    .section-tab:hover:not(.active) { color: var(--accent-primary); }
+
+    /* ── Section panels ── */
+    .section-panel { display: none; }
+    .section-panel.active { display: block; }
+
+    /* ── Pack / Offer cards ── */
+    .pack-card, .offer-card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg); overflow: hidden;
+      transition: all var(--transition-smooth);
+    }
+    .pack-card:hover, .offer-card:hover {
+      transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--accent-primary);
+    }
+
+    /* ── Booking card ── */
+    .booking-card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg); overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    /* ── Search bar ── */
+    .pack-search, .offer-search {
+      display: flex; gap: 12px; margin-bottom: 32px; max-width: 560px;
+    }
+    .pack-search input, .offer-search input {
+      flex: 1; padding: 12px 18px; border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card); color: var(--text-primary); font-size: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+<div class="page-top">
+  <div class="container">
+
+    {# ── Page Header ── #}
+    <div class="section-label reveal"><span>Travel Hub</span></div>
+    <h1 class="display-md reveal" style="margin-bottom:8px">Packs <span class="gradient-text-warm">&amp; Offers ✦</span></h1>
+    <p class="serif-mood text-muted reveal reveal-delay-1" style="margin-bottom:32px">
+      Browse packages, grab deals, track your bookings and loyalty — all in one place.
+    </p>
+
+    {# ── Content Selector Filter ── #}
+    <div class="section-tabs reveal reveal-delay-2">
+      <button class="section-tab active" data-target="all">🌐 All</button>
+      <button class="section-tab" data-target="packs">📦 Packs</button>
+      <button class="section-tab" data-target="offers">🏷️ Offers</button>
+      <button class="section-tab" data-target="bookings">📋 Bookings</button>
+      <button class="section-tab" data-target="loyalty">⭐ Loyalty</button>
+    </div>
+
+    {# ════════════════════════════════════
+       PACKS SECTION
+    ════════════════════════════════════ #}
+    <div class="section-panel active" id="panel-packs" data-section="packs">
+      <div class="section-label reveal"><span>Travel Packages</span></div>
+      <h2 class="display-sm reveal" style="margin-bottom:24px">Available <span class="gradient-text-warm">Packs</span></h2>
+
+      <div class="pack-search">
+        <input type="text" id="pack-search-input" placeholder="Search packs by name..."
+            oninput="ajaxSearchPacks(this.value)">
+        <button class="btn btn-primary ripple-btn"
+            onclick="ajaxSearchPacks(document.getElementById('pack-search-input').value)"
+            style="cursor:pointer !important;">Search</button>
+      </div>
+      <div id="packs-ajax-status" style="font-size:13px;color:var(--text-muted);margin-bottom:12px;min-height:20px;"></div>
+
+      {% if packsWithOffers is empty %}
+        <div style="text-align:center;padding:60px 20px;color:var(--text-muted);">
+          <div style="font-size:48px;margin-bottom:16px;">🧳</div>
+          <p>No packs available right now.</p>
+        </div>
+      {% else %}
+      <div class="grid-3" id="packs-grid" style="gap:28px;">
+        {% for row in packsWithOffers %}
+        {% set pack  = row.pack %}
+        {% set offer = row.offer %}
+        <div class="pack-card" data-pack-title="{{ pack.title|lower }}">
+          <div style="height:160px;background:linear-gradient(135deg,#0d1b2a,#1a3a5c);display:flex;align-items:center;justify-content:center;font-size:56px;position:relative;">
+            ✈️
+            {% if offer %}
+              <span style="position:absolute;top:14px;left:14px;background:var(--accent-primary);color:#fff;font-family:var(--font-display);font-size:14px;padding:3px 10px;border-radius:8px;">
+                {% if offer.discountType == 'PERCENTAGE' %}-{{ offer.discountValue }}%{% else %}-€{{ offer.discountValue }}{% endif %}
+              </span>
+            {% endif %}
+          </div>
+          <div style="padding:20px;">
+            <h3 style="font-family:var(--font-display);font-size:18px;line-height:1.3;margin-bottom:8px;">{{ pack.title }}</h3>
+            {% if pack.description %}
+              <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;">
+                {{ pack.description|slice(0,90) }}{% if pack.description|length > 90 %}…{% endif %}
+              </p>
+            {% endif %}
+            <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+              <span class="badge badge-indigo">{{ pack.durationDays }} days</span>
+              {% if offer %}<span class="badge badge-teal">🏷 {{ offer.title }}</span>{% endif %}
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-family:var(--font-display);font-size:26px;color:var(--accent-primary);line-height:1;">€{{ pack.basePrice|number_format(0) }}</div>
+                <div style="font-size:11px;color:var(--text-muted);">per person</div>
+              </div>
+              <a href="{{ path('user_pack_details', {id: pack.idPack}) }}" class="btn btn-primary ripple-btn" style="cursor:pointer !important;">View Pack</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    {# ════════════════════════════════════
+       OFFERS SECTION
+    ════════════════════════════════════ #}
+    <div class="section-panel" id="panel-offers" data-section="offers">
+      <div class="section-label reveal"><span>Live Deals</span></div>
+      <h2 class="display-sm reveal" style="margin-bottom:24px">Active <span class="gradient-text-warm">Offers</span></h2>
+
+      <div class="offer-search">
+        <input type="text" id="offer-search-input" placeholder="Search offers..." oninput="filterOffers(this.value)">
+        <button class="btn btn-primary ripple-btn" onclick="filterOffers(document.getElementById('offer-search-input').value)" style="cursor:pointer !important;">Search</button>
+      </div>
+
+      {% if offers is empty %}
+        <div style="text-align:center;padding:60px 20px;border:1px dashed var(--border-color);border-radius:var(--border-radius-lg);color:var(--text-muted);">
+          <div style="font-size:48px;margin-bottom:16px;">🏷️</div>
+          <p>No active offers right now. Check back soon!</p>
+        </div>
+      {% else %}
+      <div class="grid-3" id="offers-grid" style="gap:28px;">
+        {% for offer in offers %}
+        {% set pack = packs[offer.packId] is defined ? packs[offer.packId] : null %}
+        <div class="offer-card" data-offer-title="{{ offer.title|lower }}">
+          <div style="background:linear-gradient(135deg,#1a0a00,#2d0a0a);padding:24px;position:relative;overflow:hidden;">
+            <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 100% 50%,rgba(255,77,109,0.2),transparent 60%);pointer-events:none;"></div>
+            <div style="position:relative;z-index:1;">
+              <div style="font-family:var(--font-mono);font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">
+                {% if offer.discountType == 'PERCENTAGE' %}Percentage Off{% else %}Fixed Discount{% endif %}
+              </div>
+              <div style="font-family:var(--font-display);font-size:48px;color:var(--accent-primary);line-height:1;">
+                {% if offer.discountType == 'PERCENTAGE' %}{{ offer.discountValue }}%{% else %}€{{ offer.discountValue }}{% endif %}
+              </div>
+            </div>
+          </div>
+          <div style="padding:20px;">
+            <h3 style="font-family:var(--font-display);font-size:18px;margin-bottom:8px;">{{ offer.title }}</h3>
+            {% if offer.description %}
+              <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;">{{ offer.description }}</p>
+            {% endif %}
+            <div style="display:flex;gap:8px;margin-bottom:16px;">
+              {% if pack %}
+                <span class="badge badge-indigo">{{ pack.title|slice(0,30) }}{% if pack.title|length > 30 %}…{% endif %}</span>
+              {% else %}
+                <span class="badge badge-teal">All Packs</span>
+              {% endif %}
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid var(--border-color);">
+              <div style="font-size:12px;color:var(--text-muted);">
+                {{ offer.startDate|date('d M') }} → {{ offer.endDate|date('d M Y') }}
+              </div>
+              {% if pack %}
+                <a href="{{ path('user_pack_details', {id: pack.idPack}) }}" class="btn btn-primary btn-sm ripple-btn" style="cursor:pointer !important;">Book Now</a>
+              {% else %}
+                <a href="#" onclick="switchTab('packs')" class="btn btn-primary btn-sm ripple-btn" style="cursor:pointer !important;">Browse Packs</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    {# ════════════════════════════════════
+       BOOKINGS SECTION
+    ════════════════════════════════════ #}
+    <div class="section-panel" id="panel-bookings" data-section="bookings">
+      <div class="section-label reveal"><span>Your Trips</span></div>
+      <h2 class="display-sm reveal" style="margin-bottom:24px">My Pack <span class="gradient-text-warm">Bookings</span></h2>
+
+      {% if bookings is empty %}
+        <div style="text-align:center;padding:60px 20px;color:var(--text-muted);">
+          <div style="font-size:56px;margin-bottom:16px;">🧳</div>
+          <p style="margin-bottom:20px;">You haven't made any bookings yet.</p>
+          <button onclick="switchTab('packs')" class="btn btn-primary ripple-btn" style="cursor:pointer !important;">Browse Packs</button>
+        </div>
+      {% else %}
+        {% for booking in bookings %}
+        {% set statusColors = {'PENDING':'#f59e0b','CONFIRMED':'#10b981','CANCELLED':'#ef4444','COMPLETED':'#6366f1'} %}
+        {% set statusColor = statusColors[booking.status] ?? 'var(--text-muted)' %}
+        <div class="booking-card">
+          <div style="display:grid;grid-template-columns:4px 1fr;">
+            <div style="background:{{ statusColor }};"></div>
+            <div style="padding:24px;">
+              <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+                <div>
+                  <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-bottom:4px;">#{{ booking.idBooking }} · {{ booking.bookingDate|date('d M Y') }}</div>
+                  <h3 style="font-family:var(--font-display);font-size:20px;">
+                    {{ packMap[booking.packId] is defined ? packMap[booking.packId].title : 'Pack #' ~ booking.packId }}
+                  </h3>
+                </div>
+                <span style="padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;background:{{ statusColor }}22;color:{{ statusColor }};">
+                  {{ booking.status }}
+                </span>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:16px;margin-bottom:16px;">
+                <div>
+                  <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Departure</div>
+                  <div style="font-weight:600;">{{ booking.travelStartDate|date('d M Y') }}</div>
+                </div>
+                <div>
+                  <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Return</div>
+                  <div style="font-weight:600;">{{ booking.travelEndDate|date('d M Y') }}</div>
+                </div>
+                <div>
+                  <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Travelers</div>
+                  <div style="font-weight:600;">{{ booking.numTravelers }}</div>
+                </div>
+                <div>
+                  <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Discount</div>
+                  <div style="font-weight:600;color:#10b981;">-€{{ booking.discountApplied|number_format(2) }}</div>
+                </div>
+                <div>
+                  <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Final Price</div>
+                  <div style="font-family:var(--font-display);font-size:22px;color:var(--accent-primary);">€{{ booking.finalPrice|number_format(2) }}</div>
+                </div>
+              </div>
+              {% if booking.notes %}
+                <div style="font-size:13px;color:var(--text-muted);font-style:italic;margin-bottom:16px;">"{{ booking.notes }}"</div>
+              {% endif %}
+              {% if booking.status == 'PENDING' %}
+                <a href="{{ path('user_pack_booking_cancel', {id: booking.idBooking}) }}"
+                   style="display:inline-block;padding:8px 18px;border-radius:8px;border:1px solid #ef4444;color:#ef4444;text-decoration:none;font-size:13px;font-weight:600;cursor:pointer !important;"
+                   onclick="return confirm('Cancel this booking?')">
+                  Cancel Booking
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    {# ════════════════════════════════════
+       LOYALTY SECTION
+    ════════════════════════════════════ #}
+    <div class="section-panel" id="panel-loyalty" data-section="loyalty">
+      <div class="section-label reveal"><span>Your Rewards</span></div>
+      <h2 class="display-sm reveal" style="margin-bottom:24px">Loyalty <span class="gradient-text-warm">Tier ✦</span></h2>
+
+      {% set level = loyalty.computeLevel() %}
+      {% set levelColors = {'BRONZE': '#b45309', 'SILVER': '#9ca3af', 'GOLD': '#f59e0b'} %}
+      {% set levelColor  = levelColors[level] ?? '#9ca3af' %}
+      {% set levelEmojis = {'BRONZE': '🥉', 'SILVER': '🥈', 'GOLD': '🥇'} %}
+      {% set levelEmoji  = levelEmojis[level] ?? '🥉' %}
+
+      <div style="max-width:760px;">
+        <div class="card reveal" style="padding:0;overflow:hidden;margin-bottom:28px;">
+          <div style="background:linear-gradient(135deg,#0d1b2a,#1a3a5c);padding:36px;position:relative;overflow:hidden;">
+            <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,{{ levelColor }}33,transparent 70%);"></div>
+            <div style="position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;">
+              <div>
+                <div style="font-family:var(--font-mono);font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Your Level</div>
+                <div style="font-family:var(--font-display);font-size:42px;color:{{ levelColor }};line-height:1;">{{ levelEmoji }} {{ level }}</div>
+                <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-top:8px;">{{ loyalty.loyaltyDiscountPercent }}% discount on all bookings</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-family:var(--font-mono);font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Total Points</div>
+                <div style="font-family:var(--font-display);font-size:56px;color:{{ levelColor }};line-height:1;">{{ loyalty.totalPoints }}</div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:24px 32px;">
+            {% if level != 'GOLD' %}
+              {% set pct = level == 'BRONZE' ? (loyalty.totalPoints / 200 * 100) : ((loyalty.totalPoints - 200) / 200 * 100) %}
+              {% set nextLevel = level == 'BRONZE' ? 'SILVER' : 'GOLD' %}
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;">
+                <span style="color:var(--text-muted);">{{ level|capitalize }}</span>
+                <span style="color:var(--text-muted);">{{ loyalty.pointsToNextLevel }} pts to <strong style="color:{{ levelColors[nextLevel] }}">{{ nextLevel }}</strong></span>
+              </div>
+              <div style="background:var(--border-color);border-radius:999px;height:8px;overflow:hidden;">
+                <div style="height:100%;width:{{ pct > 100 ? 100 : pct }}%;background:linear-gradient(90deg,var(--accent-primary),{{ levelColor }});border-radius:999px;"></div>
+              </div>
+            {% else %}
+              <div style="text-align:center;padding:12px 0;color:#f59e0b;font-weight:600;">✦ Maximum tier reached — enjoy 15% off every booking!</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;">
+          {% for tier, data in {
+            'BRONZE': {emoji:'🥉',color:'#b45309',points:'0–199 pts',discount:'4%'},
+            'SILVER': {emoji:'🥈',color:'#9ca3af',points:'200–399 pts',discount:'9%'},
+            'GOLD':   {emoji:'🥇',color:'#f59e0b',points:'400+ pts',discount:'15%'}
+          } %}
+          <div class="card reveal" style="text-align:center;border-color:{{ level == tier ? data.color : 'var(--border-color)' }};{% if level == tier %}box-shadow:0 0 0 2px {{ data.color }}44;{% endif %}">
+            <div style="font-size:32px;margin-bottom:8px;">{{ data.emoji }}</div>
+            <div style="font-family:var(--font-display);font-size:18px;color:{{ data.color }};margin-bottom:4px;">{{ tier }}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">{{ data.points }}</div>
+            <div style="font-size:20px;font-weight:700;color:var(--accent-primary);">{{ data.discount }} off</div>
+            {% if level == tier %}<div style="margin-top:10px;font-size:11px;color:{{ data.color }};font-weight:600;">← Your current tier</div>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="card reveal" style="text-align:center;background:rgba(0,166,237,0.04);">
+          <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px;">
+            Earn <strong style="color:var(--accent-primary);">50 points</strong> every time you book a pack.
+          </p>
+          <button onclick="switchTab('packs')" class="btn btn-primary ripple-btn" style="cursor:pointer !important;">Browse Packs & Earn Points ✦</button>
+        </div>
+      </div>
+    </div>
+
+  </div>{# end container #}
+</div>{# end page-top #}
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 TripX. All rights reserved.</div>
+      <a href="{{ path('index') }}" class="footer-copy" style="color:var(--accent-primary)">← Back to Home</a>
+    </div>
+  </div>
+</footer>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+  // ── Tab switching ──
+  function switchTab(name) {
+    document.querySelectorAll('.section-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.target === name || (name === 'all' && t.dataset.target === 'all'));
+    });
+
+    if (name === 'all') {
+      document.querySelectorAll('.section-panel').forEach(p => p.classList.add('active'));
+    } else {
+      document.querySelectorAll('.section-panel').forEach(p => {
+        p.classList.toggle('active', p.dataset.section === name);
+      });
+    }
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
+  document.querySelectorAll('.section-tab').forEach(tab => {
+    tab.addEventListener('click', () => switchTab(tab.dataset.target));
+  });
+
+  // Default: show all sections
+  document.querySelectorAll('.section-panel').forEach(p => p.classList.add('active'));
+
+  // ── Pack search ──
+  let packSearchTimer = null;
+
+  function ajaxSearchPacks(q) {
+    clearTimeout(packSearchTimer);
+    const status = document.getElementById('packs-ajax-status');
+
+    // Debounce — wait 350ms after user stops typing
+    packSearchTimer = setTimeout(() => {
+        status.textContent = 'Searching...';
+
+        fetch(`/packs-offers/search?q=${encodeURIComponent(q)}`)
+            .then(res => res.json())
+            .then(packs => {
+                status.textContent = packs.length + ' pack(s) found';
+                const grid = document.getElementById('packs-grid');
+                grid.innerHTML = '';
+
+                if (packs.length === 0) {
+                    grid.innerHTML = `
+                        <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);">
+                            <div style="font-size:48px;margin-bottom:16px;">🧳</div>
+                            <p>No packs found for "${q}".</p>
+                        </div>`;
+                    return;
+                }
+
+                packs.forEach(pack => {
+                    const offerBadge = pack.offer
+                        ? `<span class="badge badge-teal">🏷 ${pack.offer.title}</span>`
+                        : '';
+                    const offerTag = pack.offer
+                        ? `<span style="position:absolute;top:14px;left:14px;background:var(--accent-primary);color:#fff;font-family:var(--font-display);font-size:14px;padding:3px 10px;border-radius:8px;">
+                            ${pack.offer.discountType === 'PERCENTAGE' ? '-' + pack.offer.discountValue + '%' : '-€' + pack.offer.discountValue}
+                           </span>`
+                        : '';
+
+                    grid.innerHTML += `
+                        <div class="pack-card">
+                            <div style="height:160px;background:linear-gradient(135deg,#0d1b2a,#1a3a5c);display:flex;align-items:center;justify-content:center;font-size:56px;position:relative;">
+                                ✈️${offerTag}
+                            </div>
+                            <div style="padding:20px;">
+                                <h3 style="font-family:var(--font-display);font-size:18px;line-height:1.3;margin-bottom:8px;">${pack.title}</h3>
+                                <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;">
+                                    ${pack.description}${pack.description.length >= 90 ? '…' : ''}
+                                </p>
+                                <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+                                    <span class="badge badge-indigo">${pack.duration} days</span>
+                                    ${offerBadge}
+                                </div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;">
+                                    <div>
+                                        <div style="font-family:var(--font-display);font-size:26px;color:var(--accent-primary);line-height:1;">€${pack.price}</div>
+                                        <div style="font-size:11px;color:var(--text-muted);">per person</div>
+                                    </div>
+                                    <a href="/packs/${pack.id}" class="btn btn-primary ripple-btn" style="cursor:pointer !important;">View Pack</a>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+            })
+            .catch(() => {
+                status.textContent = 'Search failed. Please try again.';
+            });
+    }, 350);
+  }
+
+  // ── Offer search ──
+  function filterOffers(q) {
+    q = q.toLowerCase();
+    document.querySelectorAll('#offers-grid .offer-card').forEach(card => {
+      card.style.display = card.dataset.offerTitle.includes(q) ? '' : 'none';
+    });
+  }
+
+  // ── Check for ?section= param to auto-switch ──
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('section')) switchTab(params.get('section'));
+</script>
+{% endblock %}

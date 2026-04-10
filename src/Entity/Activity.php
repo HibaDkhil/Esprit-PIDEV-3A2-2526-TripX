@@ -15,8 +15,9 @@ class Activity
     #[ORM\Column(name: 'activity_id', type: 'bigint')]
     private ?string $activityId = null;
 
-    #[ORM\Column(name: 'destination_id', type: 'bigint', nullable: true)]
-    private ?string $destinationId = null;
+    #[ORM\ManyToOne(targetEntity: Destination::class)]
+    #[ORM\JoinColumn(name: 'destination_id', referencedColumnName: 'destination_id', nullable: false)]
+    private ?Destination $destination = null;
 
     #[ORM\Column(type: 'string', length: 160)]
     #[Assert\NotBlank(message: 'Activity name is required.')]
@@ -83,8 +84,21 @@ class Activity
     public function getActivityId(): ?string { return $this->activityId; }
     public function getId(): ?string { return $this->activityId; }
 
-    public function getDestinationId(): ?string { return $this->destinationId; }
-    public function setDestinationId(?string $destinationId): static { $this->destinationId = $destinationId; return $this; }
+    public function getDestination(): ?Destination 
+    { 
+        return $this->destination; 
+    }
+    
+    public function setDestination(?Destination $destination): static 
+    { 
+        $this->destination = $destination; 
+        return $this; 
+    }
+    
+    public function getDestinationId(): ?string 
+    { 
+        return $this->destination?->getDestinationId(); 
+    }
 
     public function getName(): ?string { return $this->name; }
     public function setName(?string $name): static { $this->name = $name; return $this; }

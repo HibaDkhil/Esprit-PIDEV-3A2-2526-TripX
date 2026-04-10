@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ pack.title }} — TripX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Montserrat:wght@100..900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets.php?f=css/main.css">
+  <link rel="stylesheet" href="/assets.php?f=css/animations.css">
+  <style>
+    .page-top { padding-top: calc(var(--nav-height) + 48px); padding-bottom: 60px; }
+  </style>
+</head>
+<body>
+<div id="cursor-dot"></div><div id="cursor-halo"></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="{{ path('index') }}" class="nav-logo">Trip<span>X</span></a>
+    <div class="nav-links">
+      <a href="{{ path('index') }}"          class="nav-link">Home</a>
+      <a href="{{ path('destinations') }}"   class="nav-link">Destinations</a>
+      <a href="{{ path('activities') }}"     class="nav-link">Activities</a>
+      <a href="{{ path('accommodations') }}" class="nav-link">Accommodations</a>
+      <a href="{{ path('transport') }}"      class="nav-link">Transport</a>
+      <a href="{{ path('user_packs_offers') }}"    class="nav-link">Packs & Offers</a>
+      <a href="{{ path('blog') }}" class="nav-link">Blog</a>
+      <a href="#" class="nav-link">My Bookings</a>
+    </div>
+    <div class="nav-actions">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+        <span class="toggle-icon icon-sun">☀️</span>
+        <span class="toggle-icon icon-moon">🌙</span>
+      </button>
+      <a href="{{ path('users') }}" class="btn-nav-primary ripple-btn">My Profile</a>
+      <a href="{{ path('app_logout') }}" class="Btn-logout" style="margin-left:8px;">
+        <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"/></svg></div>
+        <div class="text">Logout</div>
+      </a>
+    </div>
+  </div>
+</nav>
+
+{% for label, messages in app.flashes %}
+  <div class="flash-container">
+    {% for message in messages %}
+      <div class="flash-message {{ label }}">{% if label == 'success' %}✅{% else %}❌{% endif %} {{ message }}</div>
+    {% endfor %}
+  </div>
+{% endfor %}
+
+<div class="page-top">
+  <div class="container">
+    <div style="margin-bottom:24px;font-size:13px;">
+      <a href="{{ path('user_packs') }}" style="color:var(--accent-primary);text-decoration:none;">← Back to Packs</a>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 380px;gap:36px;align-items:start;">
+
+      <!-- LEFT: Pack Info -->
+      <div>
+        <div style="height:280px;background:linear-gradient(135deg,#0d1b2a,#1a3a5c);border-radius:var(--border-radius-lg);display:flex;align-items:center;justify-content:center;font-size:96px;margin-bottom:28px;position:relative;">
+          ✈️
+          {% if offer %}
+            <span style="position:absolute;top:20px;left:20px;background:var(--accent-primary);color:#fff;font-family:var(--font-display);font-size:18px;padding:6px 16px;border-radius:10px;">
+              {% if offer.discountType == 'PERCENTAGE' %}-{{ offer.discountValue }}%{% else %}-€{{ offer.discountValue }}{% endif %} OFF
+            </span>
+          {% endif %}
+        </div>
+
+        <h1 class="display-sm" style="margin-bottom:12px;">{{ pack.title }}</h1>
+        <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+          <span class="badge badge-indigo">{{ pack.durationDays }} days</span>
+          <span class="badge badge-teal">ACTIVE</span>
+          {% if loyalty %}
+            <span class="badge badge-gold">{{ loyalty.computeLevel() }} — {{ loyalty.loyaltyDiscountPercent }}% off</span>
+          {% endif %}
+        </div>
+
+        {% if pack.description %}
+          <p style="font-size:15px;line-height:1.8;color:var(--text-muted);margin-bottom:28px;">{{ pack.description }}</p>
+        {% endif %}
+
+        {% if offer %}
+        <div style="background:linear-gradient(135deg,rgba(0,166,237,0.08),rgba(0,166,237,0.03));border:1px solid var(--accent-primary);border-radius:var(--border-radius-lg);padding:20px;margin-bottom:28px;">
+          <div style="display:flex;justify-content:space-between;align-items:start;">
+            <div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--accent-primary);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">Active Offer</div>
+              <div style="font-family:var(--font-display);font-size:20px;margin-bottom:6px;">{{ offer.title }}</div>
+              {% if offer.description %}<div style="font-size:13px;color:var(--text-muted);">{{ offer.description }}</div>{% endif %}
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:var(--font-display);font-size:32px;color:var(--accent-primary);">
+                {% if offer.discountType == 'PERCENTAGE' %}{{ offer.discountValue }}%{% else %}€{{ offer.discountValue }}{% endif %}
+              </div>
+              <div style="font-size:11px;color:var(--text-muted);">Valid until {{ offer.endDate|date('d M Y') }}</div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="card">
+          <div class="card-body">
+            <h3 style="font-family:var(--font-display);font-size:16px;margin-bottom:16px;">Price Breakdown (per person)</h3>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-color);">
+              <span style="color:var(--text-muted);">Base Price</span>
+              <span style="font-weight:600;">€{{ pack.basePrice|number_format(2) }}</span>
+            </div>
+            {% if offer and offer.discountType == 'PERCENTAGE' %}
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-color);">
+              <span style="color:#10b981;">Offer Discount ({{ offer.discountValue }}%)</span>
+              <span style="color:#10b981;">-€{{ (pack.basePrice * offer.discountValue / 100)|number_format(2) }}</span>
+            </div>
+            {% endif %}
+            {% if loyalty %}
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-color);">
+              <span style="color:#f59e0b;">Loyalty Discount ({{ loyaltyDiscount }}%)</span>
+              <span style="color:#f59e0b;">-€{{ (pack.basePrice * loyaltyDiscount / 100)|number_format(2) }}</span>
+            </div>
+            {% endif %}
+            <div style="display:flex;justify-content:space-between;padding:12px 0;margin-top:4px;">
+              <span style="font-weight:700;font-size:16px;">Your Price</span>
+              {% set finalSingle = pack.basePrice * (1 - (offerDiscount + loyaltyDiscount) / 100) %}
+              <span style="font-family:var(--font-display);font-size:28px;color:var(--accent-primary);">€{{ finalSingle|number_format(2) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Booking Form -->
+      <div>
+        <div class="card" style="position:sticky;top:100px;">
+          <div class="card-body">
+            <h2 style="font-family:var(--font-display);font-size:20px;margin-bottom:20px;">Book This Pack</h2>
+            <form method="post" action="{{ path('user_pack_details', {id: pack.idPack}) }}" novalidate>
+              <div style="margin-bottom:16px;">
+                <label style="display:block;margin-bottom:6px;font-weight:600;font-size:13px;">Travel Start Date *</label>
+                <input type="date" name="travelStartDate" required min="{{ 'now'|date('Y-m-d') }}"
+                  style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary);">
+                <span class="field-error" style="color:#ef4444;font-size:12px;display:none;">Please select a start date.</span>
+              </div>
+              <div style="margin-bottom:16px;">
+                <label style="display:block;margin-bottom:6px;font-weight:600;font-size:13px;">Travel End Date *</label>
+                <input type="date" name="travelEndDate" required min="{{ 'now'|date('Y-m-d') }}"
+                  style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary);">
+                <span class="field-error" style="color:#ef4444;font-size:12px;display:none;">Please select an end date after start date.</span>
+              </div>
+              <div style="margin-bottom:16px;">
+                <label style="display:block;margin-bottom:6px;font-weight:600;font-size:13px;">Number of Travelers *</label>
+                <input type="number" name="numTravelers" min="1" max="20" value="1" required
+                  style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary);">
+                <span class="field-error" style="color:#ef4444;font-size:12px;display:none;">Must be between 1 and 20.</span>
+              </div>
+              <div style="margin-bottom:20px;">
+                <label style="display:block;margin-bottom:6px;font-weight:600;font-size:13px;">Notes</label>
+                <textarea name="notes" rows="3" placeholder="Any special requests..."
+                  style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary);resize:vertical;"></textarea>
+              </div>
+              <div style="background:rgba(0,166,237,0.06);border-radius:8px;padding:14px;margin-bottom:20px;font-size:13px;color:var(--text-muted);line-height:1.6;">
+                ✦ You'll earn <strong style="color:var(--accent-primary);">50 loyalty points</strong> on this booking.<br>
+                ✦ Status starts as <strong>PENDING</strong> until confirmed by admin.
+              </div>
+              <button type="submit" class="btn btn-primary ripple-btn" style="width:100%;padding:14px;">Confirm Booking ✦</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 TripX. All rights reserved.</div>
+      <a href="{{ path('index') }}" class="footer-copy" style="color:var(--accent-primary)">← Back to Home</a>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets.php?f=js/main.js"></script>
+<script>
+// Client-side validation
+document.querySelector('form').addEventListener('submit', function(e) {
+  let valid = true;
+  const errors = this.querySelectorAll('.field-error');
+  errors.forEach(el => el.style.display = 'none');
+
+  const start = this.querySelector('[name="travelStartDate"]');
+  const end   = this.querySelector('[name="travelEndDate"]');
+  const num   = this.querySelector('[name="numTravelers"]');
+
+  if (!start.value) { start.nextElementSibling.style.display='block'; valid=false; }
+  if (!end.value || end.value <= start.value) { end.nextElementSibling.style.display='block'; valid=false; }
+  if (!num.value || num.value < 1 || num.value > 20) { num.nextElementSibling.style.display='block'; valid=false; }
+
+  if (!valid) e.preventDefault();
+});
+</script>
+</body>
+</html>
