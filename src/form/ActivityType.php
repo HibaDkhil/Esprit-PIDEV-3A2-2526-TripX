@@ -30,23 +30,32 @@ class ActivityType extends AbstractType
                     'style' => 'width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);'
                 ]
             ])
-            ->add('name', TextType::class, ['required' => false])
+            ->add('name', TextType::class, [
+                'required' => true,
+                'label' => 'Activity Name',
+                'attr' => ['class' => 'form-control']
+            ])
             ->add('category', ChoiceType::class, [
-                'required' => false,
+                'required' => true,
+                'label' => 'Category *',
                 'choices' => [
                     'Tour' => 'tour',
-                    'Sport' => 'sport',
-                    'Relax' => 'relax',
-                    'Culture' => 'culture',
-                    'Food' => 'food',
                     'Adventure' => 'adventure',
+                    'Cultural' => 'cultural',
+                    'Food' => 'food',
+                    'Relaxation' => 'relaxation',
+                    'Nightlife' => 'nightlife',
+                    'Sports' => 'sports',
                     'Wellness' => 'wellness',
                     'Other' => 'other',
-                ]
+                ],
+                'attr' => ['class' => 'form-control']
             ])
             ->add('price', NumberType::class, [
                 'required' => false,
                 'scale' => 2,
+                'label' => 'Price',
+                'attr' => ['class' => 'form-control']
             ])
             ->add('currency', ChoiceType::class, [
                 'required' => false,
@@ -55,11 +64,24 @@ class ActivityType extends AbstractType
                     'EUR' => 'EUR',
                     'GBP' => 'GBP',
                     'TND' => 'TND',
-                ]
+                ],
+                'attr' => ['class' => 'form-control']
             ])
-            ->add('durationMinutes', IntegerType::class, ['required' => false])
-            ->add('capacity', IntegerType::class, ['required' => false])
-            ->add('description', TextareaType::class, ['required' => false])
+            ->add('durationMinutes', IntegerType::class, [
+                'required' => true,
+                'label' => 'Duration (minutes)',
+                'attr' => ['class' => 'form-control']
+            ])
+            ->add('capacity', IntegerType::class, [
+                'required' => true,
+                'label' => 'Capacity',
+                'attr' => ['class' => 'form-control']
+            ])
+            ->add('description', TextareaType::class, [
+                'required' => false,
+                'label' => 'Description',
+                'attr' => ['class' => 'form-control', 'rows' => 5]
+            ])
         ;
     }
 

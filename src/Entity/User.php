@@ -20,13 +20,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /* Form requirements houni  */
     #[ORM\Column(name: 'first_name', type: 'string', length: 80)]
     #[Assert\NotBlank(message: 'First name is required')]
-    #[Assert\Length(min: 2, max: 80, minMessage: 'First name must be at least 2 characters')]
+    #[Assert\Length(min: 2, max: 50, minMessage: 'First name must be at least 2 characters')]
     private ?string $firstName = null;
 
 
     #[ORM\Column(name: 'last_name', type: 'string', length: 80)]
     #[Assert\NotBlank(message: 'Last name is required')]
-    #[Assert\Length(min: 2, max: 80, minMessage: 'Last name must be at least 2 characters')]
+    #[Assert\Length(min: 2, max: 50, minMessage: 'Last name must be at least 2 characters')]
     private ?string $lastName = null;
 
 
@@ -246,12 +246,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return (string) $this->email;
     }
-
+// Permissions & roles 
     public function getRoles(): array
     {
         $roles = ['ROLE_USER'];
 
-        // Map the single "role" column to Symfony's ROLE_ format
+        
         switch ($this->role) {
             case 'admin':
                 $roles[] = 'ROLE_ADMIN';
