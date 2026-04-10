@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+{% block title %}Saved Posts — TripX{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/blog.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="blog-page">
+<div class="saved-wrap">
+
+  <span class="cp-eyebrow">🔖 Bookmarks</span>
+  <h1 class="cp-title" style="font-size:32px;">Your <span>Saved Posts</span></h1>
+  <p class="cp-subtitle">{{ posts|length }} saved post{{ posts|length != 1 ? 's' : '' }}</p>
+
+  {% if posts is empty %}
+    <div class="empty-state" style="margin-top:24px;">
+      <span class="ei">🔖</span>
+      <h3>Nothing saved yet</h3>
+      <p>Hit the <strong>🔖 Save</strong> button on any post to bookmark it here.</p>
+      <a href="{{ path('blog') }}" class="btn-create-post" style="display:inline-flex;margin-top:16px;text-decoration:none;">
+        ← Back to Feed
+      </a>
+    </div>
+  {% else %}
+    <div class="saved-grid">
+      {% for post in posts %}
+        <div class="saved-card" style="animation-delay:{{ loop.index0 * 0.07 }}s">
+          {% if post.imageUrl %}
+            {% set firstImg = post.imageUrl|split(',')|first|trim %}
+            {% if firstImg %}
+              <img src="{{ firstImg }}" class="saved-card-img" alt="{{ post.title }}"
+                   onerror="this.style.display='none'">
+            {% endif %}
+          {% else %}
+            <div style="height:8px;background:linear-gradient(135deg,#2563eb,#0ea5e9);"></div>
+          {% endif %}
+          <div class="saved-card-body">
+            <span class="pc-badge b-{{ post.type }}" style="margin-bottom:8px;display:inline-block;">{{ post.type }}</span>
+            <a href="{{ path('post_show', {id: post.id}) }}" class="saved-card-title">{{ post.title }}</a>
+            <div class="pc-body" style="padding:0;margin-top:6px;font-size:13px;">
+              {{ post.body|length > 100 ? post.body|slice(0,100) ~ '…' : post.body }}
+            </div>
+            <div style="display:flex;gap:8px;margin-top:12px;align-items:center;">
+              <a href="{{ path('post_show', {id: post.id}) }}" class="pc-read" style="padding:0;">Read →</a>
+              <form method="post" action="{{ path('post_save_toggle', {id: post.id}) }}" style="margin:0;">
+                <input type="hidden" name="_token" value="{{ csrf_token('save_post_' ~ post.id) }}">
+                <button type="submit" class="act-btn saved" style="padding:5px 10px;font-size:12px;">🗑 Remove</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <div style="text-align:center;margin-top:28px;">
+      <a href="{{ path('blog') }}" class="cp-back">← Back to Feed</a>
+    </div>
+  {% endif %}
+
+</div>
+</div>
+{% endblock %}

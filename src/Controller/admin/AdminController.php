@@ -539,7 +539,5 @@ class AdminController extends AbstractController
     #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_OFFERS')"))]
     public function offers(): Response { return $this->render('admin/offers.html.twig'); }
 
-    #[Route('/blog', name: 'blog')]
-    #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_BLOG')"))]
-    public function blog(): Response { return $this->render('admin/blog.html.twig'); }
+    
 }

@@ -1,0 +1,201 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ story.title }} — TripX Travel Stories{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/blog.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="blog-page">
+<div class="show-wrap" style="max-width:900px;">
+
+  <a href="{{ path('travel_story_index') }}" class="show-back">← All Travel Stories</a>
+
+  <div class="show-card">
+    {# Hero #}
+    {% if story.coverImageUrl %}
+      <img src="{{ story.coverImageUrl }}" class="show-hero-img" alt="{{ story.title }}"
+           onerror="this.style.display='none'">
+    {% else %}
+      <div style="height:12px;background:linear-gradient(135deg,#f59e0b,#ef4444);"></div>
+    {% endif %}
+
+    <div class="show-body-wrap">
+      {# Badge + meta #}
+      <div class="show-meta" style="margin-bottom:14px;">
+        <span class="pc-badge b-travel_story">🧳 Travel Story</span>
+        {% if story.travelType %}
+          <span class="ts-tag">{{ story.travelType|capitalize }}</span>
+        {% endif %}
+        {% if story.travelStyle %}
+          <span class="ts-tag">{{ story.travelStyle|capitalize }}</span>
+        {% endif %}
+        {% if story.overallRating %}
+          <span class="ts-tag">⭐ {{ story.overallRating }}/5</span>
+        {% endif %}
+      </div>
+
+      <h1 class="show-title">{{ story.title }}</h1>
+
+      <div style="font-size:14px;color:var(--warning);font-weight:700;margin-bottom:16px;">
+        📍 {{ story.destination ? story.destination : '<span style="opacity:0.5;font-weight:400;">No destination specified</span>'|raw }}
+      </div>
+
+      {# Stats row #}
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px;padding:16px;background:rgba(0,0,0,0.03);border:1px solid var(--blog-border);border-radius:16px;">
+          <div style="text-align:center;">
+            <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;font-weight:700;">Start</div>
+            <div style="font-size:14px;color:var(--text-1);font-weight:700;">{{ story.startDate ? story.startDate|date('d M Y') : '<em style="opacity:.4;">N/A</em>'|raw }}</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;font-weight:700;">End</div>
+            <div style="font-size:14px;color:var(--text-1);font-weight:700;">{{ story.endDate ? story.endDate|date('d M Y') : '<em style="opacity:.4;">N/A</em>'|raw }}</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;font-weight:700;">Budget</div>
+            <div style="font-size:14px;color:var(--success);font-weight:800;">
+              {% if story.totalBudget %}
+                {{ story.currency ?? '' }} {{ story.totalBudget }}
+              {% else %}
+                <em style="opacity:.4;">N/A</em>
+              {% endif %}
+            </div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;font-weight:700;">Rating</div>
+            <div style="font-size:14px;color:var(--warning);font-weight:800;">
+              {% if story.overallRating %}
+                {% for i in 1..story.overallRating %}⭐{% endfor %}
+              {% else %}
+                <em style="opacity:.4;">Unrated</em>
+              {% endif %}
+            </div>
+          </div>
+      </div>
+
+      {# Summary #}
+      <div class="show-content" style="margin-bottom:20px;">
+        {{ story.summary ? story.summary : '<em style="opacity:.5">No summary provided for this travel story.</em>'|raw }}
+      </div>
+
+      {# Tags #}
+      <div class="ts-meta" style="padding:0;margin-bottom:20px;">
+        {% if story.tagsJson is not empty %}
+          {% for tag in story.tagsJson %}
+            <span class="ts-tag"># {{ tag }}</span>
+          {% endfor %}
+        {% else %}
+          <span class="ts-tag" style="opacity:0.6;">No Tags</span>
+        {% endif %}
+      </div>
+
+      {# Image gallery #}
+      {% if story.imageUrlsJson is not empty %}
+        <div style="margin-bottom:24px;">
+          <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:10px;">🖼️ Gallery</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;border-radius:16px;overflow:hidden;">
+            {% for img in story.imageUrlsJson %}
+              {% if img %}
+                <img src="{{ img }}" alt="{{ story.title }}"
+                     style="width:100%;height:180px;object-fit:cover;display:block;cursor:pointer;transition:transform .3s;"
+                     onclick="openLightbox(this.src)"
+                     onerror="this.style.display='none'">
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      {% else %}
+        <div style="margin-bottom:24px;opacity:0.5;font-size:13px;font-style:italic;">No images uploaded for this story.</div>
+      {% endif %}
+
+      {# Must Visit #}
+      <div style="margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:8px;">📍 Must Visit</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          {% if story.mustVisitJson is not empty %}
+            {% for place in story.mustVisitJson %}
+              <span class="ts-tag">📌 {{ place }}</span>
+            {% endfor %}
+          {% else %}
+            <span style="opacity: 0.5; font-size: 13px;">Nothing listed</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {# Must Do #}
+      <div style="margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:8px;">✅ Must Do</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          {% if story.mustDoJson is not empty %}
+            {% for thing in story.mustDoJson %}
+              <span class="ts-tag">✔️ {{ thing }}</span>
+            {% endfor %}
+          {% else %}
+            <span style="opacity: 0.5; font-size: 13px;">Nothing listed</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {# Must Try (food) #}
+      <div style="margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:8px;">🍜 Must Try</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          {% if story.mustTryJson is not empty %}
+            {% for food in story.mustTryJson %}
+              <span class="ts-tag">🍽 {{ food }}</span>
+            {% endfor %}
+          {% else %}
+            <span style="opacity: 0.5; font-size: 13px;">Nothing listed</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {# Share #}
+      <div class="show-actions-section">
+        <div class="pc-actions" style="border:none;padding:0;">
+          <button type="button" class="act-btn" onclick="shareStory()">🔗 Share Story</button>
+          <a href="{{ path('travel_story_index') }}" class="act-btn">🧳 More Stories</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+{# Lightbox #}
+<div id="lightbox" onclick="closeLightbox()"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
+  <img id="lightbox-img" src="" alt="preview"
+       style="max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,0.8);">
+</div>
+
+<script>
+function openLightbox(src) {
+  const lb = document.getElementById('lightbox');
+  document.getElementById('lightbox-img').src = src;
+  lb.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+async function shareStory() {
+  const url = window.location.href;
+  const title = '{{ story.title|e('js') }}';
+  if (navigator.share) { try { await navigator.share({ title, url }); return; } catch(e) { return; } }
+  try {
+    await navigator.clipboard.writeText(url);
+    let t = document.querySelector('.blog-toast');
+    if (!t) { t = document.createElement('div'); t.className='blog-toast'; document.body.appendChild(t); }
+    t.textContent = '🔗 Link copied!';
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+  } catch(e) { prompt('Copy link:', url); }
+}
+</script>
+{% endblock %}

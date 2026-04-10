@@ -16,11 +16,12 @@ class DestinationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name', TextType::class, ['required' => false])
-            ->add('country', TextType::class, ['required' => false])
-            ->add('city', TextType::class, ['required' => false])
+            ->add('name', TextType::class, ['required' => true])
+            ->add('country', TextType::class, ['required' => true])
+            ->add('city', TextType::class, ['required' => true])
             ->add('type', ChoiceType::class, [
-                'required' => false,
+                'required' => true,
+                'placeholder' => 'Select a type',
                 'choices' => [
                     'City' => 'city',
                     'Beach' => 'beach',
@@ -34,7 +35,8 @@ class DestinationType extends AbstractType
                 ]
             ])
             ->add('bestSeason', ChoiceType::class, [
-                'required' => false,
+                'required' => true,
+                'placeholder' => 'Select a season',
                 'choices' => [
                     'Spring' => 'spring',
                     'Summer' => 'summer',

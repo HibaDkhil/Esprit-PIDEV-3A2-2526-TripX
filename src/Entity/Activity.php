@@ -17,6 +17,7 @@ class Activity
 
     #[ORM\ManyToOne(targetEntity: Destination::class)]
     #[ORM\JoinColumn(name: 'destination_id', referencedColumnName: 'destination_id', nullable: false)]
+    #[Assert\NotNull(message: 'Please select a destination.')]
     private ?Destination $destination = null;
 
     #[ORM\Column(type: 'string', length: 160)]
@@ -38,7 +39,8 @@ class Activity
     private ?int $durationMinutes = null;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
-    #[Assert\PositiveOrZero(message: 'Price must be 0 or positive.')]
+    #[Assert\NotBlank(message: 'Price is required.')]
+    #[Assert\Positive(message: 'Price must be greater than 0.')]
     private ?string $price = null;
 
     #[ORM\Column(type: 'string', length: 3, options: ['default' => 'USD'])]
@@ -53,7 +55,11 @@ class Activity
     #[ORM\Column(type: 'smallint')]
     #[Assert\NotBlank(message: 'Capacity is required.')]
     #[Assert\NotNull(message: 'Capacity cannot be null.')]
-    #[Assert\Positive(message: 'Capacity must be greater than 0.')]
+    #[Assert\Range(
+        min: 1,
+        max: 20,
+        notInRangeMessage: 'Capacity must be between {{ min }} and {{ max }}.'
+    )]
     private ?int $capacity = null;
 
     #[ORM\Column(name: 'available_from', type: 'date', nullable: true)]
@@ -84,21 +90,9 @@ class Activity
     public function getActivityId(): ?string { return $this->activityId; }
     public function getId(): ?string { return $this->activityId; }
 
-    public function getDestination(): ?Destination 
-    { 
-        return $this->destination; 
-    }
-    
-    public function setDestination(?Destination $destination): static 
-    { 
-        $this->destination = $destination; 
-        return $this; 
-    }
-    
-    public function getDestinationId(): ?string 
-    { 
-        return $this->destination?->getDestinationId(); 
-    }
+    public function getDestination(): ?Destination { return $this->destination; }
+    public function setDestination(?Destination $destination): static { $this->destination = $destination; return $this; }
+    public function getDestinationId(): ?string { return $this->destination?->getDestinationId(); }
 
     public function getName(): ?string { return $this->name; }
     public function setName(?string $name): static { $this->name = $name; return $this; }
