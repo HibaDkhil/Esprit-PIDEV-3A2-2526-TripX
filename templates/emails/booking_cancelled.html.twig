@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; color: #1e293b; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .header { background: linear-gradient(135deg, #EF4444, #B91C1C); padding: 30px 20px; text-align: center; color: white; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: bold; }
+        .content { padding: 30px; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .table th { text-align: left; padding: 12px; border-bottom: 2px solid #e2e8f0; color: #64748b; font-size: 13px; text-transform: uppercase; width: 40%; }
+        .table td { padding: 12px; border-bottom: 1px solid #e2e8f0; font-weight: 500; }
+        .footer { background: #1f2937; color: #9ca3af; text-align: center; padding: 20px; font-size: 12px; margin-top: 30px; border-radius: 0 0 12px 12px; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Reservation Cancelled</h1>
+            <p style="margin: 5px 0 0; opacity: 0.9;">Your booking with TripX has been cancelled.</p>
+        </div>
+        <div class="content">
+            <h2 style="margin-top:0; font-size: 18px; color: #0f172a;">Booking Details #{{ booking.bookingId }}</h2>
+            <p>Your reservation was officially cancelled. If any payment was captured, a refund process has likely been initiated automatically.</p>
+            
+            <div style="background: #fef2f2; border: 1px solid #fca5a5; padding: 15px; border-radius: 8px; margin: 20px 0; color: #991b1b;">
+                <strong>Reason for cancellation:</strong><br>
+                {{ reason|default('No reason provided.') }}
+            </div>
+            
+            <table class="table">
+                <tr><th>Provider</th><td>{{ transport.providerName }}</td></tr>
+                <tr><th>Vehicle / Model</th><td>{{ transport.vehicleModel }}</td></tr>
+                <tr><th>Travel Type</th><td><span class="badge">{{ transport.transportType }}</span></td></tr>
+                <tr><th>Passengers</th><td>{{ booking.totalSeats }} Seat(s)</td></tr>
+                <tr><th>Total Price</th><td><span style="text-decoration: line-through;">{{ booking.totalPrice|number_format(2) }} EUR</span></td></tr>
+            </table>
+
+            <p style="margin-top: 25px; line-height: 1.6;">If you believe this cancellation is an error, please contact TripX support immediately.</p>
+        </div>
+        <div class="footer">
+            TripX Global Transport Solutions<br>
+            contact@tripx.com | +1-800-TRIPX-88<br>
+            © {{ "now"|date("Y") }} TripX
+        </div>
+    </div>
+</body>
+</html>

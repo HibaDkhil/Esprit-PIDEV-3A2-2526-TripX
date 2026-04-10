@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{{ activity.name }} — {{ activity.category|capitalize }} activity at {{ destName }}. TripX.">
+  <title>{{ activity.name }} — TripX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Montserrat:wght@100..900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets.php?f=css/main.css">
+  <link rel="stylesheet" href="/assets.php?f=css/animations.css">
+  <style>
+    .page-top { padding-top: calc(var(--nav-height) + 60px); padding-bottom: 40px; }
+    .act-detail-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+      max-width: 900px;
+      margin: 0 auto;
+      box-shadow: var(--shadow-md);
+    }
+    .act-detail-hero {
+      height: 220px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 80px;
+      position: relative;
+    }
+    .act-detail-body { padding: 40px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+    .info-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-md);
+      padding: 16px;
+    }
+    .info-label { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+    .info-value { font-weight: 600; font-size: 18px; }
+    @media (max-width: 600px) {
+      .info-grid { grid-template-columns: 1fr; }
+      .act-detail-body { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+    <div id="cursor-dot"></div><div id="cursor-halo"></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="{{ path('index') }}" class="nav-logo">Trip<span>X</span></a>
+    <div class="nav-links">
+      <a href="{{ path('index') }}"          class="nav-link">Home</a>
+      <a href="{{ path('destinations') }}"   class="nav-link">Destinations</a>
+      <a href="{{ path('activities') }}"     class="nav-link active">Activities</a>
+      <a href="{{ path('accommodations') }}" class="nav-link">Accommodations</a>
+      <a href="{{ path('transport') }}"      class="nav-link">Transport</a>
+      <a href="{{ path('offers') }}"         class="nav-link">Offers</a>
+      <a href="{{ path('blog') }}" class="nav-link">Blog</a><a href="{{ path('my_bookings') }}" class="nav-link">My Bookings</a>
+    </div>
+    <div class="nav-actions">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+        <span class="toggle-icon icon-sun">☀️</span>
+        <span class="toggle-icon icon-moon">🌙</span>
+      </button>
+      <a href="{{ path('users') }}" class="btn-nav-primary ripple-btn">My Profile</a><a href="{{ path('app_logout') }}" class="Btn-logout" style="margin-left: 8px;">
+        <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" /></svg></div>
+        <div class="text">Logout</div>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-top">
+  <div class="container">
+    <div class="section-label reveal"><span>Activity Details</span></div>
+    <h1 class="display-md reveal" style="margin-bottom:8px"><span class="gradient-text">{{ activity.name }}</span></h1>
+    <p class="serif-mood text-muted reveal reveal-delay-1">
+      {{ activity.category|capitalize }} experience
+      {% if destName != 'Unknown' %} in <strong>{{ destName }}</strong>{% endif %}
+    </p>
+  </div>
+</div>
+
+<section class="section-sm">
+  <div class="container">
+
+    {% for label, messages in app.flashes %}
+      <div style="max-width:900px; margin:0 auto 20px;">
+        {% for message in messages %}
+          <div style="padding:12px 20px; border-radius:10px; margin-bottom:8px; font-size:14px;
+            {% if label == 'error' %}background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444;
+            {% else %}background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:#10b981;{% endif %}">
+            {% if label == 'success' %}✅{% else %}❌{% endif %} {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+
+    <div class="act-detail-card reveal">
+      <div class="act-detail-hero" style="background:linear-gradient(135deg,
+        {% if activity.category == 'adventure' %}rgba(255,77,109,0.15), rgba(255,183,3,0.1)
+        {% elseif activity.category == 'food' %}rgba(255,183,3,0.15), rgba(255,119,0,0.1)
+        {% elseif activity.category == 'cultural' %}rgba(99,102,241,0.15), rgba(168,85,247,0.1)
+        {% elseif activity.category == 'relaxation' %}rgba(0,245,212,0.15), rgba(16,185,129,0.1)
+        {% elseif activity.category == 'wellness' %}rgba(0,245,212,0.15), rgba(16,185,129,0.1)
+        {% else %}rgba(0,166,237,0.15), rgba(99,102,241,0.1)
+        {% endif %});">
+        {% if activity.category == 'adventure' %}🧗{% elseif activity.category == 'food' %}🍜{% elseif activity.category == 'cultural' %}🏛️{% elseif activity.category == 'relaxation' %}🧘{% elseif activity.category == 'nightlife' %}🌙{% elseif activity.category == 'sports' %}⚽{% elseif activity.category == 'wellness' %}💆{% else %}✨{% endif %}
+      </div>
+
+      <div class="act-detail-body">
+        <div style="display:flex; gap:8px; margin-bottom:16px;">
+          <span class="badge badge-teal">{{ activity.category|capitalize }}</span>
+          {% if activity.isAvailable is defined and activity.isAvailable %}<span class="badge badge-gold">Available</span>{% endif %}
+        </div>
+
+        <h2 style="font-family:var(--font-display); font-size:32px; text-transform:uppercase; margin-bottom:12px;">{{ activity.name }}</h2>
+
+        <div style="color:var(--text-secondary); line-height:1.8; margin-bottom:24px; background:var(--bg-surface); padding:24px; border:1px solid var(--border-color); border-radius:var(--border-radius-md);">
+          {{ activity.description|default('An amazing activity waiting to be experienced.')|raw }}
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Price</div>
+            <div class="info-value" style="color:var(--accent-primary)">€{{ activity.price|default(0)|number_format(2) }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Duration</div>
+            <div class="info-value">{{ activity.durationMinutes|default(0) }} minutes</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Category</div>
+            <div class="info-value">{{ activity.category|capitalize }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Destination</div>
+            <div class="info-value">{{ destName }}</div>
+          </div>
+          {% if activity.capacity %}
+          <div class="info-item">
+            <div class="info-label">Capacity</div>
+            <div class="info-value">{{ activity.capacity }} people</div>
+          </div>
+          {% endif %}
+          {% if activity.location is defined and activity.location %}
+          <div class="info-item">
+            <div class="info-label">Location</div>
+            <div class="info-value">{{ activity.location }}</div>
+          </div>
+          {% endif %}
+        </div>
+
+        <div style="display:flex; gap:12px; margin-top:32px;">
+          {% if destination %}
+            <a href="{{ path('destination_detail', {id: destination.destinationId}) }}" class="btn btn-primary btn-lg ripple-btn" style="flex:1; text-align:center;">🌍 View {{ destName }} Destination</a>
+            <a href="{{ path('booking_form', {destinationId: destination.destinationId}) }}" class="btn btn-secondary btn-lg ripple-btn" style="flex:1; text-align:center;">📋 Book {{ destName }}</a>
+          {% endif %}
+        </div>
+
+        <div style="margin-top:16px;">
+          <a href="{{ path('activities') }}" style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); letter-spacing:0.1em;">← Back to All Activities</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 TripX. All rights reserved.</div>
+      <a href="{{ path('activities') }}" class="footer-copy" style="color:var(--accent-primary)">← All Activities</a>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets.php?f=js/main.js"></script>
+</body>
+</html>

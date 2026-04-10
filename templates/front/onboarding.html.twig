@@ -187,12 +187,10 @@
         <div class="sub-label-blue">Select your gender to help us personalize your experience.</div>
         <div class="option-grid">
           <div class="option-card" data-val="Male" data-field="gender" style="flex:1">
-            <div class="option-icon">👨</div>
-            <span>Male</span>
+            <div class="option-icon">👨</div><span>Male</span>
           </div>
           <div class="option-card" data-val="Female" data-field="gender" style="flex:1">
-            <div class="option-icon">👩</div>
-            <span>Female</span>
+            <div class="option-icon">👩</div><span>Female</span>
           </div>
         </div>
       </div>
@@ -213,12 +211,17 @@
       {# Step 3: Priorities (White) #}
       <div class="ob-slide slide-white" data-slide="2">
         <div class="label-blue">What matters most?</div>
-        <div class="sub-label-blue">Select your top travel priorities.</div>
-        <div class="option-grid" data-group="priorities" data-multi="true">
-          <div class="option-card" data-val="Minimalist"><span>🏙</span> Minimalist</div>
-          <div class="option-card" data-val="Mediterranean"><span>☀️</span> Mediterranean</div>
-          <div class="option-card" data-val="Classic"><span>🏛</span> Classic</div>
-          <div class="option-card" data-val="Vintage"><span>🎞</span> Vintage</div>
+        <div class="sub-label-blue">Select your top travel priorities (Max 5).</div>
+        <div class="option-grid" data-group="priorities" data-multi="true" data-max="5">
+          <div class="option-card" data-val="Activities">🏃 Activities</div>
+          <div class="option-card" data-val="Wellness">🧘 Wellness</div>
+          <div class="option-card" data-val="Food and Drinks">🍽 Food & Drinks</div>
+          <div class="option-card" data-val="Family Friendly">👨‍👩‍👧 Family Friendly</div>
+          <div class="option-card" data-val="Parking">🅿️ Parking</div>
+          <div class="option-card" data-val="Amenities">✨ Amenities</div>
+          <div class="option-card" data-val="Pet-Friendly">🐾 Pet-Friendly</div>
+          <div class="option-card" data-val="Business Facilities">💼 Business</div>
+          <div class="option-card" data-val="I dont care">🤷 I don't care</div>
         </div>
       </div>
 
@@ -227,118 +230,130 @@
         <div class="label-white">Preferred Climate</div>
         <div class="sub-label-white">What kind of weather do you enjoy?</div>
         <div class="option-grid" data-group="preferred_climate" data-multi="true">
-          <div class="option-card" data-val="Tropical"><span>🌴</span> Tropical</div>
-          <div class="option-card" data-val="Oceanic"><span>🌊</span> Oceanic</div>
-          <div class="option-card" data-val="Temperate"><span>🌤️</span> Temperate</div>
-          <div class="option-card" data-val="Desert"><span>🌵</span> Desert</div>
-          <div class="option-card" data-val="Mountain"><span>⛰</span> Mountain</div>
-          <div class="option-card" data-val="Oceanic cold"><span>🧊</span> Oceanic cold</div>
+          <div class="option-card" data-val="Temperate">🌤️ Temperate</div>
+          <div class="option-card" data-val="Tropical">🌴 Tropical</div>
+          <div class="option-card" data-val="Desert">🌵 Desert</div>
+          <div class="option-card" data-val="Cold/Arctic">❄️ Cold/Arctic</div>
+          <div class="option-card" data-val="Oceanic">🌊 Oceanic</div>
+          <div class="option-card" data-val="Mountain">⛰ Mountain</div>
         </div>
       </div>
 
       {# Step 5: Budget (White) #}
       <div class="ob-slide slide-white" data-slide="4">
         <div class="label-blue">What is your budget?</div>
-        <div class="sub-label-blue">Estimated nightly budget for your stays.</div>
-        <div class="option-grid" data-group="budget_tier" data-multi="false">
-          <div class="option-card" data-val="Backpacker" data-min="0" data-max="100">
-            <div class="option-icon">🎒</div>
-            <div style="font-weight:800; font-size:1.1rem">Backpacker</div>
-            <div style="font-size:0.85rem; opacity:0.7">Affordable adventures</div>
-            <div style="margin-top:8px; font-weight:700; color:#1e3a8a">$0 - $100 / night</div>
+        <div class="sub-label-blue">Select your preferred minimum and maximum nightly budget.</div>
+        <div style="width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 30px;">
+          <div>
+            <div style="display:flex; justify-content:space-between; font-weight:700; color:#1e3a8a; margin-bottom:8px;">
+              <span>Min Budget</span><span id="minBudgetDisplay">$50</span>
+            </div>
+            <input type="range" id="minBudget" class="budget-slider" min="0" max="1000" step="50" value="50" style="width:100%">
           </div>
-          <div class="option-card" data-val="Explorer" data-min="100" data-max="300">
-            <div class="option-icon">🗺️</div>
-            <div style="font-weight:800; font-size:1.1rem">Explorer</div>
-            <div style="font-size:0.85rem; opacity:0.7">Comfort & quality</div>
-            <div style="margin-top:8px; font-weight:700; color:#1e3a8a">$100 - $300 / night</div>
-          </div>
-          <div class="option-card" data-val="Luxury" data-min="300" data-max="2000">
-            <div class="option-icon">💎</div>
-            <div style="font-weight:800; font-size:1.1rem">Luxury</div>
-            <div style="font-size:0.85rem; opacity:0.7">First-class stays</div>
-            <div style="margin-top:8px; font-weight:700; color:#1e3a8a">$300+ / night</div>
+          <div>
+            <div style="display:flex; justify-content:space-between; font-weight:700; color:#1e3a8a; margin-bottom:8px;">
+              <span>Max Budget</span><span id="maxBudgetDisplay">$500</span>
+            </div>
+            <input type="range" id="maxBudget" class="budget-slider" min="0" max="2000" step="100" value="500" style="width:100%">
           </div>
         </div>
       </div>
 
       {# Step 6: Location Preference (Blue) #}
       <div class="ob-slide slide-blue" data-slide="5">
-        <div class="label-white">Preferred Location</div>
+        <div class="label-white">Location Preferences</div>
         <div class="sub-label-white">Where do you prefer to stay?</div>
         <div class="option-grid" data-group="location_preferences" data-multi="true">
-          <div class="option-card" data-val="City Center"><span>🏙</span> City Center</div>
-          <div class="option-card" data-val="Beachfront"><span>🏖</span> Beach</div>
-          <div class="option-card" data-val="Countryside"><span>🌾</span> Rural</div>
-          <div class="option-card" data-val="Historic District"><span>🏯</span> Historic</div>
+          <div class="option-card" data-val="City Center">🏙 City Center</div>
+          <div class="option-card" data-val="Beachfront">🏖 Beachfront</div>
+          <div class="option-card" data-val="Mountain View">⛰ Mountain View</div>
+          <div class="option-card" data-val="Countryside">🌾 Countryside</div>
         </div>
       </div>
 
       {# Step 7: Accommodation Type (White) #}
       <div class="ob-slide slide-white" data-slide="6">
-        <div class="label-blue">Accommodation Type</div>
+        <div class="label-blue">Accommodation Types</div>
         <div class="sub-label-blue">Select your preferred places to stay.</div>
         <div class="option-grid" data-group="accommodation_types" data-multi="true">
-          <div class="option-card" data-val="Hotel"><span>🏨</span> Hotel</div>
-          <div class="option-card" data-val="Villa"><span>🏡</span> Villa</div>
-          <div class="option-card" data-val="Hostel"><span>🛏</span> Hostel</div>
-          <div class="option-card" data-val="Cabin"><span>🪵</span> Cabin</div>
+          <div class="option-card" data-val="Hotel">🏨 Hotel</div>
+          <div class="option-card" data-val="Resort">🏝 Resort</div>
+          <div class="option-card" data-val="Villa">🏡 Villa</div>
+          <div class="option-card" data-val="Hostel">🛏 Hostel</div>
+          <div class="option-card" data-val="Vacation Rental">🔑 Vacation Rental</div>
+          <div class="option-card" data-val="Camping">⛺ Camping</div>
+          <div class="option-card" data-val="Cabin">🪵 Cabin</div>
+          <div class="option-card" data-val="Boat/Yacht">⛵ Boat/Yacht</div>
         </div>
       </div>
 
-      {# Step 8: Travel Style (White) #}
-      <div class="ob-slide slide-white" data-slide="7">
-        <div class="label-blue">Travel Style</div>
-        <div class="sub-label-blue">What fits your vibe?</div>
-        <div class="option-grid" data-group="style_preferences" data-multi="true">
-          <div class="option-card" data-val="Luxury"><span>💎</span> Luxury</div>
-          <div class="option-card" data-val="Budget"><span>🎒</span> Budget</div>
-          <div class="option-card" data-val="Local"><span>🌍</span> Local</div>
-          <div class="option-card" data-val="Business"><span>💼</span> Business</div>
+      {# Step 8: Style Preferences (Blue) #}
+      <div class="ob-slide slide-blue" data-slide="7">
+        <div class="label-white">Style Preferences</div>
+        <div class="sub-label-white">What fits your vibe? (Max 5)</div>
+        <div class="option-grid" data-group="style_preferences" data-multi="true" data-max="5">
+          <div class="option-card" data-val="Minimalist">⚪ Minimalist</div>
+          <div class="option-card" data-val="Urban">🏙 Urban</div>
+          <div class="option-card" data-val="Luxury">💎 Luxury</div>
+          <div class="option-card" data-val="Bohemian">✨ Bohemian</div>
+          <div class="option-card" data-val="Rustic">🪵 Rustic</div>
+          <div class="option-card" data-val="Traditional">🏛 Traditional</div>
+          <div class="option-card" data-val="Tropical">🌴 Tropical</div>
+          <div class="option-card" data-val="Mediterranean">☀️ Mediterranean</div>
+          <div class="option-card" data-val="Vintage">🎞 Vintage</div>
+          <div class="option-card" data-val="Classic">🎩 Classic</div>
         </div>
       </div>
 
-      {# Step 9: Dietary Restrictions (Blue) #}
-      <div class="ob-slide slide-blue" data-slide="8">
-        <div class="label-white">Dietary Restrictions</div>
-        <div class="sub-label-white">Any food preferences we should know?</div>
+      {# Step 9: Dietary Restrictions (White) #}
+      <div class="ob-slide slide-white" data-slide="8">
+        <div class="label-blue">Dietary Restrictions</div>
+        <div class="sub-label-blue">Any food preferences we should know?</div>
         <div class="option-grid" data-group="dietary_restrictions" data-multi="true">
-          <div class="option-card" data-val="Vegetarian"><span>🥗</span> Veg</div>
-          <div class="option-card" data-val="Vegan"><span>🌱</span> Vegan</div>
-          <div class="option-card" data-val="Gluten-Free"><span>🌾</span> GF</div>
-          <div class="option-card" data-val="None"><span>🍴</span> None</div>
+          <div class="option-card" data-val="None">🍴 None</div>
+          <div class="option-card" data-val="Vegetarian">🥗 Vegetarian</div>
+          <div class="option-card" data-val="Vegan">🌱 Vegan</div>
+          <div class="option-card" data-val="Gluten-Free">🌾 Gluten-Free</div>
+          <div class="option-card" data-val="Dairy-Free">🥛 Dairy-Free</div>
+          <div class="option-card" data-val="Halal">🌙 Halal</div>
+          <div class="option-card" data-val="Nut Allergies">🥜 Nut Allergies</div>
+          <div class="option-card" data-val="Seafood Allergies">🦞 Seafood Allergies</div>
+          <div class="option-card" data-val="Raw Food">🥕 Raw Food</div>
+          <div class="option-card" data-val="Sugar-Free">🍬 Sugar-Free</div>
+          <div class="option-card" data-val="Low-Sodium">🧂 Low-Sodium</div>
         </div>
       </div>
 
-      {# Step 10: Travel Pace (White) #}
-      <div class="ob-slide slide-white" data-slide="9">
-        <div class="label-blue">Travel Pace</div>
-        <div class="sub-label-blue">How fast do you like to travel?</div>
+      {# Step 10: Travel Pace (Blue) #}
+      <div class="ob-slide slide-blue" data-slide="9">
+        <div class="label-white">Travel Pace</div>
+        <div class="sub-label-white">How fast do you like to travel?</div>
         <div class="option-grid" data-group="travel_pace" data-multi="false">
-          <div class="option-card" data-val="Relaxed"><span>🌅</span> Relaxed</div>
-          <div class="option-card" data-val="Moderate"><span>🚶</span> Moderate</div>
-          <div class="option-card" data-val="Fast-paced"><span>⚡</span> Fast</div>
+          <div class="option-card" data-val="Relaxed">🌅 Relaxed</div>
+          <div class="option-card" data-val="Moderate">🚶 Moderate</div>
+          <div class="option-card" data-val="Fast-paced">⚡ Fast-paced</div>
         </div>
       </div>
 
-      {# Step 11: Group Type (Blue) #}
-      <div class="ob-slide slide-blue" data-slide="10">
-        <div class="label-white">Who are you with?</div>
-        <div class="sub-label-white">Select your group type.</div>
+      {# Step 11: Group Type (White) #}
+      <div class="ob-slide slide-white" data-slide="10">
+        <div class="label-blue">Who are you with?</div>
+        <div class="sub-label-blue">Select your typical group type.</div>
         <div class="option-grid" data-group="group_type" data-multi="false">
-          <div class="option-card" data-val="Solo"><span>🎒</span> Solo</div>
-          <div class="option-card" data-val="Couple"><span>💑</span> Couple</div>
-          <div class="option-card" data-val="Family"><span>👨‍👩‍👧</span> Family</div>
-          <div class="option-card" data-val="Friends"><span>👯</span> Friends</div>
+          <div class="option-card" data-val="Solo">🎒 Solo</div>
+          <div class="option-card" data-val="Couple">💑 Couple</div>
+          <div class="option-card" data-val="Family">👨‍👩‍👧 Family</div>
+          <div class="option-card" data-val="Friends">👯 Friends</div>
+          <div class="option-card" data-val="Business">💼 Business</div>
         </div>
       </div>
 
-      {# Step 12: Accessibility (White) #}
-      <div class="ob-slide slide-white" data-slide="11">
-        <div class="label-blue">Accessibility</div>
-        <div class="sub-label-blue">Do you require any specific assistance?</div>
-        <div class="option-card" style="max-width:400px" id="accessibilityToggle">
-          <div class="option-icon">♿</div>
+      {# Step 12: Accessibility (Blue) #}
+      <div class="ob-slide slide-blue" data-slide="11">
+        <div class="label-white">Accessibility</div>
+        <div class="sub-label-white">Do you require any specific assistance?</div>
+        <div class="option-card" style="max-width:400px; padding:30px; font-weight:700;" id="accessibilityToggle">
+          <div class="option-icon" style="margin-bottom:12px;">♿</div>
           <span>I require accessibility features</span>
         </div>
       </div>

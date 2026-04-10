@@ -51,6 +51,34 @@
     drawParticles();
   }
 
+  /* ── Validation Helpers ── */
+  function showFieldError(input, message) {
+    if (!input) return;
+    const parent = input.closest('.form-control');
+    if (!parent) return;
+    
+    let err = parent.querySelector('.wavy-error-msg');
+    if (!err) {
+      err = document.createElement('span');
+      err.className = 'wavy-error-msg form-error-message';
+      parent.appendChild(err);
+    }
+    err.textContent = message;
+    input.style.borderBottomColor = '#ef4444';
+    parent.classList.add('has-error');
+  }
+
+  function clearFieldError(input) {
+    if (!input) return;
+    const parent = input.closest('.form-control');
+    if (!parent) return;
+    
+    const err = parent.querySelector('.wavy-error-msg');
+    if (err) err.remove();
+    input.style.borderBottomColor = '';
+    parent.classList.remove('has-error');
+  }
+
   /* ── Auth panel toggle ── */
   const authCard   = document.getElementById('authCard');
   const goSignup   = document.getElementById('goSignup');
@@ -64,19 +92,34 @@
   if (goLogin) {
     goLogin.addEventListener('click', () => {
       authCard.classList.remove('show-signup');
-      // Clean up URL if possible
       const url = new URL(window.location);
       url.searchParams.delete('signup');
       window.history.replaceState({}, '', url);
     });
   }
 
-  /* ── Auto-show signup if errors or URL param ── */
+  /* ── Auto-show signup if server returned errors or URL param ── */
   const urlParams = new URLSearchParams(window.location.search);
-  const hasSignupError = document.querySelector('.panel-signup .alert-error') || document.querySelector('.panel-signup .form-control.error');
+  const hasSignupError = document.querySelector('#panelSignup .has-error') ||
+                         document.querySelector('#panelSignup .form-error-message');
   if (urlParams.has('signup') || hasSignupError) {
     authCard.classList.add('show-signup');
   }
+
+  /* ── Universal Input Management ── */
+  document.querySelectorAll('.form-control input').forEach(function (input) {
+    // Label lifting logic
+    function checkFilled() {
+      input.classList.toggle('has-value', !!(input.value && input.value.trim() !== ''));
+    }
+    checkFilled();
+    input.addEventListener('input', () => {
+      checkFilled();
+      clearFieldError(input);
+    });
+    input.addEventListener('change', checkFilled);
+    input.addEventListener('blur', checkFilled);
+  });
 
   /* ── Password visibility toggle ── */
   document.querySelectorAll('.toggle-pw').forEach(btn => {
@@ -92,7 +135,7 @@
   });
 
   /* ── Password strength meter ── */
-  const regPass = document.getElementById('reg_password');
+  const regPass = document.getElementById('registration_form_plainPassword_first');
   const pwBar   = document.querySelector('.pw-bar');
   if (regPass && pwBar) {
     regPass.addEventListener('input', () => {
@@ -109,26 +152,75 @@
     });
   }
 
-  /* ── Client-side signup form validation ── */
-  const signupForm = document.getElementById('signupForm');
-  if (signupForm) {
-    signupForm.addEventListener('submit', (e) => {
-      const first = document.getElementById('reg_first').value.trim();
-      const last  = document.getElementById('reg_last').value.trim();
-      const email = document.getElementById('reg_email').value.trim();
-      const pass  = document.getElementById('reg_password').value;
+  /* ── Login form validation ── */
+  const loginForm = document.getElementById('loginForm');
+  if (loginForm) {
+    loginForm.addEventListener('submit', function (e) {
+      let valid = true;
+      const email = document.getElementById('login_email');
+      const pass  = document.getElementById('login_password');
 
-      if (!first || !last || !email || !pass) {
-        e.preventDefault();
-        showToast('Please fill all required fields 📋');
-        return;
+      if (email && !email.value.trim()) {
+        showFieldError(email, 'Email is required');
+        valid = false;
       }
-      if (pass.length < 8) {
-        e.preventDefault();
-        showToast('Password must be at least 8 characters 🔒');
-        return;
+      if (pass && !pass.value) {
+        showFieldError(pass, 'Password is required');
+        valid = false;
       }
-      // Valid – allow POST to Symfony controller
+
+      if (!valid) {
+        e.preventDefault();
+      }
+    });
+  }
+
+  /* ── Signup form validation ── */
+  const signupForm   = document.getElementById('signupForm');
+  const doRegisterBtn = document.getElementById('doRegister');
+
+  if (signupForm && doRegisterBtn) {
+    doRegisterBtn.addEventListener('click', function() {
+      let valid = true;
+
+      const first = document.getElementById('registration_form_firstName');
+      const last  = document.getElementById('registration_form_lastName');
+      const email = document.getElementById('registration_form_email');
+      const pass  = document.getElementById('registration_form_plainPassword_first');
+      const pass2 = document.getElementById('registration_form_plainPassword_second');
+      const phone = document.getElementById('registration_form_phoneNumber');
+
+      [first, last, email, pass, pass2, phone].forEach(f => f && clearFieldError(f));
+
+      if (first && !first.value.trim()) { showFieldError(first, 'First name is required'); valid = false; }
+      if (last  && !last.value.trim())  { showFieldError(last,  'Last name is required');  valid = false; }
+      if (email) {
+        if (!email.value.trim()) { showFieldError(email, 'Email is required'); valid = false; }
+        else if (!email.value.includes('@') || !email.value.includes('.')) { showFieldError(email, 'Please enter a valid email'); valid = false; }
+      }
+      if (pass) {
+        if (!pass.value) { showFieldError(pass, 'Password is required'); valid = false; }
+        else if (pass.value.length < 8) { showFieldError(pass, 'Password must be at least 8 characters'); valid = false; }
+      }
+      if (pass && pass2 && pass.value && pass.value !== pass2.value) {
+        showFieldError(pass2, 'Passwords do not match'); valid = false;
+      }
+      if (phone && phone.value.trim() && !/^\d{8}$/.test(phone.value.trim())) {
+        showFieldError(phone, 'Phone must be exactly 8 digits'); valid = false;
+      }
+
+      if (valid) {
+        signupForm.submit();
+      }
+    });
+
+    signupForm.querySelectorAll('input').forEach(function(input) {
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          doRegisterBtn.click();
+        }
+      });
     });
   }
 

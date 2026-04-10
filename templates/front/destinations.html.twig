@@ -93,7 +93,7 @@
       <a href="{{ path('accommodations') }}" class="nav-link">Accommodations</a>
       <a href="{{ path('transport') }}"      class="nav-link">Transport</a>
       <a href="{{ path('offers') }}"         class="nav-link">Offers</a>
-      <a href="{{ path('blog') }}" class="nav-link">Blog</a><a href="#" class="nav-link">My Bookings</a>
+      <a href="{{ path('blog') }}" class="nav-link">Blog</a><a href="{{ path('my_bookings') }}" class="nav-link">My Bookings</a>
     </div>
     <div class="nav-actions">
       <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
@@ -144,26 +144,27 @@
 <!-- Destinations Grid -->
 <section class="section-sm">
   <div class="container">
-    <div class="dest-grid stagger">
+    <div class="dest-grid">
       {% for dest in destinations %}
         {% set shape = ['tall', 'mid', 'short', 'tall', 'mid', 'short'][loop.index0 % 6] %}
         <div class="dest-card-wrap {{ shape }}">
           <div class="dest-card-inner">
             <div class="dest-card-bg" style="background:linear-gradient(135deg,#1a3a5c,#2d6a4f)">
                {% if dest.imageUrl %}
-                  <img src="{{ dest.imageUrl }}" style="width:100%; height:100%; object-fit:cover; opacity:0.6;" alt="{{ dest.name }}">
+                  <img src="{{ dest.imageUrl }}" style="width:100%; height:100%; object-fit:cover; opacity:0.6;" alt="{{ dest.name }}" onerror="this.src='https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80'">
                {% else %}
-                  🌍
+                  <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80" style="width:100%; height:100%; object-fit:cover; opacity:0.6;" alt="{{ dest.name }}">
                {% endif %}
             </div>
             <div class="dest-card-over"></div>
             <div class="dest-hover-layer">
-              <a href="#" class="btn-31">
+              <a href="{{ path('destination_detail', {id: dest.destinationId}) }}" class="btn-31">
                 <span class="text-container">
                   <span class="text">Explore {{ dest.name }}</span>
                 </span>
               </a>
-              <button class="btn btn-secondary btn-sm ripple-btn" style="margin-top:10px;">Recommend</button>
+              <a href="{{ path('booking_form', {destinationId: dest.destinationId}) }}" class="btn btn-primary btn-sm ripple-btn" style="margin-top:10px; padding:10px 24px; font-size:12px;">📋 Book Now</a>
+              <button class="btn btn-secondary btn-sm ripple-btn" style="margin-top:4px;">Recommend</button>
             </div>
             <div class="dest-card-cnt">
               <div class="dest-country">{{ dest.country }}</div>
@@ -212,9 +213,3 @@
 <script src="/assets.php?f=js/main.js"></script>
 </body>
 </html>
-
-
-
-
-
-

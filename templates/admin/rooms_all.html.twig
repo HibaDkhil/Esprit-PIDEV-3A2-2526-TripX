@@ -1,0 +1,136 @@
+{% extends 'admin/admin_base.html.twig' %}
+
+{% block title %}All Rooms Dashboard — TripX Admin{% endblock %}
+
+{% block breadcrumbs %}
+  <a href="{{ path('admin_accommodations_index') }}" class="crumb">Accommodations</a>
+  <span class="sep">›</span>
+  <span class="crumb active">All Rooms</span>
+{% endblock %}
+
+{% block page_styles %}
+  .rooms-header {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:28px; flex-wrap:wrap; gap:16px;
+  }
+  .rooms-header-left h1 { font-family:var(--font-display); font-size:26px; font-weight:700; margin-bottom:4px; }
+  .rooms-header-left p  { font-size:13px; color:var(--text-muted); }
+  
+  .rooms-stats { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:28px; }
+  .rstat {
+    background:var(--bg-card); border:1px solid var(--border-color);
+    border-radius:12px; padding:16px 22px; display:flex; align-items:center; gap:14px;
+  }
+  .rstat-icon { font-size:24px; }
+  .rstat-val  { font-family:var(--font-display); font-size:24px; font-weight:700; color:var(--accent-primary); line-height:1; }
+  .rstat-lbl  { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em; }
+
+  .rooms-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:24px; }
+  
+  .room-card {
+    background:var(--bg-card); border:1px solid var(--border-color);
+    border-radius:18px; overflow:hidden;
+    transition:transform .25s,box-shadow .25s,border-color .25s;
+    position: relative;
+  }
+  .room-card:hover { transform:translateY(-5px); box-shadow:0 16px 40px rgba(0,0,0,.18); border-color:var(--accent-primary); }
+
+  .room-img { height:200px; width:100%; position:relative; overflow:hidden; background: #eee; }
+  .room-img img { width:100%; height:100%; object-fit:cover; }
+  .room-img .no-img { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:48px; }
+  
+  .avail-badge {
+    position:absolute; top:12px; left:12px;
+    padding:4px 10px; border-radius:20px; font-size:11px; font-weight:600; z-index:5;
+  }
+  .avail-yes { background:rgba(16,185,129,.85); color:#fff; }
+  .avail-no  { background:rgba(239,68,68,.85); color:#fff; }
+
+  .acc-badge {
+    position:absolute; top:12px; right:12px;
+    padding:4px 10px; border-radius:20px; font-size:10px; font-weight:600; z-index:5;
+    background: rgba(0,0,0,0.6); color: #fff; backdrop-filter: blur(4px);
+  }
+
+  .room-body { padding:18px; }
+  .room-name { font-family:var(--font-display); font-size:17px; font-weight:700; margin-bottom:6px; }
+  .room-acc { font-size:12px; color:var(--accent-primary); font-weight:600; margin-bottom:10px; display:block; text-decoration: none; }
+  .room-acc:hover { text-decoration: underline; }
+  
+  .room-info-row { display:flex; gap:16px; margin-bottom:12px; flex-wrap:wrap; }
+  .room-info-item { display:flex; align-items:center; gap:5px; font-size:12px; color:var(--text-muted); }
+  .room-price { font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--accent-primary); margin-bottom:12px; }
+  
+  .room-actions { display:flex; gap:8px; padding-top:14px; border-top:1px solid var(--border-color); }
+  .room-btn { flex:1; padding:10px; border-radius:9px; border:none; cursor:pointer; font-size:12px; font-weight:600; transition:background .2s; display:flex; align-items:center; justify-content:center; gap:5px; text-decoration: none; }
+  .rb-manage { background:rgba(0,166,237,.1); color:var(--accent-primary); }
+  .rb-manage:hover { background:var(--accent-primary); color:#fff; }
+
+  .empty-rooms { text-align:center; padding:80px 40px; color:var(--text-muted); width: 100%; }
+{% endblock %}
+
+{% block content %}
+<div class="rooms-header">
+  <div class="rooms-header-left">
+    <h1>🛌 Global Rooms Dashboard</h1>
+    <p>Managing {{ total }} rooms across all accommodations</p>
+  </div>
+</div>
+
+<div class="rooms-stats">
+  <div class="rstat">
+    <span class="rstat-icon">🏨</span>
+    <div><div class="rstat-val">{{ total }}</div><div class="rstat-lbl">Total Rooms</div></div>
+  </div>
+  <div class="rstat">
+    <span class="rstat-icon">✅</span>
+    <div><div class="rstat-val" style="color:#10b981">{{ available }}</div><div class="rstat-lbl">Available</div></div>
+  </div>
+  <div class="rstat">
+    <span class="rstat-icon">⏸️</span>
+    <div><div class="rstat-val" style="color:#ef4444">{{ total - available }}</div><div class="rstat-lbl">Booked/Unavailable</div></div>
+  </div>
+</div>
+
+<div class="rooms-grid">
+  {% if roomsData is empty %}
+    <div class="empty-rooms">
+      <div style="font-size:64px; opacity:0.3">🛏️</div>
+      <h3>No rooms found in the system</h3>
+    </div>
+  {% else %}
+    {% for rd in roomsData %}
+      {% set r = rd.room %}
+      {% set acc = rd.acc %}
+      <div class="room-card">
+        <div class="room-img">
+          {% if rd.primaryImg %}
+            <img src="{{ rd.primaryImg.filePath starts with '/' ? rd.primaryImg.filePath : '/' ~ rd.primaryImg.filePath }}" alt="{{ r.roomName }}">
+          {% else %}
+            <div class="no-img">🛏️</div>
+          {% endif %}
+          <span class="avail-badge {{ r.isAvailable ? 'avail-yes' : 'avail-no' }}">
+            {{ r.isAvailable ? 'Available' : 'Unavailable' }}
+          </span>
+          <span class="acc-badge">{{ acc.name }}</span>
+        </div>
+        
+        <div class="room-body">
+          <a href="{{ path('admin_rooms_index', {accId: acc.id}) }}" class="room-acc">📍 {{ acc.name }}</a>
+          <div class="room-name">{{ r.roomName }}</div>
+          <div class="room-info-row">
+            <span class="room-info-item">👥 Max {{ r.capacity }}</span>
+            <span class="room-info-item">📐 {{ r.size }} m²</span>
+            <span class="room-info-item">✨ {{ r.roomType }}</span>
+          </div>
+          <div class="room-price">€{{ r.pricePerNight|number_format(2) }} <span style="font-size:12px; font-weight:400; color:var(--text-muted)">/ night</span></div>
+          
+          <div class="room-actions">
+            <a href="{{ path('admin_rooms_index', {accId: acc.id}) }}" class="room-btn rb-manage">⚙️ Manage Room</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>
+{% endblock %}

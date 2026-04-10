@@ -3,8 +3,10 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use App\Repository\ActivityRepository;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: ActivityRepository::class)]
 #[ORM\Table(name: 'activities')]
 class Activity
 {
@@ -13,31 +15,51 @@ class Activity
     #[ORM\Column(name: 'activity_id', type: 'bigint')]
     private ?string $activityId = null;
 
-    #[ORM\Column(name: 'destination_id', type: 'bigint')]
-    private ?string $destinationId = null;
+    #[ORM\ManyToOne(targetEntity: Destination::class)]
+    #[ORM\JoinColumn(name: 'destination_id', referencedColumnName: 'destination_id', nullable: false)]
+    #[Assert\NotNull(message: 'Please select a destination.')]
+    private ?Destination $destination = null;
 
     #[ORM\Column(type: 'string', length: 160)]
+    #[Assert\NotBlank(message: 'Activity name is required.')]
+    #[Assert\Length(max: 160, maxMessage: 'Name cannot be longer than {{ limit }} characters.')]
     private ?string $name = null;
 
     #[ORM\Column(type: 'string', length: 50)]
+    #[Assert\NotBlank(message: 'Activity category is required.')]
     private ?string $category = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(name: 'duration_minutes', type: 'smallint', nullable: true)]
+    #[ORM\Column(name: 'duration_minutes', type: 'smallint')]
+    #[Assert\NotBlank(message: 'Duration is required.')]
+    #[Assert\NotNull(message: 'Duration cannot be null.')]
+    #[Assert\Positive(message: 'Duration must be greater than 0.')]
     private ?int $durationMinutes = null;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
+    #[Assert\NotBlank(message: 'Price is required.')]
+    #[Assert\Positive(message: 'Price must be greater than 0.')]
     private ?string $price = null;
 
     #[ORM\Column(type: 'string', length: 3, options: ['default' => 'USD'])]
+    #[Assert\NotBlank]
+    #[Assert\Choice(choices: ['USD', 'EUR', 'GBP', 'TND'], message: 'Choose a valid currency.')]
     private ?string $currency = 'USD';
 
     #[ORM\Column(name: 'age_min', type: 'smallint', nullable: true)]
+    #[Assert\PositiveOrZero(message: 'Minimum age cannot be negative.')]
     private ?int $ageMin = null;
 
-    #[ORM\Column(type: 'smallint', nullable: true)]
+    #[ORM\Column(type: 'smallint')]
+    #[Assert\NotBlank(message: 'Capacity is required.')]
+    #[Assert\NotNull(message: 'Capacity cannot be null.')]
+    #[Assert\Range(
+        min: 1,
+        max: 20,
+        notInRangeMessage: 'Capacity must be between {{ min }} and {{ max }}.'
+    )]
     private ?int $capacity = null;
 
     #[ORM\Column(name: 'available_from', type: 'date', nullable: true)]
@@ -47,9 +69,11 @@ class Activity
     private ?\DateTimeInterface $availableTo = null;
 
     #[ORM\Column(name: 'meeting_point', type: 'string', length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
     private ?string $meetingPoint = null;
 
     #[ORM\Column(name: 'average_rating', type: 'decimal', precision: 3, scale: 2, options: ['default' => '0.00'])]
+    #[Assert\PositiveOrZero]
     private ?string $averageRating = '0.00';
 
     #[ORM\Column(name: 'is_active', type: 'boolean', options: ['default' => true])]
@@ -66,14 +90,15 @@ class Activity
     public function getActivityId(): ?string { return $this->activityId; }
     public function getId(): ?string { return $this->activityId; }
 
-    public function getDestinationId(): ?string { return $this->destinationId; }
-    public function setDestinationId(string $destinationId): static { $this->destinationId = $destinationId; return $this; }
+    public function getDestination(): ?Destination { return $this->destination; }
+    public function setDestination(?Destination $destination): static { $this->destination = $destination; return $this; }
+    public function getDestinationId(): ?string { return $this->destination?->getDestinationId(); }
 
     public function getName(): ?string { return $this->name; }
-    public function setName(string $name): static { $this->name = $name; return $this; }
+    public function setName(?string $name): static { $this->name = $name; return $this; }
 
     public function getCategory(): ?string { return $this->category; }
-    public function setCategory(string $category): static { $this->category = $category; return $this; }
+    public function setCategory(?string $category): static { $this->category = $category; return $this; }
 
     public function getDescription(): ?string { return $this->description; }
     public function setDescription(?string $description): static { $this->description = $description; return $this; }
@@ -85,7 +110,7 @@ class Activity
     public function setPrice(?string $price): static { $this->price = $price; return $this; }
 
     public function getCurrency(): ?string { return $this->currency; }
-    public function setCurrency(string $currency): static { $this->currency = $currency; return $this; }
+    public function setCurrency(?string $currency): static { $this->currency = $currency ?? 'USD'; return $this; }
 
     public function getAgeMin(): ?int { return $this->ageMin; }
     public function setAgeMin(?int $ageMin): static { $this->ageMin = $ageMin; return $this; }

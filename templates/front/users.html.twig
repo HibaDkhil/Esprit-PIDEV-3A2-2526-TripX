@@ -100,6 +100,7 @@
       flex-shrink: 0;
     }
 
+    /* === TRAVEL DNA REDESIGN === */
     .dna-card {
       padding: 24px;
       background: rgba(255,255,255,0.03);
@@ -111,12 +112,79 @@
       min-height: 140px;
       overflow: hidden;
       word-break: break-word;
+      transition: border-color 0.2s, transform 0.2s;
     }
-    #travel-dna-chart { filter: drop-shadow(0 0 20px rgba(0,166,237,0.3)); }
-    
+    .dna-card:hover { border-color: var(--accent-teal); transform: translateY(-2px); }
+    .dna-stat-num {
+      font-family: var(--font-display);
+      font-size: 2.4rem;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-teal));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .dna-persona-card {
+      background: linear-gradient(135deg, rgba(255,77,109,0.12), rgba(0,166,237,0.12));
+      border: 1px solid rgba(255,77,109,0.3);
+      border-radius: var(--border-radius-lg);
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+    .dna-persona-emoji { font-size: 52px; }
+    .dna-persona-label { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+    .dna-persona-name { font-family: var(--font-display); font-size: 28px; text-transform: uppercase; color: var(--accent-primary); }
+    .dna-persona-desc { font-size: 0.85rem; color: var(--text-muted); margin-top: 6px; }
+    .dna-funfact {
+      background: linear-gradient(90deg, rgba(0,200,150,0.08), rgba(0,166,237,0.08));
+      border-left: 3px solid var(--accent-teal);
+      border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+      padding: 14px 18px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+    }
+    .dna-funfact strong { color: var(--accent-teal); }
+    .chart-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .chart-label-row h4 { font-family: var(--font-display); font-size: 15px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .chart-legend { display: flex; gap: 14px; flex-wrap: wrap; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+    .legend-item { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); display: flex; align-items: center; }
+    .dna-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .dna-bar-label { font-size: 0.78rem; color: var(--text-muted); min-width: 90px; }
+    .dna-bar-track { flex: 1; height: 8px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden; }
+    .dna-bar-fill { height: 100%; border-radius: 99px; transition: width 1.2s cubic-bezier(0.22,1,0.36,1); }
+    .dna-bar-pct { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); min-width: 36px; text-align: right; }
+    .engagement-ring { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+    .engagement-ring svg { transform: rotate(-90deg); }
+    .engagement-ring-inner { position: absolute; text-align: center; }
+    /* === ARIA CHAT REDESIGN === */
+    .aria-panel { width: 400px; max-height: min(560px, calc(100vh - 160px)); display: flex; flex-direction: column; background: linear-gradient(160deg, rgba(5,16,42,0.95), rgba(9,28,68,0.92)); border: 1px solid rgba(0,166,237,0.35); }
+    .aria-header { flex-shrink: 0; padding: 12px 14px; }
+    .aria-messages { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+    .aria-input-row { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border-color); flex-shrink: 0; }
+    .aria-input { flex: 1; min-width: 0; font-size: 0.78rem; color: #e2e8f0; }
+    .aria-attach-btn { background: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 10px; cursor: pointer; color: var(--text-muted); font-size: 16px; transition: border-color 0.2s; flex-shrink: 0; }
+    .aria-attach-btn:hover { border-color: var(--accent-teal); color: var(--accent-teal); }
+    .aria-img-preview { margin: 8px 16px 0; position: relative; display: none; }
+    .aria-img-preview img { width: 80px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color); }
+    .aria-img-preview .remove-img { position: absolute; top: -6px; left: 70px; background: var(--accent-primary); color: #fff; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .pref-check-row { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 8px; }
+    .pref-check-row label { display: inline-flex; align-items: center; gap: 6px; font-size: 0.84rem; cursor: pointer; color: var(--text-secondary); }
+    .aria-msg .aria-bubble { white-space: pre-line; }
+    .aria-voice-btn { background: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 10px; cursor: pointer; color: var(--text-muted); font-size: 14px; transition: border-color 0.2s; flex-shrink: 0; }
+    .aria-voice-btn:hover, .aria-voice-btn.active { border-color: var(--accent-gold); color: var(--accent-gold); }
+    .aria-stop-voice-btn { background: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 9px; cursor: pointer; color: var(--text-muted); font-size: 13px; transition: border-color 0.2s; flex-shrink: 0; }
+    .aria-stop-voice-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+    .aria-msg .aria-bubble { font-size: 0.78rem; }
+    .aria-msg.user .aria-bubble { background: #ffffff; color: #0f172a; }
     @media (max-width: 900px) {
       .profile-layout { grid-template-columns: 1fr; }
       .profile-sidebar { position: static; }
+      .aria-panel { width: 92vw; max-width: 400px; }
     }
   </style>
 </head>
@@ -158,21 +226,23 @@
       <div class="profile-card reveal">
         <div class="profile-avatar">{{ user.firstName|first|upper }}</div>
         <div class="profile-name">{{ user.firstName }} {{ user.lastName }}</div>
-        <div class="profile-handle">@{{ user.firstName|lower }}{{ user.userId }} · {{ user.role|capitalize }} Tier 🌍</div>
+        <div class="profile-handle">@{{ profileHandle }} · {{ user.role|capitalize }} · TripX</div>
         <div class="profile-badge-row">
-          <span class="badge badge-coral">Nomad</span>
-          <span class="badge badge-gold">Trailblazer</span>
-          <span class="badge badge-teal">Foodie</span>
+          {% set badge_classes = ['badge-coral', 'badge-gold', 'badge-teal'] %}
+          {% for badge in profileSidebarBadges|default([travelPersona]) %}
+          <span class="badge {{ badge_classes[loop.index0 % 3] }}" title="From your preferences &amp; activity">{{ badge }}</span>
+          {% endfor %}
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center">
-          <div><div style="font-family:var(--font-display);font-size:28px;color:var(--accent-primary)">23</div><div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted)">Trips</div></div>
-          <div><div style="font-family:var(--font-display);font-size:28px;color:var(--accent-primary)">31</div><div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted)">Countries</div></div>
-          <div><div style="font-family:var(--font-display);font-size:28px;color:var(--accent-primary)">142K</div><div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted)">Air Miles</div></div>
+          <div><div style="font-family:var(--font-display);font-size:28px;color:var(--accent-primary)">{{ profileStatBookings|default(0) }}</div><div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted)">Bookings</div></div>
+          <div><div style="font-family:var(--font-display);font-size:28px;color:var(--accent-primary)">{{ profileStatDestinationsTapped|default(0) }}</div><div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted)">Dest. explored</div></div>
+          <div><div style="font-family:var(--font-display);font-size:28px;color:var(--accent-primary)">{{ profileStatMinutes|default(0) }}</div><div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted)">Min on site</div></div>
         </div>
       </div>
 
       <div class="sidebar-nav reveal reveal-delay-1">
         <a href="#personal"   class="sidebar-nav-item active" data-track="NAV_PERSONAL" data-track-type="NAV"><span class="sidebar-nav-icon">👤</span> Personal Info</a>
+        <a href="#preferences" class="sidebar-nav-item" data-track="NAV_PREFERENCES" data-track-type="NAV"><span class="sidebar-nav-icon">✈️</span> Travel Preferences</a>
         <a href="#activity"   class="sidebar-nav-item" data-track="NAV_ACTIVITY" data-track-type="NAV"><span class="sidebar-nav-icon">📊</span> Your Activity</a>
         <a href="#history"    class="sidebar-nav-item" data-track="NAV_HISTORY" data-track-type="NAV"><span class="sidebar-nav-icon">🗺️</span> Trip History</a>
         <a href="#recos"      class="sidebar-nav-item" data-track="NAV_RECOS" data-track-type="NAV"><span class="sidebar-nav-icon">✦</span> AI Picks</a>
@@ -191,30 +261,293 @@
         <h2 class="display-md reveal" style="margin-bottom:24px">Your <span class="text-coral">Details</span></h2>
         <div class="card reveal">
           <div class="card-body">
-            <div class="grid-2" style="gap:20px">
-              <div class="input-group"><div class="input-label">First Name</div><input class="input" type="text" value="{{ user.firstName }}"></div>
-              <div class="input-group"><div class="input-label">Last Name</div><input class="input" type="text" value="{{ user.lastName }}"></div>
-              <div class="input-group"><div class="input-label">Email</div><input class="input" type="email" value="{{ user.email }}"></div>
-              <div class="input-group"><div class="input-label">Phone</div><input class="input" type="tel" value="{{ user.phoneNumber }}"></div>
-              <div class="input-group"><div class="input-label">Gender</div><input class="input" type="text" value="{{ user.gender|default('Not specified') }}"></div>
-              <div class="input-group"><div class="input-label">Birth Year</div><input class="input" type="text" value="{{ user.birthYear }}"></div>
+            <div class="grid-2" style="gap:30px">
+              <div class="wavy-control">
+                <input id="profile_first_name" type="text" value="{{ user.firstName }}" placeholder=" " required oninput="this.classList.toggle('has-value', this.value!='')" class="{{ user.firstName ? 'has-value' : '' }}">
+                <label>
+                  {% set label = "First Name" %}
+                  {% for letter in label|split('') %}<span style="transition-delay:{{ loop.index0 * 30 }}ms">{{ letter }}</span>{% endfor %}
+                </label>
+              </div>
+              <div class="wavy-control">
+                <input id="profile_last_name" type="text" value="{{ user.lastName }}" placeholder=" " required oninput="this.classList.toggle('has-value', this.value!='')" class="{{ user.lastName ? 'has-value' : '' }}">
+                <label>
+                  {% set label = "Last Name" %}
+                  {% for letter in label|split('') %}<span style="transition-delay:{{ loop.index0 * 30 }}ms">{{ letter }}</span>{% endfor %}
+                </label>
+              </div>
+              <div class="wavy-control">
+                <input id="profile_email" type="email" value="{{ user.email }}" placeholder=" " required oninput="this.classList.toggle('has-value', this.value!='')" class="{{ user.email ? 'has-value' : '' }}">
+                <label>
+                  {% set label = "Email" %}
+                  {% for letter in label|split('') %}<span style="transition-delay:{{ loop.index0 * 30 }}ms">{{ letter }}</span>{% endfor %}
+                </label>
+                <span class="field-icon"><i class="far fa-envelope"></i></span>
+              </div>
+              <div class="wavy-control">
+                <input id="profile_phone" type="tel" value="{{ user.phoneNumber }}" placeholder=" " oninput="this.classList.toggle('has-value', this.value!='')" class="{{ user.phoneNumber ? 'has-value' : '' }}">
+                <label>
+                  {% set label = "Phone" %}
+                  {% for letter in label|split('') %}<span style="transition-delay:{{ loop.index0 * 30 }}ms">{{ letter }}</span>{% endfor %}
+                </label>
+                <span class="field-icon"><i class="fas fa-phone-alt"></i></span>
+              </div>
             </div>
-            <div class="input-group" style="margin-top:16px">
+            <div class="grid-2" style="gap:20px; margin-top:10px">
+              <div class="input-group"><div class="input-label">Gender</div><input class="input" type="text" value="{{ user.gender|default('Not specified') }}" disabled></div>
+              <div class="input-group"><div class="input-label">Birth Year</div><input class="input" type="text" value="{{ user.birthYear }}" disabled></div>
+            </div>
+            <div class="input-group" style="margin-top:24px">
               <div class="input-label">Bio / Travel Style</div>
-              <textarea class="input" rows="3" style="resize:vertical; color:#6b7280" placeholder="Tell us about your travel style...">{{ user.bio|default('') }}</textarea>
+              <textarea id="profile_bio" class="input" rows="3" style="resize:vertical; color:var(--text-primary)" placeholder="Tell us about your travel style...">{{ user.bio|default('') }}</textarea>
             </div>
-            <div style="margin-top:20px;display:flex;gap:12px">
+            <div style="margin-top:28px;display:flex;gap:12px">
               <button class="btn btn-primary ripple-btn" id="saveProfileBtn">Save Changes</button>
               <button class="btn btn-secondary">Cancel</button>
             </div>
 
-            <div id="password-change-section" style="display:none; margin-top:32px; padding-top:24px; border-top:1px solid var(--border-color)">
-              <h3 style="margin-bottom:16px; font-family:var(--font-display)">Change Password</h3>
-              <div class="grid-2" style="gap:20px">
-                <div class="input-group"><div class="input-label">New Password</div><input class="input" type="password" id="new_password"></div>
-                <div class="input-group"><div class="input-label">Confirm New Password</div><input class="input" type="password" id="confirm_password"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Travel preferences (userpreferences) -->
+      <section id="preferences" style="margin-bottom:48px">
+        <div class="section-label reveal"><span>Travel Preferences</span></div>
+        <h2 class="display-md reveal" style="margin-bottom:24px">Your <span class="text-teal">Travel Style</span></h2>
+        
+        <style>
+          .pref-accordion-card {
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0,200,150,0.2);
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+          }
+          html[data-theme="light"] .pref-accordion-card {
+            background: rgba(255,255,255,0.6);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+          }
+          .pref-accordion-header {
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+          }
+          .pref-accordion-header h3 {
+            margin: 0;
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            color: var(--accent-primary);
+          }
+          .pref-arrow {
+            font-size: 14px;
+            color: var(--text-muted);
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+          }
+          .pref-accordion-card.expanded .pref-arrow {
+            transform: rotate(-180deg);
+          }
+          .pref-accordion-body {
+            padding: 0 24px;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+          }
+          .pref-accordion-card.expanded .pref-accordion-body {
+            padding: 0 24px 24px;
+            max-height: 2000px;
+            opacity: 1;
+          }
+          
+          /* Chip styles matching onboarding */
+          .pref-chip-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+          }
+          .pref-chip {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            user-select: none;
+          }
+          html[data-theme="light"] .pref-chip { background: #f8fafc; }
+          .pref-chip:hover { border-color: var(--accent-teal); }
+          .pref-chip.selected {
+            background: var(--accent-teal);
+            color: #1a1a1a !important; /* Darker visible text when selected */
+            font-weight: 700;
+            border-color: var(--accent-teal);
+            box-shadow: 0 4px 12px rgba(0,200,150,0.3);
+          }
+          
+          /* Wavy Control Style for Personal Info */
+          .wavy-control {
+            position: relative;
+            margin: 20px 0 35px;
+            width: 100%;
+          }
+          .wavy-control input {
+            background-color: transparent !important;
+            border: 0 !important;
+            border-bottom: 2px #d1d5db solid !important;
+            display: block;
+            width: 100%;
+            padding: 12px 0 !important;
+            font-size: 16px;
+            color: var(--text-primary);
+            border-radius: 0 !important;
+            transition: 0.3s ease;
+          }
+          .wavy-control input:focus, .wavy-control input.has-value {
+            outline: 0;
+            border-bottom-color: var(--accent-primary) !important;
+          }
+          .wavy-control label {
+            position: absolute;
+            top: 12px;
+            left: 0;
+            pointer-events: none;
+            color: var(--text-muted);
+          }
+          .wavy-control label span {
+            display: inline-block;
+            font-size: 16px;
+            min-width: 5px;
+            transition: 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+          }
+          .wavy-control input:focus + label span,
+          .wavy-control input.has-value + label span {
+            color: var(--accent-primary);
+            transform: translateY(-25px);
+            font-size: 14px;
+            font-weight: 600;
+          }
+          .wavy-control .field-icon {
+            position: absolute;
+            right: 0;
+            top: 12px;
+            color: var(--text-muted);
+            transition: color 0.3s;
+          }
+          .wavy-control input:focus ~ .field-icon {
+            color: var(--accent-primary);
+          }
+          
+          .pref-section-title { font-weight: 700; font-size: 0.95rem; margin-top: 24px; margin-bottom: 4px; color: var(--text-primary); }
+        </style>
+
+        <div class="pref-accordion-card reveal" id="prefAccordion">
+          <div class="pref-accordion-header" onclick="document.getElementById('prefAccordion').classList.toggle('expanded')">
+            <h3>✈️ Manage Preferences</h3>
+            <span class="pref-arrow">▼</span>
+          </div>
+          
+          <div class="pref-accordion-body" id="prefManagerRoot">
+            <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:20px;margin-top: -10px;">Update your travel parameters. These influence ARIA and destination matching.</p>
+            
+            <div class="pref-section-title">Budget (Per Night)</div>
+            <div style="max-width: 400px; display: flex; flex-direction: column; gap: 20px; margin-top: 14px;">
+              <div>
+                <div style="display:flex; justify-content:space-between; font-weight:600; font-size:0.85rem; margin-bottom:6px;">
+                  <span>Min Budget</span><span id="profMinBudgetDisplay">${{ preferences ? preferences.budgetMinPerNight|default('50') : '50' }}</span>
+                </div>
+                <input type="range" id="profMinBudget" class="budget-slider" min="0" max="1000" step="50" value="{{ preferences ? preferences.budgetMinPerNight|default('50') : '50' }}" style="width:100%">
               </div>
-              <button class="btn btn-primary ripple-btn" style="margin-top:16px" id="confirmPasswordBtn">Update Password</button>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-weight:600; font-size:0.85rem; margin-bottom:6px;">
+                  <span>Max Budget</span><span id="profMaxBudgetDisplay">${{ preferences ? preferences.budgetMaxPerNight|default('500') : '500' }}</span>
+                </div>
+                <input type="range" id="profMaxBudget" class="budget-slider" min="0" max="2000" step="100" value="{{ preferences ? preferences.budgetMaxPerNight|default('500') : '500' }}" style="width:100%">
+              </div>
+            </div>
+
+            <div class="grid-2" style="gap:24px; margin-top: 24px;">
+              <div>
+                <div class="pref-section-title" style="margin-top:0">Travel Pace</div>
+                <div class="pref-chip-grid" data-group="travel_pace" data-multi="false">
+                  {% set ppace = preferences ? preferences.travelPace|default('') : '' %}
+                  <div class="pref-chip {{ ppace == 'Relaxed' ? 'selected' : '' }}" data-val="Relaxed">🌅 Relaxed</div>
+                  <div class="pref-chip {{ ppace == 'Moderate' ? 'selected' : '' }}" data-val="Moderate">🚶 Moderate</div>
+                  <div class="pref-chip {{ ppace == 'Fast-paced' ? 'selected' : '' }}" data-val="Fast-paced">⚡ Fast-paced</div>
+                </div>
+              </div>
+              
+              <div>
+                <div class="pref-section-title" style="margin-top:0">Who do you travel with?</div>
+                <div class="pref-chip-grid" data-group="group_type" data-multi="false">
+                  {% set pgrp = preferences ? preferences.groupType|default('') : '' %}
+                  <div class="pref-chip {{ pgrp == 'Solo' ? 'selected' : '' }}" data-val="Solo">🎒 Solo</div>
+                  <div class="pref-chip {{ pgrp == 'Couple' ? 'selected' : '' }}" data-val="Couple">💑 Couple</div>
+                  <div class="pref-chip {{ pgrp == 'Family' ? 'selected' : '' }}" data-val="Family">👨‍👩‍👧 Family</div>
+                  <div class="pref-chip {{ pgrp == 'Friends' ? 'selected' : '' }}" data-val="Friends">👯 Friends</div>
+                  <div class="pref-chip {{ pgrp == 'Business' ? 'selected' : '' }}" data-val="Business">💼 Business</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pref-section-title">Priorities (Max 5)</div>
+            <div class="pref-chip-grid" data-group="priorities" data-multi="true" data-max="5">
+              {% for opt in ['Activities','Wellness','Food and Drinks','Family Friendly','Parking','Amenities','Pet-Friendly','Business Facilities','I dont care'] %}
+              <div class="pref-chip {{ opt in prefPriorities|default([]) ? 'selected' : '' }}" data-val="{{ opt }}">{{ opt }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="pref-section-title">Preferred Climate</div>
+            <div class="pref-chip-grid" data-group="preferred_climate" data-multi="true">
+              {% for opt in ['Temperate','Tropical','Desert','Cold/Arctic','Oceanic','Mountain'] %}
+              <div class="pref-chip {{ opt in prefClimate|default([]) ? 'selected' : '' }}" data-val="{{ opt }}">{{ opt }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="pref-section-title">Location Preferences</div>
+            <div class="pref-chip-grid" data-group="location_preferences" data-multi="true">
+              {% for opt in ['City Center','Beachfront','Mountain View','Countryside'] %}
+              <div class="pref-chip {{ opt in prefLocations|default([]) ? 'selected' : '' }}" data-val="{{ opt }}">{{ opt }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="pref-section-title">Accommodation Types</div>
+            <div class="pref-chip-grid" data-group="accommodation_types" data-multi="true">
+              {% for opt in ['Hotel','Resort','Villa','Hostel','Vacation Rental','Camping','Cabin','Boat/Yacht'] %}
+              <div class="pref-chip {{ opt in prefAccommodation|default([]) ? 'selected' : '' }}" data-val="{{ opt }}">{{ opt }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="pref-section-title">Style Preferences (Max 5)</div>
+            <div class="pref-chip-grid" data-group="style_preferences" data-multi="true" data-max="5">
+              {% for opt in ['Minimalist','Urban','Luxury','Bohemian','Rustic','Traditional','Tropical','Mediterranean','Vintage','Classic'] %}
+              <div class="pref-chip {{ opt in prefStyles|default([]) ? 'selected' : '' }}" data-val="{{ opt }}">{{ opt }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="pref-section-title">Dietary Restrictions</div>
+            <div class="pref-chip-grid" data-group="dietary_restrictions" data-multi="true">
+              {% for opt in ['None','Vegetarian','Vegan','Gluten-Free','Dairy-Free','Halal','Nut Allergies','Seafood Allergies','Raw Food','Sugar-Free','Low-Sodium'] %}
+              <div class="pref-chip {{ opt in prefDietary|default([]) ? 'selected' : '' }}" data-val="{{ opt }}">{{ opt }}</div>
+              {% endfor %}
+            </div>
+            
+            <div class="pref-section-title">Accessibility</div>
+            <div class="pref-chip-grid">
+              <div id="profAccToggle" class="pref-chip {{ preferences and preferences.accessibilityNeeds ? 'selected' : '' }}" style="width:100%; max-width: 300px; padding: 14px; text-align:center; font-weight:600">
+                ♿ I require accessibility features
+              </div>
+            </div>
+
+            <div style="margin-top:32px;display:flex;gap:12px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+              <button class="btn btn-primary ripple-btn" type="button" id="savePreferencesBtn">Save Preferences</button>
             </div>
           </div>
         </div>
@@ -223,76 +556,226 @@
       <!-- Your Activity / Travel DNA -->
       <section id="activity" style="margin-bottom:48px">
         <div class="section-label reveal"><span>Your Activity</span></div>
-        <h2 class="display-md reveal" style="margin-bottom:24px">Travel <span class="text-teal">DNA</span></h2>
-        <div class="card reveal">
-          <div class="card-body">
-            <div class="grid-3" style="gap:20px; margin-bottom:32px">
-              <div class="card dna-card reveal" style="padding:24px; text-align:center;">
-                <div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">Screen Time</div>
-                <div style="font-family:var(--font-display);font-size:32px;color:var(--accent-primary)">{{ totalMinutes|default(0) }} <span style="font-size:16px">min</span></div>
-                <div style="font-size:12px;color:#10b981;margin-top:8px">Last 50 interactions</div>
-              </div>
-              <div class="card dna-card reveal" style="animation-delay:0.1s; padding:24px; text-align:center;">
-                <div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">Platform Visits</div>
-                <div style="font-family:var(--font-display);font-size:32px;color:var(--accent-teal)">{{ pageVisits|default(0) }}</div>
-                <div style="font-size:12px;color:var(--text-muted);margin-top:8px">Page requests tracked</div>
-              </div>
-              <div class="card dna-card reveal" style="animation-delay:0.2s; padding:24px; text-align:center;">
-                <div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">Latest Search</div>
-                <div style="font-family:var(--font-display);font-size:20px;color:var(--accent-coral); margin-top:8px; word-wrap:break-word;">{{ activity_logs|first ? activity_logs|first.targetId : 'Home Page' }}</div>
-                <div style="font-size:12px;color:var(--text-muted);margin-top:8px">Recent activity</div>
-              </div>
-            </div>
+        <h2 class="display-md reveal" style="margin-bottom:8px">Travel <span class="text-teal">DNA</span></h2>
+        <p class="reveal" style="color:var(--text-muted);font-size:0.88rem;margin-bottom:28px">Built from your real browsing behaviour, clicks & preferences on TripX</p>
 
-            <div class="panel reveal" style="margin-bottom:32px">
-                <h3 style="font-family:var(--font-display);font-size:18px;margin-bottom:20px">Recent Platform Activity</h3>
-                <div style="display:flex;flex-direction:column;gap:12px">
-                {% for log in activity_logs %}
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:0.9rem">
-                        <div style="display:flex; gap:16px; align-items:center">
-                            <span class="badge {{ log.activityType == 'VISIT' ? 'badge-teal' : 'badge-coral' }}" style="min-width:80px; text-align:center">{{ log.activityType }}</span>
-                            <span style="opacity:0.8">{{ log.targetId }}</span>
-                        </div>
-                        <div style="font-size:0.8rem;opacity:0.5">{{ log.timestamp|date('M d, H:i') }}</div>
-                    </div>
-                {% else %}
-                    <div class="text-muted">No activity data found.</div>
-                {% endfor %}
-                </div>
+        {# ── Persona Card ── #}
+        <div class="dna-persona-card reveal">
+          <div class="dna-persona-emoji">
+            {% set personaEmoji = {
+              'AI-Powered Explorer': '🤖',
+              'Luxury Wanderer': '💎',
+              'Budget Backpacker': '🎒',
+              'Beach Seeker': '🏖️',
+              'Mountain Soul': '🏔️',
+              'Slow Travel Connoisseur': '☕',
+              'Adrenaline Chaser': '⚡',
+              'Family Adventure Planner': '👨‍👩‍👧',
+              'Solo Pathfinder': '🧭',
+              'Romantic Voyager': '💑',
+              'Cultural Wanderer': '🏛️',
+              'Culinary Nomad': '🍜',
+              'Research-Driven Planner': '📊',
+              'Global Nomad': '🌍',
+              'Free Spirit': '🌈'
+            } %}
+            {{ personaEmoji[travelPersona]|default('🌍') }}
+          </div>
+          <div>
+            <div class="dna-persona-label">Your Travel Persona</div>
+            <div class="dna-persona-name">{{ travelPersona }}</div>
+            <div class="dna-persona-desc">
+              Derived from {{ pageVisits }} page visits · {{ totalMinutes }}min on platform · {{ aiInteractions }} AI interactions
             </div>
+          </div>
+          <div style="margin-left:auto; text-align:center">
+            <div class="engagement-ring">
+              <svg width="90" height="90" viewBox="0 0 90 90">
+                <circle cx="45" cy="45" r="38" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
+                <circle id="engagement-arc" cx="45" cy="45" r="38" fill="none"
+                  stroke="url(#dnaGrad)" stroke-width="8"
+                  stroke-linecap="round"
+                  stroke-dasharray="239"
+                  stroke-dashoffset="239"
+                  style="transition:stroke-dashoffset 1.4s cubic-bezier(0.22,1,0.36,1)"/>
+                <defs>
+                  <linearGradient id="dnaGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#ff4d6d"/>
+                    <stop offset="100%" stop-color="#00a6ed"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="engagement-ring-inner">
+                <div style="font-family:var(--font-display);font-size:22px;color:var(--accent-primary)" id="eng-score-num">0</div>
+                <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase">Score</div>
+              </div>
+            </div>
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);margin-top:4px">Engagement</div>
+          </div>
+        </div>
 
-            <div class="grid-2" style="align-items:center;gap:40px">
-              <div style="display:flex;flex-direction:column;align-items:center; position:relative;">
-                <canvas id="travel-dna-chart" width="280" height="280"></canvas>
-                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; pointer-events:none;">
-                    <div style="font-family:var(--font-display); font-size:40px; color:var(--accent-primary)">{{ pageVisits }}</div>
-                    <div style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">Visits</div>
-                </div>
-                <div style="margin-top:20px;text-align:center">
-                  <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted)">AI TRAVEL GENOME</div>
-                  <div style="font-family:var(--font-display);font-size:24px;margin-top:4px">{{ (preferences and preferences.stylePreferences) ? preferences.stylePreferences|split(',')|first : 'Classic' }} explorer</div>
-                </div>
-              </div>
-              <div>
-                <h3 style="margin-bottom:20px">Behavioral DNA Report</h3>
-                <div style="display:flex;flex-direction:column;gap:14px">
-                  <div>
-                    <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-                      <span style="font-size:0.9rem;opacity:0.7">Onboarding Completion</span>
-                      <span style="font-family:var(--font-mono);font-size:11px;color:var(--accent-primary)">100%</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
-                  </div>
-                  <div>
-                    <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-                      <span style="font-size:0.9rem;opacity:0.7">Site Engagement</span>
-                      <span style="font-family:var(--font-mono);font-size:11px;color:var(--accent-primary)">{{ (pageVisits * 2)|default(0) }}%</span>
-                    </div>
-                    <div class="progress-bar"><div class="progress-fill" style="width:{{ (pageVisits * 2)|default(20) }}%"></div></div>
-                  </div>
-                </div>
+        {# ── Fun Fact ── #}
+        <div class="dna-funfact reveal">
+          💡 <strong>Fun Fact:</strong>
+          {% if aiInteractions > 3 %}
+            You use ARIA {{ aiInteractions }}× — you're in the top AI users on TripX! 🤖
+          {% elseif totalMinutes > 30 %}
+            You've spent <strong>{{ totalMinutes }} min</strong> exploring TripX. That's serious wanderlust.
+          {% elseif pageVisits > 10 %}
+            You've visited <strong>{{ pageVisits }} pages</strong> — you clearly love to browse before you book.
+          {% else %}
+            Keep exploring! Your Travel DNA grows richer with every click & search.
+          {% endif %}
+        </div>
+
+        {# ── 3 Stat Cards ── #}
+        <div class="grid-3 reveal" style="gap:16px;margin-bottom:28px">
+          <div class="dna-card" style="text-align:center">
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">⏱ Time on Platform</div>
+            <div class="dna-stat-num" id="stat-time">0</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:6px">minutes tracked</div>
+          </div>
+          <div class="dna-card" style="text-align:center">
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">📄 Pages Visited</div>
+            <div class="dna-stat-num" id="stat-visits">0</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:6px">unique page views</div>
+          </div>
+          <div class="dna-card" style="text-align:center">
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">✦ AI Chats</div>
+            <div class="dna-stat-num" id="stat-ai">0</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:6px">ARIA interactions</div>
+          </div>
+        </div>
+
+        {# ── Charts Row ── #}
+        <div class="grid-2 reveal" style="gap:24px;margin-bottom:28px">
+
+          {# Activity Breakdown Doughnut #}
+          <div class="dna-card" style="padding:24px">
+            <div class="chart-label-row">
+              <h4>Activity Breakdown</h4>
+              <div class="chart-legend">
+                <span class="legend-item"><span class="legend-dot" style="background:#00a6ed"></span>Home</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#ff4d6d"></span>Destinations</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#00c896"></span>Activities</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span>Offers</span>
               </div>
             </div>
+            <div style="position:relative;width:200px;height:200px;margin:0 auto">
+              <canvas id="dna-donut"></canvas>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
+                <div style="font-family:var(--font-display);font-size:26px">{{ pageVisits|default(0) }}</div>
+                <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase">page visits</div>
+              </div>
+            </div>
+          </div>
+
+          {# Hourly Activity Bar #}
+          <div class="dna-card" style="padding:24px">
+            <div class="chart-label-row">
+              <h4>When You Browse</h4>
+              <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted)">by hour of day</span>
+            </div>
+            <canvas id="dna-hourly" height="200"></canvas>
+          </div>
+        </div>
+
+        <div class="grid-2 reveal" style="gap:24px;margin-bottom:28px">
+          <div class="dna-card" style="padding:24px">
+            <div class="chart-label-row">
+              <h4>Top Destinations Clicked</h4>
+              <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted)">most explored</span>
+            </div>
+            <canvas id="dna-destinations" height="210"></canvas>
+          </div>
+
+          <div class="dna-card" style="padding:24px">
+            <div class="chart-label-row">
+              <h4>Travel Style Radar</h4>
+              <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted)">pace · climate · group</span>
+            </div>
+            <canvas id="dna-radar" height="210"></canvas>
+          </div>
+        </div>
+
+        <div class="grid-2 reveal" style="gap:24px;margin-bottom:28px">
+          <div class="dna-card" style="padding:24px">
+            <div class="chart-label-row">
+              <h4>AI Usage Meter</h4>
+              <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted)">{{ aiInteractions }} interactions</span>
+            </div>
+            {% set aiPctRaw = aiInteractions * 10 %}
+            {% set aiPct = aiPctRaw > 100 ? 100 : aiPctRaw %}
+            <div style="height:10px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;margin:8px 0 10px">
+              <div id="ai-meter-fill" style="height:100%;width:0%;background:linear-gradient(90deg,#7209b7,#00a6ed);transition:width 1.2s cubic-bezier(0.22,1,0.36,1)" data-target="{{ aiPct }}"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted)">
+              <span>Occasional</span><span id="ai-meter-pct">{{ aiPct }}%</span><span>Power user</span>
+            </div>
+          </div>
+
+          <div class="dna-card" style="padding:24px">
+            <div class="chart-label-row">
+              <h4>Top Pages Visited</h4>
+              <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted)">top 5 sections</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              {% for page, count in topPages %}
+                {% set safePage = page|default('Unknown') %}
+                {% set pagePct = pageVisits > 0 ? ((count / pageVisits) * 100)|round : 0 %}
+                <div class="dna-bar-row" style="margin-bottom:0">
+                  <div class="dna-bar-label" style="min-width:110px">{{ safePage|slice(0, 16) }}</div>
+                  <div class="dna-bar-track"><div class="dna-bar-fill" style="width:{{ pagePct }}%;background:#00c896"></div></div>
+                  <div class="dna-bar-pct">{{ count }}</div>
+                </div>
+              {% else %}
+                <div style="color:var(--text-muted);font-size:0.84rem">No page history yet.</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        {# ── Behavioral DNA Bars ── #}
+        <div class="dna-card reveal" style="padding:28px;margin-bottom:28px">
+          <h4 style="font-family:var(--font-display);font-size:15px;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:20px">Behavioural DNA Report</h4>
+          {% set totalActions = activityStats.VISIT|default(0) + activityStats.SEARCH|default(0) + activityStats.BOOKING|default(0) + activityStats.AI_FEATURE|default(0) + activityStats.NAV|default(0) %}
+          {% set totalActions = totalActions > 0 ? totalActions : 1 %}
+
+          {% set bars = [
+            { label: '📍 Page Visits', val: activityStats.VISIT|default(0), color: '#00a6ed' },
+            { label: '🔍 Searches', val: activityStats.SEARCH|default(0), color: '#ff4d6d' },
+            { label: '🏨 Bookings', val: activityStats.BOOKING|default(0), color: '#00c896' },
+            { label: '✦ AI Chats', val: activityStats.AI_FEATURE|default(0), color: '#7209b7' },
+            { label: '🧭 Navigation', val: activityStats.NAV|default(0), color: '#f59e0b' }
+          ] %}
+
+          {% for bar in bars %}
+          {% set pct = ((bar.val / totalActions) * 100)|round %}
+          <div class="dna-bar-row">
+            <div class="dna-bar-label">{{ bar.label }}</div>
+            <div class="dna-bar-track">
+              <div class="dna-bar-fill dna-bar-animated" style="background:{{ bar.color }};width:0%" data-target="{{ pct }}"></div>
+            </div>
+            <div class="dna-bar-pct">{{ pct }}%</div>
+          </div>
+          {% endfor %}
+        </div>
+
+        {# ── Recent Searches (last 10) ── #}
+        <div class="dna-card reveal" style="padding:24px">
+          <h4 style="font-family:var(--font-display);font-size:15px;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:16px">Recent Searches</h4>
+          <div style="display:flex;flex-direction:column;gap:8px">
+          {% for search in recentSearches %}
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(255,255,255,0.025);border-radius:8px;border:1px solid transparent;transition:border-color 0.2s" onmouseover="this.style.borderColor='var(--border-color)'" onmouseout="this.style.borderColor='transparent'">
+              <div style="display:flex;gap:12px;align-items:center">
+                <span class="badge badge-coral" style="font-size:9px;min-width:72px;text-align:center">SEARCH</span>
+                <span style="font-size:0.85rem;opacity:0.8">{{ search.query|default('—') }}</span>
+              </div>
+              <div style="font-family:var(--font-mono);font-size:0.75rem;opacity:0.45;white-space:nowrap">{{ search.timestampLabel }}</div>
+            </div>
+          {% else %}
+            <div style="color:var(--text-muted);font-size:0.85rem;padding:16px">No recent searches yet — use the home search bar to start. 🌍</div>
+          {% endfor %}
           </div>
         </div>
       </section>
@@ -435,6 +918,22 @@
                 <div><div style="font-weight:600;margin-bottom:4px">Password</div><div style="font-size:0.8rem;color:var(--text-muted)">Secure your account</div></div>
                 <button class="btn btn-secondary btn-sm" id="togglePasswordBtn">Change</button>
               </div>
+              <div id="password-change-section" style="display:none; padding:16px; border-radius:var(--border-radius-md); border:1px solid var(--border-color); background:var(--bg-surface)">
+                <h3 style="margin-bottom:16px; font-family:var(--font-display)">Change Password</h3>
+                <div class="grid-2" style="gap:20px">
+                  <div class="input-group" style="position: relative; padding-bottom: 24px;">
+                    <div class="input-label">New Password</div>
+                    <input class="input" type="password" id="new_password" style="padding-right: 40px; margin-bottom: 0;">
+                    <span class="front-toggle-pw" data-target="new_password" style="position: absolute; right: 12px; top: 38px; cursor: pointer; color: var(--text-muted);"><i class="far fa-eye"></i></span>
+                  </div>
+                  <div class="input-group" style="position: relative; padding-bottom: 24px;">
+                    <div class="input-label">Confirm New Password</div>
+                    <input class="input" type="password" id="confirm_password" style="padding-right: 40px; margin-bottom: 0;">
+                    <span class="front-toggle-pw" data-target="confirm_password" style="position: absolute; right: 12px; top: 38px; cursor: pointer; color: var(--text-muted);"><i class="far fa-eye"></i></span>
+                  </div>
+                </div>
+                <button class="btn btn-primary ripple-btn" style="margin-top:8px" id="confirmPasswordBtn">Update Password</button>
+              </div>
               <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:rgba(0,200,150,0.06);border-radius:var(--border-radius-md);border:1px solid rgba(0,200,150,0.2)">
                 <div><div style="font-weight:600;margin-bottom:4px">Two-Factor Authentication</div><div style="font-size:0.8rem;color:var(--text-muted)">Enabled via Authenticator App ✓</div></div>
                 <span class="badge badge-teal">Active</span>
@@ -442,6 +941,10 @@
               <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:var(--bg-surface);border-radius:var(--border-radius-md);border:1px solid var(--border-color)">
                 <div><div style="font-weight:600;margin-bottom:4px">AI Data Training</div><div style="font-size:0.8rem;color:var(--text-muted)">Control what ARIA learns from your behavior</div></div>
                 <button class="btn btn-secondary btn-sm">Manage Privacy</button>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:rgba(255,77,109,0.08);border-radius:var(--border-radius-md);border:1px solid rgba(255,77,109,0.35)">
+                <div><div style="font-weight:600;margin-bottom:4px;color:#ff4d6d">Delete Account</div><div style="font-size:0.8rem;color:var(--text-muted)">Permanently disable your account access</div></div>
+                <button class="btn btn-secondary btn-sm" id="deleteAccountBtn" style="border-color:#ff4d6d;color:#ff4d6d">Delete</button>
               </div>
             </div>
           </div>
@@ -452,7 +955,7 @@
   </div>
 </div>
 
-<div class="toast" id="profileToast" style="display:none; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:var(--navy); color:#fff; padding:12px 24px; border-radius:50px; z-index:9999; font-weight:500; font-size:0.9rem; box-shadow:0 10px 30px rgba(0,0,0,0.2); transition:opacity 0.3s; opacity:0;">
+<div class="toast" id="profileToast" style="display:none; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#0b1f4d; color:#fff; padding:12px 24px; border-radius:50px; z-index:9999; font-weight:500; font-size:0.9rem; box-shadow:0 10px 30px rgba(0,0,0,0.35); transition:opacity 0.3s; opacity:0;">
     <span id="toastMsg"></span>
 </div>
 
@@ -465,141 +968,677 @@
   </div>
 </footer>
 
-<button class="aria-orb" id="aria-orb" aria-label="Open ARIA">✦</button>
+<button class="aria-orb" id="aria-orb" aria-label="Open ARIA">🤖</button>
 <div class="aria-panel" id="aria-panel">
   <div class="aria-header">
-    <div class="aria-avatar">✦</div>
+    <div class="aria-avatar">🤖</div>
     <div><span class="aria-name">ARIA</span><span class="aria-status">Personalized for {{ user.firstName }}</span></div>
-    <button id="aria-close" style="margin-left:auto;font-size:18px;color:var(--text-muted);cursor:none">✕</button>
+    <button id="aria-close" style="margin-left:auto;font-size:18px;color:var(--text-muted);background:none;border:none">✕</button>
   </div>
   <div class="aria-messages" id="aria-messages">
-    <div class="aria-msg bot"><div class="aria-bubble">Hey {{ user.firstName }}! Based on your Travel DNA, I think you'd absolutely love the Faroe Islands next. Want me to build you an itinerary? 🏔️</div></div>
+    <div class="aria-msg bot"><div class="aria-bubble">Hey {{ user.firstName }}! 👋 I know you well — you're a <strong>{{ travelPersona }}</strong>. Want a destination curated just for you? Or ask me anything about travel! ✨</div></div>
+  </div>
+  <div class="aria-img-preview" id="aria-img-preview">
+    <img id="aria-preview-img" src="" alt="preview">
+    <button class="remove-img" id="aria-remove-img" title="Remove image">✕</button>
   </div>
   <div class="aria-input-row">
-    <input class="aria-input" id="aria-input" type="text" placeholder="Ask ARIA...">
+    <button class="aria-attach-btn" id="aria-attach-btn" title="Attach image">📎</button>
+    <button class="aria-voice-btn" id="aria-voice-btn" title="Voice search">🎤</button>
+    <button class="aria-stop-voice-btn" id="aria-stop-voice-btn" title="Stop voice">⏹</button>
+    <input type="file" id="aria-file-input" accept="image/*" style="display:none">
+    <input class="aria-input" id="aria-input" type="text" placeholder="Ask ARIA anything...">
     <button class="aria-send" id="aria-send" data-track="AI_ARIA_CHAT" data-track-type="AI_FEATURE">➤</button>
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Password Toggle
-    const toggleBtn = document.getElementById('togglePasswordBtn');
-    const pwdSection = document.getElementById('password-change-section');
-    if (toggleBtn && pwdSection) {
-        toggleBtn.addEventListener('click', () => {
-            const isHidden = pwdSection.style.display === 'none';
-            pwdSection.style.display = isHidden ? 'block' : 'none';
-            if (isHidden) pwdSection.scrollIntoView({ behavior: 'smooth' });
-        });
-    }
+  window.__ariaChatInitialized = true;
 
-    // Chart.js - Travel DNA
-    const ctx = document.getElementById('travel-dna-chart')?.getContext('2d');
-    if (ctx) {
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Visits', 'Searches', 'Bookings', 'Social'],
-                datasets: [{
-                    data: [
-                        {{ activityStats.VISIT|default(0) }}, 
-                        {{ activityStats.SEARCH|default(0) }}, 
-                        {{ activityStats.BOOKING|default(0) }}, 
-                        {{ activityStats.SOCIAL|default(0) }}
-                    ],
-                    backgroundColor: ['#00a6ed', '#ff4d6d', '#00c896', '#7209b7'],
-                    borderWidth: 0,
-                    hoverOffset: 10
-                }]
-            },
-            options: {
-                responsive: true,
-                cutout: '80%',
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-
-    // Save Changes
-    document.getElementById('saveProfileBtn')?.addEventListener('click', () => {
-        const data = {
-            firstName: document.querySelector('input[value="{{ user.firstName }}"]')?.value || '{{ user.firstName }}',
-            lastName: document.querySelector('input[value="{{ user.lastName }}"]')?.value || '{{ user.lastName }}',
-            email: document.querySelector('input[value="{{ user.email }}"]')?.value || '{{ user.email }}',
-            bio: document.querySelector('textarea')?.value
-        };
-
-        fetch('/profile/update', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        })
-        .then(r => r.json())
-        .then(res => {
-            const toast = document.getElementById('profileToast');
-            const msg = document.getElementById('toastMsg');
-            toast.style.display = 'block';
-            
-            if (res.success) {
-                msg.innerHTML = '<i class="fas fa-check-circle" style="color:#10b981; margin-right:8px;"></i> Profile updated successfully!';
-            } else {
-                msg.innerHTML = '<i class="fas fa-times-circle" style="color:#ef4444; margin-right:8px;"></i> Failed to update profile.';
-            }
-            
-            // Fade in
-            setTimeout(() => toast.style.opacity = '1', 10);
-            
-            // Fade out
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.style.display = 'none', 300);
-            }, 3000);
-        });
+  // ════════════════════════════════════════════
+  // PASSWORD TOGGLE
+  // ════════════════════════════════════════════
+  const toggleBtn = document.getElementById('togglePasswordBtn');
+  const pwdSection = document.getElementById('password-change-section');
+  if (toggleBtn && pwdSection) {
+    toggleBtn.addEventListener('click', () => {
+      const isHidden = pwdSection.style.display === 'none';
+      pwdSection.style.display = isHidden ? 'block' : 'none';
+      if (isHidden) pwdSection.scrollIntoView({ behavior: 'smooth' });
     });
+  }
 
-    document.getElementById('confirmPasswordBtn')?.addEventListener('click', () => {
-        const p1 = document.getElementById('new_password').value;
-        const p2 = document.getElementById('confirm_password').value;
-        if (p1 && p1 === p2) {
-            fetch('/profile/password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password: p1 })
-            })
-            .then(r => r.json())
-            .then(res => {
-                const toast = document.getElementById('profileToast');
-                const msg = document.getElementById('toastMsg');
-                toast.style.display = 'block';
-                
-                if (res.success) {
-                    msg.innerHTML = '<i class="fas fa-check-circle" style="color:#10b981; margin-right:8px;"></i> Password updated!';
-                    pwdSection.style.display = 'none';
-                    document.getElementById('new_password').value = '';
-                    document.getElementById('confirm_password').value = '';
-                } else {
-                    msg.innerHTML = '<i class="fas fa-times-circle" style="color:#ef4444; margin-right:8px;"></i> Error updating password.';
-                }
-                
-                setTimeout(() => toast.style.opacity = '1', 10);
-                setTimeout(() => {
-                    toast.style.opacity = '0';
-                    setTimeout(() => toast.style.display = 'none', 300);
-                }, 3000);
-            });
+  // ════════════════════════════════════════════
+  // WAVY UI CUSTOM ERRORS
+  // ════════════════════════════════════════════
+  function showError(input, message) {
+    clearError(input);
+    const err = document.createElement('div');
+    err.className = 'wavy-error-msg';
+    err.style.cssText = 'color: #ef4444; font-size: 11px; position: absolute; bottom: -24px; left: 0; pointer-events: none; animation: slideUp 0.3s ease;';
+    err.innerText = message;
+    input.parentNode.appendChild(err);
+    if(input.style) input.style.borderBottomColor = '#ef4444';
+    input.parentNode.classList.add('error');
+  }
+
+  function clearError(input) {
+    const parent = input.parentNode;
+    const msg = parent.querySelector('.wavy-error-msg');
+    if (msg) msg.remove();
+    if(input.style) input.style.borderBottomColor = ''; 
+    input.parentNode.classList.remove('error');
+  }
+
+  // Clear errors on input
+  document.querySelectorAll('input').forEach(inp => {
+     inp.addEventListener('input', () => clearError(inp));
+  });
+
+  // ════════════════════════════════════════════
+  // SAVE PROFILE (Upgraded for Wavy Inputs)
+  // ════════════════════════════════════════════
+  document.getElementById('saveProfileBtn')?.addEventListener('click', () => {
+    const btn = document.getElementById('saveProfileBtn');
+    
+    let valid = true;
+    const fName = document.getElementById('profile_first_name');
+    const lName = document.getElementById('profile_last_name');
+    const email = document.getElementById('profile_email');
+    const phone = document.getElementById('profile_phone');
+    
+    if (!fName.value.trim()) { showError(fName, 'First name is required'); valid = false; }
+    if (!lName.value.trim()) { showError(lName, 'Last name is required'); valid = false; }
+    if (!email.value.trim() || !email.value.includes('@')) { showError(email, 'Valid email is required'); valid = false; }
+    if (phone.value.trim() && !/^\d{8}$/.test(phone.value.trim())) { showError(phone, 'Phone number must be exactly 8 digits'); valid = false; }
+    
+    if (!valid) return;
+
+    const origText = btn.innerText;
+    
+    const data = {
+      firstName: fName.value.trim(),
+      lastName:  lName.value.trim(),
+      email:     email.value.trim(),
+      phone:     phone.value.trim(),
+      bio:       document.getElementById('profile_bio')?.value || ''
+    };
+
+    btn.innerText = 'Saving...';
+    fetch('/profile/update', { 
+      method:'POST', 
+      headers:{'Content-Type':'application/json'}, 
+      body:JSON.stringify(data) 
+    })
+    .then(r=>r.json())
+    .then(res => {
+      btn.innerText = origText;
+      if (res.success) {
+          showToast('✅ Profile updated successfully!');
+          setTimeout(() => window.location.reload(), 1000);
+      } else {
+          showToast('❌ ' + (res.error || 'Update failed.'));
+      }
+    });
+  });
+
+  // Old collectTravelPrefs and savePreferencesBtn removed to avoid duplication with the new chip-based logic below
+
+  document.querySelectorAll('.front-toggle-pw').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.dataset.target;
+      const input = document.getElementById(targetId);
+      if (!input) return;
+      const isText = input.type === 'text';
+      input.type = isText ? 'password' : 'text';
+      btn.innerHTML = isText ? '<i class="far fa-eye"></i>' : '<i class="far fa-eye-slash"></i>';
+    });
+  });
+
+  document.getElementById('confirmPasswordBtn')?.addEventListener('click', () => {
+    let valid = true;
+    const p1El = document.getElementById('new_password');
+    const p2El = document.getElementById('confirm_password');
+    const p1 = p1El.value;
+    const p2 = p2El.value;
+    
+    if (!p1 || p1.trim() === '') {
+      showError(p1El, 'Please enter a password.');
+      valid = false;
+    } else if (p1.length < 8) {
+      showError(p1El, 'Password must contain at least 8 characters.');
+      valid = false;
+    }
+    if (p1 !== p2) {
+      showError(p2El, 'Passwords do not match.');
+      valid = false;
+    }
+    
+    if(!valid) return;
+
+    fetch('/profile/password', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:p1}) })
+      .then(r=>r.json()).then(res => {
+        if (res.success) {
+          showToast('✅ Password updated!');
+          pwdSection.style.display = 'none';
+          document.getElementById('new_password').value = '';
+          document.getElementById('confirm_password').value = '';
+        } else { showToast('❌ Error updating password.'); }
+      });
+  });
+
+  document.getElementById('deleteAccountBtn')?.addEventListener('click', () => {
+    if (!confirm('Delete your account? This action cannot be undone.')) return;
+    fetch('/profile/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' })
+      .then(r=>r.json())
+      .then(res => {
+        if (res.success) {
+          showToast('✅ Account deleted.');
+          setTimeout(() => { window.location.href = '/logout'; }, 600);
         } else {
-            const toast = document.getElementById('profileToast');
-            const msg = document.getElementById('toastMsg');
-            toast.style.display = 'block';
-            msg.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:#f59e0b; margin-right:8px;"></i> Passwords do not match.';
-            setTimeout(() => toast.style.opacity = '1', 10);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.style.display = 'none', 300);
-            }, 3000);
+          showToast('❌ Could not delete account.');
         }
+      })
+      .catch(() => showToast('❌ Could not delete account.'));
+  });
+
+  function showToast(msg, isError = false) {
+    const t = document.getElementById('profileToast');
+    const m = document.getElementById('toastMsg');
+    if (!t || !m) return;
+    
+    m.textContent = msg;
+    t.style.background = isError ? '#ef4444' : '#0b1f4d'; // Red for error, dark navy for success
+    t.style.display = 'block';
+    t.style.opacity = '0';
+    
+    setTimeout(() => { t.style.opacity = '1'; }, 50);
+    
+    if (window.toastTimeout) clearTimeout(window.toastTimeout);
+    window.toastTimeout = setTimeout(() => {
+      t.style.opacity = '0';
+      setTimeout(() => { t.style.display = 'none'; }, 300);
+    }, 4000);
+  }
+
+  // ════════════════════════════════════════════
+  // TRAVEL DNA — ANIMATED COUNTERS
+  // ════════════════════════════════════════════
+  function animateCounter(elId, target) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    let start = 0;
+    const step = Math.ceil(target / 40) || 1;
+    const t = setInterval(() => {
+      start = Math.min(start + step, target);
+      el.textContent = start;
+      if (start >= target) clearInterval(t);
+    }, 30);
+  }
+  animateCounter('stat-time',   {{ totalMinutes|default(0)|round }});
+  animateCounter('stat-visits', {{ pageVisits|default(0) }});
+  animateCounter('stat-ai',     {{ aiInteractions|default(0) }});
+  animateCounter('eng-score-num', {{ engagementScore|default(0) }});
+
+  // Engagement ring arc
+  const arc = document.getElementById('engagement-arc');
+  if (arc) {
+    const score = {{ engagementScore|default(0) }};
+    const circ  = 239;
+    setTimeout(() => { arc.style.strokeDashoffset = circ - (circ * score / 100); }, 200);
+  }
+
+  // ── DNA Bar animations
+  document.querySelectorAll('.dna-bar-animated').forEach(bar => {
+    const target = bar.dataset.target || 0;
+    setTimeout(() => { bar.style.width = target + '%'; }, 300);
+  });
+
+  // ════════════════════════════════════════════
+  // CHART.JS — ACTIVITY DONUT
+  // ════════════════════════════════════════════
+  const donutCtx = document.getElementById('dna-donut')?.getContext('2d');
+  if (donutCtx) {
+    new Chart(donutCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Home', 'Destinations', 'Activities', 'Offers', 'Other'],
+        datasets: [{
+          data: [
+            {{ pageBreakdown.Home|default(0) }},
+            {{ pageBreakdown.Destinations|default(0) }},
+            {{ pageBreakdown.Activities|default(0) }},
+            {{ pageBreakdown.Offers|default(0) }},
+            {{ pageBreakdown.Other|default(0) }}
+          ],
+          backgroundColor: ['#00a6ed','#ff4d6d','#00c896','#f59e0b','#6b7280'],
+          borderWidth: 0,
+          hoverOffset: 12
+        }]
+      },
+      options: {
+        responsive: true,
+        cutout: '72%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => {
+                const total = ctx.dataset.data.reduce((a, b) => a + b, 0) || 1;
+                const pct = Math.round((ctx.parsed / total) * 100);
+                return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
+              }
+            }
+          }
+        },
+        animation: { animateRotate: true, duration: 1200 }
+      }
     });
+  }
+
+  // ════════════════════════════════════════════
+  // CHART.JS — HOURLY ACTIVITY BAR
+  // ════════════════════════════════════════════
+  const hourCtx = document.getElementById('dna-hourly')?.getContext('2d');
+  if (hourCtx) {
+    const hourlyData = {{ hourlyActivity|json_encode|raw }};
+    const labels = Array.from({length:24},(_,i)=> i===0?'12am': i<12?`${i}am`: i===12?'12pm':`${i-12}pm`);
+    new Chart(hourCtx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: hourlyData,
+          backgroundColor: hourlyData.map((v,i) => {
+            const hour = i;
+            if (hour >= 6 && hour < 12)  return 'rgba(255,183,3,0.75)';  // morning gold
+            if (hour >= 12 && hour < 18) return 'rgba(0,166,237,0.75)';  // afternoon blue
+            if (hour >= 18 && hour < 22) return 'rgba(255,77,109,0.75)'; // evening coral
+            return 'rgba(114,9,183,0.6)'; // night purple
+          }),
+          borderRadius: 4,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { title: (c) => `${c[0].label}`, label: (c) => ` ${c.parsed.y} actions` } } },
+        scales: {
+          x: { ticks: { font: { size: 8 }, color: '#6b7280', maxRotation: 45 }, grid: { display: false } },
+          y: { ticks: { font: { size: 9 }, color: '#6b7280' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+        },
+        animation: { duration: 1000 }
+      }
+    });
+  }
+
+  const destCtx = document.getElementById('dna-destinations')?.getContext('2d');
+  if (destCtx) {
+    const destinationData = {{ destinationClicks|default({})|json_encode|raw }};
+    const labels = Object.keys(destinationData);
+    const values = Object.values(destinationData);
+
+    new Chart(destCtx, {
+      type: 'bar',
+      data: {
+        labels: labels.length ? labels : ['No destination data'],
+        datasets: [{
+          data: values.length ? values : [0],
+          backgroundColor: 'rgba(255, 77, 109, 0.75)',
+          borderRadius: 6
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#6b7280' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          y: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  const radarCtx = document.getElementById('dna-radar')?.getContext('2d');
+  if (radarCtx) {
+    const pace = '{{ preferences and preferences.travelPace ? preferences.travelPace|lower : "" }}';
+    const climate = '{{ preferences and preferences.preferredClimate ? preferences.preferredClimate|lower : "" }}';
+    const groupType = '{{ preferences and preferences.groupType ? preferences.groupType|lower : "" }}';
+
+    const radarData = [
+      pace === 'fast' ? 90 : (pace === 'slow' ? 45 : 65),
+      (climate.includes('tropical') || climate.includes('beach')) ? 85 : 55,
+      groupType.includes('solo') ? 90 : (groupType.includes('family') ? 75 : 60),
+      {{ aiInteractions|default(0) > 0 ? ((aiInteractions * 10) > 100 ? 100 : (aiInteractions * 10)) : 35 }},
+      {{ pageVisits|default(0) > 0 ? ((pageVisits * 4) > 100 ? 100 : (pageVisits * 4)) : 40 }}
+    ];
+
+    new Chart(radarCtx, {
+      type: 'radar',
+      data: {
+        labels: ['Pace', 'Climate Match', 'Group Fit', 'AI Affinity', 'Explorer Depth'],
+        datasets: [{
+          label: 'Travel DNA',
+          data: radarData,
+          borderColor: '#00a6ed',
+          backgroundColor: 'rgba(0,166,237,0.2)',
+          pointBackgroundColor: '#ff4d6d'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          r: {
+            suggestedMin: 0,
+            suggestedMax: 100,
+            angleLines: { color: 'rgba(255,255,255,0.08)' },
+            grid: { color: 'rgba(255,255,255,0.08)' },
+            pointLabels: { color: '#9ca3af', font: { size: 10 } },
+            ticks: { display: false }
+          }
+        }
+      }
+    });
+  }
+
+  const aiMeter = document.getElementById('ai-meter-fill');
+  if (aiMeter) {
+    const target = parseInt(aiMeter.dataset.target || '0', 10);
+    setTimeout(() => { aiMeter.style.width = target + '%'; }, 250);
+  }
+
+  // ════════════════════════════════════════════
+  // ARIA CHAT — FULLY WORKING
+  // ════════════════════════════════════════════
+  const orbBtn     = document.getElementById('aria-orb');
+  const panel      = document.getElementById('aria-panel');
+  const closeBtn   = document.getElementById('aria-close');
+  const msgBox     = document.getElementById('aria-messages');
+  const inputEl    = document.getElementById('aria-input');
+  const sendBtn    = document.getElementById('aria-send');
+  const attachBtn  = document.getElementById('aria-attach-btn');
+  const voiceBtn   = document.getElementById('aria-voice-btn');
+  const stopVoiceBtn = document.getElementById('aria-stop-voice-btn');
+  const fileInput  = document.getElementById('aria-file-input');
+  const imgPreview = document.getElementById('aria-img-preview');
+  const previewImg = document.getElementById('aria-preview-img');
+  const removeImg  = document.getElementById('aria-remove-img');
+
+  let selectedImageBase64 = null;
+  let selectedImageMimeType = null;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const speechRecognition = SpeechRecognition ? new SpeechRecognition() : null;
+  if (speechRecognition) {
+    speechRecognition.lang = 'en-US';
+    speechRecognition.interimResults = false;
+    speechRecognition.maxAlternatives = 1;
+  }
+
+  // Open / close panel
+  orbBtn?.addEventListener('click', () => panel?.classList.toggle('open'));
+  closeBtn?.addEventListener('click', () => panel?.classList.remove('open'));
+
+  // Image attach
+  attachBtn?.addEventListener('click', () => fileInput?.click());
+
+  fileInput?.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      appendBubble('bot', 'Please attach a valid image file.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      appendBubble('bot', 'Image too large. Please use a file smaller than 5MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target.result;
+      // strip prefix: data:image/jpeg;base64,
+      selectedImageBase64 = dataUrl.split(',')[1];
+      selectedImageMimeType = file.type;
+      previewImg.src = dataUrl;
+      imgPreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  removeImg?.addEventListener('click', () => {
+    selectedImageBase64 = null;
+    selectedImageMimeType = null;
+    fileInput.value = '';
+    imgPreview.style.display = 'none';
+    previewImg.src = '';
+  });
+
+  voiceBtn?.addEventListener('click', () => {
+    if (!speechRecognition) {
+      appendBubble('bot', 'Voice search is not supported in this browser.');
+      return;
+    }
+    voiceBtn.classList.add('active');
+    speechRecognition.start();
+  });
+
+  speechRecognition?.addEventListener('result', (event) => {
+    const transcript = event.results?.[0]?.[0]?.transcript || '';
+    if (!transcript.trim()) return;
+    inputEl.value = transcript;
+    sendMessage();
+  });
+
+  speechRecognition?.addEventListener('end', () => {
+    voiceBtn?.classList.remove('active');
+  });
+  stopVoiceBtn?.addEventListener('click', () => {
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  });
+
+  // Send message
+  function sendMessage() {
+    const text = (inputEl?.value || '').trim();
+    if (!text && !selectedImageBase64) return;
+
+    // Append user bubble
+    appendBubble('user', text, selectedImageBase64 ? previewImg.src : null);
+
+    // Clear inputs
+    inputEl.value = '';
+    const imgB64 = selectedImageBase64;
+    const imgMimeType = selectedImageMimeType;
+    selectedImageBase64 = null;
+    selectedImageMimeType = null;
+    fileInput.value = '';
+    imgPreview.style.display = 'none';
+    previewImg.src = '';
+
+    // Typing indicator
+    const typingEl = document.createElement('div');
+    typingEl.className = 'aria-msg bot';
+    typingEl.innerHTML = '<div class="aria-bubble aria-typing-bubble" aria-live="polite"><span class="aria-ellipsis">...</span></div>';
+    msgBox.appendChild(typingEl);
+    scrollMsgs();
+
+    // API call
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ message: text, image: imgB64, imageMimeType: imgMimeType })
+    })
+    .then(function (r) {
+      return r.text().then(function (txt) {
+        var data = {};
+        try {
+          data = txt ? JSON.parse(txt) : {};
+        } catch (e) {
+          typingEl.remove();
+          appendBubble('bot', '⚠️ Server error (HTTP ' + r.status + '). If you are logged in, try refreshing the page.');
+          return null;
+        }
+        return { ok: r.ok, status: r.status, data: data };
+      });
+    })
+    .then(function (result) {
+      if (!result) return;
+      typingEl.remove();
+      var data = result.data;
+      if (data.response) {
+        appendBubble('bot', data.response);
+        speakText(data.response);
+      } else if (data.error) {
+        appendBubble('bot', '⚠️ ' + data.error);
+      } else {
+        appendBubble('bot', '⚠️ Unexpected response (HTTP ' + result.status + ').');
+      }
+    })
+    .catch(function () {
+      typingEl.remove();
+      appendBubble('bot', '⚠️ Network error. Check your connection and try again.');
+    });
+  }
+
+  function appendBubble(role, text, imgSrc) {
+    const wrap = document.createElement('div');
+    wrap.className = 'aria-msg ' + role;
+    if (imgSrc) {
+      const img = document.createElement('img');
+      img.src = imgSrc;
+      img.style.maxWidth = '120px';
+      img.style.borderRadius = '8px';
+      img.style.marginBottom = '6px';
+      img.style.display = 'block';
+      wrap.appendChild(img);
+    }
+    if (text) {
+      const bubble = document.createElement('div');
+      bubble.className = 'aria-bubble';
+      bubble.textContent = text;
+      wrap.appendChild(bubble);
+    }
+    msgBox.appendChild(wrap);
+    scrollMsgs();
+  }
+
+  function scrollMsgs() {
+    if (msgBox) msgBox.scrollTop = msgBox.scrollHeight;
+  }
+
+  function speakText(text) {
+    if (window.TRIPX_ARIA && typeof window.TRIPX_ARIA.speak === 'function') {
+      window.TRIPX_ARIA.speak(text);
+    }
+  }
+
+  sendBtn?.addEventListener('click', sendMessage);
+  inputEl?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+
+  // Prevent input from clearing on focus (ensure value is preserved)
+  inputEl?.addEventListener('focus', (e) => e.stopPropagation());
+
+  // Initial scroll
+  scrollMsgs();
+
+  // ════════════════════════════════════════════
+  // TRAVEL PREFERENCES CHIPS
+  // ════════════════════════════════════════════
+  const prefChips = document.querySelectorAll('#prefManagerRoot .pref-chip');
+  prefChips.forEach(chip => {
+    chip.addEventListener('click', function() {
+      // Toggle for AccToggle isolated
+      if (this.id === 'profAccToggle') {
+        this.classList.toggle('selected');
+        return;
+      }
+      const group = this.closest('.pref-chip-grid')?.dataset.group;
+      if (!group) return;
+      const isMulti = this.closest('.pref-chip-grid').dataset.multi === 'true';
+      const max = this.closest('.pref-chip-grid').dataset.max ? parseInt(this.closest('.pref-chip-grid').dataset.max) : 99;
+
+      if (isMulti) {
+        if (!this.classList.contains('selected')) {
+          const currentlySelected = this.closest('.pref-chip-grid').querySelectorAll('.pref-chip.selected').length;
+          if (currentlySelected >= max) {
+            showToast(`You can only select up to ${max} options.`, true);
+            return;
+          }
+        }
+        this.classList.toggle('selected');
+      } else {
+        const siblings = this.closest('.pref-chip-grid').querySelectorAll('.pref-chip');
+        siblings.forEach(s => s.classList.remove('selected'));
+        this.classList.add('selected');
+      }
+    });
+  });
+
+  const profMinB = document.getElementById('profMinBudget');
+  const profMaxB = document.getElementById('profMaxBudget');
+  if (profMinB && profMaxB) {
+    profMinB.addEventListener('input', () => {
+      if (parseInt(profMinB.value) > parseInt(profMaxB.value)) profMinB.value = profMaxB.value;
+      document.getElementById('profMinBudgetDisplay').innerText = '$' + profMinB.value;
+    });
+    profMaxB.addEventListener('input', () => {
+      if (parseInt(profMaxB.value) < parseInt(profMinB.value)) profMaxB.value = profMinB.value;
+      document.getElementById('profMaxBudgetDisplay').innerText = '$' + profMaxB.value;
+    });
+  }
+
+  document.getElementById('savePreferencesBtn')?.addEventListener('click', () => {
+    const origText = document.getElementById('savePreferencesBtn').innerText;
+    document.getElementById('savePreferencesBtn').innerText = 'Saving...';
+    
+    // Gather prefs
+    const prefsPayload = {
+      budget_min_per_night: profMinB ? parseInt(profMinB.value) : null,
+      budget_max_per_night: profMaxB ? parseInt(profMaxB.value) : null,
+      accessibility_needs: document.getElementById('profAccToggle')?.classList.contains('selected') || false
+    };
+
+    const extractGroup = (groupName) => {
+      const grid = document.querySelector(`.pref-chip-grid[data-group="${groupName}"]`);
+      if (!grid) return [];
+      const selected = Array.from(grid.querySelectorAll('.pref-chip.selected')).map(c => c.dataset.val);
+      return grid.dataset.multi === 'true' ? selected : (selected[0] || '');
+    };
+
+    prefsPayload.travel_pace = extractGroup('travel_pace');
+    prefsPayload.group_type = extractGroup('group_type');
+    prefsPayload.priorities = extractGroup('priorities');
+    prefsPayload.preferred_climate = extractGroup('preferred_climate');
+    prefsPayload.location_preferences = extractGroup('location_preferences');
+    prefsPayload.accommodation_types = extractGroup('accommodation_types');
+    prefsPayload.style_preferences = extractGroup('style_preferences');
+    prefsPayload.dietary_restrictions = extractGroup('dietary_restrictions');
+
+    fetch('/profile/preferences', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(prefsPayload)
+    })
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('savePreferencesBtn').innerText = origText;
+      if (data.success) {
+        showToast('✈️ Travel preferences saved successfully!');
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        showToast('⚠️ Error: ' + (data.error || 'Check fields.'), true);
+      }
+    })
+    .catch(() => {
+      document.getElementById('savePreferencesBtn').innerText = origText;
+      showToast('⚠️ Connection error', true);
+    });
+  });
+
 });
 </script>
 <script src="/assets.php?f=js/main.js"></script>

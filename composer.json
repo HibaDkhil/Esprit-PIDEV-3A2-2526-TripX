@@ -8,10 +8,12 @@
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
+
         "doctrine/dbal": "3.8.*",
         "doctrine/doctrine-bundle": "^2.12",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^2.19",
+
         "symfony/asset": "6.4.*",
         "symfony/console": "6.4.*",
         "symfony/doctrine-bridge": "6.4.*",
@@ -20,15 +22,32 @@
         "symfony/flex": "^2",
         "symfony/form": "6.4.*",
         "symfony/framework-bundle": "6.4.*",
+        "symfony/google-mailer": "6.4.*",
+        "symfony/http-client": "6.4.*",
+        "symfony/mailer": "6.4.*",
         "symfony/mime": "6.4.*",
+        "symfony/notifier": "6.4.*",
         "symfony/runtime": "6.4.*",
         "symfony/security-bundle": "6.4.*",
         "symfony/twig-bundle": "6.4.*",
         "symfony/validator": "6.4.*",
         "symfony/yaml": "6.4.*",
+
         "twig/extra-bundle": "^3.0",
-        "twig/twig": "^3.0"
+        "twig/twig": "^3.0",
+
+        "dompdf/dompdf": "^3.1",
+        "barryvdh/laravel-dompdf": "^3.1",
+
+        "knplabs/knp-paginator-bundle": "^6.0",
+        "phpoffice/phpspreadsheet": "^1.29",
+        "google/apiclient": "^2.15"
     },
+
+    "require-dev": {
+        "symfony/maker-bundle": "^1.67"
+    },
+
     "config": {
         "allow-plugins": {
             "php-http/discovery": true,
@@ -37,16 +56,19 @@
         },
         "sort-packages": true
     },
+
     "autoload": {
         "psr-4": {
             "App\\": "src/"
         }
     },
+
     "autoload-dev": {
         "psr-4": {
             "App\\Tests\\": "tests/"
         }
     },
+
     "replace": {
         "symfony/polyfill-ctype": "*",
         "symfony/polyfill-iconv": "*",
@@ -56,6 +78,7 @@
         "symfony/polyfill-php80": "*",
         "symfony/polyfill-php81": "*"
     },
+
     "scripts": {
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
@@ -68,16 +91,15 @@
             "@auto-scripts"
         ]
     },
+
     "conflict": {
         "symfony/symfony": "*"
     },
+
     "extra": {
         "symfony": {
             "allow-contrib": false,
             "require": "6.4.*"
         }
-    },
-    "require-dev": {
-        "symfony/maker-bundle": "*"
     }
 }

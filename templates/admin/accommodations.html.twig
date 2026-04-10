@@ -1,16 +1,1630 @@
 {% extends 'admin/admin_base.html.twig' %}
+
 {% block title %}Accommodations — TripX Admin{% endblock %}
 
 {% block breadcrumbs %}
-  <span class="crumb active">Accommodations</span>
+  <a href="{{ path('admin_accommodations_index') }}" class="crumb">Accommodations</a>
+  <span class="sep">›</span>
+  <span class="crumb active">Management</span>
+{% endblock %}
+
+{% block page_styles %}
+  .kpi-bar { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-bottom:28px; }
+
+.kpi-card {
+  --radius: 24px;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  height: 170px;
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  padding-top: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  backdrop-filter: blur(10px);
+}
+
+/* Luminous 3D Hover Effect */
+.kpi-card:hover {
+  transform: translateY(-6px) rotateX(3deg) rotateY(2deg) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 0 0 30px rgba(255, 255, 255, 0.1);
+}
+
+/* Glow Effect on Hover */
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: var(--radius);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.kpi-card:hover::after {
+  opacity: 1;
+}
+
+/* Shimmer Animation */
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.kpi-card:hover::before {
+  opacity: 0.6;
+  animation: shimmer 1.2s ease-out;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translate(-30%, -30%) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(30%, 30%) scale(1.5);
+    opacity: 0;
+  }
+}
+
+.kpi-card {
+  --radius: 20px;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  height: 140px;
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.2rem 1.2rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+/* Luminous 3D Hover Effect */
+.kpi-card:hover {
+  transform: translateY(-4px) rotateX(2deg) rotateY(1deg) scale(1.01);
+  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2), 0 0 25px rgba(255, 255, 255, 0.15);
+}
+
+/* Glow Effect on Hover */
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: var(--radius);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.kpi-card:hover::after {
+  opacity: 1;
+}
+
+/* Shimmer Animation */
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.kpi-card:hover::before {
+  opacity: 0.6;
+  animation: shimmer 1s ease-out;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translate(-30%, -30%) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(30%, 30%) scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Card Variants - Pastel & Harmonious Colors */
+.kpi-card-total {
+  --accent-color: #7ec8f7;
+  background: linear-gradient(135deg, #eef5ff 0%, #f8f0ff 100%);
+  border: 1px solid rgba(126, 200, 247, 0.5);
+  box-shadow: 0 6px 14px rgba(126, 200, 247, 0.12);
+}
+
+.kpi-card-active {
+  --accent-color: #5ee0b5;
+  background: linear-gradient(135deg, #e8fff6 0%, #e0f7ff 100%);
+  border: 1px solid rgba(94, 224, 181, 0.5);
+  box-shadow: 0 6px 14px rgba(94, 224, 181, 0.12);
+}
+
+.kpi-card-inactive {
+  --accent-color: #c4b5fd;
+  background: linear-gradient(135deg, #faf5ff 0%, #f5f0ff 100%);
+  border: 1px solid rgba(196, 181, 253, 0.5);
+  box-shadow: 0 6px 14px rgba(196, 181, 253, 0.12);
+}
+
+/* Hover State - Enhanced Luminous Effect */
+.kpi-card-total:hover {
+  border-color: rgba(126, 200, 247, 0.8);
+  box-shadow: 0 16px 32px rgba(126, 200, 247, 0.22), 0 0 25px rgba(126, 200, 247, 0.18);
+  background: linear-gradient(135deg, #f0f8ff 0%, #fcf5ff 100%);
+}
+
+.kpi-card-active:hover {
+  border-color: rgba(94, 224, 181, 0.8);
+  box-shadow: 0 16px 32px rgba(94, 224, 181, 0.22), 0 0 25px rgba(94, 224, 181, 0.18);
+  background: linear-gradient(135deg, #f0fffa 0%, #eef9ff 100%);
+}
+
+.kpi-card-inactive:hover {
+  border-color: rgba(196, 181, 253, 0.8);
+  box-shadow: 0 16px 32px rgba(196, 181, 253, 0.22), 0 0 25px rgba(196, 181, 253, 0.18);
+  background: linear-gradient(135deg, #fdfaff 0%, #faf5ff 100%);
+}
+
+.kpi-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 3;
+}
+
+.kpi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.kpi-card:hover .kpi-icon {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.kpi-val {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  position: relative;
+  z-index: 3;
+  transition: transform 0.3s ease;
+}
+
+.kpi-card:hover .kpi-val {
+  transform: scale(1.02);
+}
+
+.kpi-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: auto;
+  position: relative;
+  z-index: 3;
+  transition: all 0.3s ease;
+}
+
+/* Text Colors - Solid and Clearly Visible in Light Theme */
+.kpi-card-total .kpi-val,
+.kpi-card-active .kpi-val,
+.kpi-card-inactive .kpi-val {
+  color: #1a2c3e;
+}
+
+.kpi-card-total .kpi-label {
+  color: #4a5568;
+  opacity: 1;
+}
+
+.kpi-card-active .kpi-label {
+  color: #2c5a4a;
+  opacity: 1;
+}
+
+.kpi-card-inactive .kpi-label {
+  color: #5b4c8a;
+  opacity: 1;
+}
+
+/* Icon Colors with Solid Backgrounds */
+.kpi-card-total .kpi-icon {
+  color: #4a9eff;
+  background: rgba(74, 158, 255, 0.15);
+}
+
+.kpi-card-active .kpi-icon {
+  color: #2c9c7a;
+  background: rgba(44, 156, 122, 0.15);
+}
+
+.kpi-card-inactive .kpi-icon {
+  color: #9b87f5;
+  background: rgba(155, 135, 245, 0.15);
+}
+
+/* Optional: Add a decorative element from original design */
+.kpi-card::before {
+  /* Keep the shimmer animation, remove the circular element if needed */
+  content: '';
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  opacity: 0.08;
+  background: var(--accent-color);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.kpi-card:hover::before {
+  opacity: 0.15;
+  transform: scale(1.05);
+  transition: all 0.4s ease;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .kpi-card {
+    height: auto;
+    min-height: 130px;
+    padding: 1rem;
+  }
+  
+  .kpi-val {
+    font-size: 1.8rem;
+  }
+  
+  .kpi-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+  
+  .kpi-label {
+    font-size: 10px;
+  }
+}
+
+/* Dark Mode Support - Maintains Readability */
+@media (prefers-color-scheme: dark) {
+  .kpi-card-total {
+    background: linear-gradient(135deg, rgba(100, 130, 190, 0.25) 0%, rgba(130, 110, 190, 0.25) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(126, 200, 247, 0.4);
+  }
+  
+  .kpi-card-active {
+    background: linear-gradient(135deg, rgba(70, 150, 130, 0.25) 0%, rgba(90, 150, 170, 0.25) 100%);
+    border: 1px solid rgba(94, 224, 181, 0.4);
+  }
+  
+  .kpi-card-inactive {
+    background: linear-gradient(135deg, rgba(110, 90, 170, 0.25) 0%, rgba(130, 100, 190, 0.25) 100%);
+    border: 1px solid rgba(196, 181, 253, 0.4);
+  }
+  
+  .kpi-card-total .kpi-val,
+  .kpi-card-active .kpi-val,
+  .kpi-card-inactive .kpi-val {
+    color: #f0f3fa;
+  }
+  
+  .kpi-card-total .kpi-label {
+    color: #cbd5e6;
+    opacity: 0.9;
+  }
+  
+  .kpi-card-active .kpi-label {
+    color: #b8f0e0;
+    opacity: 0.9;
+  }
+  
+  .kpi-card-inactive .kpi-label {
+    color: #e0d4ff;
+    opacity: 0.9;
+  }
+  
+  .kpi-card-total .kpi-icon {
+    background: rgba(126, 200, 247, 0.2);
+  }
+  
+  .kpi-card-active .kpi-icon {
+    background: rgba(94, 224, 181, 0.2);
+  }
+  
+  .kpi-card-inactive .kpi-icon {
+    background: rgba(196, 181, 253, 0.2);
+  }
+}
+
+  .toolbar { display:flex; align-items:center; gap:12px; margin-bottom:24px; flex-wrap:wrap; }
+  .search-input-wrap { position:relative; flex:1; min-width:220px; }
+  .search-input-wrap input {
+    width:100%; padding:10px 16px 10px 40px;
+    background:var(--bg-card); border:1px solid var(--border-color);
+    border-radius:10px; color:inherit; font-size:14px;
+    transition:border-color .2s;
+  }
+  .search-input-wrap input:focus { outline:none; border-color:var(--accent-primary); }
+  .search-icon { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:15px; pointer-events:none; }
+  .filter-select {
+    padding:10px 14px; background:var(--bg-card); border:1px solid var(--border-color);
+    border-radius:10px; color:inherit; font-size:13px; cursor:pointer;
+  }
+  .filter-select:focus { outline:none; border-color:var(--accent-primary); }
+  .view-toggle { display:flex; background:var(--bg-card); border:1px solid var(--border-color); border-radius:10px; overflow:hidden; }
+  .view-btn { padding:9px 14px; background:transparent; border:none; cursor:pointer; color:var(--text-muted); font-size:16px; transition:background .2s,color .2s; }
+  .view-btn.active { background:var(--accent-primary); color:#fff; }
+
+  /* ── Add Accommodation button — pill gradient ── */
+  .btn-add {
+    display:flex; align-items:center; gap:8px; padding:10px 26px;
+    background-image:linear-gradient(135deg,#c4b5fd 0%,#a78bfa 50%,#8b5cf6 100%);
+    box-shadow:0 16px 30px -6px rgba(139,92,246,.5);
+    color:#fff; border:none;
+    border-radius:50px; font-size:15px; font-weight:700; cursor:pointer;
+    white-space:nowrap; font-family:"Dosis",sans-serif;
+    transition:transform .3s ease-in-out,box-shadow .3s ease-in-out,opacity .2s;
+  }
+  .btn-add:hover { transform:translateY(3px); box-shadow:none; }
+  .btn-add:active { opacity:.5; }
+
+  /* ── Map Picker ── */
+  .pick-map-btn {
+    width:100%; padding:11px; background:rgba(0,166,237,.08);
+    border:1px dashed rgba(0,166,237,.4); border-radius:10px;
+    color:var(--accent-primary); font-size:13px; font-weight:600;
+    cursor:pointer; transition:background .2s,border-color .2s;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .pick-map-btn:hover { background:rgba(0,166,237,.15); border-color:var(--accent-primary); }
+  .map-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.7);
+    z-index:4000; opacity:0; pointer-events:none;
+    transition:opacity .3s; display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .map-overlay.open { opacity:1; pointer-events:all; }
+  .map-modal {
+    background:var(--bg-card); border-radius:18px; width:820px; max-width:100%;
+    max-height:90vh; display:flex; flex-direction:column;
+    border:1px solid var(--border-color); overflow:hidden;
+    transform:scale(.95); transition:transform .3s;
+  }
+  .map-overlay.open .map-modal { transform:scale(1); }
+  .map-modal-header { padding:18px 22px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .map-search-bar { position:absolute; top:12px; left:50%; transform:translateX(-50%); z-index:1000; display:flex; gap:8px; width:calc(100% - 40px); max-width:500px; }
+  .map-search-input { flex:1; padding:10px 14px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:10px; font-size:13px; color:inherit; box-shadow:0 4px 12px rgba(0,0,0,.3); }
+  .map-search-input:focus { outline:none; border-color:var(--accent-primary); }
+  .map-search-btn { padding:10px 16px; background:var(--accent-primary); color:#fff; border:none; border-radius:10px; cursor:pointer; font-size:13px; font-weight:600; white-space:nowrap; box-shadow:0 4px 12px rgba(0,0,0,.3); }
+  #map-container { height:420px; width:100%; }
+  .map-crosshair { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:28px; color:var(--accent-primary); pointer-events:none; z-index:999; text-shadow:0 0 4px rgba(0,0,0,.5); line-height:1; }
+  .map-modal-footer { padding:14px 22px; border-top:1px solid var(--border-color); display:flex; align-items:center; gap:12px; flex-shrink:0; }
+  .map-confirm-btn { padding:10px 20px; background:var(--accent-primary); color:#fff; border:none; border-radius:10px; cursor:pointer; font-size:13px; font-weight:600; transition:opacity .2s; }
+  .map-confirm-btn:disabled { opacity:.4; cursor:not-allowed; }
+  .map-confirm-btn:not(:disabled):hover { opacity:.88; }
+  .map-pin-pulse { animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.3); } }
+
+  .results-count { font-size:13px; color:var(--text-muted); margin-bottom:16px; }
+
+  .acc-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:20px; }
+  .acc-card {
+    background:var(--bg-card); border:1px solid var(--border-color);
+    border-radius:16px; overflow:hidden;
+    transition:transform .25s,box-shadow .25s,border-color .25s;
+  }
+  .acc-card:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(0,0,0,.15); border-color:var(--accent-primary); }
+  .acc-card-img {
+    height:170px; background:linear-gradient(135deg,#1e3a5f,#0a6587);
+    position:relative; overflow:hidden;
+    display:flex; align-items:center; justify-content:center; font-size:56px;
+  }
+  .acc-card-img img { width:100%; height:100%; object-fit:cover; }
+  .acc-status-badge {
+    display: inline-block;
+    padding:4px 10px; border-radius:20px; font-size:11px; font-weight:600;
+  }
+  .badge-active   { background:rgba(16,185,129,.2); color:#10b981; border:1px solid rgba(16,185,129,.4); }
+  .badge-inactive { background:rgba(239,68,68,.2); color:#ef4444; border:1px solid rgba(239,68,68,.4); }
+  .acc-card-body { padding:16px; }
+  .acc-card-name { font-weight:700; font-size:15px; margin-bottom:4px; }
+  .acc-card-meta { font-size:12px; color:var(--text-muted); margin-bottom:8px; }
+  .acc-card-img .acc-status-badge {
+    position:absolute; top:10px; right:10px;
+  }
+  .acc-type-pill { display:inline-block; padding:2px 10px; background:rgba(0,166,237,.1); color:var(--accent-primary); border-radius:20px; font-size:11px; font-weight:600; }
+  .stars { color:#f59e0b; font-size:13px; letter-spacing:1px; }
+  .acc-card-actions { display:flex; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid var(--border-color); }
+
+  /* ── Card action buttons — pill gradient ── */
+  .acc-btn {
+    flex:1; padding:9px 6px; border-radius:50px; border:none;
+    cursor:pointer; font-size:12px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; gap:5px;
+    color:#fff; font-family:"Dosis",sans-serif;
+    transition:transform .3s ease-in-out,box-shadow .3s ease-in-out,opacity .2s;
+  }
+  .acc-btn:hover { transform:translateY(3px); box-shadow:none !important; }
+  .acc-btn:active { opacity:.5; }
+  .btn-view {
+    background-image:linear-gradient(135deg,#a5f3f0 0%,#5eead4 40%,#38bdf8 100%);
+    box-shadow:0 14px 28px -6px rgba(56,189,248,.4);
+  }
+  .btn-edit {
+    background-image:linear-gradient(135deg,#fef9c3 0%,#fde68a 45%,#fcd34d 100%);
+    box-shadow:0 14px 28px -6px rgba(252,211,77,.45);
+    color:#92610a;
+  }
+  .btn-del {
+    background-image:linear-gradient(135deg,#fce7f3 0%,#fbcfe8 40%,#f9a8d4 100%);
+    box-shadow:0 14px 28px -6px rgba(249,168,212,.5);
+    color:#9d174d;
+  }
+
+  .acc-table-wrap { background:var(--bg-card); border:1px solid var(--border-color); border-radius:14px; overflow:hidden; }
+  .acc-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .acc-table th { padding:13px 16px; text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--text-muted); background:var(--bg-surface); border-bottom:1px solid var(--border-color); }
+  .acc-table td { padding:13px 16px; border-bottom:1px solid var(--border-color); vertical-align:middle; }
+  .acc-table tr:last-child td { border-bottom:none; }
+  .acc-table tr:hover td { background:rgba(0,166,237,.03); }
+  .tbl-thumb { width:40px; height:40px; border-radius:8px; object-fit:cover; background:linear-gradient(135deg,#1e3a5f,#0a6587); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; overflow:hidden; }
+  .tbl-thumb img { width:100%; height:100%; object-fit:cover; }
+  .tbl-actions { display:flex; gap:6px; }
+
+  /* ── Table action buttons — pill gradient ── */
+  .tbl-btn {
+    padding:7px 14px; border-radius:50px; border:none;
+    cursor:pointer; font-size:11px; font-weight:700;
+    color:#fff; font-family:"Dosis",sans-serif;
+    transition:transform .3s ease-in-out,box-shadow .3s ease-in-out,opacity .2s;
+  }
+  .tbl-btn:hover { transform:translateY(3px); box-shadow:none !important; }
+  .tbl-btn:active { opacity:.5; }
+
+  .empty-state { text-align:center; padding:80px 40px; color:var(--text-muted); }
+  .empty-state .es-icon { font-size:56px; margin-bottom:16px; opacity:.35; }
+
+  /* Drawer */
+  .drawer-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; opacity:0; pointer-events:none; transition:opacity .3s; }
+  .drawer-overlay.open { opacity:1; pointer-events:all; }
+  .drawer {
+    position:fixed; top:0; right:0; bottom:0; width:520px; max-width:95vw;
+    background:var(--bg-card); border-left:1px solid var(--border-color);
+    z-index:1001; display:flex; flex-direction:column;
+    transform:translateX(100%); transition:transform .35s cubic-bezier(.4,0,.2,1);
+  }
+  .drawer.open { transform:translateX(0); }
+  .drawer-header { padding:22px 26px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .drawer-title { font-family:var(--font-display); font-size:19px; font-weight:700; }
+  .drawer-close { width:34px; height:34px; border-radius:8px; background:var(--bg-surface); border:1px solid var(--border-color); cursor:pointer; font-size:17px; display:flex; align-items:center; justify-content:center; }
+  .drawer-close:hover { background:rgba(239,68,68,.1); color:#ef4444; border-color:#ef4444; }
+  .drawer-tabs { display:flex; padding:0 26px; border-bottom:1px solid var(--border-color); flex-shrink:0; }
+  .drawer-tab { padding:13px 16px; background:transparent; border:none; cursor:pointer; font-size:13px; font-weight:500; color:var(--text-muted); border-bottom:2px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap; }
+  .drawer-tab.active { color:var(--accent-primary); border-bottom-color:var(--accent-primary); font-weight:600; }
+  .drawer-body { flex:1; overflow-y:auto; padding:26px; }
+  .drawer-body::-webkit-scrollbar { width:4px; }
+  .drawer-body::-webkit-scrollbar-thumb { background:var(--border-color); border-radius:4px; }
+  .drawer-footer { padding:18px 26px; border-top:1px solid var(--border-color); display:flex; gap:12px; flex-shrink:0; }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+
+  .form-group { margin-bottom:18px; }
+  .form-label { display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--text-muted); margin-bottom:7px; }
+  .form-input, .form-select, .form-textarea {
+    width:100%; padding:10px 13px;
+    background:var(--bg-surface); border:1px solid var(--border-color);
+    border-radius:9px; color:inherit; font-size:14px; transition:border-color .2s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { outline:none; border-color:var(--accent-primary); }
+  .form-textarea { resize:vertical; min-height:88px; }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .star-picker { display:flex; gap:4px; }
+  .star-btn { background:none; border:none; cursor:pointer; font-size:26px; color:#d1d5db; transition:color .1s; padding:0; line-height:1; }
+  .star-btn.lit { color:#f59e0b; }
+  .img-upload-area { border:2px dashed var(--border-color); border-radius:10px; padding:24px; text-align:center; cursor:pointer; transition:border-color .2s,background .2s; }
+  .img-upload-area:hover { border-color:var(--accent-primary); background:rgba(0,166,237,.04); }
+  .img-preview { width:100%; height:150px; object-fit:cover; border-radius:9px; margin-top:10px; display:none; }
+
+  /* View Modal */
+  .vmodal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:2000; opacity:0; pointer-events:none; transition:opacity .3s; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .vmodal-overlay.open { opacity:1; pointer-events:all; }
+  .vmodal { background:var(--bg-card); border-radius:20px; width:660px; max-width:100%; max-height:90vh; overflow:hidden; display:flex; flex-direction:column; transform:scale(.95); transition:transform .3s; border:1px solid var(--border-color); }
+  .vmodal-overlay.open .vmodal { transform:scale(1); }
+  .vmodal-img { height:200px; background:linear-gradient(135deg,#1e3a5f,#0a6587); position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; font-size:72px; flex-shrink:0; }
+  .vmodal-img img { width:100%; height:100%; object-fit:cover; position:absolute; inset:0; }
+  .vmodal-img-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,.65) 0%,transparent 55%); }
+  .vmodal-img-title { position:absolute; bottom:14px; left:20px; color:#fff; font-family:var(--font-display); font-size:22px; font-weight:700; z-index:1; }
+  .vmodal-body { padding:22px; overflow-y:auto; flex:1; }
+  .vmodal-body::-webkit-scrollbar { width:4px; }
+  .vmodal-body::-webkit-scrollbar-thumb { background:var(--border-color); border-radius:4px; }
+  .vm-meta { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+  .vm-chip { padding:4px 12px; border-radius:20px; font-size:12px; font-weight:500; background:var(--bg-surface); border:1px solid var(--border-color); }
+  .vm-section { margin-bottom:18px; }
+  .vm-section h4 { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin-bottom:10px; font-weight:700; }
+  .vm-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .vm-item { background:var(--bg-surface); border-radius:9px; padding:11px 13px; }
+  .vm-item-label { font-size:11px; color:var(--text-muted); margin-bottom:2px; }
+  .vm-item-val { font-size:13px; font-weight:600; }
+  .vmodal-footer { padding:14px 22px; border-top:1px solid var(--border-color); display:flex; gap:10px; flex-shrink:0; }
+
+  /* Delete confirm */
+  .del-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:3000; opacity:0; pointer-events:none; transition:opacity .25s; display:flex; align-items:center; justify-content:center; }
+  .del-overlay.open { opacity:1; pointer-events:all; }
+  .del-box { background:var(--bg-card); border-radius:16px; padding:30px; width:380px; max-width:90vw; text-align:center; transform:scale(.9); transition:transform .25s; border:1px solid var(--border-color); }
+  .del-overlay.open .del-box { transform:scale(1); }
+
+  /* Toast */
+  .toast { position:fixed; bottom:24px; right:24px; z-index:9999; padding:13px 18px; border-radius:11px; font-size:14px; font-weight:500; display:flex; align-items:center; gap:8px; transform:translateY(70px); opacity:0; transition:transform .3s,opacity .3s; box-shadow:0 8px 24px rgba(0,0,0,.2); }
+  .toast.show { transform:translateY(0); opacity:1; }
+  .toast.success { background:#10b981; color:#fff; }
+  .toast.error   { background:#ef4444; color:#fff; }
 {% endblock %}
 
 {% block content %}
-<div style="display:flex; align-items:center; justify-content:center; min-height:60vh;">
-  <div style="text-align:center; color:var(--text-muted); padding:40px; border:1px dashed var(--border-color); border-radius:var(--border-radius-md);">
-    <h2 style="font-family:var(--font-display); margin-bottom:16px;">Module Space Prepared</h2>
-    <p>This blank page has been set up securely for the rest of your group to implement the functionality.</p>
-    <a href="{{ path('admin_dashboard') }}" class="btn btn-primary" style="margin-top:24px; text-decoration:none; display:inline-block;">Return to Dashboard</a>
+
+{# KPI #}
+<div class="kpi-bar">
+  <div class="kpi-card kpi-card-total">
+    <div class="kpi-top">
+      <div class="kpi-icon" style="background:rgba(126,200,247,.15)">🏨</div>
+      <span class="kpi-val" style="color:#7ec8f7">{{ total }}</span>
+    </div>
+    <span class="kpi-label">Total</span>
+  </div>
+
+  <div class="kpi-card kpi-card-active">
+    <div class="kpi-top">
+      <div class="kpi-icon" style="background:rgba(110,231,183,.15)">✅</div>
+      <span class="kpi-val" style="color:#6ee7b7">{{ active }}</span>
+    </div>
+    <span class="kpi-label">Active</span>
+  </div>
+
+  <div class="kpi-card kpi-card-inactive">
+    <div class="kpi-top">
+      <div class="kpi-icon" style="background:rgba(196,181,253,.15)">⏸️</div>
+      <span class="kpi-val" style="color:#c4b5fd">{{ inactive }}</span>
+    </div>
+    <span class="kpi-label">Inactive</span>
   </div>
 </div>
+
+{# Toolbar #}
+<div class="toolbar">
+  <div class="search-input-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search-box" placeholder="Search name, city, country…" value="{{ filters.search }}" autocomplete="off">
+  </div>
+  <select id="filter-type" class="filter-select">
+    <option value="">All Types</option>
+    {% for t in types %}<option value="{{ t }}" {% if filters.type == t %}selected{% endif %}>{{ t }}</option>{% endfor %}
+  </select>
+  <select id="filter-status" class="filter-select">
+    <option value="">All Status</option>
+    <option value="Active" {% if filters.status == 'Active' %}selected{% endif %}>Active</option>
+    <option value="Inactive" {% if filters.status == 'Inactive' %}selected{% endif %}>Inactive</option>
+  </select>
+  <div class="view-toggle">
+    <button type="button" class="view-btn active" id="btn-grid" onclick="setView('grid')" title="Grid">⊞</button>
+    <button type="button" class="view-btn" id="btn-table" onclick="setView('table')" title="Table">☰</button>
+  </div>
+  <button type="button" class="btn-add" onclick="openDrawer()">＋ Add Accommodation</button>
+</div>
+
+<div class="results-count" id="results-count">{{ accommodations|length }} accommodation{{ accommodations|length != 1 ? 's' : '' }}</div>
+
+{# Grid #}
+<div id="view-grid">
+  <div class="acc-grid" id="grid-container">
+    {% for a in accommodations %}
+    <div class="acc-card" data-id="{{ a.id }}">
+      <div class="acc-card-img">
+        {% if a.imagePath %}<img src="{{ asset(a.imagePath) }}" alt="{{ a.name }}">{% else %}🏨{% endif %}
+        <span class="acc-status-badge {% if a.status == 'Active' %}badge-active{% else %}badge-inactive{% endif %}">{{ a.status }}</span>
+      </div>
+      <div class="acc-card-body">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px;">
+          <div class="acc-card-name">{{ a.name }}</div>
+          {% if a.type %}<span class="acc-type-pill">{{ a.type }}</span>{% endif %}
+        </div>
+        <div class="acc-card-meta">📍 {{ a.city }}{% if a.country %}, {{ a.country }}{% endif %}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span class="stars">{% for i in 1..5 %}{{ i <= a.stars ? '★' : '☆' }}{% endfor %}</span>
+          {% if a.rating %}<span style="font-size:12px;color:var(--text-muted)">⭐ {{ a.rating|number_format(1) }}</span>{% endif %}
+        </div>
+        <div class="acc-card-actions">
+          <button class="acc-btn btn-view" onclick="viewAcc({{ a.id }})">👁 View</button>
+          <button class="acc-btn btn-edit" onclick="editAcc({{ a.id }})">✏️ Edit</button>
+          <button class="acc-btn btn-del"  onclick="confirmDel({{ a.id }}, '{{ a.name|e('js') }}')">🗑 Del</button>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="empty-state" style="grid-column:1/-1">
+      <div class="es-icon">🏨</div>
+      <h3 style="font-family:var(--font-display);margin-bottom:8px">No accommodations found</h3>
+      <p>Try adjusting your filters or add a new one.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{# Table #}
+<div id="view-table" style="display:none">
+  <div class="acc-table-wrap">
+    <table class="acc-table">
+      <thead><tr>
+        <th>Accommodation</th><th>Type</th><th>Location</th><th>Stars</th><th>Status</th><th>Actions</th>
+      </tr></thead>
+      <tbody id="table-body">
+        {% for a in accommodations %}
+        <tr data-id="{{ a.id }}">
+          <td>
+            <div style="display:flex;align-items:center;gap:11px;">
+              <div class="tbl-thumb">{% if a.imagePath %}<img src="{{ asset(a.imagePath) }}" alt="">{% else %}🏨{% endif %}</div>
+              <div><div style="font-weight:600;font-size:14px">{{ a.name }}</div>{% if a.email %}<div style="font-size:11px;color:var(--text-muted)">{{ a.email }}</div>{% endif %}</div>
+            </div>
+          </td>
+          <td>{% if a.type %}<span class="acc-type-pill">{{ a.type }}</span>{% endif %}</td>
+          <td><div style="font-weight:500">{{ a.city }}</div><div style="font-size:11px;color:var(--text-muted)">{{ a.country }}</div></td>
+          <td><span class="stars">{% for i in 1..5 %}{{ i <= a.stars ? '★' : '☆' }}{% endfor %}</span></td>
+          <td><span class="acc-status-badge {% if a.status == 'Active' %}badge-active{% else %}badge-inactive{% endif %}">{{ a.status }}</span></td>
+          <td>
+            <div class="tbl-actions">
+              <button class="tbl-btn btn-view" onclick="viewAcc({{ a.id }})">👁 View</button>
+              <button class="tbl-btn btn-edit" onclick="editAcc({{ a.id }})">✏️ Edit</button>
+              <button class="tbl-btn btn-del"  onclick="confirmDel({{ a.id }}, '{{ a.name|e('js') }}')">🗑</button>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">No accommodations found</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{# ── DRAWER ── #}
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-title" id="drawer-title">Add Accommodation</div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-tabs">
+    <button class="drawer-tab active" onclick="switchTab('basic')">📋 Basic Info</button>
+    <button class="drawer-tab" onclick="switchTab('location')">📍 Location</button>
+    <button class="drawer-tab" onclick="switchTab('contact')">📞 Contact</button>
+    <button class="drawer-tab" onclick="switchTab('amenities')">✨ Amenities</button>
+  </div>
+  <div class="drawer-body">
+
+    <div class="tab-panel active" id="tab-basic">
+      <div class="form-group">
+        <label class="form-label">Name *</label>
+        <input type="text" class="form-input" id="f-name" placeholder="Grand Palace Hotel">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select class="form-select" id="f-type">
+            <option value="">Select type</option>
+            <option>Hotel</option><option>Resort</option><option>Villa</option>
+            <option>Hostel</option><option>Apartment</option><option>Guest House</option>
+            <option>Boutique</option><option>Motel</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="f-status">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stars</label>
+        <div class="star-picker">
+          {% for i in 1..5 %}
+          <button type="button" class="star-btn" data-val="{{ i }}" onclick="setStar({{ i }})">★</button>
+          {% endfor %}
+        </div>
+        <input type="hidden" id="f-stars" value="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="f-description" placeholder="Describe the accommodation…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cover Image</label>
+        <div class="img-upload-area" onclick="document.getElementById('f-image').click()">
+          <div style="font-size:28px;margin-bottom:6px">📷</div>
+          <div style="font-size:13px;color:var(--text-muted)">Click to upload</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:3px">JPG, PNG — max 5MB</div>
+        </div>
+        <input type="file" id="f-image" accept="image/*" style="display:none" onchange="previewImg(this)">
+        <img id="img-preview" class="img-preview" alt="">
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-location">
+
+      {# Pick from Map button #}
+      <div style="margin-bottom:18px;">
+        <button type="button" class="pick-map-btn" onclick="openMapPicker()">
+          🗺️ Pick Location from Map
+        </button>
+        <div id="map-picked-preview" style="display:none;margin-top:10px;padding:10px 14px;background:rgba(0,166,237,.08);border:1px solid rgba(0,166,237,.25);border-radius:10px;font-size:12px;color:var(--accent-primary);">
+          📍 <span id="map-picked-text"></span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Address</label>
+        <input type="text" class="form-input" id="f-address" placeholder="123 Beach Road">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">City</label>
+          <input type="text" class="form-input" id="f-city" placeholder="Dubai">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Country</label>
+          <input type="text" class="form-input" id="f-country" placeholder="UAE">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Postal Code</label>
+        <input type="text" class="form-input" id="f-postalCode" placeholder="12345">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Latitude</label>
+          <input type="number" class="form-input" id="f-latitude" step="0.00000001" placeholder="25.2048" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Longitude</label>
+          <input type="number" class="form-input" id="f-longitude" step="0.00000001" placeholder="55.2708" readonly>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-contact">
+      <div class="form-group">
+        <label class="form-label">Phone</label>
+        <input type="text" class="form-input" id="f-phone" placeholder="+1 234 567 890">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="f-email" placeholder="info@hotel.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Website</label>
+        <input type="url" class="form-input" id="f-website" placeholder="https://hotel.com">
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-amenities">
+      <div class="form-group">
+        <label class="form-label">Select Amenities</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+          {% for am in ['Free WiFi','Pool','Parking','Gym','Spa','Restaurant','Bar','Room Service','Air Conditioning','Pet Friendly','Beach Access','Concierge'] %}
+          <label style="display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--bg-surface);border-radius:8px;border:1px solid var(--border-color);cursor:pointer;font-size:13px">
+            <input type="checkbox" class="amenity-cb" value="{{ am }}" style="accent-color:var(--accent-primary)"> {{ am }}
+          </label>
+          {% endfor %}
+        </div>
+        <label class="form-label">Other (comma separated)</label>
+        <input type="text" class="form-input" id="f-custom-amenities" placeholder="Rooftop Terrace, Private Chef…">
+      </div>
+    </div>
+
+  </div>
+  <div class="drawer-footer">
+    <button class="btn-add" style="flex:1;justify-content:center" id="save-btn" onclick="saveAcc()">💾 Save</button>
+    <button style="padding:10px 18px;background:var(--bg-surface);border:1px solid var(--border-color);border-radius:10px;cursor:pointer;font-size:14px" onclick="closeDrawer()">Cancel</button>
+  </div>
+</div>
+
+{# View Modal #}
+<div class="vmodal-overlay" id="vmodal-overlay" onclick="if(event.target===this)closeView()">
+  <div class="vmodal">
+    <div class="vmodal-img" id="vm-img">
+      <img id="vm-img-el" src="" alt="" style="display:none">
+      <span id="vm-emoji">🏨</span>
+      <div class="vmodal-img-overlay"></div>
+      <div class="vmodal-img-title" id="vm-title">—</div>
+    </div>
+    <div class="vmodal-body">
+      <div class="vm-meta" id="vm-meta"></div>
+      <div class="vm-section"><h4>Details</h4><div class="vm-grid" id="vm-grid"></div></div>
+      <div class="vm-section" id="vm-desc-sec"><h4>Description</h4><p id="vm-desc" style="font-size:14px;line-height:1.6;color:var(--text-muted)"></p></div>
+      <div class="vm-section" id="vm-am-sec"><h4>Amenities</h4><div id="vm-am" style="display:flex;flex-wrap:wrap;gap:7px"></div></div>
+
+      {# Rooms preview #}
+      <div class="vm-section" id="vm-rooms-sec">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <h4 style="margin:0">🛏️ Available Rooms</h4>
+          <a id="vm-manage-rooms-btn" href="#" style="font-size:12px;font-weight:600;color:var(--accent-primary);text-decoration:none;padding:5px 12px;border:1px solid var(--accent-primary);border-radius:8px;transition:background .2s;" onmouseover="this.style.background='rgba(0,166,237,.1)'" onmouseout="this.style.background='transparent'">Manage Rooms →</a>
+        </div>
+        <div id="vm-rooms-list" style="display:flex;flex-direction:column;gap:10px;">
+          <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px">Loading rooms…</div>
+        </div>
+      </div>
+    </div>
+    <div class="vmodal-footer">
+      <button class="acc-btn btn-edit" style="flex:1;padding:11px" id="vm-edit-btn">✏️ Edit</button>
+      <button style="padding:11px 18px;background:var(--bg-surface);border:1px solid var(--border-color);border-radius:10px;cursor:pointer" onclick="closeView()">Close</button>
+    </div>
+  </div>
+</div>
+
+{# ── Map Picker Modal ── #}
+<div class="map-overlay" id="map-overlay">
+  <div class="map-modal">
+    <div class="map-modal-header">
+      <div>
+        <div style="font-family:var(--font-display);font-size:18px;font-weight:700;">📍 Pick Location</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Click anywhere on the map to select a location</div>
+      </div>
+      <button class="drawer-close" onclick="closeMapPicker()">✕</button>
+    </div>
+    <div style="position:relative;">
+      <div class="map-search-bar">
+        <input type="text" id="map-search-input" class="map-search-input" placeholder="Search for a city or address…" onkeydown="if(event.key==='Enter')searchMap()">
+        <button class="map-search-btn" onclick="searchMap()">🔍 Search</button>
+      </div>
+      <div id="map-container"></div>
+      <div class="map-crosshair">＋</div>
+    </div>
+    <div class="map-modal-footer">
+      <div id="map-selected-info" style="font-size:13px;color:var(--text-muted);flex:1;">
+        Click on the map to select a location…
+      </div>
+      <button class="map-confirm-btn" id="map-confirm-btn" onclick="confirmMapPick()" disabled>✅ Confirm Location</button>
+      <button style="padding:10px 16px;background:var(--bg-surface);border:1px solid var(--border-color);border-radius:10px;cursor:pointer;font-size:13px;" onclick="closeMapPicker()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+{# Delete Confirm #}
+<div class="del-overlay" id="del-overlay">
+  <div class="del-box">
+    <div style="font-size:44px;margin-bottom:14px">🗑️</div>
+    <h3 style="font-family:var(--font-display);margin-bottom:8px">Delete Accommodation</h3>
+    <p style="color:var(--text-muted);font-size:14px;margin-bottom:22px">Are you sure you want to delete <strong id="del-name"></strong>?</p>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button style="padding:10px 26px;background:#ef4444;color:#fff;border:none;border-radius:9px;cursor:pointer;font-weight:600" onclick="doDelete()">Delete</button>
+      <button style="padding:10px 26px;background:var(--bg-surface);border:1px solid var(--border-color);border-radius:9px;cursor:pointer" onclick="closeDel()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+{% endblock %}
+
+{% block page_scripts %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── CSRF token for Symfony POST requests ──────────────────
+const AJAX_HEADERS = { 'X-Requested-With': 'XMLHttpRequest' };
+
+const STATS_URL  = '{{ path('admin_accommodations_stats') }}';
+const SEARCH_URL = '{{ path('admin_accommodations_search') }}';
+const NEW_URL    = '{{ path('admin_accommodations_new') }}';
+const VIEW_URL   = (id) => `/admin/accommodations/${id}`;
+const EDIT_URL   = (id) => `/admin/accommodations/${id}/edit`;
+const DEL_URL    = (id) => `/admin/accommodations/${id}/delete`;
+
+// ── Refresh KPI stats without reload ─────────────────────
+async function refreshStats() {
+  try {
+    const res  = await fetch(STATS_URL, { headers: AJAX_HEADERS });
+    const data = await res.json();
+    const vals = document.querySelectorAll('.kpi-val');
+    if (vals[0]) vals[0].textContent = data.total;
+    if (vals[1]) vals[1].textContent = data.active;
+    if (vals[2]) vals[2].textContent = data.inactive;
+  } catch(e) { console.error('Stats refresh failed', e); }
+}
+
+// ── View toggle ───────────────────────────────────────────
+function setView(v) {
+  document.getElementById('view-grid').style.display  = v === 'grid'  ? 'block' : 'none';
+  document.getElementById('view-table').style.display = v === 'table' ? 'block' : 'none';
+  document.getElementById('btn-grid').classList.toggle('active', v === 'grid');
+  document.getElementById('btn-table').classList.toggle('active', v === 'table');
+  localStorage.setItem('accView', v);
+}
+(function(){ setView(localStorage.getItem('accView') || 'grid'); })();
+
+// ── Real-time search ──────────────────────────────────────
+let searchTimer = null;
+document.getElementById('search-box').addEventListener('input', function() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(doSearch, 300);
+});
+document.getElementById('filter-type').addEventListener('change', doSearch);
+document.getElementById('filter-status').addEventListener('change', doSearch);
+
+async function doSearch() {
+  const q      = document.getElementById('search-box').value;
+  const type   = document.getElementById('filter-type').value;
+  const status = document.getElementById('filter-status').value;
+
+  const url = `${SEARCH_URL}?q=${encodeURIComponent(q)}&type=${encodeURIComponent(type)}&status=${encodeURIComponent(status)}`;
+  try {
+    const res  = await fetch(url, { headers: AJAX_HEADERS });
+    const data = await res.json();
+    document.getElementById('results-count').textContent = `${data.count} accommodation${data.count !== 1 ? 's' : ''}`;
+    renderGrid(data.results);
+    renderTable(data.results);
+  } catch(e) { console.error('Search error', e); }
+}
+
+function renderGrid(items) {
+  const c = document.getElementById('grid-container');
+  if (!items.length) {
+    c.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">🏨</div><h3 style="font-family:var(--font-display)">No results</h3></div>`;
+    return;
+  }
+  c.innerHTML = items.map(a => `
+    <div class="acc-card" data-id="${a.id}">
+      <div class="acc-card-img">
+        ${a.imagePath ? `<img src="/${a.imagePath}" alt="${esc(a.name)}">` : '🏨'}
+        <span class="acc-status-badge ${a.status === 'Active' ? 'badge-active' : 'badge-inactive'}">${a.status}</span>
+      </div>
+      <div class="acc-card-body">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px">
+          <div class="acc-card-name">${esc(a.name)}</div>
+          ${a.type ? `<span class="acc-type-pill">${esc(a.type)}</span>` : ''}
+        </div>
+        <div class="acc-card-meta">📍 ${esc(a.city || '')}${a.country ? ', ' + esc(a.country) : ''}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span class="stars">${starsHtml(a.stars)}</span>
+          ${a.rating ? `<span style="font-size:12px;color:var(--text-muted)">⭐ ${parseFloat(a.rating).toFixed(1)}</span>` : ''}
+        </div>
+        <div class="acc-card-actions">
+          <button class="acc-btn btn-view" onclick="viewAcc(${a.id})">👁 View</button>
+          <button class="acc-btn btn-edit" onclick="editAcc(${a.id})">✏️ Edit</button>
+          <button class="acc-btn btn-del"  onclick="confirmDel(${a.id}, '${esc(a.name)}')">🗑 Del</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function renderTable(items) {
+  const tb = document.getElementById('table-body');
+  if (!items.length) {
+    tb.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">No results</td></tr>`;
+    return;
+  }
+  tb.innerHTML = items.map(a => `
+    <tr data-id="${a.id}">
+      <td>
+        <div style="display:flex;align-items:center;gap:11px">
+          <div class="tbl-thumb">${a.imagePath ? `<img src="/${a.imagePath}" alt="">` : '🏨'}</div>
+          <div><div style="font-weight:600;font-size:14px">${esc(a.name)}</div>${a.email ? `<div style="font-size:11px;color:var(--text-muted)">${esc(a.email)}</div>` : ''}</div>
+        </div>
+      </td>
+      <td>${a.type ? `<span class="acc-type-pill">${esc(a.type)}</span>` : '—'}</td>
+      <td><div style="font-weight:500">${esc(a.city||'')}</div><div style="font-size:11px;color:var(--text-muted)">${esc(a.country||'')}</div></td>
+      <td><span class="stars">${starsHtml(a.stars)}</span></td>
+      <td><span class="acc-status-badge ${a.status === 'Active' ? 'badge-active' : 'badge-inactive'}">${a.status}</span></td>
+      <td>
+        <div class="tbl-actions">
+          <button class="tbl-btn btn-view" onclick="viewAcc(${a.id})">👁 View</button>
+          <button class="tbl-btn btn-edit" onclick="editAcc(${a.id})">✏️ Edit</button>
+          <button class="tbl-btn btn-del"  onclick="confirmDel(${a.id}, '${esc(a.name)}')">🗑</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function starsHtml(n) {
+  n = n || 0;
+  return '★'.repeat(n) + '☆'.repeat(Math.max(0, 5 - n));
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ── Drawer ────────────────────────────────────────────────
+let editingId = null;
+
+function openDrawer(id = null) {
+  editingId = id;
+  document.getElementById('drawer-title').textContent = id ? 'Edit Accommodation' : 'Add Accommodation';
+  if (!id) resetForm();
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+  switchTab('basic');
+}
+function closeDrawer() {
+  document.getElementById('drawer-overlay').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+}
+function switchTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.drawer-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  const idx = {basic:0,location:1,contact:2,amenities:3}[tab];
+  document.querySelectorAll('.drawer-tab')[idx].classList.add('active');
+}
+function resetForm() {
+  ['name','type','description','address','city','country','postalCode','latitude','longitude','phone','email','website'].forEach(f => {
+    const el = document.getElementById('f-' + f);
+    if (el) el.value = '';
+  });
+  document.getElementById('f-status').value = 'Active';
+  document.getElementById('f-custom-amenities').value = '';
+  setStar(0);
+  document.querySelectorAll('.amenity-cb').forEach(cb => cb.checked = false);
+  document.getElementById('img-preview').style.display = 'none';
+  document.getElementById('f-image').value = '';
+  document.getElementById('f-stars').value = '0';
+}
+
+// Enhanced setStar function with validation styling
+function setStar(n) {
+  document.getElementById('f-stars').value = n;
+  document.querySelectorAll('.star-btn').forEach((b, i) => {
+    b.classList.toggle('lit', i < n);
+  });
+  if (n > 0) {
+    const starsContainer = document.querySelector('.star-picker');
+    if (starsContainer) starsContainer.style.border = '';
+  }
+}
+
+// ── Field error highlight helper ──────────────────────────
+function highlightField(id, duration = 3000) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.borderColor = '#ef4444';
+  el.style.borderWidth = '2px';
+  setTimeout(() => { el.style.borderColor = ''; el.style.borderWidth = ''; }, duration);
+}
+
+// Phone number validation helper
+function validatePhoneNumber(phone) {
+  const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+  const digitsOnly = cleanPhone.replace(/^\+/, '');
+  if (!/^\d+$/.test(digitsOnly)) {
+    return { valid: false, message: 'Phone number must contain only numbers, spaces, dashes, or parentheses' };
+  }
+  if (digitsOnly.length < 8 || digitsOnly.length > 15) {
+    return { valid: false, message: 'Phone number must be between 8 and 15 digits' };
+  }
+  return { valid: true, message: '' };
+}
+
+function previewImg(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = e => { const img = document.getElementById('img-preview'); img.src = e.target.result; img.style.display = 'block'; };
+  r.readAsDataURL(file);
+}
+
+// ── Save ──────────────────────────────────────────────────
+async function saveAcc() {
+
+  // Basic tab
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) {
+    showToast('❌ Name is required', 'error');
+    switchTab('basic');
+    document.getElementById('f-name').focus();
+    return;
+  }
+
+  const stars = parseInt(document.getElementById('f-stars').value);
+  if (!stars || stars < 1 || stars > 5) {
+    showToast('❌ Star rating is required (1–5 stars)', 'error');
+    switchTab('basic');
+    const starsContainer = document.querySelector('.star-picker');
+    starsContainer.style.border       = '2px solid #ef4444';
+    starsContainer.style.borderRadius = '8px';
+    starsContainer.style.padding      = '8px';
+    setTimeout(() => { starsContainer.style.border = ''; starsContainer.style.padding = ''; }, 3000);
+    return;
+  }
+
+  // Location tab
+  const latitude  = document.getElementById('f-latitude').value.trim();
+  const longitude = document.getElementById('f-longitude').value.trim();
+  if (!latitude || !longitude) {
+    showToast('❌ Please pick a location from the map', 'error');
+    switchTab('location');
+    const mapBtn = document.querySelector('.pick-map-btn');
+    mapBtn.style.border = '2px solid #ef4444';
+    setTimeout(() => { mapBtn.style.border = ''; }, 3000);
+    return;
+  }
+
+  const city = document.getElementById('f-city').value.trim();
+  if (!city) {
+    showToast('❌ City is required', 'error');
+    switchTab('location');
+    document.getElementById('f-city').focus();
+    return;
+  }
+
+  const country = document.getElementById('f-country').value.trim();
+  if (!country) {
+    showToast('❌ Country is required', 'error');
+    switchTab('location');
+    document.getElementById('f-country').focus();
+    return;
+  }
+
+  // Contact tab
+  const phone = document.getElementById('f-phone').value.trim();
+  if (!phone) {
+    showToast('❌ Phone number is required', 'error');
+    switchTab('contact');
+    document.getElementById('f-phone').focus();
+    return;
+  }
+  const phoneValidation = validatePhoneNumber(phone);
+  if (!phoneValidation.valid) {
+    showToast('❌ ' + phoneValidation.message, 'error');
+    highlightField('f-phone');
+    switchTab('contact');
+    return;
+  }
+
+  const email = document.getElementById('f-email').value.trim();
+  if (!email) {
+    showToast('❌ Email address is required', 'error');
+    switchTab('contact');
+    document.getElementById('f-email').focus();
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showToast('❌ Please enter a valid email address (e.g., name@example.com)', 'error');
+    highlightField('f-email');
+    switchTab('contact');
+    return;
+  }
+
+  const website = document.getElementById('f-website').value.trim();
+  if (!website) {
+    showToast('❌ Website URL is required', 'error');
+    switchTab('contact');
+    document.getElementById('f-website').focus();
+    return;
+  }
+  if (!/^https?:\/\/.+\..+/.test(website)) {
+    showToast('❌ Please enter a valid URL (e.g., https://example.com)', 'error');
+    highlightField('f-website');
+    switchTab('contact');
+    return;
+  }
+
+  // Submit
+  const btn = document.getElementById('save-btn');
+  const originalText = btn.textContent;
+  btn.textContent = '⏳ Saving…';
+  btn.disabled = true;
+
+  const checked   = [...document.querySelectorAll('.amenity-cb:checked')].map(c => c.value);
+  const custom    = document.getElementById('f-custom-amenities').value.split(',').map(s => s.trim()).filter(Boolean);
+  const amenities = [...checked, ...custom].join(',');
+
+  const fd = new FormData();
+  fd.append('name',        name);
+  fd.append('type',        document.getElementById('f-type').value);
+  fd.append('status',      document.getElementById('f-status').value);
+  fd.append('description', document.getElementById('f-description').value);
+  fd.append('address',     document.getElementById('f-address').value);
+  fd.append('city',        city);
+  fd.append('country',     country);
+  fd.append('postalCode',  document.getElementById('f-postalCode').value);
+  fd.append('latitude',    latitude);
+  fd.append('longitude',   longitude);
+  fd.append('phone',       phone);
+  fd.append('email',       email);
+  fd.append('website',     website);
+  fd.append('stars',       stars);
+  fd.append('amenities',   amenities);
+
+  const imgFile = document.getElementById('f-image').files[0];
+  if (imgFile) fd.append('image', imgFile);
+
+  const url = editingId ? EDIT_URL(editingId) : NEW_URL;
+  try {
+    const res  = await fetch(url, { method: 'POST', body: fd, headers: AJAX_HEADERS });
+    const data = await res.json();
+
+    if (data.success) {
+      showToast('✅ ' + data.message, 'success');
+      closeDrawer();
+      doSearch();
+      refreshStats();
+    } else {
+      if (data.errors) {
+        const labels = {
+          name: 'Name', city: 'City', country: 'Country', email: 'Email',
+          website: 'Website', phone: 'Phone', stars: 'Stars', rating: 'Rating',
+          latitude: 'Latitude', longitude: 'Longitude', type: 'Accommodation Type',
+          status: 'Status', address: 'Address', postalCode: 'Postal Code',
+          description: 'Description'
+        };
+        let errorMsg = '❌ Validation failed:\n\n';
+        for (const [field, msg] of Object.entries(data.errors)) {
+          errorMsg += `• ${labels[field] || field}: ${msg}\n`;
+          highlightField('f-' + field);
+        }
+        showToast(errorMsg, 'error');
+      } else {
+        showToast('❌ ' + (data.error || 'Something went wrong'), 'error');
+      }
+    }
+  } catch(e) {
+    showToast('❌ Network error: ' + e.message, 'error');
+  }
+
+  btn.textContent = originalText;
+  btn.disabled = false;
+}
+
+// ── Edit ──────────────────────────────────────────────────
+async function editAcc(id) {
+  try {
+    const res  = await fetch(VIEW_URL(id), { headers: AJAX_HEADERS });
+    const d    = await res.json();
+    openDrawer(id);
+    setTimeout(() => {
+      document.getElementById('f-name').value        = d.name || '';
+      document.getElementById('f-type').value        = d.type || '';
+      document.getElementById('f-status').value      = d.status || 'Active';
+      document.getElementById('f-description').value = d.description || '';
+      document.getElementById('f-address').value     = d.address || '';
+      document.getElementById('f-city').value        = d.city || '';
+      document.getElementById('f-country').value     = d.country || '';
+      document.getElementById('f-postalCode').value  = d.postalCode || '';
+      document.getElementById('f-latitude').value    = d.latitude || '';
+      document.getElementById('f-longitude').value   = d.longitude || '';
+      document.getElementById('f-phone').value       = d.phone || '';
+      document.getElementById('f-email').value       = d.email || '';
+      document.getElementById('f-website').value     = d.website || '';
+      setStar(d.stars || 0);
+      if (d.amenities) {
+        const list = d.amenities.split(',').map(s => s.trim());
+        document.querySelectorAll('.amenity-cb').forEach(cb => { cb.checked = list.includes(cb.value); });
+      }
+      if (d.imagePath) {
+        const img = document.getElementById('img-preview');
+        img.src = '/' + d.imagePath; img.style.display = 'block';
+      }
+    }, 80);
+  } catch(e) { showToast('❌ Failed to load', 'error'); }
+}
+
+// ── View Modal ────────────────────────────────────────────
+async function viewAcc(id) {
+  try {
+    const res = await fetch(VIEW_URL(id), { headers: AJAX_HEADERS });
+    const d   = await res.json();
+
+    document.getElementById('vm-title').textContent = d.name;
+    if (d.imagePath) {
+      document.getElementById('vm-img-el').src = '/' + d.imagePath;
+      document.getElementById('vm-img-el').style.display = 'block';
+      document.getElementById('vm-emoji').style.display = 'none';
+    } else {
+      document.getElementById('vm-img-el').style.display = 'none';
+      document.getElementById('vm-emoji').style.display = 'block';
+    }
+
+    const meta = document.getElementById('vm-meta');
+    meta.innerHTML = '';
+    if (d.type)   meta.innerHTML += `<span class="vm-chip acc-type-pill">${d.type}</span>`;
+    if (d.status) meta.innerHTML += `<span class="vm-chip ${d.status==='Active'?'badge-active':'badge-inactive'}">${d.status}</span>`;
+    if (d.stars)  meta.innerHTML += `<span class="vm-chip">${'★'.repeat(d.stars)}${'☆'.repeat(5-d.stars)}</span>`;
+    if (d.rating) meta.innerHTML += `<span class="vm-chip">⭐ ${parseFloat(d.rating).toFixed(1)}</span>`;
+
+    const grid = document.getElementById('vm-grid');
+    grid.innerHTML = '';
+    [['📍 City',d.city],['🌍 Country',d.country],['🏠 Address',d.address],['📮 Postal',d.postalCode],
+     ['📞 Phone',d.phone],['✉️ Email',d.email],['🌐 Website',d.website],['📅 Added',d.createdAt]]
+    .forEach(([l,v]) => { if(v) grid.innerHTML += `<div class="vm-item"><div class="vm-item-label">${l}</div><div class="vm-item-val">${esc(v)}</div></div>`; });
+
+    document.getElementById('vm-desc').textContent = d.description || '';
+    document.getElementById('vm-desc-sec').style.display = d.description ? 'block' : 'none';
+
+    const amEl = document.getElementById('vm-am');
+    amEl.innerHTML = d.amenities ? d.amenities.split(',').map(a => `<span class="vm-chip">${esc(a.trim())}</span>`).join('') : '';
+    document.getElementById('vm-am-sec').style.display = d.amenities ? 'block' : 'none';
+
+    document.getElementById('vm-edit-btn').onclick = () => { closeView(); editAcc(id); };
+    document.getElementById('vm-manage-rooms-btn').href = `/admin/accommodations/${id}/rooms`;
+
+    // Load rooms preview
+    const roomsList = document.getElementById('vm-rooms-list');
+    roomsList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px">Loading rooms…</div>';
+    try {
+      const rRes  = await fetch(`/admin/accommodations/${id}/rooms/list`, { headers: AJAX_HEADERS });
+      const rData = await rRes.json();
+      if (!rData.rooms || rData.rooms.length === 0) {
+        roomsList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px">No rooms yet. Click Manage Rooms to add some.</div>';
+      } else {
+        roomsList.innerHTML = rData.rooms.map(r => {
+          const imgSrc = r.primaryImage
+            ? (r.primaryImage.startsWith('http') ? r.primaryImage : '/' + r.primaryImage.replace(/^\/+/, ''))
+            : null;
+          return `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg-surface);border-radius:10px;border:1px solid var(--border-color);">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#1e3a5f,#0a6587);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden;">
+                ${imgSrc ? `<img src="${imgSrc}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='🛏️'">` : '🛏️'}
+              </div>
+              <div>
+                <div style="font-weight:600;font-size:13px">${esc(r.roomName || 'Unnamed Room')}</div>
+                <div style="font-size:11px;color:var(--text-muted)">${esc(r.roomType || '')} • ${r.capacity || '?'} person(s)</div>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:13px;font-weight:700;color:var(--accent-primary)">€${parseFloat(r.pricePerNight||0).toFixed(2)}/night</div>
+              <span style="font-size:11px;padding:2px 8px;border-radius:10px;${r.isAvailable ? 'background:rgba(16,185,129,.15);color:#10b981' : 'background:rgba(239,68,68,.15);color:#ef4444'}">${r.isAvailable ? 'Available' : 'Unavailable'}</span>
+            </div>
+          </div>`;
+        }).join('');
+      }
+    } catch(e) {
+      roomsList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px">Could not load rooms.</div>';
+    }
+
+    document.getElementById('vmodal-overlay').classList.add('open');
+  } catch(e) { showToast('❌ Failed to load', 'error'); }
+}
+function closeView() { document.getElementById('vmodal-overlay').classList.remove('open'); }
+
+// ── Delete ────────────────────────────────────────────────
+let deleteId = null;
+function confirmDel(id, name) {
+  deleteId = id;
+  document.getElementById('del-name').textContent = name;
+  document.getElementById('del-overlay').classList.add('open');
+}
+function closeDel() { document.getElementById('del-overlay').classList.remove('open'); deleteId = null; }
+async function doDelete() {
+  if (!deleteId) return;
+  try {
+    const res  = await fetch(DEL_URL(deleteId), { method: 'POST', headers: AJAX_HEADERS });
+    const data = await res.json();
+    if (data.success) {
+      showToast('✅ ' + data.message, 'success');
+      closeDel();
+      doSearch();
+      refreshStats();
+    } else {
+      showToast('❌ ' + (data.error || 'Delete failed'), 'error');
+    }
+  } catch(e) { showToast('❌ Network error: ' + e.message, 'error'); }
+}
+
+// ── Toast ─────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+// ── Map Picker ────────────────────────────────────────────
+let map = null;
+let mapMarker = null;
+let mapPickedData = null;
+
+const mapIcon = () => L.divIcon({
+  html: '<div style="width:24px;height:24px;background:#00a6ed;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.5);"></div>',
+  iconSize: [24, 24], iconAnchor: [12, 12], className: ''
+});
+
+function openMapPicker() {
+  document.getElementById('map-overlay').classList.add('open');
+  mapPickedData = null;
+  document.getElementById('map-confirm-btn').disabled = true;
+  document.getElementById('map-selected-info').textContent = 'Click on the map to select a location…';
+
+  if (!map) {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        map = L.map('map-container', { zoomControl: true });
+        map.setView([20, 0], 2);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors',
+          maxZoom: 19,
+        }).addTo(map);
+
+        map.on('click', function(e) {
+          handleMapClick(e.latlng.lat, e.latlng.lng);
+        });
+
+        const lat = parseFloat(document.getElementById('f-latitude').value);
+        const lng = parseFloat(document.getElementById('f-longitude').value);
+        if (lat && lng) {
+          map.setView([lat, lng], 14);
+          mapMarker = L.marker([lat, lng], { icon: mapIcon(), draggable: true }).addTo(map);
+          mapMarker.on('dragend', function(ev) {
+            const pos = ev.target.getLatLng();
+            handleMapClick(pos.lat, pos.lng);
+          });
+        }
+      });
+    });
+  } else {
+    map.invalidateSize();
+    const lat = parseFloat(document.getElementById('f-latitude').value);
+    const lng = parseFloat(document.getElementById('f-longitude').value);
+    if (lat && lng && !mapMarker) {
+      map.setView([lat, lng], 14);
+      mapMarker = L.marker([lat, lng], { icon: mapIcon(), draggable: true }).addTo(map);
+    }
+  }
+}
+
+function closeMapPicker() {
+  document.getElementById('map-overlay').classList.remove('open');
+}
+
+async function handleMapClick(lat, lng) {
+  if (mapMarker) {
+    mapMarker.setLatLng([lat, lng]);
+  } else {
+    mapMarker = L.marker([lat, lng], { icon: mapIcon(), draggable: true }).addTo(map);
+    mapMarker.on('dragend', function(ev) {
+      const pos = ev.target.getLatLng();
+      handleMapClick(pos.lat, pos.lng);
+    });
+  }
+
+  document.getElementById('map-selected-info').textContent = '⏳ Loading address…';
+  document.getElementById('map-confirm-btn').disabled = true;
+
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`,
+      { headers: { 'Accept-Language': 'en', 'User-Agent': 'TripX-Admin/1.0' } }
+    );
+    const data = await res.json();
+    const addr = data.address || {};
+
+    mapPickedData = {
+      lat:        lat.toFixed(8),
+      lng:        lng.toFixed(8),
+      address:    [addr.road, addr.house_number].filter(Boolean).join(' ') || '',
+      city:       addr.city || addr.town || addr.village || addr.county || '',
+      country:    addr.country || '',
+      postalCode: addr.postcode || '',
+    };
+
+  } catch(e) {
+    mapPickedData = {
+      lat: lat.toFixed(8), lng: lng.toFixed(8),
+      address: '', city: '', country: '', postalCode: ''
+    };
+  }
+
+  fillAndClose();
+}
+
+function fillAndClose() {
+  if (!mapPickedData) return;
+
+  document.getElementById('f-latitude').value  = mapPickedData.lat;
+  document.getElementById('f-longitude').value = mapPickedData.lng;
+  if (mapPickedData.address)    document.getElementById('f-address').value    = mapPickedData.address;
+  if (mapPickedData.city)       document.getElementById('f-city').value       = mapPickedData.city;
+  if (mapPickedData.country)    document.getElementById('f-country').value    = mapPickedData.country;
+  if (mapPickedData.postalCode) document.getElementById('f-postalCode').value = mapPickedData.postalCode;
+
+  const label = [mapPickedData.address, mapPickedData.city, mapPickedData.country].filter(Boolean).join(', ');
+  document.getElementById('map-picked-text').textContent = `${label} (${mapPickedData.lat}, ${mapPickedData.lng})`;
+  document.getElementById('map-picked-preview').style.display = 'block';
+
+  closeMapPicker();
+  showToast('✅ Location filled: ' + (mapPickedData.city || mapPickedData.address || 'coordinates set'), 'success');
+}
+
+function confirmMapPick() { fillAndClose(); }
+
+async function searchMap() {
+  const q = document.getElementById('map-search-input').value.trim();
+  if (!q || !map) return;
+
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`,
+      { headers: { 'Accept-Language': 'en', 'User-Agent': 'TripX-Admin/1.0' } }
+    );
+    const results = await res.json();
+    if (!results.length) { showToast('❌ Location not found', 'error'); return; }
+
+    const lat = parseFloat(results[0].lat);
+    const lon = parseFloat(results[0].lon);
+    map.setView([lat, lon], 14);
+
+    if (mapMarker) mapMarker.setLatLng([lat, lon]);
+    else {
+      mapMarker = L.marker([lat, lon], { icon: mapIcon(), draggable: true }).addTo(map);
+      mapMarker.on('dragend', function(ev) {
+        const pos = ev.target.getLatLng();
+        handleMapClick(pos.lat, pos.lng);
+      });
+    }
+
+    await handleMapClick(lat, lon);
+  } catch(e) { showToast('❌ Search failed', 'error'); }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeDrawer(); closeView(); closeDel();
+    closeMapPicker();
+  }
+});
+</script>
 {% endblock %}

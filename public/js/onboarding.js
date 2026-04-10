@@ -91,23 +91,58 @@
 
       if (isMulti) {
         card.classList.toggle('selected');
-        const selected = [...grid.querySelectorAll('.option-card.selected')].map(c => c.dataset.val);
+        
+        // Max check
+        const maxAllowed = grid.dataset.max ? parseInt(grid.dataset.max, 10) : 999;
+        const selectedNodes = [...grid.querySelectorAll('.option-card.selected')];
+        if (selectedNodes.length > maxAllowed) {
+          card.classList.remove('selected'); // Undo
+          alert(`You can only select up to ${maxAllowed} options for this category.`);
+          return;
+        }
+
+        const selected = selectedNodes.map(c => c.dataset.val);
         prefs[group] = selected;
       } else {
         // For single choice, clear others in same group/grid
         const siblings = grid ? grid.querySelectorAll('.option-card') : document.querySelectorAll(`[data-field="${field}"]`);
         siblings.forEach(s => s.classList.remove('selected'));
         card.classList.add('selected');
-        if (group === 'budget_tier') {
-          prefs.budget_min_per_night = parseInt(card.dataset.min);
-          prefs.budget_max_per_night = parseInt(card.dataset.max);
-        } else {
-          prefs[group] = val;
-        }
+        prefs[group] = val;
       }
       console.log("Current Prefs:", prefs);
     });
   });
+
+  // Handle standard inputs (Dual sliders for budget)
+  const minBudget = document.getElementById('minBudget');
+  const maxBudget = document.getElementById('maxBudget');
+  const minDisplay = document.getElementById('minBudgetDisplay');
+  const maxDisplay = document.getElementById('maxBudgetDisplay');
+
+  function updateBudgetDisplay() {
+    if (minBudget && minDisplay) minDisplay.innerText = '$' + minBudget.value;
+    if (maxBudget && maxDisplay) maxDisplay.innerText = '$' + maxBudget.value;
+  }
+
+  if (minBudget && maxBudget) {
+    minBudget.addEventListener('input', () => {
+      if (parseInt(minBudget.value) > parseInt(maxBudget.value)) {
+          minBudget.value = maxBudget.value;
+      }
+      updateBudgetDisplay();
+      prefs.budget_min_per_night = parseInt(minBudget.value);
+    });
+    maxBudget.addEventListener('input', () => {
+      if (parseInt(maxBudget.value) < parseInt(minBudget.value)) {
+          maxBudget.value = minBudget.value;
+      }
+      updateBudgetDisplay();
+      prefs.budget_max_per_night = parseInt(maxBudget.value);
+    });
+    // Ensure display matches slider value on load
+    updateBudgetDisplay();
+  }
 
   // Step 12: Accessibility
   const accessToggle = document.getElementById('accessibilityToggle');
