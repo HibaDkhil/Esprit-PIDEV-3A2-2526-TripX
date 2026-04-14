@@ -79,4 +79,14 @@ class TravelStoryRepository extends ServiceEntityRepository
     {
         return $this->findFiltered('', $destination ?? '', $travelType ?? '', $travelStyle ?? '', $rating);
     }
+
+    public function findByUserId(int $userId): array
+    {
+        return $this->createQueryBuilder('ts')
+            ->where('ts.userId = :uid')
+            ->setParameter('uid', $userId)
+            ->orderBy('ts.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -89,6 +89,14 @@
         <div class="num" style="color:#ef4444;">{{ stats.stories }}</div>
         <div class="lbl">Travel Stories</div>
     </div>
+    <div class="stat-card">
+        <div class="num" style="color:#8b5cf6;">{{ stats.comments }}</div>
+        <div class="lbl">Total Comments</div>
+    </div>
+    <div class="stat-card">
+        <div class="num" style="color:#ec4899;">{{ stats.reactions }}</div>
+        <div class="lbl">Total Reactions</div>
+    </div>
 </div>
 
 {# ── Tabs ── #}
@@ -98,6 +106,12 @@
     </button>
     <button class="admin-tab" onclick="switchTab('stories', this)">
         🧳 Travel Stories <span class="tab-count">{{ stories|length }}</span>
+    </button>
+    <button class="admin-tab" onclick="switchTab('comments', this)">
+        💬 Comments <span class="tab-count">{{ stats.comments }}</span>
+    </button>
+    <button class="admin-tab" onclick="switchTab('reactions', this)">
+        ❤️ Reactions <span class="tab-count">{{ stats.reactions }}</span>
     </button>
 </div>
 
@@ -142,6 +156,8 @@
                         </td>
                         <td>
                             <div class="actions">
+                                <a href="{{ path('admin_blog_show', {id: post.id}) }}" class="btn-view">View</a>
+
                                 {% if not post.isConfirmed %}
                                     <form method="post"
                                           action="{{ path('admin_blog_approve', {id: post.id}) }}">
@@ -234,7 +250,7 @@
                         </td>
                         <td>
                             <div class="actions">
-                                <a href="{{ path('travel_story_show', {id: story.id}) }}" class="btn-view">View</a>
+                                <a href="{{ path('admin_story_show', {id: story.id}) }}" class="btn-view">View</a>
                                 <form method="post"
                                       action="{{ path('admin_story_delete', {id: story.id}) }}"
                                       onsubmit="return confirm('Delete this travel story permanently?');">
@@ -248,6 +264,80 @@
                 {% endfor %}
             </tbody>
         </table>
+    {% endif %}
+</div>
+
+{# ── Comments Tab ── #}
+<div class="tab-panel" id="tab-comments">
+    {% if allComments is empty %}
+        <div class="empty-state">
+            <p style="font-size:42px;">💬</p>
+            <p>No comments yet.</p>
+        </div>
+    {% else %}
+        <table class="blog-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Author</th>
+                    <th>On</th>
+                    <th>Comment</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for comment in allComments %}
+                    <tr>
+                        <td style="color:var(--text-muted); font-size:13px;">{{ comment.id }}</td>
+                        <td>{{ authorMap[comment.userId] ?? 'User #' ~ comment.userId }}</td>
+                        <td style="font-size:12px; color:var(--text-muted);">
+                            {% if comment.post %}
+                                <a href="{{ path('admin_blog_show', {id: comment.post.id}) }}" style="color:var(--accent-primary); text-decoration:none;">Post #{{ comment.post.id }}</a>
+                            {% elseif comment.travelStoryId %}
+                                <a href="{{ path('admin_story_show', {id: comment.travelStoryId}) }}" style="color:var(--accent-primary); text-decoration:none;">Story #{{ comment.travelStoryId }}</a>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td style="max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; color:var(--text-muted);">
+                            {{ comment.body|slice(0, 120) }}{% if comment.body|length > 120 %}…{% endif %}
+                        </td>
+                        <td style="font-size:13px; color:var(--text-muted);">
+                            {{ comment.createdAt ? comment.createdAt|date('d M Y') : '—' }}
+                        </td>
+                        <td>
+                            <form method="post"
+                                  action="{{ path('admin_comment_delete', {id: comment.id}) }}"
+                                  onsubmit="return confirm('Delete this comment permanently?');">
+                                <input type="hidden" name="_token"
+                                       value="{{ csrf_token('admin_comment_delete_' ~ comment.id) }}">
+                                <button type="submit" class="btn-del">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+
+{# ── Reactions Tab ── #}
+<div class="tab-panel" id="tab-reactions">
+    {% if reactionBreakdown is empty %}
+        <div class="empty-state">
+            <p style="font-size:42px;">❤️</p>
+            <p>No reactions yet.</p>
+        </div>
+    {% else %}
+        <div style="display:flex; flex-wrap:wrap; gap:16px; margin-bottom:28px;">
+            {% set reactionEmojis = {'like':'👍','love':'❤️','haha':'😂','wow':'😮','sad':'😢','angry':'😡','fire':'🔥','clap':'👏'} %}
+            {% for type, count in reactionBreakdown %}
+                <div class="stat-card" style="min-width:120px; text-align:center;">
+                    <div class="num" style="font-size:28px;">{{ reactionEmojis[type] ?? '✨' }}</div>
+                    <div class="num" style="font-size:24px; color:var(--accent-primary);">{{ count }}</div>
+                    <div class="lbl" style="text-transform:capitalize;">{{ type }}</div>
+                </div>
+            {% endfor %}
+        </div>
     {% endif %}
 </div>
 

@@ -34,7 +34,7 @@ class TravelStoryType extends AbstractType
             ])
 
             ->add('destination', TextType::class, [
-                'required' => false,
+                'required' => true,
             ])
 
             ->add('summary', TextareaType::class, [
@@ -48,7 +48,7 @@ class TravelStoryType extends AbstractType
             // ───────── TRAVEL INFO ─────────
             ->add('startDate', DateType::class, [
                 'widget' => 'single_text',
-                'required' => false,
+                'required' => true,
                 'attr' => [
                     'class' => 'story-date-input',
                     'max' => $today,
@@ -57,7 +57,7 @@ class TravelStoryType extends AbstractType
 
             ->add('endDate', DateType::class, [
                 'widget' => 'single_text',
-                'required' => false,
+                'required' => true,
                 'attr' => [
                     'class' => 'story-date-input',
                     'max' => $today,
@@ -84,7 +84,7 @@ class TravelStoryType extends AbstractType
                     'Backpacking' => 'backpacking',
                     'Adventure' => 'adventure',
                 ],
-                'required' => false,
+                'required' => true,
                 'placeholder' => 'Select style',
             ])
 
@@ -97,16 +97,16 @@ class TravelStoryType extends AbstractType
                     '⭐⭐⭐⭐ 4' => 4,
                     '⭐⭐⭐⭐⭐ 5' => 5,
                 ],
-                'required' => false,
+                'required' => true,
                 'placeholder' => 'Rating',
             ])
 
             ->add('wouldRecommend', CheckboxType::class, [
-                'required' => false,
+                'required' => true,
             ])
 
             ->add('wouldGoAgain', CheckboxType::class, [
-                'required' => false,
+                'required' => true,
             ])
 
             // ───────── BUDGET ─────────

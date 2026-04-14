@@ -43,7 +43,7 @@
   width: 74px;
   height: 74px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-primary,#6366f1), #a855f7, #ec4899);
+  background: linear-gradient(to right, #3498db, #e74c3c);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -320,14 +320,14 @@
   height: 64px;
   border-radius: 50%;
   padding: 2.5px;
-  background: linear-gradient(135deg, #f59e0b, #ef4444, #a855f7);
+  background: linear-gradient(to right, #3498db, #e74c3c);
   transition: transform .25s cubic-bezier(.34,1.56,.64,1);
 }
 .story-ring:hover {
   transform: scale(1.1);
 }
 .story-ring.add-ring {
-  background: linear-gradient(135deg,var(--accent-primary,#6366f1),#a855f7);
+  background: linear-gradient(to right, #3498db, #e74c3c);
 }
 
 .story-inner {
@@ -346,7 +346,7 @@
 }
 
 .story-inner.add-in {
-  background: linear-gradient(135deg,var(--accent-primary,#6366f1),#a855f7);
+  background: linear-gradient(135deg, var(--accent-blue, #003B95), var(--accent-primary, #0ea5e9));
   border: none;
   font-size: 26px;
   font-weight: 300;
@@ -401,7 +401,7 @@
   height: 46px;
   border-radius: 50%;
   flex-shrink: 0;
-  background: linear-gradient(135deg,var(--accent-primary,#6366f1),#a855f7);
+  background: linear-gradient(to right, #3498db, #e74c3c);
   display: flex;
   align-items: center;
   justify-content: center;

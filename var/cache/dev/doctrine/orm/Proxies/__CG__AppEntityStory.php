@@ -67,10 +67,10 @@ class Story extends \App\Entity\Story implements \Doctrine\ORM\Proxy\Proxy
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return ['__isInitialized__', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'id', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'user_id', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'image_url', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'caption', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'created_at', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'expires_at'];
+            return ['__isInitialized__', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'id', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'user', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'imageUrl', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'caption', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'createdAt', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'expiresAt'];
         }
 
-        return ['__isInitialized__', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'id', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'user_id', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'image_url', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'caption', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'created_at', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'expires_at'];
+        return ['__isInitialized__', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'id', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'user', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'imageUrl', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'caption', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'createdAt', '' . "\0" . 'App\\Entity\\Story' . "\0" . 'expiresAt'];
     }
 
     /**
@@ -195,6 +195,17 @@ class Story extends \App\Entity\Story implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
+    public function getUser(): ?\App\Entity\User
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getUser', []);
+
+        return parent::getUser();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getUserId(): ?int
     {
 
@@ -206,12 +217,12 @@ class Story extends \App\Entity\Story implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function setUserId(int $user_id): static
+    public function setUser(\App\Entity\User $user): static
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setUserId', [$user_id]);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setUser', [$user]);
 
-        return parent::setUserId($user_id);
+        return parent::setUser($user);
     }
 
     /**
@@ -228,12 +239,12 @@ class Story extends \App\Entity\Story implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function setImageUrl(string $image_url): static
+    public function setImageUrl(string $imageUrl): static
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setImageUrl', [$image_url]);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setImageUrl', [$imageUrl]);
 
-        return parent::setImageUrl($image_url);
+        return parent::setImageUrl($imageUrl);
     }
 
     /**
@@ -272,12 +283,12 @@ class Story extends \App\Entity\Story implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function setCreatedAt(\DateTimeInterface $created_at): static
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setCreatedAt', [$created_at]);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setCreatedAt', [$createdAt]);
 
-        return parent::setCreatedAt($created_at);
+        return parent::setCreatedAt($createdAt);
     }
 
     /**
@@ -294,12 +305,23 @@ class Story extends \App\Entity\Story implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function setExpiresAt(\DateTimeInterface $expires_at): static
+    public function setExpiresAt(\DateTimeInterface $expiresAt): static
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setExpiresAt', [$expires_at]);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setExpiresAt', [$expiresAt]);
 
-        return parent::setExpiresAt($expires_at);
+        return parent::setExpiresAt($expiresAt);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function isExpired(?\DateTimeInterface $at = NULL): bool
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'isExpired', [$at]);
+
+        return parent::isExpired($at);
     }
 
 }

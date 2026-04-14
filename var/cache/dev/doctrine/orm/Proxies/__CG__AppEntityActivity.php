@@ -67,10 +67,10 @@ class Activity extends \App\Entity\Activity implements \Doctrine\ORM\Proxy\Proxy
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return ['__isInitialized__', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'activityId', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'destinationId', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'name', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'category', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'description', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'durationMinutes', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'price', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'currency', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'ageMin', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'capacity', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'availableFrom', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'availableTo', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'meetingPoint', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'averageRating', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'isActive', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'createdAt'];
+            return ['__isInitialized__', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'activityId', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'destination', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'name', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'category', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'description', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'durationMinutes', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'price', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'currency', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'ageMin', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'capacity', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'availableFrom', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'availableTo', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'meetingPoint', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'averageRating', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'isActive', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'createdAt'];
         }
 
-        return ['__isInitialized__', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'activityId', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'destinationId', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'name', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'category', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'description', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'durationMinutes', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'price', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'currency', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'ageMin', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'capacity', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'availableFrom', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'availableTo', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'meetingPoint', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'averageRating', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'isActive', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'createdAt'];
+        return ['__isInitialized__', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'activityId', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'destination', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'name', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'category', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'description', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'durationMinutes', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'price', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'currency', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'ageMin', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'capacity', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'availableFrom', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'availableTo', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'meetingPoint', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'averageRating', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'isActive', '' . "\0" . 'App\\Entity\\Activity' . "\0" . 'createdAt'];
     }
 
     /**
@@ -206,23 +206,34 @@ class Activity extends \App\Entity\Activity implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
+    public function getDestination(): ?\App\Entity\Destination
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getDestination', []);
+
+        return parent::getDestination();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setDestination(?\App\Entity\Destination $destination): static
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setDestination', [$destination]);
+
+        return parent::setDestination($destination);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getDestinationId(): ?string
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getDestinationId', []);
 
         return parent::getDestinationId();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setDestinationId(string $destinationId): static
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setDestinationId', [$destinationId]);
-
-        return parent::setDestinationId($destinationId);
     }
 
     /**
@@ -239,7 +250,7 @@ class Activity extends \App\Entity\Activity implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function setName(string $name): static
+    public function setName(?string $name): static
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setName', [$name]);
@@ -261,7 +272,7 @@ class Activity extends \App\Entity\Activity implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function setCategory(string $category): static
+    public function setCategory(?string $category): static
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setCategory', [$category]);
@@ -349,7 +360,7 @@ class Activity extends \App\Entity\Activity implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function setCurrency(string $currency): static
+    public function setCurrency(?string $currency): static
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setCurrency', [$currency]);

@@ -12,6 +12,7 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
  */
 class DoctrineMigrationsConfig implements \Symfony\Component\Config\Builder\ConfigBuilderInterface
 {
+    private $enableServiceMigrations;
     private $migrationsPaths;
     private $services;
     private $factories;
@@ -26,6 +27,20 @@ class DoctrineMigrationsConfig implements \Symfony\Component\Config\Builder\Conf
     private $enableProfiler;
     private $transactional;
     private $_usedProperties = [];
+
+    /**
+     * Whether to enable fetching migrations from the service container.
+     * @default false
+     * @param ParamConfigurator|bool $value
+     * @return $this
+     */
+    public function enableServiceMigrations($value): static
+    {
+        $this->_usedProperties['enableServiceMigrations'] = true;
+        $this->enableServiceMigrations = $value;
+
+        return $this;
+    }
 
     /**
      * @return $this
@@ -208,6 +223,12 @@ class DoctrineMigrationsConfig implements \Symfony\Component\Config\Builder\Conf
 
     public function __construct(array $value = [])
     {
+        if (array_key_exists('enable_service_migrations', $value)) {
+            $this->_usedProperties['enableServiceMigrations'] = true;
+            $this->enableServiceMigrations = $value['enable_service_migrations'];
+            unset($value['enable_service_migrations']);
+        }
+
         if (array_key_exists('migrations_paths', $value)) {
             $this->_usedProperties['migrationsPaths'] = true;
             $this->migrationsPaths = $value['migrations_paths'];
@@ -294,6 +315,9 @@ class DoctrineMigrationsConfig implements \Symfony\Component\Config\Builder\Conf
     public function toArray(): array
     {
         $output = [];
+        if (isset($this->_usedProperties['enableServiceMigrations'])) {
+            $output['enable_service_migrations'] = $this->enableServiceMigrations;
+        }
         if (isset($this->_usedProperties['migrationsPaths'])) {
             $output['migrations_paths'] = $this->migrationsPaths;
         }

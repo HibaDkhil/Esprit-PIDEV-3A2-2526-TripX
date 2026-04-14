@@ -67,10 +67,10 @@ class User extends \App\Entity\User implements \Doctrine\ORM\Proxy\Proxy
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return ['__isInitialized__', '' . "\0" . 'App\\Entity\\User' . "\0" . 'userId', '' . "\0" . 'App\\Entity\\User' . "\0" . 'firstName', '' . "\0" . 'App\\Entity\\User' . "\0" . 'lastName', '' . "\0" . 'App\\Entity\\User' . "\0" . 'email', '' . "\0" . 'App\\Entity\\User' . "\0" . 'password', '' . "\0" . 'App\\Entity\\User' . "\0" . 'phoneNumber', '' . "\0" . 'App\\Entity\\User' . "\0" . 'role', '' . "\0" . 'App\\Entity\\User' . "\0" . 'status', '' . "\0" . 'App\\Entity\\User' . "\0" . 'emailVerified', '' . "\0" . 'App\\Entity\\User' . "\0" . 'gender', '' . "\0" . 'App\\Entity\\User' . "\0" . 'birthYear', '' . "\0" . 'App\\Entity\\User' . "\0" . 'bio', '' . "\0" . 'App\\Entity\\User' . "\0" . 'avatarId', '' . "\0" . 'App\\Entity\\User' . "\0" . 'createdAt', '' . "\0" . 'App\\Entity\\User' . "\0" . 'updatedAt'];
+            return ['__isInitialized__', '' . "\0" . 'App\\Entity\\User' . "\0" . 'userId', '' . "\0" . 'App\\Entity\\User' . "\0" . 'firstName', '' . "\0" . 'App\\Entity\\User' . "\0" . 'lastName', '' . "\0" . 'App\\Entity\\User' . "\0" . 'email', '' . "\0" . 'App\\Entity\\User' . "\0" . 'password', '' . "\0" . 'App\\Entity\\User' . "\0" . 'phoneNumber', '' . "\0" . 'App\\Entity\\User' . "\0" . 'role', '' . "\0" . 'App\\Entity\\User' . "\0" . 'status', '' . "\0" . 'App\\Entity\\User' . "\0" . 'emailVerified', '' . "\0" . 'App\\Entity\\User' . "\0" . 'gender', '' . "\0" . 'App\\Entity\\User' . "\0" . 'birthYear', '' . "\0" . 'App\\Entity\\User' . "\0" . 'bio', '' . "\0" . 'App\\Entity\\User' . "\0" . 'avatarId', '' . "\0" . 'App\\Entity\\User' . "\0" . 'createdAt', '' . "\0" . 'App\\Entity\\User' . "\0" . 'updatedAt', '' . "\0" . 'App\\Entity\\User' . "\0" . 'plainPassword'];
         }
 
-        return ['__isInitialized__', '' . "\0" . 'App\\Entity\\User' . "\0" . 'userId', '' . "\0" . 'App\\Entity\\User' . "\0" . 'firstName', '' . "\0" . 'App\\Entity\\User' . "\0" . 'lastName', '' . "\0" . 'App\\Entity\\User' . "\0" . 'email', '' . "\0" . 'App\\Entity\\User' . "\0" . 'password', '' . "\0" . 'App\\Entity\\User' . "\0" . 'phoneNumber', '' . "\0" . 'App\\Entity\\User' . "\0" . 'role', '' . "\0" . 'App\\Entity\\User' . "\0" . 'status', '' . "\0" . 'App\\Entity\\User' . "\0" . 'emailVerified', '' . "\0" . 'App\\Entity\\User' . "\0" . 'gender', '' . "\0" . 'App\\Entity\\User' . "\0" . 'birthYear', '' . "\0" . 'App\\Entity\\User' . "\0" . 'bio', '' . "\0" . 'App\\Entity\\User' . "\0" . 'avatarId', '' . "\0" . 'App\\Entity\\User' . "\0" . 'createdAt', '' . "\0" . 'App\\Entity\\User' . "\0" . 'updatedAt'];
+        return ['__isInitialized__', '' . "\0" . 'App\\Entity\\User' . "\0" . 'userId', '' . "\0" . 'App\\Entity\\User' . "\0" . 'firstName', '' . "\0" . 'App\\Entity\\User' . "\0" . 'lastName', '' . "\0" . 'App\\Entity\\User' . "\0" . 'email', '' . "\0" . 'App\\Entity\\User' . "\0" . 'password', '' . "\0" . 'App\\Entity\\User' . "\0" . 'phoneNumber', '' . "\0" . 'App\\Entity\\User' . "\0" . 'role', '' . "\0" . 'App\\Entity\\User' . "\0" . 'status', '' . "\0" . 'App\\Entity\\User' . "\0" . 'emailVerified', '' . "\0" . 'App\\Entity\\User' . "\0" . 'gender', '' . "\0" . 'App\\Entity\\User' . "\0" . 'birthYear', '' . "\0" . 'App\\Entity\\User' . "\0" . 'bio', '' . "\0" . 'App\\Entity\\User' . "\0" . 'avatarId', '' . "\0" . 'App\\Entity\\User' . "\0" . 'createdAt', '' . "\0" . 'App\\Entity\\User' . "\0" . 'updatedAt', '' . "\0" . 'App\\Entity\\User' . "\0" . 'plainPassword'];
     }
 
     /**
@@ -509,6 +509,28 @@ class User extends \App\Entity\User implements \Doctrine\ORM\Proxy\Proxy
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setUpdatedAt', [$updatedAt]);
 
         return parent::setUpdatedAt($updatedAt);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getPlainPassword(): ?string
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getPlainPassword', []);
+
+        return parent::getPlainPassword();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setPlainPassword(?string $plainPassword): static
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setPlainPassword', [$plainPassword]);
+
+        return parent::setPlainPassword($plainPassword);
     }
 
     /**

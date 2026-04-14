@@ -62,6 +62,18 @@ class PostRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findPublicByUserId(int $userId): array
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.user_id = :uid')
+            ->andWhere('p.is_confirmed = :confirmed')
+            ->setParameter('uid', $userId)
+            ->setParameter('confirmed', true)
+            ->orderBy('p.created_at', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function countPending(): int
     {
         return (int) $this->createQueryBuilder('p')

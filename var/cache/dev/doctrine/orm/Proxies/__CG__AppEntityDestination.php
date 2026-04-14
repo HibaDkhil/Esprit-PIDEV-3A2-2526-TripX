@@ -217,7 +217,7 @@ class Destination extends \App\Entity\Destination implements \Doctrine\ORM\Proxy
     /**
      * {@inheritDoc}
      */
-    public function setName(string $name): static
+    public function setName(?string $name): static
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setName', [$name]);
@@ -239,7 +239,7 @@ class Destination extends \App\Entity\Destination implements \Doctrine\ORM\Proxy
     /**
      * {@inheritDoc}
      */
-    public function setType(string $type): static
+    public function setType(?string $type): static
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setType', [$type]);
@@ -261,7 +261,7 @@ class Destination extends \App\Entity\Destination implements \Doctrine\ORM\Proxy
     /**
      * {@inheritDoc}
      */
-    public function setCountry(string $country): static
+    public function setCountry(?string $country): static
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setCountry', [$country]);
@@ -305,7 +305,7 @@ class Destination extends \App\Entity\Destination implements \Doctrine\ORM\Proxy
     /**
      * {@inheritDoc}
      */
-    public function setBestSeason(string $bestSeason): static
+    public function setBestSeason(?string $bestSeason): static
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setBestSeason', [$bestSeason]);

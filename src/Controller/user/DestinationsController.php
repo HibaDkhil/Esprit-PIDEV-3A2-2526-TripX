@@ -4,7 +4,7 @@ namespace App\Controller\user;
 
 use App\Entity\Booking;
 use App\Entity\User;
-use App\form\BookingFrontType;
+use App\Form\BookingFrontType;
 use App\service\BookingService;
 use App\service\DestinationService;
 use App\service\ActivityService;

@@ -20,6 +20,62 @@
     #feed-container.loading { opacity: .45; pointer-events: none; transition: opacity .15s; }
     .feed-spinner { display: none; text-align: center; padding: 40px 0; font-size: 1.1rem; color: #9ca3af; }
     .feed-spinner.visible { display: block; }
+
+    .ig-story-modal { position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 10020; display: none; align-items: center; justify-content: center; }
+    .ig-story-modal.open { display: flex; }
+    .ig-story-frame { width: min(420px, 92vw); height: min(760px, 88vh); border-radius: 18px; overflow: hidden; background: #111; position: relative; box-shadow: 0 24px 60px rgba(0,0,0,.45); }
+    .ig-story-bars { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; gap: 6px; z-index: 2; }
+    .ig-story-bar { flex: 1; height: 3px; background: rgba(255,255,255,.28); border-radius: 99px; overflow: hidden; }
+    .ig-story-bar > span { display:block; width:0; height:100%; background:#fff; }
+    .ig-story-head { position: absolute; left: 12px; right: 12px; top: 22px; z-index: 2; display:flex; align-items:center; justify-content:space-between; }
+    .ig-story-author { display:flex; align-items:center; gap:10px; color:#fff; }
+    .ig-story-author .av { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#f59e0b,#ef4444); font-size:.82rem; font-weight:700; }
+    .ig-story-author .nm { font-weight:700; font-size:.92rem; }
+    .ig-story-author .tm { font-size:.78rem; color:rgba(255,255,255,.75); }
+    .ig-story-close { border:0; background:transparent; color:#fff; font-size:1.55rem; cursor:pointer; line-height:1; }
+    .ig-story-image { width:100%; height:100%; object-fit:cover; }
+    .ig-story-caption { position:absolute; left:14px; right:14px; bottom:14px; z-index:2; color:#fff; background:rgba(0,0,0,.35); padding:10px 12px; border-radius:12px; font-size:.92rem; }
+    .ig-story-hit { position:absolute; top:0; bottom:0; width:42%; z-index:3; cursor:pointer; }
+    .ig-story-hit.left { left:0; }
+    .ig-story-hit.right { right:0; }
+    .ig-story-seen-trigger { position:absolute; left:14px; bottom:14px; z-index:4; border:0; background:rgba(0,0,0,.45); color:#fff; border-radius:999px; font-size:.82rem; font-weight:600; padding:7px 12px; display:none; align-items:center; gap:7px; cursor:pointer; }
+    .ig-story-seen-trigger .eye { font-size:1rem; line-height:1; }
+    .ig-story-viewers-sheet { position:absolute; left:0; right:0; bottom:0; z-index:8; background:#0c0c0c; color:#fff; border-top-left-radius:16px; border-top-right-radius:16px; transform:translateY(105%); transition:transform .22s ease; max-height:62%; display:flex; flex-direction:column; }
+    .ig-story-viewers-sheet.open { transform:translateY(0); }
+    .ig-story-viewers-handle { width:42px; height:4px; border-radius:99px; background:rgba(255,255,255,.3); margin:10px auto 8px; }
+    .ig-story-viewers-head { display:flex; align-items:center; justify-content:space-between; padding:2px 14px 10px; font-weight:700; }
+    .ig-story-viewers-close { border:0; background:transparent; color:#fff; font-size:1.25rem; cursor:pointer; line-height:1; }
+    .ig-story-viewers-list { overflow:auto; padding:0 8px 12px; }
+    .ig-story-viewer-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 8px; border-radius:10px; }
+    .ig-story-viewer-row:hover { background:rgba(255,255,255,.06); }
+    .ig-story-viewer-meta { display:flex; align-items:center; gap:10px; }
+    .ig-story-viewer-av { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#f59e0b,#ef4444); font-size:.82rem; font-weight:700; }
+    .ig-story-viewer-name { font-weight:600; font-size:.9rem; }
+    .ig-story-viewer-time { font-size:.75rem; color:rgba(255,255,255,.68); }
+    .ig-story-viewers-empty { color:rgba(255,255,255,.66); font-size:.86rem; text-align:center; padding:16px 8px 20px; }
+    .story-ring.js-story-open.is-seen { background: #9ca3af; }
+    .story-ring.js-story-open.is-unseen { background: linear-gradient(135deg,#f59e0b,#ef4444); }
+    .sug-name-link,
+    .profile-name-link,
+    .pc-name {
+      color: inherit;
+      text-decoration: none;
+      font-weight: 700;
+      border-radius: 4px;
+      transition: color .15s ease, text-decoration-color .15s ease, background-color .15s ease;
+    }
+    .sug-name-link:hover,
+    .sug-name-link:focus-visible,
+    .profile-name-link:hover,
+    .profile-name-link:focus-visible,
+    .pc-name:hover,
+    .pc-name:focus-visible {
+      color: #2563eb;
+      text-decoration: underline;
+      text-decoration-color: #2563eb;
+      cursor: pointer;
+      outline: none;
+    }
   </style>
 {% endblock %}
 
@@ -32,6 +88,11 @@
 {% set reactionSummary = reactionSummary is defined ? reactionSummary : {} %}
 {% set feed = feed is defined ? feed : [] %}
 {% set userReactions = userReactions is defined ? userReactions : {} %}
+{% set ownerPostCount = ownerPostCount is defined ? ownerPostCount : 0 %}
+{% set ownerStoryCount = ownerStoryCount is defined ? ownerStoryCount : 0 %}
+{% set ownerTotalContentCount = ownerPostCount + ownerStoryCount %}
+{% set storiesByUser  = storiesByUser  is defined ? storiesByUser  : [] %}
+{% set followingLookup = followingLookup is defined ? followingLookup : {} %}
 
 {% set me = app.user %}
 
@@ -41,7 +102,7 @@
     <div class="profile-card">
       {% if me %}
         <div class="profile-avatar">{{ me.firstName|first|upper }}</div>
-        <div class="profile-name">{{ me.firstName }} {{ me.lastName }}</div>
+        <a href="{{ path('blog_user_profile', {id: me.id}) }}" class="profile-name profile-name-link">{{ me.firstName }} {{ me.lastName }}</a>
         <div class="profile-handle">@user{{ me.id }}</div>
       {% else %}
         <div class="profile-avatar">?</div>
@@ -49,7 +110,7 @@
         <div class="profile-handle">@guest</div>
       {% endif %}
       <div class="profile-stats">
-        <div class="pstat"><span class="pstat-num">{{ feed|length }}</span><span class="pstat-lbl">Posts</span></div>
+        <div class="pstat"><span class="pstat-num">{{ ownerTotalContentCount }}</span><span class="pstat-lbl">Posts</span></div>
         <div class="pstat"><span class="pstat-num">0</span><span class="pstat-lbl">Followers</span></div>
         <div class="pstat"><span class="pstat-num">0</span><span class="pstat-lbl">Following</span></div>
       </div>
@@ -60,23 +121,18 @@
          data-filter-type="all" onclick="return feedFilter(event, 'all')">
         <span class="snav-icon">🏠</span> All
       </a>
-      <a href="{{ path('blog', {type:'posts'}) }}" class="snav-item {% if typeFilter == 'posts' %}active{% endif %}"
-         data-filter-type="posts" onclick="return feedFilter(event, 'posts')">
-        <span class="snav-icon">📝</span> Posts
+      <a href="{{ path('blog', {type:'my_posts'}) }}" class="snav-item {% if typeFilter == 'my_posts' %}active{% endif %}"
+        data-filter-type="my_posts" onclick="return feedFilter(event, 'my_posts')">
+        <span class="snav-icon">📝</span> My Posts
       </a>
-      <a href="{{ path('blog', {type:'travel_story'}) }}" class="snav-item {% if typeFilter == 'travel_story' %}active{% endif %}"
-         data-filter-type="travel_story" onclick="return feedFilter(event, 'travel_story')">
-        <span class="snav-icon">🧳</span> Travel Stories
+      <a href="{{ path('blog', {type:'my_travel_story'}) }}" class="snav-item {% if typeFilter == 'my_travel_story' %}active{% endif %}"
+         data-filter-type="my_travel_story" onclick="return feedFilter(event, 'my_travel_story')">
+        <span class="snav-icon">🧳</span> My Travel Stories
       </a>
       <a href="{{ path('blog_saved') }}" class="snav-item">
         <span class="snav-icon">🔖</span> Saved Posts
       </a>
-      <a href="{{ path('post_create') }}" class="snav-item">
-        <span class="snav-icon">✍️</span> New Post
-      </a>
-      <a href="{{ path('travel_story_new') }}" class="snav-item">
-        <span class="snav-icon">🧳</span> New Travel Story
-      </a>
+     
     </nav>
   </aside>
 
@@ -113,26 +169,67 @@
     <div class="stories-card">
       <div class="stories-head">
         <h3>Stories</h3>
-        <a href="#" class="watch-all">Watch all</a>
+        <a href="#" class="watch-all" onclick="return openFirstStory(event)">Watch all</a>
       </div>
       <div class="stories-row">
-        <div class="story-bbl">
-          <div class="story-ring add-ring"><div class="story-inner add-in">+</div></div>
+        <div class="story-bbl" title="Add a story">
+          <button type="button" class="story-ring add-ring" id="story-add-btn" aria-label="Add story">
+            <div class="story-inner add-in">+</div>
+          </button>
           <span class="story-lbl">Add</span>
         </div>
-        {% set seenAuthors = [] %}
-        {% for item in feed|slice(0,14) %}
-          {% set uid = item.entity.userId %}
-          {% if uid not in seenAuthors %}
-            {% set seenAuthors = seenAuthors|merge([uid]) %}
-            {% set aName = authorMap[uid] ?? 'User #' ~ uid %}
-            <div class="story-bbl">
-              <div class="story-ring"><div class="story-inner">{{ aName|first|upper }}</div></div>
-              <span class="story-lbl">{{ aName|split(' ')|first }}</span>
-            </div>
-          {% endif %}
-          {% if seenAuthors|length >= 7 %}{% endif %}
+        {% for s in storiesByUser %}
+          <div class="story-bbl">
+            <button type="button" class="story-ring js-story-open {% if s.hasUnseen %}is-unseen{% else %}is-seen{% endif %}"
+                    data-user-id="{{ s.userId }}"
+                    data-user-name="{{ s.userName|e('html_attr') }}"
+                    data-has-unseen="{{ s.hasUnseen ? '1' : '0' }}"
+                    data-stories="{{ s.stories|json_encode|e('html_attr') }}"
+                    aria-label="Open story of {{ s.userName }}">
+              <div class="story-inner">{{ s.userName|first|upper }}</div>
+            </button>
+            <span class="story-lbl">{{ s.userName|split(' ')|first }}</span>
+          </div>
+        {% else %}
+          <span class="story-lbl" style="color:#9ca3af;">No stories yet</span>
         {% endfor %}
+      </div>
+    </div>
+
+    <form id="story-upload-form" enctype="multipart/form-data" style="display:none;">
+      <input type="file" id="story-image-input" name="story_image" accept="image/*">
+      <input type="hidden" id="story-caption-input" name="caption" value="">
+    </form>
+
+    <div class="ig-story-modal" id="ig-story-modal" aria-hidden="true">
+      <div class="ig-story-frame">
+        <div class="ig-story-bars" id="ig-story-bars"></div>
+        <div class="ig-story-head">
+          <div class="ig-story-author">
+            <div class="av" id="ig-story-author-av">U</div>
+            <div>
+              <div class="nm" id="ig-story-author-name">User</div>
+              <div class="tm" id="ig-story-time">now</div>
+            </div>
+          </div>
+          <button class="ig-story-close" type="button" id="ig-story-close" aria-label="Close">&times;</button>
+        </div>
+        <img id="ig-story-image" class="ig-story-image" src="" alt="Story">
+        <div class="ig-story-caption" id="ig-story-caption" style="display:none;"></div>
+        <button class="ig-story-seen-trigger" id="ig-story-seen-trigger" type="button" style="display:none;">
+          <span class="eye">&#128065;</span>
+          <span id="ig-story-seen-count">Seen by 0</span>
+        </button>
+        <div class="ig-story-viewers-sheet" id="ig-story-viewers-sheet" aria-hidden="true">
+          <div class="ig-story-viewers-handle"></div>
+          <div class="ig-story-viewers-head">
+            <span id="ig-story-viewers-title">Seen by</span>
+            <button class="ig-story-viewers-close" id="ig-story-viewers-close" type="button" aria-label="Close viewers">&times;</button>
+          </div>
+          <div class="ig-story-viewers-list" id="ig-story-viewers-list"></div>
+        </div>
+        <button class="ig-story-hit left" type="button" id="ig-story-prev" aria-label="Previous"></button>
+        <button class="ig-story-hit right" type="button" id="ig-story-next" aria-label="Next"></button>
       </div>
     </div>
 
@@ -172,30 +269,33 @@
         {% if uid not in seen and seen|length < 3 %}
           {% set seen = seen|merge([uid]) %}
           {% set sName = authorMap[uid] ?? 'User #' ~ uid %}
+          {% set isFollowingSug = followingLookup[uid] is defined and followingLookup[uid] %}
           <div class="sug-row">
             <div class="sug-av" style="background:{{ sugColors[loop.index0 % 3] }};">
               {{ sName|first|upper }}
             </div>
             <div>
-              <div class="sug-name">{{ sName }}</div>
+              <div class="sug-name">
+                <a class="sug-name-link" href="{{ path('blog_user_profile', {id: uid}) }}">{{ sName }}</a>
+              </div>
               <div class="sug-handle">@user{{ uid }}</div>
             </div>
-            <button class="flw-btn"
-                    onclick="this.textContent = this.textContent==='Follow' ? 'Following' : 'Follow';
-                             this.classList.toggle('following');">Follow</button>
+            {% if app.user %}
+              <button
+                class="flw-btn {{ isFollowingSug ? 'following' : '' }}"
+                data-follow-url="{{ path('follow_toggle', {id: uid}) }}"
+                data-csrf-token="{{ csrf_token('follow_' ~ uid) }}"
+                onclick="toggleSuggestionFollow(this)">
+                {{ isFollowingSug ? 'Following' : 'Follow' }}
+              </button>
+            {% else %}
+              <a class="flw-btn" href="{{ path('app_login') }}">Follow</a>
+            {% endif %}
           </div>
         {% endif %}
       {% else %}
         <p class="placeholder-text">(placeholder)</p>
       {% endfor %}
-    </div>
-
-    <div class="rcard">
-      <div class="stat-big">
-        <span class="bnum">184.3K</span>
-        <span class="blbl">Followers</span>
-        <span class="bsub">Active now on your profile</span>
-      </div>
     </div>
   </aside>
 
@@ -208,6 +308,17 @@
 let _currentType   = '{{ typeFilter|e('js') }}';
 let _currentSearch = '{{ search|e('js') }}';
 let _ajaxCtrl      = null;
+let _activeStoryList = [];
+let _activeStoryIndex = 0;
+let _storyTimer = null;
+let _activeStoryButton = null;
+let _activeStoryOwnerId = null;
+const _storyViewersCache = {};
+let _storyTouchStartY = null;
+const _storyDurationMs = 5000;
+const _currentUserId = {{ currentUserId is not null ? currentUserId : 'null' }};
+const _storySeenUrlPattern = '{{ path('story_seen_mark', {id: 0}) }}';
+const _storyViewersUrlPattern = '{{ path('story_viewers_list', {id: 0}) }}';
 
 function feedFilter(e, type) {
   if (e) e.preventDefault();
@@ -419,6 +530,40 @@ function showToast(msg) {
   t._timer = setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(20px)'; }, 2800);
 }
 
+async function toggleSuggestionFollow(button) {
+  if (!button || button.disabled) return;
+
+  const url = button.dataset.followUrl;
+  const token = button.dataset.csrfToken;
+  if (!url || !token) return;
+
+  button.disabled = true;
+
+  try {
+    const formData = new FormData();
+    formData.append('_token', token);
+
+    const res = await fetch(url, {
+      method: 'POST',
+      body: formData,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+
+    const json = await res.json();
+    if (!res.ok || json.error) {
+      throw new Error(json.error || 'Could not update follow status');
+    }
+
+    const isFollowing = !!json.following;
+    button.textContent = isFollowing ? 'Following' : 'Follow';
+    button.classList.toggle('following', isFollowing);
+  } catch (err) {
+    showToast(err.message || 'Could not update follow status');
+  } finally {
+    button.disabled = false;
+  }
+}
+
 function hydrateUserNames() {
   const els = document.querySelectorAll('[data-uname],[data-uavatar]');
   const ids = [...new Set([...els].map(el => el.dataset.uname || el.dataset.uavatar).filter(Boolean))];
@@ -446,7 +591,286 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   hydrateUserNames();
+
+  const addBtn = document.getElementById('story-add-btn');
+  const fileInput = document.getElementById('story-image-input');
+  const captionInput = document.getElementById('story-caption-input');
+  if (addBtn && fileInput) {
+    addBtn.addEventListener('click', () => {
+      {% if app.user %}
+      fileInput.click();
+      {% else %}
+      window.location.href = '{{ path('app_login') }}';
+      {% endif %}
+    });
+
+    fileInput.addEventListener('change', async () => {
+      if (!fileInput.files || !fileInput.files[0]) return;
+      const cap = prompt('Add a caption (optional):', '');
+      captionInput.value = (cap || '').trim();
+
+      const form = new FormData();
+      form.append('story_image', fileInput.files[0]);
+      form.append('caption', captionInput.value);
+
+      try {
+        const res = await fetch('{{ path('story_create') }}', {
+          method: 'POST',
+          body: form,
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const json = await res.json();
+        if (!res.ok || !json.ok) throw new Error(json.message || 'Upload failed');
+        showToast('Story uploaded');
+        window.location.reload();
+      } catch (e) {
+        console.error(e);
+        showToast('Could not upload story');
+      } finally {
+        fileInput.value = '';
+      }
+    });
+  }
+
+  document.querySelectorAll('.js-story-open').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const raw = btn.dataset.stories || '[]';
+      const stories = JSON.parse(raw);
+      openStoryViewer(stories, btn.dataset.userName || 'User', btn);
+    });
+  });
 });
+
+function openFirstStory(e) {
+  if (e) e.preventDefault();
+  const first = document.querySelector('.js-story-open.is-unseen') || document.querySelector('.js-story-open');
+  if (!first) return false;
+  const stories = JSON.parse(first.dataset.stories || '[]');
+  openStoryViewer(stories, first.dataset.userName || 'User', first);
+  return false;
+}
+
+function openStoryViewer(stories, userName, sourceButton = null) {
+  if (!Array.isArray(stories) || !stories.length) return;
+  _activeStoryList = stories;
+  _activeStoryIndex = 0;
+  _activeStoryButton = sourceButton;
+  _activeStoryOwnerId = sourceButton ? Number(sourceButton.dataset.userId || 0) : null;
+  const modal = document.getElementById('ig-story-modal');
+  if (!modal) return;
+  document.getElementById('ig-story-author-name').textContent = userName;
+  document.getElementById('ig-story-author-av').textContent = (userName || 'U').charAt(0).toUpperCase();
+  modal.classList.add('open');
+  renderStoryAt(_activeStoryIndex);
+
+  document.getElementById('ig-story-close').onclick = closeStoryViewer;
+  document.getElementById('ig-story-prev').onclick = () => moveStory(-1);
+  document.getElementById('ig-story-next').onclick = () => moveStory(1);
+}
+
+function closeStoryViewer() {
+  clearTimeout(_storyTimer);
+  _storyTimer = null;
+  closeStoryViewersSheet();
+  _activeStoryButton = null;
+  _activeStoryOwnerId = null;
+  const modal = document.getElementById('ig-story-modal');
+  if (modal) modal.classList.remove('open');
+}
+
+function isCurrentUsersStory() {
+  return _currentUserId !== null && Number(_activeStoryOwnerId) === Number(_currentUserId);
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function closeStoryViewersSheet() {
+  const sheet = document.getElementById('ig-story-viewers-sheet');
+  if (sheet) {
+    sheet.classList.remove('open');
+    sheet.setAttribute('aria-hidden', 'true');
+  }
+}
+
+function openStoryViewersSheet() {
+  const story = _activeStoryList[_activeStoryIndex];
+  if (!story || !story.id || !isCurrentUsersStory()) return;
+
+  fetchStoryViewers(story.id)
+    .then(data => {
+      const sheet = document.getElementById('ig-story-viewers-sheet');
+      const title = document.getElementById('ig-story-viewers-title');
+      if (!sheet || !title) return;
+
+      renderStoryViewersList(data.viewers);
+      title.textContent = `Seen by ${data.count}`;
+      sheet.classList.add('open');
+      sheet.setAttribute('aria-hidden', 'false');
+    })
+    .catch(() => {});
+}
+
+function renderStoryViewersList(viewers) {
+  const list = document.getElementById('ig-story-viewers-list');
+  if (!list) return;
+
+  if (!Array.isArray(viewers) || viewers.length === 0) {
+    list.innerHTML = '<div class="ig-story-viewers-empty">No views yet</div>';
+    return;
+  }
+
+  list.innerHTML = viewers.map(v => {
+    const nm = escapeHtml(v.name || 'User');
+    const av = nm.charAt(0).toUpperCase() || 'U';
+    const when = v.seenAt ? timeAgo(v.seenAt) : '';
+    return `<div class="ig-story-viewer-row">
+      <div class="ig-story-viewer-meta">
+        <div class="ig-story-viewer-av">${av}</div>
+        <div class="ig-story-viewer-name">${nm}</div>
+      </div>
+      <div class="ig-story-viewer-time">${escapeHtml(when)}</div>
+    </div>`;
+  }).join('');
+}
+
+async function fetchStoryViewers(storyId) {
+  if (_storyViewersCache[storyId]) return _storyViewersCache[storyId];
+
+  const url = _storyViewersUrlPattern.replace('/0/viewers', `/${storyId}/viewers`);
+  const res = await fetch(url, {
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+  });
+
+  if (!res.ok) {
+    throw new Error('Could not load viewers');
+  }
+
+  const json = await res.json();
+  if (!json.ok) {
+    throw new Error(json.message || 'Could not load viewers');
+  }
+
+  _storyViewersCache[storyId] = {
+    count: Number(json.count || 0),
+    viewers: Array.isArray(json.viewers) ? json.viewers : []
+  };
+
+  return _storyViewersCache[storyId];
+}
+
+async function updateSeenTriggerForStory(story) {
+  const trigger = document.getElementById('ig-story-seen-trigger');
+  const countEl = document.getElementById('ig-story-seen-count');
+  if (!trigger || !countEl) return;
+
+  if (!isCurrentUsersStory() || !story || !story.id) {
+    trigger.style.display = 'none';
+    closeStoryViewersSheet();
+    return;
+  }
+
+  trigger.style.display = 'inline-flex';
+  countEl.textContent = 'Seen by ...';
+
+  try {
+    const data = await fetchStoryViewers(story.id);
+    countEl.textContent = `Seen by ${data.count}`;
+
+    trigger.onclick = () => {
+      openStoryViewersSheet();
+    };
+  } catch (_) {
+    countEl.textContent = 'Seen by 0';
+    trigger.onclick = null;
+  }
+}
+
+function updateActiveStoryRingState() {
+  if (!_activeStoryButton) return;
+  const hasUnseen = _activeStoryList.some(story => !story.isSeenByMe);
+  _activeStoryButton.classList.toggle('is-unseen', hasUnseen);
+  _activeStoryButton.classList.toggle('is-seen', !hasUnseen);
+  _activeStoryButton.dataset.hasUnseen = hasUnseen ? '1' : '0';
+}
+
+function markStorySeen(storyId) {
+  const parsedId = Number(storyId);
+  if (!Number.isInteger(parsedId) || parsedId <= 0) return;
+
+  const url = _storySeenUrlPattern.replace('/0/seen', `/${parsedId}/seen`);
+  fetch(url, {
+    method: 'POST',
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+  }).catch(() => {});
+
+  if (_activeStoryList[_activeStoryIndex]) {
+    _activeStoryList[_activeStoryIndex].isSeenByMe = true;
+    updateActiveStoryRingState();
+  }
+}
+
+function moveStory(delta) {
+  const next = _activeStoryIndex + delta;
+  if (next < 0) { closeStoryViewer(); return; }
+  if (next >= _activeStoryList.length) { closeStoryViewer(); return; }
+  _activeStoryIndex = next;
+  renderStoryAt(_activeStoryIndex);
+}
+
+function renderStoryAt(index) {
+  clearTimeout(_storyTimer);
+  const story = _activeStoryList[index];
+  if (!story) return;
+
+  const img = document.getElementById('ig-story-image');
+  const cap = document.getElementById('ig-story-caption');
+  const tm  = document.getElementById('ig-story-time');
+  const bars = document.getElementById('ig-story-bars');
+
+  img.src = story.imageUrl || '';
+  cap.textContent = story.caption || '';
+  cap.style.display = story.caption ? '' : 'none';
+  tm.textContent = story.createdAt ? timeAgo(story.createdAt) : 'now';
+  markStorySeen(story.id);
+  updateSeenTriggerForStory(story);
+
+  bars.innerHTML = '';
+  _activeStoryList.forEach((_, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'ig-story-bar';
+    const fill = document.createElement('span');
+    if (i < index) fill.style.width = '100%';
+    if (i === index) {
+      fill.style.transition = `width ${_storyDurationMs}ms linear`;
+      setTimeout(() => { fill.style.width = '100%'; }, 20);
+    }
+    bar.appendChild(fill);
+    bars.appendChild(bar);
+  });
+
+  _storyTimer = setTimeout(() => {
+    moveStory(1);
+  }, _storyDurationMs + 50);
+}
+
+function timeAgo(dateString) {
+  const d = new Date(dateString);
+  const sec = Math.max(1, Math.floor((Date.now() - d.getTime()) / 1000));
+  if (sec < 60) return sec + 's';
+  const min = Math.floor(sec / 60);
+  if (min < 60) return min + 'm';
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return hr + 'h';
+  const day = Math.floor(hr / 24);
+  return day + 'd';
+}
 
 function toggleC(id, btn) {
   const box = document.getElementById(id); if (!box) return;
@@ -472,6 +896,31 @@ function toggleReplies(id, btn) {
   const isOpen = wrap.style.display !== 'none';
   wrap.style.display = isOpen ? 'none' : 'block';
   const arrow = btn.querySelector('span'); if (arrow) arrow.textContent = isOpen ? '▸' : '▾';
+}
+
+document.getElementById('ig-story-viewers-close')?.addEventListener('click', closeStoryViewersSheet);
+
+const _storyFrameEl = document.getElementById('ig-story-frame') || document.querySelector('.ig-story-frame');
+if (_storyFrameEl) {
+  _storyFrameEl.addEventListener('touchstart', ev => {
+    if (!ev.touches || !ev.touches.length) return;
+    _storyTouchStartY = ev.touches[0].clientY;
+  }, { passive: true });
+
+  _storyFrameEl.addEventListener('touchend', ev => {
+    if (_storyTouchStartY === null || !ev.changedTouches || !ev.changedTouches.length) {
+      _storyTouchStartY = null;
+      return;
+    }
+
+    const endY = ev.changedTouches[0].clientY;
+    const deltaY = _storyTouchStartY - endY;
+    _storyTouchStartY = null;
+
+    if (deltaY > 70 && isCurrentUsersStory()) {
+      openStoryViewersSheet();
+    }
+  }, { passive: true });
 }
 </script>
 {% endblock %}
