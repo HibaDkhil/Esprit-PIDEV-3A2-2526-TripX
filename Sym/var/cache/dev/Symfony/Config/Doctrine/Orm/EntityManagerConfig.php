@@ -29,7 +29,9 @@ class EntityManagerConfig
     private $autoMapping;
     private $namingStrategy;
     private $quoteStrategy;
+    private $typedFieldMapper;
     private $entityListenerResolver;
+    private $fetchModeSubselectBatchSize;
     private $repositoryFactory;
     private $schemaIgnoreClasses;
     private $reportFieldsWhereDeclared;
@@ -39,6 +41,7 @@ class EntityManagerConfig
     private $mappings;
     private $dql;
     private $filters;
+    private $identityGenerationPreferences;
     private $_usedProperties = [];
 
     /**
@@ -222,6 +225,19 @@ class EntityManagerConfig
     }
 
     /**
+     * @default 'doctrine.orm.typed_field_mapper.default'
+     * @param ParamConfigurator|mixed $value
+     * @return $this
+     */
+    public function typedFieldMapper($value): static
+    {
+        $this->_usedProperties['typedFieldMapper'] = true;
+        $this->typedFieldMapper = $value;
+
+        return $this;
+    }
+
+    /**
      * @default null
      * @param ParamConfigurator|mixed $value
      * @return $this
@@ -230,6 +246,19 @@ class EntityManagerConfig
     {
         $this->_usedProperties['entityListenerResolver'] = true;
         $this->entityListenerResolver = $value;
+
+        return $this;
+    }
+
+    /**
+     * @default null
+     * @param ParamConfigurator|mixed $value
+     * @return $this
+     */
+    public function fetchModeSubselectBatchSize($value): static
+    {
+        $this->_usedProperties['fetchModeSubselectBatchSize'] = true;
+        $this->fetchModeSubselectBatchSize = $value;
 
         return $this;
     }
@@ -275,7 +304,7 @@ class EntityManagerConfig
     }
 
     /**
-     * Set to "true" to opt-in to the new mapping driver mode that was added in Doctrine ORM 2.14 and will be mandatory in ORM 3.0. See https://github.com/doctrine/orm/pull/6728.
+     * Set to "true" to opt-in to the new mapping driver mode that was added in Doctrine ORM 2.14. See https://github.com/doctrine/orm/pull/6728.
      * @default false
      * @param ParamConfigurator|bool $value
      * @return $this
@@ -374,6 +403,17 @@ class EntityManagerConfig
         return $this->filters[$name];
     }
 
+    /**
+     * @return $this
+     */
+    public function identityGenerationPreference(string $platform, mixed $value): static
+    {
+        $this->_usedProperties['identityGenerationPreferences'] = true;
+        $this->identityGenerationPreferences[$platform] = $value;
+
+        return $this;
+    }
+
     public function __construct(array $value = [])
     {
         if (array_key_exists('query_cache_driver', $value)) {
@@ -436,10 +476,22 @@ class EntityManagerConfig
             unset($value['quote_strategy']);
         }
 
+        if (array_key_exists('typed_field_mapper', $value)) {
+            $this->_usedProperties['typedFieldMapper'] = true;
+            $this->typedFieldMapper = $value['typed_field_mapper'];
+            unset($value['typed_field_mapper']);
+        }
+
         if (array_key_exists('entity_listener_resolver', $value)) {
             $this->_usedProperties['entityListenerResolver'] = true;
             $this->entityListenerResolver = $value['entity_listener_resolver'];
             unset($value['entity_listener_resolver']);
+        }
+
+        if (array_key_exists('fetch_mode_subselect_batch_size', $value)) {
+            $this->_usedProperties['fetchModeSubselectBatchSize'] = true;
+            $this->fetchModeSubselectBatchSize = $value['fetch_mode_subselect_batch_size'];
+            unset($value['fetch_mode_subselect_batch_size']);
         }
 
         if (array_key_exists('repository_factory', $value)) {
@@ -496,6 +548,12 @@ class EntityManagerConfig
             unset($value['filters']);
         }
 
+        if (array_key_exists('identity_generation_preferences', $value)) {
+            $this->_usedProperties['identityGenerationPreferences'] = true;
+            $this->identityGenerationPreferences = $value['identity_generation_preferences'];
+            unset($value['identity_generation_preferences']);
+        }
+
         if ([] !== $value) {
             throw new InvalidConfigurationException(sprintf('The following keys are not supported by "%s": ', __CLASS__).implode(', ', array_keys($value)));
         }
@@ -534,8 +592,14 @@ class EntityManagerConfig
         if (isset($this->_usedProperties['quoteStrategy'])) {
             $output['quote_strategy'] = $this->quoteStrategy;
         }
+        if (isset($this->_usedProperties['typedFieldMapper'])) {
+            $output['typed_field_mapper'] = $this->typedFieldMapper;
+        }
         if (isset($this->_usedProperties['entityListenerResolver'])) {
             $output['entity_listener_resolver'] = $this->entityListenerResolver;
+        }
+        if (isset($this->_usedProperties['fetchModeSubselectBatchSize'])) {
+            $output['fetch_mode_subselect_batch_size'] = $this->fetchModeSubselectBatchSize;
         }
         if (isset($this->_usedProperties['repositoryFactory'])) {
             $output['repository_factory'] = $this->repositoryFactory;
@@ -563,6 +627,9 @@ class EntityManagerConfig
         }
         if (isset($this->_usedProperties['filters'])) {
             $output['filters'] = array_map(fn ($v) => $v instanceof \Symfony\Config\Doctrine\Orm\EntityManagerConfig\FilterConfig ? $v->toArray() : $v, $this->filters);
+        }
+        if (isset($this->_usedProperties['identityGenerationPreferences'])) {
+            $output['identity_generation_preferences'] = $this->identityGenerationPreferences;
         }
 
         return $output;

@@ -134,4 +134,13 @@ class FrontController extends AbstractController
             'query' => $query
         ]);
     }
+
+    #[Route('/community', name: 'group_chat')]
+    public function groupChat(): Response
+    {
+        if (!$this->getUser()) {
+            return $this->redirectToRoute('app_login');
+        }
+        return $this->render('front/group_chat.html.twig');
+    }
 }

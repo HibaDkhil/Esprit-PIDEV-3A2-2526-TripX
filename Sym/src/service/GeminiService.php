@@ -75,23 +75,33 @@ class GeminiService
         $destinations = $context['destinations'] ?? [];
         $activities = $context['activities'] ?? [];
         $accommodations = $context['accommodations'] ?? [];
+        $history = $context['history'] ?? [];
 
         $prompt = "You are Aria, the TripX travel assistant. Talk like a real person in a chat: natural, warm, concise.\n\n";
 
         $prompt .= "CONVERSATION STYLE (most important):\n";
-        $prompt .= "- Greetings (hi, hello), thanks, jokes, \"no\", \"yes\", or short follow-ups → reply in 1–4 sentences. Do NOT dump lists or catalogue data.\n";
-        $prompt .= "- Answer the *latest* message. If they disagree or say \"no\", acknowledge it and ask what they'd prefer next.\n";
-        $prompt .= "- Only give bullet lists or several picks when they clearly want ideas, options, or a plan (e.g. trip ideas, where to go, hotels, activities).\n";
-        $prompt .= "- Never repeat the same long template twice in a row. Vary your wording.\n\n";
+        $prompt .= "- Greetings: Only greet the user by name (Hi [Name]!) if this is the absolute start of the conversation. If there is already history, just respond normally to the latest message.\n";
+        $prompt .= "- DO NOT ask clarifying questions unless absolutely necessary. Be extremely proactive. If a user asks for 'anything' or 'suggestions', instantly pick 2-3 specific options from the provided TripX catalogue and present them with enthusiasm.\n";
+        $prompt .= "- Answer the *latest* message concisely. Total response length: 1–3 sentences usually.\n";
+        $prompt .= "- When a user asks for a hotel, flight, or activity, output actual names from the provided catalogue immediately.\n\n";
 
         if ($userInfo && isset($userInfo['firstName'])) {
             $prompt .= "User's first name: " . $userInfo['firstName'] . ".\n\n";
         }
 
+        if (!empty($history)) {
+            $prompt .= "RECENT CONVERSATION HISTORY:\n";
+            foreach ($history as $h) {
+                $role = $h['role'] === 'user' ? 'User' : 'Aria';
+                $prompt .= $role . ": " . $h['content'] . "\n";
+            }
+            $prompt .= "\n";
+        }
+
         if ($preferences) {
             $prompt .= "Saved preferences (use when relevant):\n";
             if (isset($preferences['budgetMinPerNight']) && $preferences['budgetMinPerNight']) {
-                $prompt .= "- Budget: roughly $" . $preferences['budgetMinPerNight'] . "–" . ($preferences['budgetMaxPerNight'] ?? 'open') . " per night\n";
+                $prompt .= "- Budget: $" . $preferences['budgetMinPerNight'] . "–" . ($preferences['budgetMaxPerNight'] ?? 'open') . "\n";
             }
             if (isset($preferences['preferredClimate']) && $preferences['preferredClimate']) {
                 $prompt .= "- Climate: " . $preferences['preferredClimate'] . "\n";
@@ -99,44 +109,33 @@ class GeminiService
             if (isset($preferences['travelPace']) && $preferences['travelPace']) {
                 $prompt .= "- Pace: " . $preferences['travelPace'] . "\n";
             }
-            if (isset($preferences['groupType']) && $preferences['groupType']) {
-                $prompt .= "- Group: " . $preferences['groupType'] . "\n";
-            }
             $prompt .= "\n";
         }
 
         if (!empty($destinations)) {
-            $prompt .= "TripX catalogue — destinations you may recommend (only these; if none fit, say so honestly):\n";
+            $prompt .= "TripX catalogue — destinations: ";
             $lines = [];
-            foreach (array_slice($destinations, 0, 40) as $dest) {
-                $lines[] = $dest['name'] . " (" . $dest['country'] . ", " . ($dest['type'] ?? 'place') . ")";
+            foreach (array_slice($destinations, 0, 15) as $dest) {
+                $lines[] = $dest['name'];
             }
-            $prompt .= implode("; ", $lines) . "\n\n";
+            $prompt .= implode(", ", $lines) . "\n\n";
         }
 
         if (!empty($activities)) {
-            $prompt .= "Sample activities in the system (name — tie to destinations when you mention them):\n";
+            $prompt .= "Sample activities: ";
             $actLines = [];
-            foreach (array_slice($activities, 0, 25) as $a) {
-                $actLines[] = $a['name'] . " (" . ($a['category'] ?? 'activity') . ")";
+            foreach (array_slice($activities, 0, 10) as $a) {
+                $actLines[] = $a['name'];
             }
-            $prompt .= implode("; ", $actLines) . "\n\n";
+            $prompt .= implode(", ", $actLines) . "\n\n";
         }
 
-        if (!empty($accommodations)) {
-            $prompt .= "Hotels / stays in TripX data you can name when asked about accommodation:\n";
-            $prompt .= implode(", ", array_slice($accommodations, 0, 12)) . "\n\n";
-        }
-
-        $prompt .= "RULES:\n";
-        $prompt .= "1. Prefer destinations from the TripX list; mention real hotel names from the accommodation list when relevant.\n";
-        $prompt .= "2. Keep replies readable: short chat by default, longer only when they want detail.\n";
-        $prompt .= "3. Light emoji is OK (not every line).\n\n";
-        $prompt .= "User message:\n" . $userMessage . "\n\n";
+        $prompt .= "User message: " . $userMessage . "\n";
         $prompt .= "Aria:";
 
         return $prompt;
     }
+
 
     public function analyzeImage(string $imageBase64, string $userMessage, string $mimeType = 'image/jpeg'): string
     {

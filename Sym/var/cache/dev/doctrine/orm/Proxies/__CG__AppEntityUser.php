@@ -67,10 +67,10 @@ class User extends \App\Entity\User implements \Doctrine\ORM\Proxy\Proxy
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return ['__isInitialized__', '' . "\0" . 'App\\Entity\\User' . "\0" . 'userId', '' . "\0" . 'App\\Entity\\User' . "\0" . 'firstName', '' . "\0" . 'App\\Entity\\User' . "\0" . 'lastName', '' . "\0" . 'App\\Entity\\User' . "\0" . 'email', '' . "\0" . 'App\\Entity\\User' . "\0" . 'password', '' . "\0" . 'App\\Entity\\User' . "\0" . 'phoneNumber', '' . "\0" . 'App\\Entity\\User' . "\0" . 'role', '' . "\0" . 'App\\Entity\\User' . "\0" . 'status', '' . "\0" . 'App\\Entity\\User' . "\0" . 'emailVerified', '' . "\0" . 'App\\Entity\\User' . "\0" . 'gender', '' . "\0" . 'App\\Entity\\User' . "\0" . 'birthYear', '' . "\0" . 'App\\Entity\\User' . "\0" . 'bio', '' . "\0" . 'App\\Entity\\User' . "\0" . 'avatarId', '' . "\0" . 'App\\Entity\\User' . "\0" . 'createdAt', '' . "\0" . 'App\\Entity\\User' . "\0" . 'updatedAt', '' . "\0" . 'App\\Entity\\User' . "\0" . 'plainPassword'];
+            return ['__isInitialized__', '' . "\0" . 'App\\Entity\\User' . "\0" . 'userId', '' . "\0" . 'App\\Entity\\User' . "\0" . 'firstName', '' . "\0" . 'App\\Entity\\User' . "\0" . 'lastName', '' . "\0" . 'App\\Entity\\User' . "\0" . 'email', '' . "\0" . 'App\\Entity\\User' . "\0" . 'password', '' . "\0" . 'App\\Entity\\User' . "\0" . 'phoneNumber', '' . "\0" . 'App\\Entity\\User' . "\0" . 'role', '' . "\0" . 'App\\Entity\\User' . "\0" . 'status', '' . "\0" . 'App\\Entity\\User' . "\0" . 'emailVerified', '' . "\0" . 'App\\Entity\\User' . "\0" . 'gender', '' . "\0" . 'App\\Entity\\User' . "\0" . 'birthYear', '' . "\0" . 'App\\Entity\\User' . "\0" . 'bio', '' . "\0" . 'App\\Entity\\User' . "\0" . 'avatarId', '' . "\0" . 'App\\Entity\\User' . "\0" . 'createdAt', '' . "\0" . 'App\\Entity\\User' . "\0" . 'updatedAt', '' . "\0" . 'App\\Entity\\User' . "\0" . 'plainPassword', '' . "\0" . 'App\\Entity\\User' . "\0" . 'facePersonId', '' . "\0" . 'App\\Entity\\User' . "\0" . 'faceDescriptor'];
         }
 
-        return ['__isInitialized__', '' . "\0" . 'App\\Entity\\User' . "\0" . 'userId', '' . "\0" . 'App\\Entity\\User' . "\0" . 'firstName', '' . "\0" . 'App\\Entity\\User' . "\0" . 'lastName', '' . "\0" . 'App\\Entity\\User' . "\0" . 'email', '' . "\0" . 'App\\Entity\\User' . "\0" . 'password', '' . "\0" . 'App\\Entity\\User' . "\0" . 'phoneNumber', '' . "\0" . 'App\\Entity\\User' . "\0" . 'role', '' . "\0" . 'App\\Entity\\User' . "\0" . 'status', '' . "\0" . 'App\\Entity\\User' . "\0" . 'emailVerified', '' . "\0" . 'App\\Entity\\User' . "\0" . 'gender', '' . "\0" . 'App\\Entity\\User' . "\0" . 'birthYear', '' . "\0" . 'App\\Entity\\User' . "\0" . 'bio', '' . "\0" . 'App\\Entity\\User' . "\0" . 'avatarId', '' . "\0" . 'App\\Entity\\User' . "\0" . 'createdAt', '' . "\0" . 'App\\Entity\\User' . "\0" . 'updatedAt', '' . "\0" . 'App\\Entity\\User' . "\0" . 'plainPassword'];
+        return ['__isInitialized__', '' . "\0" . 'App\\Entity\\User' . "\0" . 'userId', '' . "\0" . 'App\\Entity\\User' . "\0" . 'firstName', '' . "\0" . 'App\\Entity\\User' . "\0" . 'lastName', '' . "\0" . 'App\\Entity\\User' . "\0" . 'email', '' . "\0" . 'App\\Entity\\User' . "\0" . 'password', '' . "\0" . 'App\\Entity\\User' . "\0" . 'phoneNumber', '' . "\0" . 'App\\Entity\\User' . "\0" . 'role', '' . "\0" . 'App\\Entity\\User' . "\0" . 'status', '' . "\0" . 'App\\Entity\\User' . "\0" . 'emailVerified', '' . "\0" . 'App\\Entity\\User' . "\0" . 'gender', '' . "\0" . 'App\\Entity\\User' . "\0" . 'birthYear', '' . "\0" . 'App\\Entity\\User' . "\0" . 'bio', '' . "\0" . 'App\\Entity\\User' . "\0" . 'avatarId', '' . "\0" . 'App\\Entity\\User' . "\0" . 'createdAt', '' . "\0" . 'App\\Entity\\User' . "\0" . 'updatedAt', '' . "\0" . 'App\\Entity\\User' . "\0" . 'plainPassword', '' . "\0" . 'App\\Entity\\User' . "\0" . 'facePersonId', '' . "\0" . 'App\\Entity\\User' . "\0" . 'faceDescriptor'];
     }
 
     /**
@@ -564,6 +564,50 @@ class User extends \App\Entity\User implements \Doctrine\ORM\Proxy\Proxy
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getRoles', []);
 
         return parent::getRoles();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getFacePersonId(): ?string
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getFacePersonId', []);
+
+        return parent::getFacePersonId();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setFacePersonId(?string $facePersonId): static
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setFacePersonId', [$facePersonId]);
+
+        return parent::setFacePersonId($facePersonId);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getFaceDescriptor(): ?array
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getFaceDescriptor', []);
+
+        return parent::getFaceDescriptor();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setFaceDescriptor(?array $faceDescriptor): static
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setFaceDescriptor', [$faceDescriptor]);
+
+        return parent::setFaceDescriptor($faceDescriptor);
     }
 
     /**

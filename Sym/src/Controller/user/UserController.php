@@ -3,6 +3,7 @@
 namespace App\Controller\user;
 
 use App\Entity\User;
+use App\service\LoyaltyService;
 use App\service\PreferenceService;
 use App\service\UserProfileService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,12 +18,14 @@ class UserController extends AbstractController
     private UserProfileService $profileService;
     private PreferenceService $preferenceService;
     private Security $security;
+    private LoyaltyService $loyaltyService;
 
-    public function __construct(UserProfileService $profileService, PreferenceService $preferenceService, Security $security)
+    public function __construct(UserProfileService $profileService, PreferenceService $preferenceService, Security $security, LoyaltyService $loyaltyService)
     {
         $this->profileService = $profileService;
         $this->preferenceService = $preferenceService;
         $this->security = $security;
+        $this->loyaltyService = $loyaltyService;
     }
 
     /**
@@ -42,11 +45,29 @@ class UserController extends AbstractController
         // Get enriched profile data from service
         $profileData = $this->profileService->getProfileData($user);
         
-        // Get avatar style from session (default to 'adventurer')
-        $avatarStyle = $request->getSession()->get('user_avatar_style', 'adventurer');
+        $styles = ['adventurer','adventurer-neutral','avataaars','bottts','croodles','dylan','fun-emoji','glass','identicon','initials','lorelei','micah','miniavs','notionists','open-peeps'];
+        
+        // Get avatar style from session
+        $avatarStyle = $request->getSession()->get('user_avatar_style');
+        
+        // If not in session, try database
+        if (!$avatarStyle && $user->getAvatarId() !== null) {
+            $idx = $user->getAvatarId();
+            if (isset($styles[$idx])) {
+                $avatarStyle = $styles[$idx];
+                $request->getSession()->set('user_avatar_style', $avatarStyle);
+            }
+        }
+        
+        // Fallback
+        $avatarStyle = $avatarStyle ?: 'adventurer';
         
         // Merge avatar style into profile data
         $profileData['userAvatarStyle'] = $avatarStyle;
+
+        // Real loyalty data
+        $loyalty = $this->loyaltyService->getOrCreate((int) $user->getUserId());
+        $profileData['loyalty'] = $loyalty;
 
         return $this->render('front/users.html.twig', $profileData);
     }
@@ -55,7 +76,7 @@ class UserController extends AbstractController
      * Save user avatar style
      */
     #[Route('/profile/avatar', name: 'profile_avatar', methods: ['POST'])]
-    public function saveAvatar(Request $request): JsonResponse
+    public function saveAvatar(Request $request, \Doctrine\ORM\EntityManagerInterface $em): JsonResponse
     {
         /** @var User|null $user */
         $user = $this->getUser();
@@ -66,6 +87,14 @@ class UserController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
         $avatarStyle = $data['style'] ?? 'adventurer';
+
+        $styles = ['adventurer','adventurer-neutral','avataaars','bottts','croodles','dylan','fun-emoji','glass','identicon','initials','lorelei','micah','miniavs','notionists','open-peeps'];
+        $idx = array_search($avatarStyle, $styles);
+        
+        if ($idx !== false) {
+            $user->setAvatarId($idx);
+            $em->flush();
+        }
 
         // Store avatar style in session
         $request->getSession()->set('user_avatar_style', $avatarStyle);

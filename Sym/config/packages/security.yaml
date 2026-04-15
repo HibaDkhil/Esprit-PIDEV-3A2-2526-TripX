@@ -36,15 +36,21 @@ security:
                 target: app_login
 
     access_control:
-        - { path: ^/$, roles: PUBLIC_ACCESS }
-        - { path: ^/login, roles: PUBLIC_ACCESS }
-        - { path: ^/connect, roles: PUBLIC_ACCESS }
-        - { path: ^/register, roles: PUBLIC_ACCESS }
-        - { path: ^/forgot-password, roles: PUBLIC_ACCESS }
-        - { path: ^/onboarding, roles: PUBLIC_ACCESS }
-        - { path: ^/preferences, roles: PUBLIC_ACCESS }
-        - { path: ^/images, roles: PUBLIC_ACCESS }
-        - { path: ^/css, roles: PUBLIC_ACCESS }
-        - { path: ^/js, roles: PUBLIC_ACCESS }
-        - { path: ^/admin, roles: [ROLE_ADMIN, ROLE_ADMIN_DESTINATION, ROLE_ADMIN_ACCOMODATION, ROLE_ADMIN_OFFERS, ROLE_ADMIN_BLOG, ROLE_ADMIN_TRANSPORT] }
-        - { path: ^/, roles: ROLE_USER }
+        - { path: ^/$,                 roles: PUBLIC_ACCESS }
+        - { path: ^/login,             roles: PUBLIC_ACCESS }
+        - { path: ^/connect,           roles: PUBLIC_ACCESS }
+        - { path: ^/register,          roles: PUBLIC_ACCESS }
+        - { path: ^/forgot-password,   roles: PUBLIC_ACCESS }
+        - { path: ^/onboarding,        roles: PUBLIC_ACCESS }
+        - { path: ^/preferences,       roles: PUBLIC_ACCESS }
+        - { path: ^/images,            roles: PUBLIC_ACCESS }
+        - { path: ^/css,               roles: PUBLIC_ACCESS }
+        - { path: ^/js,                roles: PUBLIC_ACCESS }
+        # Face API — login & login-page are public; setup/register/remove require auth
+        - { path: ^/face/login-page,   roles: PUBLIC_ACCESS }
+        - { path: ^/face/login$,       roles: PUBLIC_ACCESS }
+        - { path: ^/face/setup,        roles: ROLE_USER }
+        - { path: ^/face/register,     roles: ROLE_USER }
+        - { path: ^/face/remove,       roles: ROLE_USER }
+        - { path: ^/admin,             roles: [ROLE_ADMIN, ROLE_ADMIN_DESTINATION, ROLE_ADMIN_ACCOMODATION, ROLE_ADMIN_OFFERS, ROLE_ADMIN_BLOG, ROLE_ADMIN_TRANSPORT] }
+        - { path: ^/,                  roles: ROLE_USER }

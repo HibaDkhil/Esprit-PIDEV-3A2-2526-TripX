@@ -16,6 +16,7 @@ class OrmConfig
     private $defaultEntityManager;
     private $autoGenerateProxyClasses;
     private $enableLazyGhostObjects;
+    private $enableNativeLazyObjects;
     private $proxyDir;
     private $proxyNamespace;
     private $controllerResolver;
@@ -37,7 +38,7 @@ class OrmConfig
     }
 
     /**
-     * Auto generate mode possible values are: "NEVER", "ALWAYS", "FILE_NOT_EXISTS", "EVAL", "FILE_NOT_EXISTS_OR_CHANGED"
+     * Auto generate mode possible values are: "NEVER", "ALWAYS", "FILE_NOT_EXISTS", "EVAL", "FILE_NOT_EXISTS_OR_CHANGED", this option is ignored when the "enable_native_lazy_objects" option is true
      * @default false
      * @param ParamConfigurator|mixed $value
      * @return $this
@@ -65,7 +66,22 @@ class OrmConfig
     }
 
     /**
-     * @default '%kernel.cache_dir%/doctrine/orm/Proxies'
+     * Enables the new native implementation of PHP lazy objects instead of generated proxies
+     * @default false
+     * @param ParamConfigurator|bool $value
+     * @return $this
+     */
+    public function enableNativeLazyObjects($value): static
+    {
+        $this->_usedProperties['enableNativeLazyObjects'] = true;
+        $this->enableNativeLazyObjects = $value;
+
+        return $this;
+    }
+
+    /**
+     * Configures the path where generated proxy classes are saved when using non-native lazy objects, this option is ignored when the "enable_native_lazy_objects" option is true
+     * @default '%kernel.build_dir%/doctrine/orm/Proxies'
      * @param ParamConfigurator|mixed $value
      * @return $this
      */
@@ -78,6 +94,7 @@ class OrmConfig
     }
 
     /**
+     * Defines the root namespace for generated proxy classes when using non-native lazy objects, this option is ignored when the "enable_native_lazy_objects" option is true
      * @default 'Proxies'
      * @param ParamConfigurator|mixed $value
      * @return $this
@@ -148,6 +165,12 @@ class OrmConfig
             unset($value['enable_lazy_ghost_objects']);
         }
 
+        if (array_key_exists('enable_native_lazy_objects', $value)) {
+            $this->_usedProperties['enableNativeLazyObjects'] = true;
+            $this->enableNativeLazyObjects = $value['enable_native_lazy_objects'];
+            unset($value['enable_native_lazy_objects']);
+        }
+
         if (array_key_exists('proxy_dir', $value)) {
             $this->_usedProperties['proxyDir'] = true;
             $this->proxyDir = $value['proxy_dir'];
@@ -194,6 +217,9 @@ class OrmConfig
         }
         if (isset($this->_usedProperties['enableLazyGhostObjects'])) {
             $output['enable_lazy_ghost_objects'] = $this->enableLazyGhostObjects;
+        }
+        if (isset($this->_usedProperties['enableNativeLazyObjects'])) {
+            $output['enable_native_lazy_objects'] = $this->enableNativeLazyObjects;
         }
         if (isset($this->_usedProperties['proxyDir'])) {
             $output['proxy_dir'] = $this->proxyDir;

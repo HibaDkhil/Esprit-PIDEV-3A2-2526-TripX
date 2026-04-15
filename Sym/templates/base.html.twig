@@ -11,6 +11,9 @@
 <body class="page-wipe-container"{% if app.user %} data-auth="1"{% endif %}>
     <div id="cursor-dot"></div>
     <div id="cursor-halo"></div>
+    
+    {% include 'front/aria_chat.html.twig' %}
+
 
     <nav class="nav" id="main-nav" style="position: relative; z-index: 1000;">
         <div class="nav-inner">
@@ -60,6 +63,7 @@
         {% block body %}{% endblock %}
     </main>
 
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
@@ -74,7 +78,11 @@
     <script src="/assets.php?f=js/main.js"></script>
     <script src="/js/tracker.js"></script>
     {% block javascripts %}{% endblock %}
+    
+    
+
 </body>
+
 </html>
 
 

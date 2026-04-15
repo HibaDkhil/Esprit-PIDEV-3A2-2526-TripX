@@ -1,0 +1,127 @@
+{# templates/front/face_login.html.twig #}
+{% extends 'front/base_auth.html.twig' %}
+{% block title %}Face Login — TripX{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ asset('css/face-ui.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="fl-bg">
+  <div class="fl-orb fl-orb--1"></div>
+  <div class="fl-orb fl-orb--2"></div>
+  <canvas id="fl-grid"></canvas>
+</div>
+
+<div class="fl-wrap" style="padding-top: 80px;">
+
+  {# ── Brand ── #}
+  <a href="{{ path('app_login') }}" class="fl-brand">
+    <svg viewBox="0 0 38 38" fill="none"><circle cx="19" cy="19" r="19" fill="white" fill-opacity=".12"/><text x="7" y="26" font-size="18" font-family="serif" fill="white">✈</text></svg>
+    TripX
+  </a>
+
+  <div class="fl-card">
+
+    {# ── Header ── #}
+    <div class="fl-header">
+      <div class="fl-eyebrow">
+        <span class="fl-dot"></span>
+        <span>BIOMETRIC AUTHENTICATION</span>
+      </div>
+      <h1 class="fl-title">Face <span class="fl-accent">Login</span></h1>
+      <p class="fl-sub">Look at the camera — ARIA will recognise you instantly</p>
+    </div>
+
+    {# ── Camera viewport ── #}
+    <div class="fl-viewport" id="flViewport">
+      <video id="flVideo" autoplay playsinline muted></video>
+      <canvas id="flCanvas" style="display:none"></canvas>
+
+      {# Scanning overlay + head guide #}
+      <div class="fl-scan-frame" id="flScanFrame">
+        <div class="fl-corner fl-corner--tl"></div>
+        <div class="fl-corner fl-corner--tr"></div>
+        <div class="fl-corner fl-corner--bl"></div>
+        <div class="fl-corner fl-corner--br"></div>
+        <div class="fl-scan-line" id="flScanLine"></div>
+        {# Dashed head-shape oval — align your face here #}
+        <div class="fl-face-oval" id="flFaceOval"></div>
+      </div>
+
+      {# State overlays #}
+      <div class="fl-overlay fl-overlay--loading" id="flOverlayLoad" style="display:none">
+        <div class="fl-spinner"></div>
+        <span>Analysing…</span>
+      </div>
+      <div class="fl-overlay fl-overlay--success" id="flOverlaySuccess" style="display:none">
+        <div class="fl-check">✓</div>
+        <span id="flSuccessMsg">Identity confirmed</span>
+      </div>
+      <div class="fl-overlay fl-overlay--error" id="flOverlayError" style="display:none">
+        <div class="fl-x">✕</div>
+        <span id="flErrorMsg">Not recognised</span>
+      </div>
+
+      {# Confidence meter ── shown on success #}
+      <div class="fl-confidence" id="flConfidence" style="display:none">
+        <div class="fl-conf-label">Confidence</div>
+        <div class="fl-conf-bar"><div class="fl-conf-fill" id="flConfFill"></div></div>
+        <div class="fl-conf-val" id="flConfVal">0%</div>
+      </div>
+    </div>
+
+    {# Scan progress #}
+    <div class="fl-scan-pct" id="flScanPct" style="display:none">0%</div>
+
+    {# Guidance hint #}
+    <div id="flGuidanceHint" style="
+      text-align:center; font-size:0.82rem; margin-top:-4px; margin-bottom:4px;
+      padding:6px 16px; border-radius:50px;
+      background:rgba(34,211,238,0.07); border:1px solid rgba(34,211,238,0.2);
+      color:rgba(34,211,238,0.85); display:none;
+    "></div>
+
+    {# Status text #}
+    <div class="fl-status" id="flStatus">
+      <span class="fl-status-dot" id="flStatusDot"></span>
+      <span id="flStatusText">Starting camera…</span>
+    </div>
+
+    {# Actions #}
+    <div class="fl-actions">
+      <button class="fl-btn fl-btn--primary" id="flLoginBtn" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2C9.2 2 7 4.2 7 7s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5z"/>
+          <path d="M20 21c0-4.4-3.6-8-8-8s-8 3.6-8 8"/>
+        </svg>
+        Login with Face
+      </button>
+      <a href="{{ path('app_login') }}" class="fl-btn fl-btn--ghost">
+        Use Password Instead
+      </a>
+    </div>
+
+    <div class="fl-footer-note">
+      Don't have face login set up?
+      <a href="{{ path('app_login') }}">Sign in with email</a> first, then visit
+      <strong>Profile → Setup Face Login</strong>.
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script>
+window.TRIPX_FACE = {
+  loginUrl:  "{{ path('face_login') }}",
+  homeUrl:   "{{ path('index') }}",
+  modelsUrl: "https://raw.githack.com/justadudewhohacks/face-api.js/master/weights/"
+};
+console.log('TripX Face Login Config:', window.TRIPX_FACE);
+</script>
+<script src="{{ asset('js/face-camera.js') }}"></script>
+<script src="{{ asset('js/face-login.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,151 @@
+{# templates/front/face_setup.html.twig #}
+{% extends 'front/base_auth.html.twig' %}
+{% block title %}Setup Face Login — TripX{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ asset('css/face-ui.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="fl-bg">
+  <div class="fl-orb fl-orb--1" style="background:var(--teal)"></div>
+  <div class="fl-orb fl-orb--2"></div>
+  <canvas id="fl-grid"></canvas>
+</div>
+
+<div class="fl-wrap" style="padding-top: 80px;">
+
+  <a href="{{ path('users') }}" class="fl-brand">
+    <svg viewBox="0 0 38 38" fill="none"><circle cx="19" cy="19" r="19" fill="white" fill-opacity=".12"/><text x="7" y="26" font-size="18" font-family="serif" fill="white">✈</text></svg>
+    TripX
+  </a>
+
+  <div class="fl-card fl-card--setup">
+
+    <div class="fl-header">
+      <div class="fl-eyebrow" style="color:var(--teal);border-color:rgba(34,211,238,.25);background:rgba(34,211,238,.06)">
+        <span class="fl-dot" style="background:var(--teal)"></span>
+        <span>FACE REGISTRATION</span>
+      </div>
+      <h1 class="fl-title">Register <span class="fl-accent" style="background:linear-gradient(135deg,var(--teal),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Your Face</span></h1>
+      <p class="fl-sub">
+        Hello, <strong style="color:var(--text)">{{ user.firstName }}</strong>!
+        {% if already_registered %}
+          Your face is already registered. You can update it below.
+        {% else %}
+          Set up face login for instant, password-free access.
+        {% endif %}
+      </p>
+    </div>
+
+    {# Steps guide #}
+    <div class="fl-steps">
+      <div class="fl-step" id="step1">
+        <div class="fl-step__num">1</div>
+        <div class="fl-step__text">Allow camera access</div>
+      </div>
+      <div class="fl-step-arrow">→</div>
+      <div class="fl-step" id="step2">
+        <div class="fl-step__num">2</div>
+        <div class="fl-step__text">Centre your face</div>
+      </div>
+      <div class="fl-step-arrow">→</div>
+      <div class="fl-step" id="step3">
+        <div class="fl-step__num">3</div>
+        <div class="fl-step__text">Capture & register</div>
+      </div>
+    </div>
+
+    {# Camera viewport #}
+    <div class="fl-viewport" id="flViewport">
+      <video id="flVideo" autoplay playsinline muted></video>
+      <canvas id="flCanvas" style="display:none"></canvas>
+
+      <div class="fl-scan-frame" id="flScanFrame">
+        <div class="fl-corner fl-corner--tl" style="border-color:var(--teal)"></div>
+        <div class="fl-corner fl-corner--tr" style="border-color:var(--teal)"></div>
+        <div class="fl-corner fl-corner--bl" style="border-color:var(--teal)"></div>
+        <div class="fl-corner fl-corner--br" style="border-color:var(--teal)"></div>
+        <div class="fl-scan-line" id="flScanLine" style="background:linear-gradient(90deg,transparent,var(--teal),transparent)"></div>
+        <div class="fl-face-oval" id="flFaceOval"></div>
+      </div>
+
+      <div class="fl-overlay fl-overlay--loading" id="flOverlayLoad" style="display:none">
+        <div class="fl-spinner" style="border-top-color:var(--teal)"></div>
+        <span>Registering your face…</span>
+      </div>
+      <div class="fl-overlay fl-overlay--success" id="flOverlaySuccess" style="display:none">
+        <div class="fl-check" style="background:rgba(34,211,238,.15);color:var(--teal)">✓</div>
+        <span id="flSuccessMsg">Face registered!</span>
+      </div>
+      <div class="fl-overlay fl-overlay--error" id="flOverlayError" style="display:none">
+        <div class="fl-x">✕</div>
+        <span id="flErrorMsg">Try again</span>
+      </div>
+
+      {# Live face quality indicator #}
+      <div class="fl-quality" id="flQuality">
+        <div class="fl-qual-item" id="qLight">
+          <span class="fl-qual-icon">☀️</span>
+          <span class="fl-qual-label">Lighting</span>
+          <span class="fl-qual-dot"></span>
+        </div>
+        <div class="fl-qual-item" id="qPos">
+          <span class="fl-qual-icon">🎯</span>
+          <span class="fl-qual-label">Position</span>
+          <span class="fl-qual-dot"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="fl-scan-pct" id="flScanPct">0%</div>
+
+    <div class="fl-status" id="flStatus">
+      <span class="fl-status-dot" id="flStatusDot"></span>
+      <span id="flStatusText">Starting camera…</span>
+    </div>
+
+    <div class="fl-actions">
+      <button class="fl-btn fl-btn--primary" id="flRegisterBtn" disabled
+              style="background:linear-gradient(135deg,var(--teal),var(--gold));color:var(--navy)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2C9.2 2 7 4.2 7 7s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5z"/>
+          <circle cx="12" cy="19" r="3"/><path d="M15 19h4m-2-2v4"/>
+        </svg>
+        Register My Face
+      </button>
+      <a href="{{ path('users') }}" class="fl-btn fl-btn--ghost">← Back to Profile</a>
+    </div>
+
+    {% if already_registered %}
+    <div class="fl-already-note">
+      <span>✅</span>
+      Face login is active on your account.
+      <button class="fl-unlink-btn" id="flUnlinkBtn">Remove face data</button>
+    </div>
+    {% endif %}
+
+    <div class="fl-tips">
+      <div class="fl-tip"><span>💡</span> Good lighting improves accuracy significantly</div>
+      <div class="fl-tip"><span>📐</span> Keep your face centred inside the oval</div>
+      <div class="fl-tip"><span>😐</span> Neutral expression works best</div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script>
+window.TRIPX_FACE = {
+  registerUrl: "{{ path('face_register') }}",
+  removeUrl:   "{{ path('face_remove') }}",
+  profileUrl:  "{{ path('users') }}",
+  modelsUrl:   "https://raw.githack.com/justadudewhohacks/face-api.js/master/weights/"
+};
+console.log('TripX Face Config:', window.TRIPX_FACE);
+</script>
+<script src="{{ asset('js/face-camera.js') }}"></script>
+<script src="{{ asset('js/face-setup.js') }}"></script>
+{% endblock %}

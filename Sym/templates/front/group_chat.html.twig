@@ -1,0 +1,454 @@
+{# templates/front/community_chat.html.twig #}
+{% extends 'base.html.twig' %}
+{% block title %}TripX Community — Chat{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ asset('css/community-chat.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+{% endblock %}
+
+{% block body %}
+<div class="cc-page" id="communityPage">
+
+  {# Ambient orbs #}
+  <div class="cc-orb cc-orb--1"></div>
+  <div class="cc-orb cc-orb--2"></div>
+  <div class="cc-orb cc-orb--3"></div>
+
+  {# ══ SIDEBAR: Group list ══ #}
+  <aside class="cc-sidebar">
+    <div class="cc-sidebar-header">
+      <a href="{{ path('index') }}" class="cc-brand">
+        <svg viewBox="0 0 38 38" fill="none"><circle cx="19" cy="19" r="19" fill="white" fill-opacity=".12"/><text x="7" y="26" font-size="18" font-family="serif" fill="white">✈</text></svg>
+        <span>Community</span>
+      </a>
+      <button class="cc-new-btn" id="createGroupBtn" title="New Group">
+        <i class="fas fa-plus"></i>
+      </button>
+    </div>
+
+    <div class="cc-search">
+      <div class="cc-search-wrap">
+        <i class="fas fa-search cc-search-icon"></i>
+        <input type="text" class="cc-search-input" placeholder="Search groups…" id="groupSearch">
+      </div>
+    </div>
+
+    <div class="cc-groups-label">Groups</div>
+
+    <div class="cc-groups-list" id="groupsList">
+
+      {# ── Static demo groups — replace with Twig loop once Firebase linked ── #}
+
+      <div class="cc-group-item active" data-group="bali-explorers">
+        <div class="cc-group-avatar" style="background: linear-gradient(135deg,#f4b942,#e8960a)">
+          🌴
+          <span class="cc-group-online"></span>
+        </div>
+        <div class="cc-group-info">
+          <div class="cc-group-name">Bali Explorers</div>
+          <div class="cc-group-preview">Sarah: Just arrived at Ubud! 🌿</div>
+        </div>
+        <div class="cc-group-meta">
+          <span class="cc-group-time">2m</span>
+          <span class="cc-group-badge">3</span>
+        </div>
+      </div>
+
+      <div class="cc-group-item" data-group="paris-vibes">
+        <div class="cc-group-avatar" style="background: linear-gradient(135deg,#a78bfa,#7928ca)">
+          🗼
+        </div>
+        <div class="cc-group-info">
+          <div class="cc-group-name">Paris Vibes</div>
+          <div class="cc-group-preview">Anyone near Montmartre today?</div>
+        </div>
+        <div class="cc-group-meta">
+          <span class="cc-group-time">18m</span>
+        </div>
+      </div>
+
+      <div class="cc-group-item" data-group="japan-2025">
+        <div class="cc-group-avatar" style="background: linear-gradient(135deg,#f87171,#ef4444)">
+          🗾
+        </div>
+        <div class="cc-group-info">
+          <div class="cc-group-name">Japan 2025 🌸</div>
+          <div class="cc-group-preview">Rafael: Cherry blossoms are PEAK!</div>
+        </div>
+        <div class="cc-group-meta">
+          <span class="cc-group-time">1h</span>
+          <span class="cc-group-badge">12</span>
+        </div>
+      </div>
+
+      <div class="cc-group-item" data-group="maldives-dreams">
+        <div class="cc-group-avatar" style="background: linear-gradient(135deg,#22d3ee,#0072ff)">
+          🐠
+        </div>
+        <div class="cc-group-info">
+          <div class="cc-group-name">Maldives Dreams</div>
+          <div class="cc-group-preview">The villa photos are 🔥🔥🔥</div>
+        </div>
+        <div class="cc-group-meta">
+          <span class="cc-group-time">3h</span>
+        </div>
+      </div>
+
+      <div class="cc-group-item" data-group="backpackers">
+        <div class="cc-group-avatar" style="background: linear-gradient(135deg,#0fd850,#056f27)">
+          🎒
+        </div>
+        <div class="cc-group-info">
+          <div class="cc-group-name">Budget Backpackers</div>
+          <div class="cc-group-preview">Found €18 hostel in Lisbon!</div>
+        </div>
+        <div class="cc-group-meta">
+          <span class="cc-group-time">5h</span>
+          <span class="cc-group-badge">1</span>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  {# ══ MAIN: Chat area ══ #}
+  <main class="cc-main">
+
+    {# Chat header #}
+    <div class="cc-header">
+      <div class="cc-header-avatar" style="background: linear-gradient(135deg,#f4b942,#e8960a); font-size: 1.4rem;">🌴</div>
+      <div class="cc-header-info">
+        <div class="cc-header-name">
+          <span id="chatGroupName">Bali Explorers</span>
+          <span class="cc-verified" title="Verified Group"><i class="fas fa-circle-check"></i></span>
+        </div>
+        <div class="cc-header-meta">
+          <span class="cc-online-dot"></span>
+          <span id="chatMemberCount">847 members</span> · <span id="chatOnlineCount">124 online</span>
+        </div>
+      </div>
+      <div class="cc-header-actions">
+        <button class="cc-header-btn" title="Search Messages"><i class="fas fa-magnifying-glass"></i></button>
+        <button class="cc-header-btn" title="Pinned Messages"><i class="fas fa-thumbtack"></i></button>
+        <button class="cc-header-btn" title="Members"><i class="fas fa-users"></i></button>
+        <button class="cc-header-btn" title="More Options"><i class="fas fa-ellipsis-vertical"></i></button>
+      </div>
+    </div>
+
+    {# Messages #}
+    <div class="cc-messages" id="messagesContainer">
+
+      <div class="cc-date-divider">Today</div>
+
+      {# System message #}
+      <div class="cc-msg-row system">
+        <div class="cc-bubble">👋 You joined Bali Explorers</div>
+      </div>
+
+      {# Incoming: Sarah #}
+      <div class="cc-msg-row theirs" data-user="sarah">
+        <div class="cc-msg-avatar" style="background: linear-gradient(135deg,#f87171,#ef4444); color:#fff">S</div>
+        <div class="cc-msg-body">
+          <div class="cc-msg-sender">Sarah M.</div>
+          <div class="cc-bubble">Just arrived at Ubud! The rice terraces are absolutely breathtaking 🌿</div>
+          <div class="cc-msg-time">10:24 AM</div>
+        </div>
+      </div>
+
+      <div class="cc-msg-row theirs consecutive" data-user="sarah">
+        <div class="cc-msg-avatar" style="background: linear-gradient(135deg,#f87171,#ef4444); color:#fff">S</div>
+        <div class="cc-msg-body">
+          <div class="cc-bubble">Anyone have recommendations for a good <em>warung</em> around here?</div>
+          <div class="cc-reactions">
+            <div class="cc-reaction active" onclick="this.classList.toggle('active');this.querySelector('.cc-reaction-count').textContent=this.classList.contains('active')?'5':'4'">❤️ <span class="cc-reaction-count">5</span></div>
+            <div class="cc-reaction" onclick="this.classList.toggle('active')">😍 <span class="cc-reaction-count">3</span></div>
+          </div>
+          <div class="cc-msg-time">10:25 AM</div>
+        </div>
+      </div>
+
+      {# Incoming: Rafael #}
+      <div class="cc-msg-row theirs" data-user="rafael">
+        <div class="cc-msg-avatar" style="background: linear-gradient(135deg,#a78bfa,#7928ca); color:#fff">R</div>
+        <div class="cc-msg-body">
+          <div class="cc-msg-sender">Rafael K.</div>
+          <div class="cc-bubble">Try <strong>Warung Babi Guling Ibu Oka</strong> near the palace — absolute perfection 🍛</div>
+          <div class="cc-msg-time">10:28 AM</div>
+        </div>
+      </div>
+
+      {# Mine (sent) #}
+      <div class="cc-msg-row mine" data-user="me">
+        <div class="cc-msg-avatar" style="background: linear-gradient(135deg,#0072ff,#00e5ff); color:#fff">
+          {{ app.user ? app.user.firstName|first|upper : 'Y' }}
+        </div>
+        <div class="cc-msg-body">
+          <div class="cc-bubble">We just got here too! The vibe is incredible 🙌</div>
+          <div class="cc-msg-time">10:31 AM <span class="cc-tick">✓✓</span></div>
+        </div>
+      </div>
+
+      <div class="cc-msg-row mine consecutive" data-user="me">
+        <div class="cc-msg-avatar" style="background: linear-gradient(135deg,#0072ff,#00e5ff); color:#fff">
+          {{ app.user ? app.user.firstName|first|upper : 'Y' }}
+        </div>
+        <div class="cc-msg-body">
+          <div class="cc-bubble">@Rafael saving that recommendation, thank you! 🙏</div>
+          <div class="cc-msg-time">10:31 AM <span class="cc-tick">✓✓</span></div>
+        </div>
+      </div>
+
+      {# Incoming: Lucas with photo #}
+      <div class="cc-msg-row theirs" data-user="lucas">
+        <div class="cc-msg-avatar" style="background: linear-gradient(135deg,#22d3ee,#0072ff); color:#fff">L</div>
+        <div class="cc-msg-body">
+          <div class="cc-msg-sender">Lucas B.</div>
+          <div class="cc-media-msg cc-bubble" style="padding:0; background:transparent; border:none;">
+            <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=280&auto=format&fit=crop" alt="Bali photo" style="border-radius:14px;">
+          </div>
+          <div class="cc-bubble" style="margin-top:4px">Tanah Lot at sunset. No filter needed 🌅</div>
+          <div class="cc-reactions">
+            <div class="cc-reaction active" onclick="this.classList.toggle('active')">🔥 <span class="cc-reaction-count">18</span></div>
+            <div class="cc-reaction" onclick="this.classList.toggle('active')">😍 <span class="cc-reaction-count">9</span></div>
+            <div class="cc-reaction" onclick="this.classList.toggle('active')">👏 <span class="cc-reaction-count">6</span></div>
+          </div>
+          <div class="cc-msg-time">10:44 AM</div>
+        </div>
+      </div>
+
+      {# Typing indicator #}
+      <div class="cc-typing" id="typingIndicator" style="display:none">
+        <div class="cc-typing-avatar">S</div>
+        <div class="cc-typing-bubble">
+          <div class="cc-typing-dot"></div>
+          <div class="cc-typing-dot"></div>
+          <div class="cc-typing-dot"></div>
+        </div>
+      </div>
+
+    </div>
+
+    {# Input area #}
+    <div class="cc-input-area">
+      <div class="cc-input-row">
+        <div class="cc-input-actions">
+          <button class="cc-input-btn" title="Attach file"><i class="fas fa-paperclip"></i></button>
+          <button class="cc-input-btn" title="Add image"><i class="fas fa-image"></i></button>
+        </div>
+        <div class="cc-input-wrap">
+          <textarea class="cc-textarea" id="messageInput" placeholder="Message Bali Explorers…" rows="1"></textarea>
+          <button class="cc-emoji-btn" title="Emoji" id="emojiBtn">😊</button>
+        </div>
+        <button class="cc-send-btn" id="sendBtn" title="Send">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  {# ══ MEMBERS sidebar ══ #}
+  <aside class="cc-members">
+    <div class="cc-members-title">Members</div>
+    <div class="cc-members-online-count">124 online now</div>
+
+    <div class="cc-member-item">
+      <div class="cc-member-avatar" style="background:linear-gradient(135deg,#f4b942,#e8960a);color:#fff;font-weight:700">
+        {{ app.user ? app.user.firstName|first|upper : 'Y' }}
+        <span class="cc-member-status online"></span>
+      </div>
+      <div class="cc-member-info">
+        <div class="cc-member-name">{{ app.user ? app.user.firstName : 'You' }} (You)</div>
+        <div class="cc-member-role cc-role-admin">★ Member</div>
+      </div>
+    </div>
+
+    <div class="cc-member-item">
+      <div class="cc-member-avatar" style="background:linear-gradient(135deg,#f87171,#ef4444);color:#fff">S
+        <span class="cc-member-status online"></span>
+      </div>
+      <div class="cc-member-info">
+        <div class="cc-member-name">Sarah M.</div>
+        <div class="cc-member-role cc-role-mod">♛ Moderator</div>
+      </div>
+    </div>
+
+    <div class="cc-member-item">
+      <div class="cc-member-avatar" style="background:linear-gradient(135deg,#a78bfa,#7928ca);color:#fff">R
+        <span class="cc-member-status online"></span>
+      </div>
+      <div class="cc-member-info">
+        <div class="cc-member-name">Rafael K.</div>
+        <div class="cc-member-role">Member</div>
+      </div>
+    </div>
+
+    <div class="cc-member-item">
+      <div class="cc-member-avatar" style="background:linear-gradient(135deg,#22d3ee,#0072ff);color:#fff">L
+        <span class="cc-member-status online"></span>
+      </div>
+      <div class="cc-member-info">
+        <div class="cc-member-name">Lucas B.</div>
+        <div class="cc-member-role">Member</div>
+      </div>
+    </div>
+
+    <div class="cc-member-item">
+      <div class="cc-member-avatar" style="background:linear-gradient(135deg,#0fd850,#056f27);color:#fff">A
+        <span class="cc-member-status away"></span>
+      </div>
+      <div class="cc-member-info">
+        <div class="cc-member-name">Amina D.</div>
+        <div class="cc-member-role">Member · Away</div>
+      </div>
+    </div>
+
+    <div class="cc-member-item">
+      <div class="cc-member-avatar" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.5)">T
+        <span class="cc-member-status offline"></span>
+      </div>
+      <div class="cc-member-info">
+        <div class="cc-member-name" style="color:rgba(255,255,255,0.5)">Thomas G.</div>
+        <div class="cc-member-role">Offline</div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+  (function() {
+    'use strict';
+
+    var input     = document.getElementById('messageInput');
+    var sendBtn   = document.getElementById('sendBtn');
+    var container = document.getElementById('messagesContainer');
+    var typing    = document.getElementById('typingIndicator');
+    var currentUser = {{ app.user ? '"' ~ app.user.firstName ~ '"' : '"You"' }};
+    var userInitial = currentUser[0].toUpperCase();
+    var typingTimer;
+
+    /* Auto-resize textarea */
+    input.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+
+    /* Send on Enter (Shift+Enter = newline) */
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    function sendMessage() {
+      var text = input.value.trim();
+      if (!text) return;
+
+      appendMessage(text, 'mine', currentUser);
+      input.value = '';
+      input.style.height = 'auto';
+      scrollToBottom();
+
+      // Simulate reply after 1-2s
+      clearTimeout(typingTimer);
+      setTimeout(showTyping, 800);
+      typingTimer = setTimeout(function() {
+        hideTyping();
+        var replies = [
+          "That sounds amazing! 🌟",
+          "Oh nice! Where exactly? 📍",
+          "We should meet up! 🤝",
+          "100%! Loving Bali so far 🌴",
+          "Great tip! Adding to my list 📝"
+        ];
+        var reply = replies[Math.floor(Math.random() * replies.length)];
+        appendMessage(reply, 'theirs', 'Sarah M.', 'S', 'linear-gradient(135deg,#f87171,#ef4444)');
+        scrollToBottom();
+      }, 2200);
+    }
+
+    function appendMessage(text, side, name, initial, gradient) {
+      var isTypingVisible = typing.style.display !== 'none';
+      if (isTypingVisible) container.insertBefore(createMsgEl(text, side, name, initial, gradient), typing);
+      else container.appendChild(createMsgEl(text, side, name, initial, gradient));
+    }
+
+    function createMsgEl(text, side, name, initial, gradient) {
+      var row = document.createElement('div');
+      row.className = 'cc-msg-row ' + side;
+
+      var now = new Date();
+      var time = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0') + ' ' + (now.getHours() >= 12 ? 'PM' : 'AM');
+      var tick = side === 'mine' ? '<span class="cc-tick">✓✓</span>' : '';
+
+      if (side === 'mine') {
+        row.innerHTML =
+          '<div class="cc-msg-avatar" style="background:linear-gradient(135deg,#0072ff,#00e5ff);color:#fff">' + userInitial + '</div>' +
+          '<div class="cc-msg-body">' +
+            '<div class="cc-bubble">' + escapeHtml(text) + '</div>' +
+            '<div class="cc-msg-time">' + time + ' ' + tick + '</div>' +
+          '</div>';
+      } else {
+        var bg = gradient || 'linear-gradient(135deg,#f87171,#ef4444)';
+        var ini = initial || name[0].toUpperCase();
+        row.innerHTML =
+          '<div class="cc-msg-avatar" style="background:' + bg + ';color:#fff">' + ini + '</div>' +
+          '<div class="cc-msg-body">' +
+            '<div class="cc-msg-sender">' + name + '</div>' +
+            '<div class="cc-bubble">' + escapeHtml(text) + '</div>' +
+            '<div class="cc-msg-time">' + time + '</div>' +
+          '</div>';
+      }
+      return row;
+    }
+
+    function showTyping() {
+      typing.style.display = 'flex';
+      scrollToBottom();
+    }
+    function hideTyping() {
+      typing.style.display = 'none';
+    }
+
+    function scrollToBottom() {
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    /* Group switching (visual only for now) */
+    document.querySelectorAll('.cc-group-item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.cc-group-item').forEach(function(i) { i.classList.remove('active'); });
+        this.classList.add('active');
+        // TODO: load messages for selected group from Firebase
+      });
+    });
+
+    /* Group search filter */
+    document.getElementById('groupSearch').addEventListener('input', function() {
+      var q = this.value.toLowerCase();
+      document.querySelectorAll('.cc-group-item').forEach(function(item) {
+        var name = item.querySelector('.cc-group-name').textContent.toLowerCase();
+        item.style.display = name.includes(q) ? '' : 'none';
+      });
+    });
+
+    /* Scroll to bottom on load */
+    scrollToBottom();
+  })();
+  </script>
+{% endblock %}

@@ -216,29 +216,9 @@
     .latest-trip-meta { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--text-muted); }
     .latest-trip-rating { color: var(--accent-gold); font-weight: 600; }
 
-    .aria-panel { width: 400px; max-height: min(560px, calc(100vh - 160px)); display: flex; flex-direction: column; background: linear-gradient(160deg, rgba(5,16,42,0.95), rgba(9,28,68,0.92)); border: 1px solid rgba(0,166,237,0.35); }
-    .aria-header { flex-shrink: 0; padding: 12px 14px; }
-    .aria-messages { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
-    .aria-input-row { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border-color); flex-shrink: 0; }
-    .aria-input { flex: 1; min-width: 0; font-size: 0.78rem; color: #e2e8f0; }
-    .aria-attach-btn { background: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 10px; cursor: pointer; color: var(--text-muted); font-size: 16px; transition: border-color 0.2s; flex-shrink: 0; }
-    .aria-attach-btn:hover { border-color: var(--accent-teal); color: var(--accent-teal); }
-    .aria-img-preview { margin: 8px 16px 0; position: relative; display: none; }
-    .aria-img-preview img { width: 80px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color); }
-    .aria-img-preview .remove-img { position: absolute; top: -6px; left: 70px; background: var(--accent-primary); color: #fff; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .pref-check-row { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 8px; }
-    .pref-check-row label { display: inline-flex; align-items: center; gap: 6px; font-size: 0.84rem; cursor: pointer; color: var(--text-secondary); }
-    .aria-msg .aria-bubble { white-space: pre-line; }
-    .aria-voice-btn { background: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 10px; cursor: pointer; color: var(--text-muted); font-size: 14px; transition: border-color 0.2s; flex-shrink: 0; }
-    .aria-voice-btn:hover, .aria-voice-btn.active { border-color: var(--accent-gold); color: var(--accent-gold); }
-    .aria-stop-voice-btn { background: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 9px; cursor: pointer; color: var(--text-muted); font-size: 13px; transition: border-color 0.2s; flex-shrink: 0; }
-    .aria-stop-voice-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
-    .aria-msg .aria-bubble { font-size: 0.78rem; }
-    .aria-msg.user .aria-bubble { background: #ffffff; color: #0f172a; }
     @media (max-width: 900px) {
       .profile-layout { grid-template-columns: 1fr; }
       .profile-sidebar { position: static; }
-      .aria-panel { width: 92vw; max-width: 400px; }
     }
   </style>
 </head>
@@ -302,9 +282,14 @@
         <a href="#activity"   class="sidebar-nav-item" data-track="NAV_ACTIVITY" data-track-type="NAV"><span class="sidebar-nav-icon">📊</span> Your Activity</a>
         <a href="#history"    class="sidebar-nav-item" data-track="NAV_HISTORY" data-track-type="NAV"><span class="sidebar-nav-icon">🗺️</span> Trip History</a>
         <a href="#recos"      class="sidebar-nav-item" data-track="NAV_RECOS" data-track-type="NAV"><span class="sidebar-nav-icon">✦</span> AI Picks</a>
-        <a href="#achievements" class="sidebar-nav-item" data-track="NAV_ACHIEVEMENTS" data-track-type="NAV"><span class="sidebar-nav-icon">🏆</span> Achievements</a>
         <a href="#loyalty"    class="sidebar-nav-item" data-track="NAV_LOYALTY" data-track-type="NAV"><span class="sidebar-nav-icon">💎</span> Loyalty Points</a>
         <a href="#security"   class="sidebar-nav-item" data-track="NAV_SECURITY" data-track-type="NAV"><span class="sidebar-nav-icon">🔐</span> Security</a>
+        <a href="#face-id"    class="sidebar-nav-item" data-track="NAV_FACEID" data-track-type="NAV">
+          <span class="sidebar-nav-icon">🫣</span> Face ID
+          {% if user.faceDescriptor %}
+            <span class="badge badge-teal" style="margin-left:auto; font-size:9px; background:rgba(15,216,80,.2); color:#0fd850; border-color:rgba(15,216,80,.3)">Setuped</span>
+          {% endif %}
+        </a>
       </div>
     </aside>
 
@@ -871,62 +856,7 @@
         </div>
       </section>
 
-      <!-- Trip History Timeline -->
-      <section id="history" style="margin-bottom:48px">
-        <div class="section-label reveal"><span>Trip Timeline</span></div>
-        <h2 class="display-md reveal" style="margin-bottom:24px">Your <span class="text-coral">Adventures</span></h2>
-        
-        {% if latestTrip %}
-        <div class="latest-trip-card reveal">
-          <div class="latest-trip-bg-wrapper">
-             <img src="{{ latestTrip.photo|default('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=400') }}" alt="{{ latestTrip.name }}" class="latest-trip-bg">
-          </div>
-          <div class="latest-trip-info">
-            <span class="latest-trip-badge">Latest Adventure</span>
-            <h3 class="latest-trip-title">{{ latestTrip.name }}</h3>
-            <div class="latest-trip-meta">
-              <span>📅 {{ latestTrip.date }}</span>
-              {% if latestTrip.rating %}
-              <div class="latest-trip-rating">⭐ {{ latestTrip.rating }}/5</div>
-              {% endif %}
-              <span class="badge badge-teal">{{ latestTrip.type }}</span>
-            </div>
-          </div>
-        </div>
-        {% endif %}
 
-        <div class="timeline-scroll reveal">
-          {% for trip in trips %}
-            {# Skip the very first trip if it's already highlighted as latestTrip #}
-            {% if not (loop.first and latestTrip) %}
-            <div class="timeline-card">
-              <div class="timeline-card-img" style="overflow:hidden">
-                <img src="{{ trip.photo|default('https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=200') }}" style="width:100%; height:100%; object-fit:cover; opacity:0.6">
-              </div>
-              <div class="timeline-card-body">
-                <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:6px">{{ trip.date }}</div>
-                <div style="font-family:var(--font-display);font-size:18px;text-transform:uppercase;margin-bottom:2px">{{ trip.name }}</div>
-                <div style="font-size:0.75rem;color:var(--text-muted)">
-                   {{ trip.type }} 
-                   {% if trip.rating %} · ⭐ {{ trip.rating }}{% endif %}
-                </div>
-              </div>
-            </div>
-            {% endif %}
-          {% else %}
-            {% if latestTrip is null %}
-            <div class="timeline-card">
-              <div class="timeline-card-img" style="background:var(--bg-card); display:flex; align-items:center; justify-content:center; font-size:32px; opacity:0.3">🏜️</div>
-              <div class="timeline-card-body">
-                <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:6px">NO HISTORY</div>
-                <div style="font-family:var(--font-display);font-size:18px;text-transform:uppercase;margin-bottom:6px">Start your journey</div>
-                <div style="font-size:0.8rem;color:var(--text-muted)">Your booked trips will appear here automatically.</div>
-              </div>
-            </div>
-            {% endif %}
-          {% endfor %}
-        </div>
-      </section>
 
       <!-- AI Picks -->
       <section id="recos" style="margin-bottom:48px">
@@ -969,43 +899,78 @@
         </div>
       </section>
 
-      <!-- Achievements -->
-      <section id="achievements" style="margin-bottom:48px">
-        <div class="section-label reveal"><span>Gamification</span></div>
-        <h2 class="display-md reveal" style="margin-bottom:24px">Your <span class="text-gold">Achievements</span></h2>
+      <!-- Trip History (Styled as Achievements) -->
+      <section id="history" style="margin-bottom:48px">
+        <div class="section-label reveal"><span>Milestones</span></div>
+        <h2 class="display-md reveal" style="margin-bottom:24px">Trip <span class="text-gold">History</span></h2>
         <div class="grid-2 stagger" style="gap:14px">
-          <div class="achievement"><div class="achievement-icon">🌍</div><div><div style="font-weight:600;margin-bottom:4px">World Explorer</div><div style="font-size:0.8rem;color:var(--text-muted)">Visited 30+ countries</div></div><span class="badge badge-gold">Unlocked</span></div>
-          <div class="achievement"><div class="achievement-icon">🍜</div><div><div style="font-weight:600;margin-bottom:4px">Culinary Nomad</div><div style="font-size:0.8rem;color:var(--text-muted)">Tried local food in 20 countries</div></div><span class="badge badge-gold">Unlocked</span></div>
-          <div class="achievement"><div class="achievement-icon">⛺</div><div><div style="font-weight:600;margin-bottom:4px">Trailblazer</div><div style="font-size:0.8rem;color:var(--text-muted)">5 off-beaten-path destinations</div></div><span class="badge badge-gold">Unlocked</span></div>
-          <div class="achievement locked"><div class="achievement-icon">🚀</div><div><div style="font-weight:600;margin-bottom:4px">Supernova</div><div style="font-size:0.8rem;color:var(--text-muted)">Visit all 7 continents</div></div><span class="badge badge-muted">6/7</span></div>
-          <div class="achievement locked"><div class="achievement-icon">💎</div><div><div style="font-weight:600;margin-bottom:4px">Diamond Traveller</div><div style="font-size:0.8rem;color:var(--text-muted)">50+ trips completed</div></div><span class="badge badge-muted">23/50</span></div>
-          <div class="achievement locked"><div class="achievement-icon">🌊</div><div><div style="font-weight:600;margin-bottom:4px">Island Hopper</div><div style="font-size:0.8rem;color:var(--text-muted)">Visit 10 island destinations</div></div><span class="badge badge-muted">7/10</span></div>
+          {% for trip in trips %}
+            <div class="achievement">
+              <div class="achievement-icon">
+                {% if trip.type == 'Accommodation' %}🏨{% elseif trip.type == 'Transport' %}✈️{% elseif trip.type == 'Activity' %}🏄{% else %}📍{% endif %}
+              </div>
+              <div>
+                <div style="font-weight:600;margin-bottom:4px">{{ trip.name }}</div>
+                <div style="font-size:0.8rem;color:var(--text-muted)">{{ trip.date }}</div>
+              </div>
+              <span class="badge badge-gold">{{ trip.type }}</span>
+            </div>
+          {% else %}
+            <div class="achievement locked">
+              <div class="achievement-icon">🏜️</div>
+              <div>
+                <div style="font-weight:600;margin-bottom:4px">No History</div>
+                <div style="font-size:0.8rem;color:var(--text-muted)">Start your journey!</div>
+              </div>
+              <span class="badge badge-muted">Empty</span>
+            </div>
+          {% endfor %}
         </div>
       </section>
 
-      <!-- Loyalty -->
       <section id="loyalty" style="margin-bottom:48px">
         <div class="section-label reveal"><span>Rewards</span></div>
         <h2 class="display-md reveal" style="margin-bottom:24px">Loyalty <span class="text-gold">Points</span></h2>
         <div class="card reveal">
           <div class="card-body">
+            {% if loyalty %}
+              {% set lvl        = loyalty.computeLevel() %}
+              {% set pts        = loyalty.totalPoints %}
+              {% set toNext     = loyalty.pointsToNextLevel %}
+              {% set nextLvl    = lvl == 'BRONZE' ? 'SILVER' : (lvl == 'SILVER' ? 'GOLD' : 'GOLD') %}
+              {% set maxForBar  = lvl == 'BRONZE' ? 200 : (lvl == 'SILVER' ? 400 : 400) %}
+              {% set minForBar  = lvl == 'BRONZE' ? 0   : (lvl == 'SILVER' ? 200 : 400) %}
+              {% set barPct     = lvl == 'GOLD' ? 100 : (((pts - minForBar) / (maxForBar - minForBar)) * 100)|round %}
+              {% set tierColor  = lvl == 'GOLD' ? '#f4b942' : (lvl == 'SILVER' ? '#94a3b8' : '#cd7f32') %}
+            {% else %}
+              {% set lvl = 'BRONZE' %}{% set pts = 0 %}{% set toNext = 200 %}
+              {% set nextLvl = 'SILVER' %}{% set barPct = 0 %}{% set tierColor = '#cd7f32' %}
+            {% endif %}
+
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px">
               <div>
                 <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em">Your Balance</div>
-                <div style="font-family:var(--font-display);font-size:56px;color:var(--accent-gold);line-height:1">8,420</div>
-                <div style="font-size:0.85rem;color:var(--text-muted)">Explorer Tier · 1,580 pts to Gold</div>
+                <div style="font-family:var(--font-display);font-size:56px;color:var(--accent-gold);line-height:1">{{ pts|number_format }}</div>
+                <div style="font-size:0.85rem;color:var(--text-muted)">
+                  {{ lvl|capitalize }} Tier
+                  {% if lvl != 'GOLD' %} · {{ toNext }} pts to {{ nextLvl }}{% endif %}
+                </div>
               </div>
               <div style="text-align:right">
-                <span class="badge badge-gold" style="font-size:14px;padding:8px 20px">EXPLORER</span>
-                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:8px">Next: Gold Tier 🥇</div>
+                <span class="badge badge-gold" style="font-size:14px;padding:8px 20px;color:{{ tierColor }}">{{ lvl }}</span>
+                {% if lvl != 'GOLD' %}
+                  <div style="font-size:0.8rem;color:var(--text-muted);margin-top:8px">Next: {{ nextLvl }} Tier</div>
+                {% else %}
+                  <div style="font-size:0.8rem;color:var(--accent-gold);margin-top:8px">✨ Max Tier!</div>
+                {% endif %}
               </div>
             </div>
             <div class="loyalty-track">
-              <div class="loyalty-fill" style="width:84%"></div>
-              <div class="loyalty-glow" style="right:16%"></div>
+              <div class="loyalty-fill" style="width:{{ barPct }}%"></div>
+              <div class="loyalty-glow" style="right:{{ 100 - barPct }}%"></div>
             </div>
             <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-top:8px">
-              <span>Explorer (0)</span><span>Gold (10,000)</span><span>Diamond (25,000)</span>
+              <span>Bronze (0)</span><span>Silver (200)</span><span>Gold (400)</span>
             </div>
           </div>
         </div>
@@ -1055,6 +1020,166 @@
         </div>
       </section>
 
+      {# ── Face ID Section ── #}
+      <section id="face-id" style="margin-bottom:48px">
+        <div class="section-label reveal"><span>Biometrics</span></div>
+        <h2 class="display-md reveal" style="margin-bottom:24px">Face <span class="text-teal">ID</span></h2>
+
+        <style>
+          .faceid-status-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 16px; border-radius: 50px; font-size: 0.78rem;
+            font-weight: 700; letter-spacing: 0.04em;
+          }
+          .faceid-status-badge.active {
+            background: rgba(15,216,80,.12); color: #0fd850;
+            border: 1px solid rgba(15,216,80,.3);
+          }
+          .faceid-status-badge.inactive {
+            background: rgba(255,255,255,.05); color: var(--text-muted);
+            border: 1px solid var(--border-color);
+          }
+          .faceid-status-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+          }
+          .faceid-status-badge.active .faceid-status-dot {
+            background: #0fd850;
+            box-shadow: 0 0 0 0 rgba(15,216,80,.5);
+            animation: faceIdPulse 2s ease infinite;
+          }
+          .faceid-status-badge.inactive .faceid-status-dot { background: var(--text-muted); }
+          @keyframes faceIdPulse {
+            0%   { box-shadow: 0 0 0 0 rgba(15,216,80,.5); }
+            70%  { box-shadow: 0 0 0 7px rgba(15,216,80,0); }
+            100% { box-shadow: 0 0 0 0 rgba(15,216,80,0); }
+          }
+          .faceid-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 18px 20px;
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--border-color);
+            transition: border-color 0.2s;
+          }
+          .faceid-row:hover { border-color: rgba(0,200,150,0.35); }
+          .faceid-row.active-row {
+            background: rgba(15,216,80,.05);
+            border-color: rgba(15,216,80,.25);
+          }
+          .faceid-row.setup-row {
+            background: rgba(244,185,66,.04);
+            border-color: rgba(244,185,66,.2);
+          }
+          .faceid-btn-gold {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 22px; border-radius: 50px;
+            background: linear-gradient(135deg,#f4b942,#d4860a);
+            color: #0f1b2d; font-weight: 700; font-size: 0.85rem;
+            border: none; cursor: pointer; text-decoration: none;
+            transition: all 0.25s;
+          }
+          .faceid-btn-gold:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(244,185,66,.35); }
+          .faceid-btn-danger {
+            padding: 8px 18px; border-radius: 50px;
+            background: none; border: 1px solid rgba(248,113,113,.4);
+            color: #f87171; font-size: 0.82rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
+          }
+          .faceid-btn-danger:hover { background: rgba(248,113,113,.1); border-color: #f87171; }
+          .faceid-tip-box {
+            padding: 16px 20px;
+            background: rgba(255,255,255,.03);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            display: flex; flex-direction: column; gap: 8px;
+          }
+          .faceid-tip { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; color: var(--text-muted); }
+        </style>
+
+        <div class="card reveal">
+          <div class="card-body">
+            <div style="display:flex; flex-direction:column; gap:16px">
+
+              {# ── Status row ── #}
+              <div class="faceid-row {{ user.faceDescriptor ? 'active-row' : '' }}">
+                <div>
+                  <div style="font-weight:600;margin-bottom:6px">Face Recognition Status</div>
+                  <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:10px">
+                    Use your face to log in instantly — no password needed
+                  </div>
+                  {% if user.faceDescriptor %}
+                    <span class="faceid-status-badge active">
+                      <span class="faceid-status-dot"></span>ACTIVE / SETUPED
+                    </span>
+                  {% else %}
+                    <span class="faceid-status-badge inactive">
+                      <span class="faceid-status-dot"></span>NOT SET UP
+                    </span>
+                  {% endif %}
+                </div>
+                <div style="text-align:right">
+                  {% if user.faceDescriptor %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#0fd850" stroke-width="2" width="40" height="40" style="opacity:.8">
+                      <circle cx="12" cy="8" r="4"/><path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+                      <path d="M9 7c.5-.5 1.5-1 3-1s2.5.5 3 1"/>
+                      <path d="M9 9.5c.5.5 1.5 1 3 1s2.5-.5 3-1"/>
+                    </svg>
+                  {% else %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" width="40" height="40" style="opacity:.4">
+                      <circle cx="12" cy="8" r="4"/><path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+                    </svg>
+                  {% endif %}
+                </div>
+              </div>
+
+              {# ── Setup / Update row ── #}
+              <div class="faceid-row setup-row">
+                <div>
+                  <div style="font-weight:600;margin-bottom:4px">
+                    {{ user.faceDescriptor ? '🔄 Update Face Data' : '📸 Register Your Face' }}
+                  </div>
+                  <div style="font-size:0.82rem;color:var(--text-muted)">
+                    {{ user.faceDescriptor
+                      ? 'Re-capture your face to improve recognition accuracy'
+                      : 'Open the camera and register your face in seconds' }}
+                  </div>
+                </div>
+                <a href="{{ path('face_setup') }}" class="faceid-btn-gold">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <circle cx="12" cy="8" r="4"/>
+                    <circle cx="12" cy="19" r="3"/>
+                    <path d="M15 19h4m-2-2v4"/>
+                  </svg>
+                  {{ user.faceDescriptor ? 'Update Face' : 'Set Up Face ID' }}
+                </a>
+              </div>
+
+              {# ── Remove row (only if registered) ── #}
+              {% if user.faceDescriptor %}
+              <div class="faceid-row" style="background:rgba(248,113,113,.04); border-color:rgba(248,113,113,.2)">
+                <div>
+                  <div style="font-weight:600;margin-bottom:4px;color:#f87171">Remove Face Data</div>
+                  <div style="font-size:0.82rem;color:var(--text-muted)">Unlink your biometric data from this account</div>
+                </div>
+                <button class="faceid-btn-danger" id="profileUnlinkFaceBtn">
+                  🗑 Remove
+                </button>
+              </div>
+              {% endif %}
+
+              {# ── Tips ── #}
+              <div class="faceid-tip-box">
+                <div style="font-size:0.8rem;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Tips for best results</div>
+                <div class="faceid-tip"><span>💡</span> Good, even lighting on your face improves accuracy significantly</div>
+                <div class="faceid-tip"><span>📐</span> Centre your face inside the oval on the camera screen</div>
+                <div class="faceid-tip"><span>😐</span> Use a neutral expression — similar to your ID photo</div>
+                <div class="faceid-tip"><span>🔒</span> Your face data is stored securely on Azure Cognitive Services</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 </div>
@@ -1072,29 +1197,7 @@
   </div>
 </footer>
 
-<button class="aria-orb" id="aria-orb" aria-label="Open ARIA">🤖</button>
-<div class="aria-panel" id="aria-panel">
-  <div class="aria-header">
-    <div class="aria-avatar">🤖</div>
-    <div><span class="aria-name">ARIA</span><span class="aria-status">Personalized for {{ user.firstName }}</span></div>
-    <button id="aria-close" style="margin-left:auto;font-size:18px;color:var(--text-muted);background:none;border:none">✕</button>
-  </div>
-  <div class="aria-messages" id="aria-messages">
-    <div class="aria-msg bot"><div class="aria-bubble">Hey {{ user.firstName }}! 👋 I know you well — you're a <strong>{{ travelPersona }}</strong>. Want a destination curated just for you? Or ask me anything about travel! ✨</div></div>
-  </div>
-  <div class="aria-img-preview" id="aria-img-preview">
-    <img id="aria-preview-img" src="" alt="preview">
-    <button class="remove-img" id="aria-remove-img" title="Remove image">✕</button>
-  </div>
-  <div class="aria-input-row">
-    <button class="aria-attach-btn" id="aria-attach-btn" title="Attach image">📎</button>
-    <button class="aria-voice-btn" id="aria-voice-btn" title="Voice search">🎤</button>
-    <button class="aria-stop-voice-btn" id="aria-stop-voice-btn" title="Stop voice">⏹</button>
-    <input type="file" id="aria-file-input" accept="image/*" style="display:none">
-    <input class="aria-input" id="aria-input" type="text" placeholder="Ask ARIA anything...">
-    <button class="aria-send" id="aria-send" data-track="AI_ARIA_CHAT" data-track-type="AI_FEATURE">➤</button>
-  </div>
-</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -1804,8 +1907,40 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  // ════════════════════════════════════════════
+  // FACE ID – Remove button (profile page)
+  // ════════════════════════════════════════════
+  const unlinkFaceBtn = document.getElementById('profileUnlinkFaceBtn');
+  if (unlinkFaceBtn) {
+    unlinkFaceBtn.addEventListener('click', function() {
+      if (!confirm('Remove your face data? You can re-register at any time from this page.')) return;
+      const origText = unlinkFaceBtn.textContent;
+      unlinkFaceBtn.textContent = 'Removing…';
+      unlinkFaceBtn.disabled = true;
+
+      fetch('{{ path('face_remove') }}', { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) {
+            showToast('✅ Face data removed successfully.');
+            setTimeout(() => window.location.reload(), 1200);
+          } else {
+            showToast('⚠️ ' + (data.message || 'Could not remove face data.'), true);
+            unlinkFaceBtn.textContent = origText;
+            unlinkFaceBtn.disabled = false;
+          }
+        })
+        .catch(() => {
+          showToast('⚠️ Network error. Please try again.', true);
+          unlinkFaceBtn.textContent = origText;
+          unlinkFaceBtn.disabled = false;
+        });
+    });
+  }
+
 });
 </script>
 <script src="/assets.php?f=js/main.js"></script>
+{% include 'front/aria_chat.html.twig' %}
 </body>
 </html>

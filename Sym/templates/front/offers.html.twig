@@ -351,21 +351,7 @@
   </div>
 </footer>
 
-<button class="aria-orb" id="aria-orb" aria-label="Open ARIA">✦</button>
-<div class="aria-panel" id="aria-panel">
-  <div class="aria-header">
-    <div class="aria-avatar">✦</div>
-    <div><span class="aria-name">ARIA</span><span class="aria-status">Deal Hunter Mode 🎯</span></div>
-    <button id="aria-close" style="margin-left:auto;font-size:18px;color:var(--text-muted);cursor:none">✕</button>
-  </div>
-  <div class="aria-messages" id="aria-messages">
-    <div class="aria-msg bot"><div class="aria-bubble">I'm watching 240 active deals right now. The Maldives flash deal is incredible — 41% off and only 3 spots left! Shall I hold one for you? 🏝️</div></div>
-  </div>
-  <div class="aria-input-row">
-    <input class="aria-input" id="aria-input" type="text" placeholder="Find me a deal...">
-    <button class="aria-send" id="aria-send">➤</button>
-  </div>
-</div>
+{% include 'front/aria_chat.html.twig' %}
 <script src="/assets.php?f=js/main.js"></script>
 </body>
 </html>

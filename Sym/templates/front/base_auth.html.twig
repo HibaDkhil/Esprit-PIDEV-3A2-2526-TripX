@@ -20,12 +20,13 @@
   <div class="bg-shape bs1"></div>
   <div class="bg-shape bs2"></div>
   <canvas id="particles-canvas"></canvas>
+  
 
   {% block body %}{% endblock %}
 
   <div class="toast" id="toast"></div>
 
-  <script src="{{ asset('js/auth.js') }}?v={{ 'now'|date('U') }}"></script>
+  <script src="{{ asset('js/auth.js') }}"></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -53,6 +53,7 @@ class ConnectionConfig
     private $profilingCollectSchemaErrors;
     private $disableTypeComments;
     private $serverVersion;
+    private $idleConnectionTtl;
     private $driverClass;
     private $wrapperClass;
     private $keepSlave;
@@ -164,6 +165,7 @@ class ConnectionConfig
     }
 
     /**
+     * Adds the given suffix to the configured database name, this option has no effects for the SQLite platform
      * @default null
      * @param ParamConfigurator|mixed $value
      * @return $this
@@ -614,6 +616,19 @@ class ConnectionConfig
     }
 
     /**
+     * @default 600
+     * @param ParamConfigurator|int $value
+     * @return $this
+     */
+    public function idleConnectionTtl($value): static
+    {
+        $this->_usedProperties['idleConnectionTtl'] = true;
+        $this->idleConnectionTtl = $value;
+
+        return $this;
+    }
+
+    /**
      * @default null
      * @param ParamConfigurator|mixed $value
      * @return $this
@@ -1018,6 +1033,12 @@ class ConnectionConfig
             unset($value['server_version']);
         }
 
+        if (array_key_exists('idle_connection_ttl', $value)) {
+            $this->_usedProperties['idleConnectionTtl'] = true;
+            $this->idleConnectionTtl = $value['idle_connection_ttl'];
+            unset($value['idle_connection_ttl']);
+        }
+
         if (array_key_exists('driver_class', $value)) {
             $this->_usedProperties['driverClass'] = true;
             $this->driverClass = $value['driver_class'];
@@ -1211,6 +1232,9 @@ class ConnectionConfig
         }
         if (isset($this->_usedProperties['serverVersion'])) {
             $output['server_version'] = $this->serverVersion;
+        }
+        if (isset($this->_usedProperties['idleConnectionTtl'])) {
+            $output['idle_connection_ttl'] = $this->idleConnectionTtl;
         }
         if (isset($this->_usedProperties['driverClass'])) {
             $output['driver_class'] = $this->driverClass;

@@ -74,6 +74,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Regex(pattern: '/[a-z]/', message: 'Password must contain at least 1 lowercase letter')]
     private ?string $plainPassword = null;
 
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $facePersonId = null;
+
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $faceDescriptor = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
@@ -243,9 +249,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     public function getAvatarSeed(): string
-{
-    return 'user_' . ($this->userId ?? 'new');
-}
+    {
+        return 'user_' . ($this->userId ?? 'new');
+    }
 
     /* ── UserInterface ── */
 
@@ -253,12 +259,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return (string) $this->email;
     }
-// Permissions & roles 
+    // Permissions & roles 
     public function getRoles(): array
     {
         $roles = ['ROLE_USER'];
 
-        
+
         switch ($this->role) {
             case 'admin':
                 $roles[] = 'ROLE_ADMIN';
@@ -281,6 +287,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return array_unique($roles);
+    }
+
+    public function getFacePersonId(): ?string
+    {
+        return $this->facePersonId;
+    }
+
+    public function setFacePersonId(?string $facePersonId): static
+    {
+        $this->facePersonId = $facePersonId;
+        return $this;
+    }
+
+    public function getFaceDescriptor(): ?array
+    {
+        return $this->faceDescriptor;
+    }
+
+    public function setFaceDescriptor(?array $faceDescriptor): static
+    {
+        $this->faceDescriptor = $faceDescriptor;
+        return $this;
     }
 
     public function eraseCredentials(): void

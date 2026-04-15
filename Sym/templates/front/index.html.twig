@@ -3,8 +3,7 @@
 {% block title %}TripX — Discover the Future of Travel{% endblock %}
 
 {% block stylesheets %}
-  <link rel="stylesheet" href="/assets.php?f=css/main.css">
-  <link rel="stylesheet" href="/assets.php?f=css/animations.css">
+  {{ parent() }}
   <style>
     :root {
       --nav-height: 80px;
@@ -198,6 +197,27 @@
       0%, 100% { opacity: 0.35; transform: scale(1); }
       50% { opacity: 1; transform: scale(1.15); }
     }
+  
+  </style>
+
+  <script src="{{ asset('js/aria-dashboard.js') }}"></script>
+  
+  <style>
+    /* Aria Homepage Specific Force-Fix */
+    body #aria-orb {
+      display: flex !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      position: fixed !important;
+      bottom: 30px !important;
+      right: 30px !important;
+      z-index: 2147483647 !important;
+      filter: none !important;
+      background: linear-gradient(135deg, #00e5ff 0%, #0072ff 50%, #7928ca 100%) !important;
+    }
+    body #aria-panel {
+      z-index: 2147483646 !important;
+    }
   </style>
 {% endblock %}
 
@@ -268,7 +288,7 @@
       <h2 class="pp-home-title">🔮 <span>ARIA's Price Intelligence</span></h2>
       <p class="pp-home-sub">AI-powered price outlook for top-rated activities — simulated trends for MVP.</p>
     </div>
-    <a href="#" class="pp-view-predictions ripple-btn">View all predictions</a>
+    <a href="{{ path('price_dashboard') }}" class="pp-view-predictions ripple-btn">View all predictions</a>
   </div>
   <div class="pp-scroll stagger">
     {% for card in price_prediction_cards %}
@@ -278,24 +298,11 @@
 </section>
 {% endif %}
 
-<button class="aria-orb" id="aria-orb" aria-label="Open ARIA">🤖</button>
-<div class="aria-panel" id="aria-panel">
-  <div class="aria-header">
-    <div class="aria-avatar">🤖</div>
-    <div><span class="aria-name">ARIA</span><span class="aria-status">AI Travel Assistant</span></div>
-    <button id="aria-close" style="margin-left:auto;font-size:18px;color:var(--text-muted);background:none;border:none">✕</button>
-  </div>
-  <div class="aria-messages" id="aria-messages">
-    <div class="aria-msg bot"><div class="aria-bubble">Hello! I can suggest destinations, accommodations, and activities from TripX data.</div></div>
-  </div>
-  <div class="aria-input-row">
-    <input class="aria-input" id="aria-input" type="text" placeholder="Ask ARIA anything...">
-    <button class="aria-send" id="aria-send">➤</button>
-  </div>
-</div>
 
-<script src="/assets.php?f=js/main.js"></script>
-<script src="/assets.php?f=js/price-predictor.js"></script>
+
+
+
+
 <script>
   // Particle Background Logic
   const canvas = document.getElementById('particle-canvas');
@@ -447,7 +454,53 @@
     </div>
   </div>
 </footer>
+
+{# ── Group Chat Orb ── #}
+<a href="{{ path('group_chat') }}" id="community-orb" title="Community Chat" style="left:30px !important; right:auto !important;">
+  <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    <circle cx="9"  cy="10" r="1" fill="white" stroke="none"/>
+    <circle cx="12" cy="10" r="1" fill="white" stroke="none"/>
+    <circle cx="15" cy="10" r="1" fill="white" stroke="none"/>
+  </svg>
+  <span class="community-orb-tooltip" style="right:auto;left:72px;">TripX Community 🌍</span>
+</a>
+<link rel="stylesheet" href="{{ asset('css/community-chat.css') }}">
+
 {% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="/assets.php?f=js/price-predictor.js"></script>
+<script>
+  // Particle Background Logic
+  const canvas = document.getElementById('particle-canvas');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    let pts = [];
+    function init() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      pts = [];
+      for(let i=0; i<80; i++) pts.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*2+1, vx: (Math.random()-0.5)*0.5, vy: (Math.random()-0.5)*0.5});
+    }
+    function anim() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = 'rgba(14,165,255,0.4)';
+      pts.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
+        if(p.x<0) p.x=canvas.width; if(p.x>canvas.width) p.x=0;
+        if(p.y<0) p.y=canvas.height; if(p.y>canvas.height) p.y=0;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI*2); ctx.fill();
+      });
+      requestAnimationFrame(anim);
+    }
+    window.addEventListener('resize', init);
+    init(); anim();
+  }
+</script>
+{% endblock %}
+
 
 
 
