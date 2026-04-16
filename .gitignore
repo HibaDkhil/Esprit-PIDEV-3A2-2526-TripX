@@ -33,3 +33,14 @@ Thumbs.db
 /public/build/
 npm-debug.log
 yarn-error.log
+# Generated uploads
+/public/uploads/
+
+# Scratch/test files
+/scratch/
+
+# Cache error logs
+cache_err.txt
+
+# Docker override
+compose.override.yaml
