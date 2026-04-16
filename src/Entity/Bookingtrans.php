@@ -89,79 +89,236 @@ class Bookingtrans
 
     public function __construct()
     {
-        $this->bookingStatus     = 'PENDING';
-        $this->paymentStatus     = 'UNPAID';
+        $this->bookingStatus = 'PENDING';
+        $this->paymentStatus = 'UNPAID';
         $this->insuranceIncluded = false;
-        $this->bookingDate       = new DateTime();
-        $this->scheduleId        = null;
+        $this->bookingDate = new DateTime();
+        $this->scheduleId = null;
     }
 
-    public function getBookingId(): ?int { return $this->bookingId; }
+    public function getBookingId(): ?int
+    {
+        return $this->bookingId;
+    }
 
-    public function getUserId(): int { return $this->userId; }
-    public function setUserId(int $userId): self { $this->userId = $userId; return $this; }
+    public function getUserId(): int
+    {
+        return $this->userId;
+    }
+    public function setUserId(int $userId): self
+    {
+        $this->userId = $userId;
+        return $this;
+    }
 
-    public function getTransportId(): int { return $this->transportId; }
-    public function setTransportId(int $transportId): self { $this->transportId = $transportId; return $this; }
+    public function getTransportId(): int
+    {
+        return $this->transportId;
+    }
+    public function setTransportId(int $transportId): self
+    {
+        $this->transportId = $transportId;
+        return $this;
+    }
 
-    public function getScheduleId(): int { return $this->scheduleId ?? 0; }
-    public function setScheduleId(?int $scheduleId): self { $this->scheduleId = ($scheduleId !== null && $scheduleId > 0) ? $scheduleId : null; return $this; }
+    public function getScheduleId(): int
+    {
+        return $this->scheduleId ?? 0;
+    }
+    public function setScheduleId(?int $scheduleId): self
+    {
+        $this->scheduleId = ($scheduleId !== null && $scheduleId > 0) ? $scheduleId : null;
+        return $this;
+    }
 
-    public function getBookingDate(): ?DateTime { return $this->bookingDate; }
-    public function setBookingDate(?DateTime $bookingDate): self { $this->bookingDate = $bookingDate; return $this; }
+    public function getBookingDate(): ?DateTime
+    {
+        return $this->bookingDate;
+    }
+    public function setBookingDate(?DateTime $bookingDate): self
+    {
+        $this->bookingDate = $bookingDate;
+        return $this;
+    }
 
-    public function getAdultsCount(): int { return $this->adultsCount; }
-    public function setAdultsCount(int $adultsCount): self { $this->adultsCount = $adultsCount; return $this; }
+    public function getAdultsCount(): int
+    {
+        return $this->adultsCount;
+    }
+    public function setAdultsCount(int $adultsCount): self
+    {
+        $this->adultsCount = $adultsCount;
+        return $this;
+    }
 
-    public function getChildrenCount(): int { return $this->childrenCount; }
-    public function setChildrenCount(int $childrenCount): self { $this->childrenCount = $childrenCount; return $this; }
+    public function getChildrenCount(): int
+    {
+        return $this->childrenCount;
+    }
+    public function setChildrenCount(int $childrenCount): self
+    {
+        $this->childrenCount = $childrenCount;
+        return $this;
+    }
 
-    public function getTotalSeats(): int { return $this->totalSeats; }
-    public function setTotalSeats(int $totalSeats): self { $this->totalSeats = $totalSeats; return $this; }
+    public function getTotalSeats(): int
+    {
+        return $this->totalSeats;
+    }
+    public function setTotalSeats(int $totalSeats): self
+    {
+        $this->totalSeats = $totalSeats;
+        return $this;
+    }
 
-    public function getTotalPrice(): float { return $this->totalPrice; }
-    public function setTotalPrice(float $totalPrice): self { $this->totalPrice = $totalPrice; return $this; }
+    public function getTotalPrice(): float
+    {
+        return $this->totalPrice;
+    }
+    public function setTotalPrice(float $totalPrice): self
+    {
+        $this->totalPrice = $totalPrice;
+        return $this;
+    }
 
-    public function getBookingStatus(): string { return $this->bookingStatus; }
-    public function setBookingStatus(string $bookingStatus): self { $this->bookingStatus = $bookingStatus; return $this; }
+    public function getBookingStatus(): string
+    {
+        return $this->bookingStatus;
+    }
+    public function setBookingStatus(string $bookingStatus): self
+    {
+        $this->bookingStatus = $bookingStatus;
+        return $this;
+    }
 
-    public function getPaymentStatus(): string { return $this->paymentStatus; }
-    public function setPaymentStatus(string $paymentStatus): self { $this->paymentStatus = $paymentStatus; return $this; }
+    public function getPaymentStatus(): string
+    {
+        return $this->paymentStatus;
+    }
+    public function setPaymentStatus(string $paymentStatus): self
+    {
+        $this->paymentStatus = $paymentStatus;
+        return $this;
+    }
 
-    public function isInsuranceIncluded(): bool { return $this->insuranceIncluded; }
-    public function setInsuranceIncluded(bool $insuranceIncluded): self { $this->insuranceIncluded = $insuranceIncluded; return $this; }
+    public function isInsuranceIncluded(): bool
+    {
+        return $this->insuranceIncluded;
+    }
+    public function setInsuranceIncluded(bool $insuranceIncluded): self
+    {
+        $this->insuranceIncluded = $insuranceIncluded;
+        return $this;
+    }
 
-    public function getQrCode(): ?string { return $this->qrCode; }
-    public function setQrCode(?string $qrCode): self { $this->qrCode = $qrCode; return $this; }
+    public function getQrCode(): ?string
+    {
+        return $this->qrCode;
+    }
+    public function setQrCode(?string $qrCode): self
+    {
+        $this->qrCode = $qrCode;
+        return $this;
+    }
 
-    public function getVoucherPath(): ?string { return $this->voucherPath; }
-    public function setVoucherPath(?string $voucherPath): self { $this->voucherPath = $voucherPath; return $this; }
+    public function getVoucherPath(): ?string
+    {
+        return $this->voucherPath;
+    }
+    public function setVoucherPath(?string $voucherPath): self
+    {
+        $this->voucherPath = $voucherPath;
+        return $this;
+    }
 
-    public function getAiPricePrediction(): float { return $this->aiPricePrediction; }
-    public function setAiPricePrediction(float $aiPricePrediction): self { $this->aiPricePrediction = $aiPricePrediction; return $this; }
+    public function getAiPricePrediction(): float
+    {
+        return $this->aiPricePrediction;
+    }
+    public function setAiPricePrediction(float $aiPricePrediction): self
+    {
+        $this->aiPricePrediction = $aiPricePrediction;
+        return $this;
+    }
 
-    public function getComparisonScore(): float { return $this->comparisonScore; }
-    public function setComparisonScore(float $comparisonScore): self { $this->comparisonScore = $comparisonScore; return $this; }
+    public function getComparisonScore(): float
+    {
+        return $this->comparisonScore;
+    }
+    public function setComparisonScore(float $comparisonScore): self
+    {
+        $this->comparisonScore = $comparisonScore;
+        return $this;
+    }
 
-    public function getCancellationReason(): ?string { return $this->cancellationReason; }
-    public function setCancellationReason(?string $cancellationReason): self { $this->cancellationReason = $cancellationReason; return $this; }
+    public function getCancellationReason(): ?string
+    {
+        return $this->cancellationReason;
+    }
+    public function setCancellationReason(?string $cancellationReason): self
+    {
+        $this->cancellationReason = $cancellationReason;
+        return $this;
+    }
 
-    public function getPickupLatitude(): ?float { return $this->pickupLatitude; }
-    public function setPickupLatitude(?float $pickupLatitude): self { $this->pickupLatitude = $pickupLatitude; return $this; }
+    public function getPickupLatitude(): ?float
+    {
+        return $this->pickupLatitude;
+    }
+    public function setPickupLatitude(?float $pickupLatitude): self
+    {
+        $this->pickupLatitude = $pickupLatitude;
+        return $this;
+    }
 
-    public function getPickupLongitude(): ?float { return $this->pickupLongitude; }
-    public function setPickupLongitude(?float $pickupLongitude): self { $this->pickupLongitude = $pickupLongitude; return $this; }
+    public function getPickupLongitude(): ?float
+    {
+        return $this->pickupLongitude;
+    }
+    public function setPickupLongitude(?float $pickupLongitude): self
+    {
+        $this->pickupLongitude = $pickupLongitude;
+        return $this;
+    }
 
-    public function getPickupAddress(): ?string { return $this->pickupAddress; }
-    public function setPickupAddress(?string $pickupAddress): self { $this->pickupAddress = $pickupAddress; return $this; }
+    public function getPickupAddress(): ?string
+    {
+        return $this->pickupAddress;
+    }
+    public function setPickupAddress(?string $pickupAddress): self
+    {
+        $this->pickupAddress = $pickupAddress;
+        return $this;
+    }
 
-    public function getDropoffLatitude(): ?float { return $this->dropoffLatitude; }
-    public function setDropoffLatitude(?float $dropoffLatitude): self { $this->dropoffLatitude = $dropoffLatitude; return $this; }
+    public function getDropoffLatitude(): ?float
+    {
+        return $this->dropoffLatitude;
+    }
+    public function setDropoffLatitude(?float $dropoffLatitude): self
+    {
+        $this->dropoffLatitude = $dropoffLatitude;
+        return $this;
+    }
 
-    public function getDropoffLongitude(): ?float { return $this->dropoffLongitude; }
-    public function setDropoffLongitude(?float $dropoffLongitude): self { $this->dropoffLongitude = $dropoffLongitude; return $this; }
+    public function getDropoffLongitude(): ?float
+    {
+        return $this->dropoffLongitude;
+    }
+    public function setDropoffLongitude(?float $dropoffLongitude): self
+    {
+        $this->dropoffLongitude = $dropoffLongitude;
+        return $this;
+    }
 
-    public function getDropoffAddress(): ?string { return $this->dropoffAddress; }
-    public function setDropoffAddress(?string $dropoffAddress): self { $this->dropoffAddress = $dropoffAddress; return $this; }
+    public function getDropoffAddress(): ?string
+    {
+        return $this->dropoffAddress;
+    }
+    public function setDropoffAddress(?string $dropoffAddress): self
+    {
+        $this->dropoffAddress = $dropoffAddress;
+        return $this;
+    }
 
 }

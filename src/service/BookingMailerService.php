@@ -74,4 +74,29 @@ class BookingMailerService
             // Silently ignore mailer errors in dev if MailHog isn't running
         }
     }
+
+    public function sendScheduleUpdateNotification(Bookingtrans $booking, Transport $transport, string $updateType, string $userEmail, ?int $delayMinutes = null): void
+    {
+        $subject = ($updateType === 'CANCELLED') 
+            ? 'URGENT: Your TripX Transport Schedule has been Cancelled' 
+            : 'UPDATE: Your TripX Transport Schedule is Delayed';
+
+        $email = (new TemplatedEmail())
+            ->from(new Address('no-reply@tripx.com', 'TripX Notifications'))
+            ->to($userEmail)
+            ->subject($subject)
+            ->htmlTemplate('emails/schedule_update.html.twig')
+            ->context([
+                'booking'    => $booking,
+                'transport'  => $transport,
+                'updateType' => $updateType,
+                'delay'      => $delayMinutes,
+            ]);
+
+        try {
+            $this->mailer->send($email);
+        } catch (TransportExceptionInterface $e) {
+            // Silently ignore mailer errors
+        }
+    }
 }

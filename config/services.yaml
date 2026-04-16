@@ -3,7 +3,7 @@ parameters:
     env(RAGHED_GEMINI): ''
     env(SERPAPI_API_KEY): ''
     env(OPENWEATHER_API_KEY): ''
-
+    env(ELEVENLABS_API_KEY): ''
 services:
     _defaults:
         autowire: true
@@ -84,3 +84,21 @@ services:
         arguments:
             $groqApiKey: '%env(TRANSPORTAI)%'
         tags: ['controller.service_arguments']
+
+    App\service\HealthCheck\ElevenLabsStatusCheck:
+        arguments:
+            $elevenLabsApiKey: '%env(ELEVENLABS_API_KEY)%'
+        tags:
+            - { name: liip_monitor.check, alias: eleven_labs_api }
+
+    App\service\HealthCheck\MailerStatusCheck:
+        arguments:
+            $transport: '@mailer.default_transport'
+        tags:
+            - { name: liip_monitor.check, alias: symfony_mailer }
+
+    App\service\HealthCheck\RedisStatusCheck:
+        arguments:
+            $redisUrl: '%env(REDIS_URL)%'
+        tags:
+            - { name: liip_monitor.check, alias: redis_status }
