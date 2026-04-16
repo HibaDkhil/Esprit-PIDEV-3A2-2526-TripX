@@ -247,11 +247,41 @@ class BlogController extends AbstractController
     private function buildStoriesContext(
         StoryRepository $storyRepository,
         StoryViewRepository $storyViewRepository,
+        FollowingRepository $followingRepository,
         ?int $currentUserId
     ): array
     {
         $activeStories = $storyRepository->findActive();
         $seenStoryIdsLookup = [];
+
+        $allowedOwnerLookup = [];
+        if ($currentUserId !== null) {
+            $ownerIds = [];
+            foreach ($activeStories as $story) {
+                $user = $story->getUser();
+                if ($user instanceof User) {
+                    $ownerIds[(int) $user->getUserId()] = true;
+                }
+            }
+
+            $ownerIdList = array_keys($ownerIds);
+            if (!empty($ownerIdList)) {
+                $followedRows = $followingRepository->createQueryBuilder('f')
+                    ->select('f.followed_id AS followedId')
+                    ->where('f.follower_id = :me')
+                    ->andWhere('f.followed_id IN (:ownerIds)')
+                    ->setParameter('me', $currentUserId)
+                    ->setParameter('ownerIds', $ownerIdList)
+                    ->getQuery()
+                    ->getArrayResult();
+
+                foreach ($followedRows as $row) {
+                    $allowedOwnerLookup[(int) $row['followedId']] = true;
+                }
+            }
+
+            $allowedOwnerLookup[$currentUserId] = true;
+        }
 
         if ($currentUserId !== null && !empty($activeStories)) {
             $storyIds = array_map(static fn($story): int => (int) $story->getId(), $activeStories);
@@ -268,6 +298,10 @@ class BlogController extends AbstractController
             }
 
             $uid = (int) $user->getUserId();
+            if ($currentUserId === null || !isset($allowedOwnerLookup[$uid])) {
+                continue;
+            }
+
             if (!isset($storiesByUser[$uid])) {
                 $name = trim((string) $user->getFirstName() . ' ' . (string) $user->getLastName());
                 $storiesByUser[$uid] = [
@@ -335,14 +369,18 @@ class BlogController extends AbstractController
 
         $ownerPostCount = 0;
         $ownerStoryCount = 0;
+        $ownerFollowersCount = 0;
+        $ownerFollowingCount = 0;
         if ($currentUserId !== null) {
             $ownerPostCount = (int) $postRepository->count(['user_id' => $currentUserId]);
             $ownerStoryCount = (int) $tsRepository->count(['userId' => $currentUserId]);
+            $ownerFollowersCount = (int) $followingRepository->count(['followed_id' => $currentUserId]);
+            $ownerFollowingCount = (int) $followingRepository->count(['follower_id' => $currentUserId]);
         }
 
         $feed = $this->buildFeed($postRepository, $tsRepository, $search, $typeFilter, $currentUserId);
         $ctx  = $this->buildFeedContext($feed, $em, $currentUserId);
-        $storiesByUser = $this->buildStoriesContext($storyRepository, $storyViewRepository, $currentUserId);
+        $storiesByUser = $this->buildStoriesContext($storyRepository, $storyViewRepository, $followingRepository, $currentUserId);
 
         $followingLookup = [];
         if ($currentUserId !== null) {
@@ -384,6 +422,8 @@ class BlogController extends AbstractController
             'followingLookup' => $followingLookup,
             'ownerPostCount'  => $ownerPostCount,
             'ownerStoryCount' => $ownerStoryCount,
+            'ownerFollowersCount' => $ownerFollowersCount,
+            'ownerFollowingCount' => $ownerFollowingCount,
             'search'          => $search,
             'typeFilter'      => $typeFilter,
         ]);

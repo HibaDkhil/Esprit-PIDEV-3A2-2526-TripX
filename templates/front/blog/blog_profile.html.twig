@@ -4,6 +4,7 @@
 {% set profileBio = blogProfile ? blogProfile.bio : null %}
 {% set profileAvatarId = blogProfile ? blogProfile.avatarId : null %}
 {% set avatarInitial = profileName|trim|first|default(target.firstName|first|default('U')) %}
+{% set canViewContent = canViewContent is defined ? canViewContent : false %}
 
 {% block title %}{{ profileName }} - Profile{% endblock %}
 
@@ -118,121 +119,130 @@
     </div>
   </section>
 
-  <nav class="up-tabs">
-    <a class="up-tab {{ tab == 'posts' ? 'active' : '' }}" href="{{ path('blog_user_profile', {id: target.userId, tab: 'posts'}) }}">Posts</a>
-    <a class="up-tab {{ tab == 'travel_stories' ? 'active' : '' }}" href="{{ path('blog_user_profile', {id: target.userId, tab: 'travel_stories'}) }}">Travel Stories</a>
-    <a class="up-tab {{ tab == 'shared' ? 'active' : '' }}" href="{{ path('blog_user_profile', {id: target.userId, tab: 'shared'}) }}">Shared</a>
-  </nav>
+  <div id="profile-content-gate">
+    {% if canViewContent %}
+      <nav class="up-tabs">
+        <a class="up-tab {{ tab == 'posts' ? 'active' : '' }}" href="{{ path('blog_user_profile', {id: target.userId, tab: 'posts'}) }}">Posts</a>
+        <a class="up-tab {{ tab == 'travel_stories' ? 'active' : '' }}" href="{{ path('blog_user_profile', {id: target.userId, tab: 'travel_stories'}) }}">Travel Stories</a>
+        <a class="up-tab {{ tab == 'shared' ? 'active' : '' }}" href="{{ path('blog_user_profile', {id: target.userId, tab: 'shared'}) }}">Shared</a>
+      </nav>
 
-  {% set hasItems = false %}
+      {% set hasItems = false %}
 
-  {% if tab == 'posts' %}
-    {% if posts|length > 0 %}
-      {% set hasItems = true %}
-      <div class="up-grid">
-        {% for post in posts %}
-          <a href="{{ path('post_show', {id: post.id}) }}" class="up-card">
-            <div class="up-card-img-wrap">
-              <span class="up-type">POST</span>
-              {% if post.imageUrl %}
-                {% set imgUrls = post.imageUrl|split(',') %}
-                <img src="{{ imgUrls[0]|trim }}" class="up-card-img" alt="{{ post.title }}" loading="lazy" onerror="this.style.display='none'">
-              {% else %}
-                <div class="up-card-placeholder">📝</div>
-              {% endif %}
-            </div>
-            <div class="up-card-body">
-              <h3 class="up-title">{{ post.title }}</h3>
-              <div class="up-sn">{{ post.body|slice(0, 100) }}{% if post.body|length > 100 %}...{% endif %}</div>
-              <div class="up-meta">
-                <span>{{ post.createdAt ? post.createdAt|date('M d, Y') : '' }}</span>
-              </div>
-            </div>
-          </a>
-        {% endfor %}
-      </div>
-    {% endif %}
-  {% elseif tab == 'travel_stories' %}
-    {% if travelStories|length > 0 %}
-      {% set hasItems = true %}
-      <div class="up-grid">
-        {% for ts in travelStories %}
-          <a href="{{ path('travel_story_show', {id: ts.id}) }}" class="up-card">
-            <div class="up-card-img-wrap">
-              <span class="up-type ts">TRAVEL STORY</span>
-              {% if ts.coverImageUrl %}
-                <img src="{{ ts.coverImageUrl }}" class="up-card-img" alt="{{ ts.title }}" loading="lazy" onerror="this.style.display='none'">
-              {% else %}
-                <div class="up-card-placeholder">🧳</div>
-              {% endif %}
-            </div>
-            <div class="up-card-body">
-              <h3 class="up-title">{{ ts.title }}</h3>
-              <div class="up-sn">{{ ts.summary|default('')|slice(0, 100) }}{% if ts.summary|default('')|length > 100 %}...{% endif %}</div>
-              <div class="up-meta">
-                <span>{{ ts.createdAt ? ts.createdAt|date('M d, Y') : '' }}</span>
-              </div>
-            </div>
-          </a>
-        {% endfor %}
-      </div>
-    {% endif %}
-  {% else %}
-    {% if shared|length > 0 %}
-      {% set hasItems = true %}
-      <div class="up-grid">
-        {% for item in shared %}
-          {% if item.kind == 'post' %}
-            {% set post = item.entity %}
-            <a href="{{ path('post_show', {id: post.id}) }}" class="up-card">
-              <div class="up-card-img-wrap">
-                <span class="up-type">POST</span>
-                {% if post.imageUrl %}
-                  {% set imgUrls = post.imageUrl|split(',') %}
-                  <img src="{{ imgUrls[0]|trim }}" class="up-card-img" alt="{{ post.title }}" loading="lazy" onerror="this.style.display='none'">
-                {% else %}
-                  <div class="up-card-placeholder">📝</div>
-                {% endif %}
-              </div>
-              <div class="up-card-body">
-                <h3 class="up-title">{{ post.title }}</h3>
-                <div class="up-sn">{{ post.body|slice(0, 100) }}{% if post.body|length > 100 %}...{% endif %}</div>
-                <div class="up-meta">
-                  <span>{{ post.createdAt ? post.createdAt|date('M d, Y') : '' }}</span>
+      {% if tab == 'posts' %}
+        {% if posts|length > 0 %}
+          {% set hasItems = true %}
+          <div class="up-grid">
+            {% for post in posts %}
+              <a href="{{ path('post_show', {id: post.id}) }}" class="up-card">
+                <div class="up-card-img-wrap">
+                  <span class="up-type">POST</span>
+                  {% if post.imageUrl %}
+                    {% set imgUrls = post.imageUrl|split(',') %}
+                    <img src="{{ imgUrls[0]|trim }}" class="up-card-img" alt="{{ post.title }}" loading="lazy" onerror="this.style.display='none'">
+                  {% else %}
+                    <div class="up-card-placeholder">📝</div>
+                  {% endif %}
                 </div>
-              </div>
-            </a>
-          {% else %}
-            {% set ts = item.entity %}
-            <a href="{{ path('travel_story_show', {id: ts.id}) }}" class="up-card">
-              <div class="up-card-img-wrap">
-                <span class="up-type ts">TRAVEL STORY</span>
-                {% if ts.coverImageUrl %}
-                  <img src="{{ ts.coverImageUrl }}" class="up-card-img" alt="{{ ts.title }}" loading="lazy" onerror="this.style.display='none'">
-                {% else %}
-                  <div class="up-card-placeholder">🧳</div>
-                {% endif %}
-              </div>
-              <div class="up-card-body">
-                <h3 class="up-title">{{ ts.title }}</h3>
-                <div class="up-sn">{{ ts.summary|default('')|slice(0, 100) }}{% if ts.summary|default('')|length > 100 %}...{% endif %}</div>
-                <div class="up-meta">
-                  <span>{{ ts.createdAt ? ts.createdAt|date('M d, Y') : '' }}</span>
+                <div class="up-card-body">
+                  <h3 class="up-title">{{ post.title }}</h3>
+                  <div class="up-sn">{{ post.body|slice(0, 100) }}{% if post.body|length > 100 %}...{% endif %}</div>
+                  <div class="up-meta">
+                    <span>{{ post.createdAt ? post.createdAt|date('M d, Y') : '' }}</span>
+                  </div>
                 </div>
-              </div>
-            </a>
-          {% endif %}
-        {% endfor %}
+              </a>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% elseif tab == 'travel_stories' %}
+        {% if travelStories|length > 0 %}
+          {% set hasItems = true %}
+          <div class="up-grid">
+            {% for ts in travelStories %}
+              <a href="{{ path('travel_story_show', {id: ts.id}) }}" class="up-card">
+                <div class="up-card-img-wrap">
+                  <span class="up-type ts">TRAVEL STORY</span>
+                  {% if ts.coverImageUrl %}
+                    <img src="{{ ts.coverImageUrl }}" class="up-card-img" alt="{{ ts.title }}" loading="lazy" onerror="this.style.display='none'">
+                  {% else %}
+                    <div class="up-card-placeholder">🧳</div>
+                  {% endif %}
+                </div>
+                <div class="up-card-body">
+                  <h3 class="up-title">{{ ts.title }}</h3>
+                  <div class="up-sn">{{ ts.summary|default('')|slice(0, 100) }}{% if ts.summary|default('')|length > 100 %}...{% endif %}</div>
+                  <div class="up-meta">
+                    <span>{{ ts.createdAt ? ts.createdAt|date('M d, Y') : '' }}</span>
+                  </div>
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% else %}
+        {% if shared|length > 0 %}
+          {% set hasItems = true %}
+          <div class="up-grid">
+            {% for item in shared %}
+              {% if item.kind == 'post' %}
+                {% set post = item.entity %}
+                <a href="{{ path('post_show', {id: post.id}) }}" class="up-card">
+                  <div class="up-card-img-wrap">
+                    <span class="up-type">POST</span>
+                    {% if post.imageUrl %}
+                      {% set imgUrls = post.imageUrl|split(',') %}
+                      <img src="{{ imgUrls[0]|trim }}" class="up-card-img" alt="{{ post.title }}" loading="lazy" onerror="this.style.display='none'">
+                    {% else %}
+                      <div class="up-card-placeholder">📝</div>
+                    {% endif %}
+                  </div>
+                  <div class="up-card-body">
+                    <h3 class="up-title">{{ post.title }}</h3>
+                    <div class="up-sn">{{ post.body|slice(0, 100) }}{% if post.body|length > 100 %}...{% endif %}</div>
+                    <div class="up-meta">
+                      <span>{{ post.createdAt ? post.createdAt|date('M d, Y') : '' }}</span>
+                    </div>
+                  </div>
+                </a>
+              {% else %}
+                {% set ts = item.entity %}
+                <a href="{{ path('travel_story_show', {id: ts.id}) }}" class="up-card">
+                  <div class="up-card-img-wrap">
+                    <span class="up-type ts">TRAVEL STORY</span>
+                    {% if ts.coverImageUrl %}
+                      <img src="{{ ts.coverImageUrl }}" class="up-card-img" alt="{{ ts.title }}" loading="lazy" onerror="this.style.display='none'">
+                    {% else %}
+                      <div class="up-card-placeholder">🧳</div>
+                    {% endif %}
+                  </div>
+                  <div class="up-card-body">
+                    <h3 class="up-title">{{ ts.title }}</h3>
+                    <div class="up-sn">{{ ts.summary|default('')|slice(0, 100) }}{% if ts.summary|default('')|length > 100 %}...{% endif %}</div>
+                    <div class="up-meta">
+                      <span>{{ ts.createdAt ? ts.createdAt|date('M d, Y') : '' }}</span>
+                    </div>
+                  </div>
+                </a>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endif %}
+
+      {% if not hasItems %}
+        <div class="up-empty">
+          <span class="up-empty-icon">📭</span>
+          No content to display in this tab yet.
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="up-empty">
+        <span class="up-empty-icon">🔒</span>
+        Follow to see user's posts and shares.
       </div>
     {% endif %}
-  {% endif %}
-
-  {% if not hasItems %}
-    <div class="up-empty">
-      <span class="up-empty-icon">📭</span>
-      No content to display in this tab yet.
-    </div>
-  {% endif %}
+  </div>
 </div>
 
 <script>
@@ -271,6 +281,23 @@
       }
       if (followingEl && typeof json.followingCount !== 'undefined') {
         followingEl.textContent = String(json.followingCount);
+      }
+
+      // Refresh only the gated profile content section so follow/unfollow changes appear instantly.
+      const contentGate = document.getElementById('profile-content-gate');
+      if (contentGate) {
+        const pageRes = await fetch(window.location.href, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        if (pageRes.ok) {
+          const html = await pageRes.text();
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          const nextGate = doc.getElementById('profile-content-gate');
+          if (nextGate) {
+            contentGate.innerHTML = nextGate.innerHTML;
+          }
+        }
       }
     } catch (err) {
       alert(err.message || 'Could not update follow status');

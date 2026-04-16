@@ -117,6 +117,7 @@ return [
         '/user/transport/route-ai' => [[['_route' => 'user_transport_route_ai', '_controller' => 'App\\Controller\\user\\TransportUserInterfaceController::routeAi'], null, ['POST' => 0], null, false, false, null]],
         '/travel-stories' => [[['_route' => 'travel_story_index', '_controller' => 'App\\Controller\\user\\TravelStoryController::index'], null, ['GET' => 0], null, false, false, null]],
         '/travel-stories/new' => [[['_route' => 'travel_story_new', '_controller' => 'App\\Controller\\user\\TravelStoryController::new'], null, ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        '/travel-stories/destination/geocode' => [[['_route' => 'travel_story_destination_geocode', '_controller' => 'App\\Controller\\user\\TravelStoryController::geocodeDestination'], null, ['GET' => 0], null, false, false, null]],
         '/profile' => [[['_route' => 'users', '_controller' => 'App\\Controller\\user\\UserController::profile'], null, ['GET' => 0], null, false, false, null]],
         '/profile/update' => [[['_route' => 'profile_update', '_controller' => 'App\\Controller\\user\\UserController::updateProfile'], null, ['POST' => 0], null, false, false, null]],
         '/profile/password' => [[['_route' => 'profile_password', '_controller' => 'App\\Controller\\user\\UserController::changePassword'], null, ['POST' => 0], null, false, false, null]],
@@ -281,49 +282,52 @@ return [
                         .'|comment/create/([^/]++)(*:2126)'
                         .'|([^/]++)/react/([^/]++)(*:2158)'
                     .')'
-                    .'|ies/([^/]++)(?'
-                        .'|(*:2183)'
-                        .'|/(?'
-                            .'|edit(*:2200)'
-                            .'|delete(*:2215)'
+                    .'|ies/(?'
+                        .'|([^/]++)(?'
+                            .'|(*:2186)'
+                            .'|/(?'
+                                .'|edit(*:2203)'
+                                .'|delete(*:2218)'
+                            .')'
                         .')'
+                        .'|ai\\-assist(*:2239)'
                     .')'
                 .')'
                 .'|/destinations/(?'
-                    .'|(\\d+)(*:2249)'
-                    .'|(\\d+)/book(*:2268)'
+                    .'|(\\d+)(*:2272)'
+                    .'|(\\d+)/book(*:2291)'
                 .')'
                 .'|/follow/([^/]++)(?'
-                    .'|(*:2297)'
-                    .'|/status(*:2313)'
+                    .'|(*:2320)'
+                    .'|/status(*:2336)'
                 .')'
                 .'|/p(?'
                     .'|ack(?'
-                        .'|s/([^/]++)(*:2344)'
-                        .'|\\-bookings/cancel/([^/]++)(*:2379)'
+                        .'|s/([^/]++)(*:2367)'
+                        .'|\\-bookings/cancel/([^/]++)(*:2402)'
                     .')'
                     .'|ost/(?'
-                        .'|(\\d+)(*:2401)'
-                        .'|(\\d+)/edit(*:2420)'
-                        .'|(\\d+)/delete(*:2441)'
+                        .'|(\\d+)(*:2424)'
+                        .'|(\\d+)/edit(*:2443)'
+                        .'|(\\d+)/delete(*:2464)'
                         .'|([^/]++)/(?'
-                            .'|react/([^/]++)(*:2476)'
-                            .'|save(*:2489)'
+                            .'|react/([^/]++)(*:2499)'
+                            .'|save(*:2512)'
                         .')'
                     .')'
                 .')'
                 .'|/stories/(?'
-                    .'|user/(\\d+)(*:2523)'
-                    .'|(\\d+)/delete(*:2544)'
-                    .'|(\\d+)/seen(*:2563)'
-                    .'|(\\d+)/viewers(*:2585)'
+                    .'|user/(\\d+)(*:2546)'
+                    .'|(\\d+)/delete(*:2567)'
+                    .'|(\\d+)/seen(*:2586)'
+                    .'|(\\d+)/viewers(*:2608)'
                 .')'
                 .'|/user/transport/(?'
-                    .'|browse/detail/([^/]++)(*:2636)'
+                    .'|browse/detail/([^/]++)(*:2659)'
                     .'|my\\-bookings/(?'
-                        .'|cancel/([^/]++)(*:2676)'
-                        .'|add\\-schedule/([^/]++)(*:2707)'
-                        .'|receipt/([^/]++)(*:2732)'
+                        .'|cancel/([^/]++)(*:2699)'
+                        .'|add\\-schedule/([^/]++)(*:2730)'
+                        .'|receipt/([^/]++)(*:2755)'
                     .')'
                 .')'
             .')/?$}sDu',
@@ -409,28 +413,29 @@ return [
         2071 => [[['_route' => 'comment_react', '_controller' => 'App\\Controller\\user\\ReactionController::reactToComment'], ['id', 'type'], ['POST' => 0], null, false, true, null]],
         2126 => [[['_route' => 'travel_story_comment_create', '_controller' => 'App\\Controller\\user\\CommentController::createForTravelStory'], ['id'], ['POST' => 0], null, false, true, null]],
         2158 => [[['_route' => 'travel_story_react', '_controller' => 'App\\Controller\\user\\ReactionController::reactToTravelStory'], ['id', 'type'], ['POST' => 0], null, false, true, null]],
-        2183 => [[['_route' => 'travel_story_show', '_controller' => 'App\\Controller\\user\\TravelStoryController::show'], ['id'], ['GET' => 0], null, false, true, null]],
-        2200 => [[['_route' => 'travel_story_edit', '_controller' => 'App\\Controller\\user\\TravelStoryController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
-        2215 => [[['_route' => 'travel_story_delete', '_controller' => 'App\\Controller\\user\\TravelStoryController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
-        2249 => [[['_route' => 'destination_detail', '_controller' => 'App\\Controller\\user\\DestinationsController::detail'], ['id'], null, null, false, true, null]],
-        2268 => [[['_route' => 'booking_form', '_controller' => 'App\\Controller\\user\\DestinationsController::bookingForm'], ['destinationId'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
-        2297 => [[['_route' => 'follow_toggle', '_controller' => 'App\\Controller\\user\\FollowController::toggle'], ['id'], ['POST' => 0], null, false, true, null]],
-        2313 => [[['_route' => 'follow_status', '_controller' => 'App\\Controller\\user\\FollowController::status'], ['id'], ['GET' => 0], null, false, false, null]],
-        2344 => [[['_route' => 'user_pack_details', '_controller' => 'App\\Controller\\user\\FrontPacksController::packDetails'], ['id'], null, null, false, true, null]],
-        2379 => [[['_route' => 'user_pack_booking_cancel', '_controller' => 'App\\Controller\\user\\FrontPacksController::cancelBooking'], ['id'], null, null, false, true, null]],
-        2401 => [[['_route' => 'post_show', '_controller' => 'App\\Controller\\user\\PostController::show'], ['id'], null, null, false, true, null]],
-        2420 => [[['_route' => 'post_edit', '_controller' => 'App\\Controller\\user\\PostController::edit'], ['id'], null, null, false, false, null]],
-        2441 => [[['_route' => 'post_delete', '_controller' => 'App\\Controller\\user\\PostController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
-        2476 => [[['_route' => 'post_react', '_controller' => 'App\\Controller\\user\\ReactionController::reactToPost'], ['id', 'type'], ['POST' => 0], null, false, true, null]],
-        2489 => [[['_route' => 'post_save_toggle', '_controller' => 'App\\Controller\\user\\SavedPostController::toggle'], ['id'], ['POST' => 0], null, false, false, null]],
-        2523 => [[['_route' => 'story_user_list', '_controller' => 'App\\Controller\\user\\StoryController::listByUser'], ['id'], ['GET' => 0], null, false, true, null]],
-        2544 => [[['_route' => 'story_delete', '_controller' => 'App\\Controller\\user\\StoryController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
-        2563 => [[['_route' => 'story_seen_mark', '_controller' => 'App\\Controller\\user\\StoryController::markSeen'], ['id'], ['POST' => 0], null, false, false, null]],
-        2585 => [[['_route' => 'story_viewers_list', '_controller' => 'App\\Controller\\user\\StoryController::viewers'], ['id'], ['GET' => 0], null, false, false, null]],
-        2636 => [[['_route' => 'user_transport_detail', '_controller' => 'App\\Controller\\user\\TransportUserInterfaceController::transportDetail'], ['id'], null, null, false, true, null]],
-        2676 => [[['_route' => 'user_booking_cancel', '_controller' => 'App\\Controller\\user\\TransportUserInterfaceController::cancelBooking'], ['id'], ['POST' => 0], null, false, true, null]],
-        2707 => [[['_route' => 'user_booking_add_schedule', '_controller' => 'App\\Controller\\user\\TransportUserInterfaceController::addScheduleToBooking'], ['bookingId'], ['GET' => 0, 'POST' => 1], null, false, true, null]],
-        2732 => [
+        2186 => [[['_route' => 'travel_story_show', '_controller' => 'App\\Controller\\user\\TravelStoryController::show'], ['id'], ['GET' => 0], null, false, true, null]],
+        2203 => [[['_route' => 'travel_story_edit', '_controller' => 'App\\Controller\\user\\TravelStoryController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        2218 => [[['_route' => 'travel_story_delete', '_controller' => 'App\\Controller\\user\\TravelStoryController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
+        2239 => [[['_route' => 'travel_story_ai_assist', '_controller' => 'App\\Controller\\user\\TravelStoryController::aiAssist'], [], ['POST' => 0], null, false, false, null]],
+        2272 => [[['_route' => 'destination_detail', '_controller' => 'App\\Controller\\user\\DestinationsController::detail'], ['id'], null, null, false, true, null]],
+        2291 => [[['_route' => 'booking_form', '_controller' => 'App\\Controller\\user\\DestinationsController::bookingForm'], ['destinationId'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        2320 => [[['_route' => 'follow_toggle', '_controller' => 'App\\Controller\\user\\FollowController::toggle'], ['id'], ['POST' => 0], null, false, true, null]],
+        2336 => [[['_route' => 'follow_status', '_controller' => 'App\\Controller\\user\\FollowController::status'], ['id'], ['GET' => 0], null, false, false, null]],
+        2367 => [[['_route' => 'user_pack_details', '_controller' => 'App\\Controller\\user\\FrontPacksController::packDetails'], ['id'], null, null, false, true, null]],
+        2402 => [[['_route' => 'user_pack_booking_cancel', '_controller' => 'App\\Controller\\user\\FrontPacksController::cancelBooking'], ['id'], null, null, false, true, null]],
+        2424 => [[['_route' => 'post_show', '_controller' => 'App\\Controller\\user\\PostController::show'], ['id'], null, null, false, true, null]],
+        2443 => [[['_route' => 'post_edit', '_controller' => 'App\\Controller\\user\\PostController::edit'], ['id'], null, null, false, false, null]],
+        2464 => [[['_route' => 'post_delete', '_controller' => 'App\\Controller\\user\\PostController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
+        2499 => [[['_route' => 'post_react', '_controller' => 'App\\Controller\\user\\ReactionController::reactToPost'], ['id', 'type'], ['POST' => 0], null, false, true, null]],
+        2512 => [[['_route' => 'post_save_toggle', '_controller' => 'App\\Controller\\user\\SavedPostController::toggle'], ['id'], ['POST' => 0], null, false, false, null]],
+        2546 => [[['_route' => 'story_user_list', '_controller' => 'App\\Controller\\user\\StoryController::listByUser'], ['id'], ['GET' => 0], null, false, true, null]],
+        2567 => [[['_route' => 'story_delete', '_controller' => 'App\\Controller\\user\\StoryController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
+        2586 => [[['_route' => 'story_seen_mark', '_controller' => 'App\\Controller\\user\\StoryController::markSeen'], ['id'], ['POST' => 0], null, false, false, null]],
+        2608 => [[['_route' => 'story_viewers_list', '_controller' => 'App\\Controller\\user\\StoryController::viewers'], ['id'], ['GET' => 0], null, false, false, null]],
+        2659 => [[['_route' => 'user_transport_detail', '_controller' => 'App\\Controller\\user\\TransportUserInterfaceController::transportDetail'], ['id'], null, null, false, true, null]],
+        2699 => [[['_route' => 'user_booking_cancel', '_controller' => 'App\\Controller\\user\\TransportUserInterfaceController::cancelBooking'], ['id'], ['POST' => 0], null, false, true, null]],
+        2730 => [[['_route' => 'user_booking_add_schedule', '_controller' => 'App\\Controller\\user\\TransportUserInterfaceController::addScheduleToBooking'], ['bookingId'], ['GET' => 0, 'POST' => 1], null, false, true, null]],
+        2755 => [
             [['_route' => 'user_booking_receipt_pdf', '_controller' => 'App\\Controller\\user\\TransportUserInterfaceController::exportReceiptPdf'], ['id'], null, null, false, true, null],
             [null, null, null, null, false, false, 0],
         ],

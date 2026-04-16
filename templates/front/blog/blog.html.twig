@@ -7,13 +7,55 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Montserrat:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('css/blog.css') }}">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
   <style>
     .ts-destination { color: #6b7280; font-size: .9rem; margin: 4px 0 10px; }
+    .ts-country-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: .82rem;
+      font-weight: 600;
+      background: #e0ecff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      cursor: pointer;
+    }
+    .ts-destination-text {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ts-destination-flag {
+      width: 18px;
+      height: 12px;
+      object-fit: cover;
+      border-radius: 2px;
+      border: 1px solid rgba(0,0,0,.15);
+      box-shadow: 0 1px 2px rgba(0,0,0,.08);
+      flex: 0 0 auto;
+    }
     .ts-meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
     .ts-tag {
       display: inline-block; padding: 3px 10px; border-radius: 20px;
       font-size: .78rem; font-weight: 600;
       background: #f3f4f6; color: #374151;
+    }
+    .ts-rating {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ts-rating-stars {
+      letter-spacing: .05em;
+      color: #f59e0b;
+      line-height: 1;
+    }
+    .ts-rating-value {
+      color: #4b5563;
+      font-weight: 700;
+      font-size: .72rem;
     }
     .b-travel_story { background: linear-gradient(135deg,#2563eb,#38bdf8); color:#fff; }
     .ts-card { border-left: 3px solid #3b82f6; }
@@ -55,6 +97,72 @@
     .ig-story-viewers-empty { color:rgba(255,255,255,.66); font-size:.86rem; text-align:center; padding:16px 8px 20px; }
     .story-ring.js-story-open.is-seen { background: #9ca3af; }
     .story-ring.js-story-open.is-unseen { background: linear-gradient(135deg,#f59e0b,#ef4444); }
+
+    .ts-map-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 10050;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(2px);
+      padding: 14px;
+    }
+    .ts-map-modal.open { display: flex; }
+    .ts-map-dialog {
+      width: min(760px, 96vw);
+      max-height: 90vh;
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #dbeafe;
+      box-shadow: 0 24px 60px rgba(0,0,0,.3);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .ts-map-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid #e5e7eb;
+      background: linear-gradient(90deg, #eef2ff, #eff6ff);
+    }
+    .ts-map-title {
+      font-size: .95rem;
+      font-weight: 700;
+      color: #1f2937;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ts-map-close {
+      border: 0;
+      background: transparent;
+      color: #374151;
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .ts-map-status {
+      margin: 0;
+      padding: 8px 14px;
+      font-size: .82rem;
+      color: #475569;
+      border-bottom: 1px solid #e5e7eb;
+      background: #f8fafc;
+    }
+    .ts-map-status.error {
+      color: #b91c1c;
+      background: #fef2f2;
+    }
+    .ts-map-canvas {
+      width: 100%;
+      min-height: 360px;
+      height: min(58vh, 500px);
+    }
     .sug-name-link,
     .profile-name-link,
     .pc-name {
@@ -90,6 +198,8 @@
 {% set userReactions = userReactions is defined ? userReactions : {} %}
 {% set ownerPostCount = ownerPostCount is defined ? ownerPostCount : 0 %}
 {% set ownerStoryCount = ownerStoryCount is defined ? ownerStoryCount : 0 %}
+{% set ownerFollowersCount = ownerFollowersCount is defined ? ownerFollowersCount : 0 %}
+{% set ownerFollowingCount = ownerFollowingCount is defined ? ownerFollowingCount : 0 %}
 {% set ownerTotalContentCount = ownerPostCount + ownerStoryCount %}
 {% set storiesByUser  = storiesByUser  is defined ? storiesByUser  : [] %}
 {% set followingLookup = followingLookup is defined ? followingLookup : {} %}
@@ -111,8 +221,8 @@
       {% endif %}
       <div class="profile-stats">
         <div class="pstat"><span class="pstat-num">{{ ownerTotalContentCount }}</span><span class="pstat-lbl">Posts</span></div>
-        <div class="pstat"><span class="pstat-num">0</span><span class="pstat-lbl">Followers</span></div>
-        <div class="pstat"><span class="pstat-num">0</span><span class="pstat-lbl">Following</span></div>
+        <div class="pstat"><span class="pstat-num">{{ ownerFollowersCount }}</span><span class="pstat-lbl">Followers</span></div>
+        <div class="pstat"><span class="pstat-num">{{ ownerFollowingCount }}</span><span class="pstat-lbl">Following</span></div>
       </div>
     </div>
 
@@ -233,6 +343,17 @@
       </div>
     </div>
 
+    <div class="ts-map-modal" id="ts-map-modal" aria-hidden="true">
+      <div class="ts-map-dialog" role="dialog" aria-modal="true" aria-labelledby="ts-map-title">
+        <div class="ts-map-head">
+          <div class="ts-map-title" id="ts-map-title">Destination map</div>
+          <button type="button" class="ts-map-close" id="ts-map-close" aria-label="Close map">&times;</button>
+        </div>
+        <p class="ts-map-status" id="ts-map-status">Click a destination tag to load its map.</p>
+        <div class="ts-map-canvas" id="ts-map-canvas"></div>
+      </div>
+    </div>
+
     {# ── Feed container (replaced by AJAX) ─────────────── #}
     <div class="feed-spinner" id="feed-spinner">Loading…</div>
     <div id="feed-container">
@@ -301,6 +422,8 @@
 
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
 <script>
 /* ═══════════════════════════════════════════════════════════
    AJAX feed filtering
@@ -319,6 +442,110 @@ const _storyDurationMs = 5000;
 const _currentUserId = {{ currentUserId is not null ? currentUserId : 'null' }};
 const _storySeenUrlPattern = '{{ path('story_seen_mark', {id: 0}) }}';
 const _storyViewersUrlPattern = '{{ path('story_viewers_list', {id: 0}) }}';
+let _countryFlagsMap = null;
+let _countryFlagsPromise = null;
+let _tsMap = null;
+let _tsMapMarker = null;
+let _tsMapGeocodeCtrl = null;
+const _tsMapModal = document.getElementById('ts-map-modal');
+const _tsMapCanvas = document.getElementById('ts-map-canvas');
+const _tsMapTitle = document.getElementById('ts-map-title');
+const _tsMapStatus = document.getElementById('ts-map-status');
+const _tsMapCloseBtn = document.getElementById('ts-map-close');
+const _tsDestinationGeocodeUrl = '{{ path('travel_story_destination_geocode') }}';
+
+function normalizeCountryKey(value) {
+  return (value || '')
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
+}
+
+function extractCandidateCountry(raw) {
+  const value = (raw || '').trim();
+  if (!value) return '';
+
+  if (value.includes(',')) {
+    const parts = value.split(',').map(p => p.trim()).filter(Boolean);
+    if (parts.length) return parts[parts.length - 1];
+  }
+
+  return value;
+}
+
+async function getCountryFlagsMap() {
+  if (_countryFlagsMap) return _countryFlagsMap;
+  if (_countryFlagsPromise) return _countryFlagsPromise;
+
+  _countryFlagsPromise = fetch('https://restcountries.com/v3.1/all?fields=name,altSpellings,cca2,cca3,flags')
+    .then(r => {
+      if (!r.ok) throw new Error('flags fetch failed');
+      return r.json();
+    })
+    .then(rows => {
+      const map = new Map();
+
+      rows.forEach(country => {
+        if (!country || !country.name || !country.name.common || !country.flags) return;
+        const flagUrl = country.flags.svg || country.flags.png;
+        if (!flagUrl) return;
+
+        const keys = [
+          country.name.common,
+          country.name.official,
+          country.cca2,
+          country.cca3,
+          ...(Array.isArray(country.altSpellings) ? country.altSpellings : [])
+        ].filter(Boolean);
+
+        keys.forEach(k => {
+          map.set(normalizeCountryKey(k), flagUrl);
+        });
+      });
+
+      _countryFlagsMap = map;
+      return map;
+    })
+    .catch(() => {
+      _countryFlagsMap = new Map();
+      return _countryFlagsMap;
+    })
+    .finally(() => {
+      _countryFlagsPromise = null;
+    });
+
+  return _countryFlagsPromise;
+}
+
+async function hydrateDestinationFlags(root = document) {
+  const nodes = root.querySelectorAll('.ts-destination');
+  if (!nodes.length) return;
+
+  const flagsMap = await getCountryFlagsMap();
+  if (!flagsMap.size) return;
+
+  nodes.forEach(node => {
+    if (node.dataset.flagHydrated === '1') return;
+
+    const textNode = node.querySelector('.ts-destination-text') || node;
+    const destinationText = (textNode.textContent || '').trim();
+    const candidate = extractCandidateCountry(destinationText);
+    const flagUrl = flagsMap.get(normalizeCountryKey(candidate));
+    if (!flagUrl) return;
+
+    const img = document.createElement('img');
+    img.className = 'ts-destination-flag';
+    img.alt = `${candidate} flag`;
+    img.src = flagUrl;
+    img.loading = 'lazy';
+
+    textNode.textContent = '';
+    textNode.appendChild(img);
+    textNode.appendChild(document.createTextNode(candidate));
+    node.dataset.flagHydrated = '1';
+  });
+}
 
 function feedFilter(e, type) {
   if (e) e.preventDefault();
@@ -359,6 +586,7 @@ function loadFeed() {
       container.classList.remove('loading');
       spinner.classList.remove('visible');
       hydrateUserNames();
+      hydrateDestinationFlags(container);
     })
     .catch(err => {
       if (err.name === 'AbortError') return;
@@ -530,6 +758,99 @@ function showToast(msg) {
   t._timer = setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(20px)'; }, 2800);
 }
 
+function setTsMapStatus(message, isError = false) {
+  if (!_tsMapStatus) return;
+  _tsMapStatus.textContent = message;
+  _tsMapStatus.classList.toggle('error', !!isError);
+}
+
+function ensureTsMap() {
+  if (_tsMap || !_tsMapCanvas || typeof window.L === 'undefined') return _tsMap;
+
+  _tsMap = L.map(_tsMapCanvas, {
+    zoomControl: true,
+    scrollWheelZoom: false,
+  }).setView([20, 0], 2);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors',
+  }).addTo(_tsMap);
+
+  return _tsMap;
+}
+
+function closeTsMapModal() {
+  if (!_tsMapModal) return;
+  _tsMapModal.classList.remove('open');
+  _tsMapModal.setAttribute('aria-hidden', 'true');
+}
+
+function openTsMapModal() {
+  if (!_tsMapModal) return;
+  _tsMapModal.classList.add('open');
+  _tsMapModal.setAttribute('aria-hidden', 'false');
+
+  const map = ensureTsMap();
+  if (map) {
+    window.setTimeout(() => map.invalidateSize(), 80);
+  }
+}
+
+function updateTsMap(lat, lon, label) {
+  const map = ensureTsMap();
+  if (!map) return;
+
+  const point = [lat, lon];
+  if (_tsMapMarker) {
+    _tsMapMarker.setLatLng(point);
+  } else {
+    _tsMapMarker = L.marker(point).addTo(map);
+  }
+
+  _tsMapMarker.bindPopup(label).openPopup();
+  map.setView(point, 6, { animate: true });
+}
+
+async function showDestinationOnMap(destination) {
+  const q = (destination || '').trim();
+  if (!q) return;
+
+  openTsMapModal();
+  if (_tsMapTitle) _tsMapTitle.textContent = `Destination map: ${q}`;
+
+  if (typeof window.L === 'undefined') {
+    setTsMapStatus('Map library is unavailable. Please refresh the page and try again.', true);
+    return;
+  }
+
+  setTsMapStatus('Looking up destination on map...');
+
+  if (_tsMapGeocodeCtrl) {
+    _tsMapGeocodeCtrl.abort();
+  }
+  _tsMapGeocodeCtrl = new AbortController();
+
+  try {
+    const res = await fetch(`${_tsDestinationGeocodeUrl}?q=${encodeURIComponent(q)}`, {
+      method: 'GET',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      signal: _tsMapGeocodeCtrl.signal,
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.ok) {
+      throw new Error(data.message || 'Could not find this destination on map.');
+    }
+
+    updateTsMap(Number(data.lat), Number(data.lon), data.displayName || q);
+    setTsMapStatus(`Showing: ${data.displayName || q}`);
+  } catch (err) {
+    if (err && err.name === 'AbortError') return;
+    setTsMapStatus((err && err.message) || 'Could not load destination map.', true);
+  }
+}
+
 async function toggleSuggestionFollow(button) {
   if (!button || button.disabled) return;
 
@@ -591,6 +912,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   hydrateUserNames();
+  hydrateDestinationFlags();
+
+  if (_tsMapCloseBtn) {
+    _tsMapCloseBtn.addEventListener('click', closeTsMapModal);
+  }
+  if (_tsMapModal) {
+    _tsMapModal.addEventListener('click', (event) => {
+      if (event.target === _tsMapModal) {
+        closeTsMapModal();
+      }
+    });
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && _tsMapModal && _tsMapModal.classList.contains('open')) {
+      closeTsMapModal();
+    }
+  });
+
+  document.addEventListener('click', (event) => {
+    const tag = event.target.closest('.ts-country-tag[data-destination]');
+    if (!tag) return;
+    event.preventDefault();
+    showDestinationOnMap(tag.dataset.destination || '');
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const tag = event.target.closest('.ts-country-tag[data-destination]');
+    if (!tag) return;
+    event.preventDefault();
+    showDestinationOnMap(tag.dataset.destination || '');
+  });
 
   const addBtn = document.getElementById('story-add-btn');
   const fileInput = document.getElementById('story-image-input');

@@ -9,8 +9,8 @@
     <parameter key="kernel.runtime_mode.cli">%env(not:default:kernel.runtime_mode.web:)%</parameter>
     <parameter key="kernel.runtime_mode.worker">%env(bool:default::key:worker:default:kernel.runtime_mode:)%</parameter>
     <parameter key="kernel.debug">true</parameter>
-    <parameter key="kernel.build_dir">C:\Users\nmour\Downloads\symfony1\var\cache\dev</parameter>
-    <parameter key="kernel.cache_dir">C:\Users\nmour\Downloads\symfony1\var\cache\dev</parameter>
+    <parameter key="kernel.build_dir">C:/Users/nmour/Downloads/symfony1/var/cache/dev</parameter>
+    <parameter key="kernel.cache_dir">C:/Users/nmour/Downloads/symfony1/var/cache/dev</parameter>
     <parameter key="kernel.logs_dir">C:\Users\nmour\Downloads\symfony1\var\log</parameter>
     <parameter key="kernel.bundles" type="collection">
       <parameter key="FrameworkBundle">Symfony\Bundle\FrameworkBundle\FrameworkBundle</parameter>
@@ -99,12 +99,12 @@
     <parameter key="translator.logging">false</parameter>
     <parameter key="translator.default_path">C:\Users\nmour\Downloads\symfony1/translations</parameter>
     <parameter key="debug.error_handler.throw_at">-1</parameter>
-    <parameter key="debug.container.dump">C:\Users\nmour\Downloads\symfony1\var\cache\dev/App_KernelDevDebugContainer.xml</parameter>
+    <parameter key="debug.container.dump">C:/Users/nmour/Downloads/symfony1/var/cache/dev/App_KernelDevDebugContainer.xml</parameter>
     <parameter key="router.request_context.host">localhost</parameter>
     <parameter key="router.request_context.scheme">http</parameter>
     <parameter key="router.request_context.base_url"></parameter>
     <parameter key="router.resource">kernel::loadRoutes</parameter>
-    <parameter key="router.cache_dir">C:\Users\nmour\Downloads\symfony1\var\cache\dev</parameter>
+    <parameter key="router.cache_dir">C:/Users/nmour/Downloads/symfony1/var/cache/dev</parameter>
     <parameter key="request_listener.http_port">80</parameter>
     <parameter key="request_listener.https_port">443</parameter>
     <parameter key="cache.prefix.seed">_C:\Users\nmour\Downloads\symfony1.App_KernelDevDebugContainer</parameter>
@@ -121,7 +121,7 @@
     <parameter key="session.metadata.update_threshold">0</parameter>
     <parameter key="form.type_extension.csrf.enabled">true</parameter>
     <parameter key="form.type_extension.csrf.field_name">_token</parameter>
-    <parameter key="validator.mapping.cache.file">C:\Users\nmour\Downloads\symfony1\var\cache\dev/validation.php</parameter>
+    <parameter key="validator.mapping.cache.file">C:/Users/nmour/Downloads/symfony1/var/cache/dev/validation.php</parameter>
     <parameter key="validator.translation_domain">validators</parameter>
     <parameter key="data_collector.templates" type="collection"/>
     <parameter key="twig.form.resources" type="collection">
@@ -192,9 +192,9 @@
     <parameter key="doctrine.orm.second_level_cache.cache_configuration.class">Doctrine\ORM\Cache\CacheConfiguration</parameter>
     <parameter key="doctrine.orm.second_level_cache.regions_configuration.class">Doctrine\ORM\Cache\RegionsConfiguration</parameter>
     <parameter key="doctrine.orm.auto_generate_proxy_classes">false</parameter>
-    <parameter key="doctrine.orm.enable_lazy_ghost_objects">false</parameter>
+    <parameter key="doctrine.orm.enable_lazy_ghost_objects">true</parameter>
     <parameter key="doctrine.orm.enable_native_lazy_objects">false</parameter>
-    <parameter key="doctrine.orm.proxy_dir">C:\Users\nmour\Downloads\symfony1\var\cache\dev/doctrine/orm/Proxies</parameter>
+    <parameter key="doctrine.orm.proxy_dir">C:/Users/nmour/Downloads/symfony1/var/cache/dev/doctrine/orm/Proxies</parameter>
     <parameter key="doctrine.orm.proxy_namespace">Proxies</parameter>
     <parameter key="doctrine.migrations.preferred_em">null</parameter>
     <parameter key="doctrine.migrations.preferred_connection">null</parameter>
@@ -903,7 +903,7 @@
     </service>
     <service id="argument_resolver.service" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">
       <tag priority="-50" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">controller.argument_value_resolver</tag>
-      <argument type="service" id=".service_locator.TYx8Wev"/>
+      <argument type="service" id=".service_locator.FWCfwU."/>
     </service>
     <service id="argument_resolver.default" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">
       <tag priority="-100" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">controller.argument_value_resolver</tag>
@@ -986,7 +986,7 @@
       </argument>
     </service>
     <service id="http_cache.store" class="Symfony\Component\HttpKernel\HttpCache\Store">
-      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/http_cache</argument>
+      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/http_cache</argument>
     </service>
     <service id="url_helper" class="Symfony\Component\HttpFoundation\UrlHelper">
       <argument type="service" id="request_stack"/>
@@ -996,7 +996,7 @@
       <tag name="container.no_preload"/>
       <argument type="tagged_iterator" tag="kernel.cache_warmer"/>
       <argument>true</argument>
-      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/App_KernelDevDebugContainerDeprecations.log</argument>
+      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/App_KernelDevDebugContainerDeprecations.log</argument>
     </service>
     <service id="cache_clearer" class="Symfony\Component\HttpKernel\CacheClearer\ChainCacheClearer">
       <argument type="tagged_iterator" tag="kernel.cache_clearer"/>
@@ -1725,7 +1725,7 @@
       <tag name="kernel.reset" method="reset"/>
       <argument>zsafarRXO5</argument>
       <argument>0</argument>
-      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/app</argument>
+      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/app</argument>
       <argument type="service" id="cache.default_marshaller" on-invalid="ignore"/>
       <call method="setLogger">
         <argument type="service" id="logger" on-invalid="ignore"/>
@@ -1741,7 +1741,7 @@
       <argument>Xc+7VoxdT4</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
-      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/system</argument>
+      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/system</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
@@ -1751,7 +1751,7 @@
       <argument>su+yLxx4il</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
-      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/system</argument>
+      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/system</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
@@ -1761,7 +1761,7 @@
       <argument>Bk9wjE6tMH</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
-      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/system</argument>
+      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/system</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
@@ -1771,7 +1771,7 @@
       <argument>4b32cb6Xc-</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
-      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/system</argument>
+      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/system</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
@@ -1781,7 +1781,7 @@
       <argument>wUxeThw2eU</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
-      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/system</argument>
+      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/system</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
@@ -1791,7 +1791,7 @@
       <argument></argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
-      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/system</argument>
+      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/system</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
@@ -1810,7 +1810,7 @@
       <tag name="monolog.logger" channel="cache"/>
       <argument></argument>
       <argument>0</argument>
-      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/app</argument>
+      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/app</argument>
       <argument type="service" id="cache.default_marshaller" on-invalid="ignore"/>
       <call method="setLogger">
         <argument type="service" id="logger" on-invalid="ignore"/>
@@ -2142,7 +2142,7 @@
         </argument>
       </argument>
       <argument type="collection">
-        <argument key="cache_dir">C:\Users\nmour\Downloads\symfony1\var\cache\dev/translations</argument>
+        <argument key="cache_dir">C:/Users/nmour/Downloads/symfony1/var/cache/dev/translations</argument>
         <argument key="debug">true</argument>
         <argument key="resource_files" type="collection">
           <argument key="af" type="collection">
@@ -3253,7 +3253,7 @@
     </service>
     <service id="argument_resolver.not_tagged_controller" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\NotTaggedControllerValueResolver">
       <tag name="controller.argument_value_resolver" priority="-200"/>
-      <argument type="service" id=".service_locator.TYx8Wev"/>
+      <argument type="service" id=".service_locator.FWCfwU."/>
     </service>
     <service id="routing.resolver" class="Symfony\Component\Config\Loader\LoaderResolver">
       <call method="addLoader">
@@ -3348,7 +3348,7 @@
       <argument type="service" id=".service_locator.PvoQzFT.router.default"/>
       <argument>kernel::loadRoutes</argument>
       <argument type="collection">
-        <argument key="cache_dir">C:\Users\nmour\Downloads\symfony1\var\cache\dev</argument>
+        <argument key="cache_dir">C:/Users/nmour/Downloads/symfony1/var/cache/dev</argument>
         <argument key="debug">true</argument>
         <argument key="generator_class">Symfony\Component\Routing\Generator\CompiledUrlGenerator</argument>
         <argument key="generator_dumper_class">Symfony\Component\Routing\Generator\Dumper\CompiledUrlGeneratorDumper</argument>
@@ -3507,7 +3507,7 @@
       <argument>true</argument>
     </service>
     <service id="session.storage.factory.mock_file" class="Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFactory">
-      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/sessions</argument>
+      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/sessions</argument>
       <argument>MOCKSESSID</argument>
       <argument type="service">
         <service class="Symfony\Component\HttpFoundation\Session\Storage\MetadataBag">
@@ -3710,10 +3710,10 @@
     <service id="validator.mapping.cache_warmer" class="Symfony\Bundle\FrameworkBundle\CacheWarmer\ValidatorCacheWarmer">
       <tag name="kernel.cache_warmer"/>
       <argument type="service" id="validator.builder"/>
-      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/validation.php</argument>
+      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/validation.php</argument>
     </service>
     <service id="validator.mapping.cache.adapter" class="Symfony\Component\Cache\Adapter\PhpArrayAdapter" constructor="create">
-      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/validation.php</argument>
+      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/validation.php</argument>
       <argument type="service" id="cache.validator"/>
     </service>
     <service id="validator.validator_factory" class="Symfony\Component\Validator\ContainerConstraintValidatorFactory">
@@ -3982,7 +3982,7 @@
       <argument>+peV3BD3yg</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
-      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/system</argument>
+      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/system</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
@@ -4133,7 +4133,7 @@
       <argument type="service" id="twig.loader.native_filesystem"/>
       <argument type="collection">
         <argument key="autoescape">name</argument>
-        <argument key="cache">C:\Users\nmour\Downloads\symfony1\var\cache\dev/twig</argument>
+        <argument key="cache">C:/Users/nmour/Downloads/symfony1/var/cache/dev/twig</argument>
         <argument key="charset">UTF-8</argument>
         <argument key="debug">true</argument>
         <argument key="strict_variables">true</argument>
@@ -5074,7 +5074,7 @@
         <argument type="service" id=".doctrine.orm.default_metadata_driver"/>
       </call>
       <call method="setProxyDir">
-        <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/doctrine/orm/Proxies</argument>
+        <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/doctrine/orm/Proxies</argument>
       </call>
       <call method="setProxyNamespace">
         <argument>Proxies</argument>
@@ -5104,7 +5104,7 @@
         <argument type="service" id="doctrine.orm.default_entity_listener_resolver"/>
       </call>
       <call method="setLazyGhostObjectEnabled">
-        <argument>false</argument>
+        <argument>true</argument>
       </call>
       <call method="setIdentityGenerationPreferences">
         <argument type="collection"/>
@@ -5117,7 +5117,7 @@
       <argument type="collection">
         <argument>C:\Users\nmour\Downloads\symfony1\src\Entity</argument>
       </argument>
-      <argument>false</argument>
+      <argument>true</argument>
     </service>
     <service id="cache.doctrine.orm.default.metadata" class="Symfony\Component\Cache\Adapter\ArrayAdapter"/>
     <service id="cache.doctrine.orm.default.result" class="Symfony\Component\Cache\Adapter\ArrayAdapter">
@@ -5516,7 +5516,7 @@
       <argument>lPWV-56O7R</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
-      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/system</argument>
+      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/system</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
@@ -5535,7 +5535,7 @@
       <argument>Y9qagrRZ7J</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
-      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/system</argument>
+      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/system</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
@@ -7125,7 +7125,13 @@
         <argument key="travelStory" type="service_closure" id=".errored..service_locator.HGK3GJE.App\Entity\TravelStory"/>
       </argument>
     </service>
-    <service id=".service_locator.TYx8Wev" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.aPvvAg5" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="httpClient" type="service_closure" id="http_client.uri_template"/>
+      </argument>
+    </service>
+    <service id=".service_locator.FWCfwU." class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="App\Controller\ActivityController::log" type="service_closure" id=".service_locator.9kKwU2t"/>
@@ -7193,8 +7199,10 @@
         <argument key="App\Controller\user\StoryController::markSeen" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\StoryController::viewers" type="service_closure" id=".service_locator.uwThabE"/>
         <argument key="App\Controller\user\TestGeminiController::test" type="service_closure" id=".service_locator.ZBf0eUd"/>
+        <argument key="App\Controller\user\TravelStoryController::aiAssist" type="service_closure" id=".service_locator.aPvvAg5"/>
         <argument key="App\Controller\user\TravelStoryController::delete" type="service_closure" id=".service_locator.By014CM"/>
         <argument key="App\Controller\user\TravelStoryController::edit" type="service_closure" id=".service_locator.HGK3GJE"/>
+        <argument key="App\Controller\user\TravelStoryController::geocodeDestination" type="service_closure" id=".service_locator.aPvvAg5"/>
         <argument key="App\Controller\user\TravelStoryController::index" type="service_closure" id=".service_locator.D0T7klK"/>
         <argument key="App\Controller\user\TravelStoryController::new" type="service_closure" id=".service_locator.LNwsF6h"/>
         <argument key="App\Controller\user\TravelStoryController::show" type="service_closure" id=".service_locator.By014CM"/>
@@ -7267,8 +7275,10 @@
         <argument key="App\Controller\user\StoryController:markSeen" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\StoryController:viewers" type="service_closure" id=".service_locator.uwThabE"/>
         <argument key="App\Controller\user\TestGeminiController:test" type="service_closure" id=".service_locator.ZBf0eUd"/>
+        <argument key="App\Controller\user\TravelStoryController:aiAssist" type="service_closure" id=".service_locator.aPvvAg5"/>
         <argument key="App\Controller\user\TravelStoryController:delete" type="service_closure" id=".service_locator.By014CM"/>
         <argument key="App\Controller\user\TravelStoryController:edit" type="service_closure" id=".service_locator.HGK3GJE"/>
+        <argument key="App\Controller\user\TravelStoryController:geocodeDestination" type="service_closure" id=".service_locator.aPvvAg5"/>
         <argument key="App\Controller\user\TravelStoryController:index" type="service_closure" id=".service_locator.D0T7klK"/>
         <argument key="App\Controller\user\TravelStoryController:new" type="service_closure" id=".service_locator.LNwsF6h"/>
         <argument key="App\Controller\user\TravelStoryController:show" type="service_closure" id=".service_locator.By014CM"/>
@@ -8995,7 +9005,7 @@
     <service id="Knp\Component\Pager\ArgumentAccess\ArgumentAccessInterface" alias="Knp\Component\Pager\ArgumentAccess\RequestArgumentAccess"/>
     <service id="container.env_var_processors_locator" alias=".service_locator.w7.f4fT" public="true"/>
     <service id="twig.loader.filesystem" alias="twig.loader.native_filesystem"/>
-    <service id="argument_resolver.controller_locator" alias=".service_locator.TYx8Wev"/>
+    <service id="argument_resolver.controller_locator" alias=".service_locator.FWCfwU."/>
     <service id="twig.loader" alias="twig.loader.native_filesystem"/>
     <service id="doctrine.id_generator_locator" alias=".service_locator.KLVvNIq"/>
     <service id="Psr\Log\LoggerInterface" alias="logger"/>
@@ -9007,7 +9017,7 @@
     <service id=".service_locator.8K0LQzh" alias=".service_locator.dCNpF2s"/>
     <service id=".service_locator.8XrMFzH" alias=".service_locator.By014CM"/>
     <service id=".service_locator.ZeFzLsu" alias=".service_locator.HGK3GJE"/>
-    <service id=".service_locator.yyZ8q4R" alias=".service_locator.TYx8Wev"/>
+    <service id=".service_locator._aMbamP" alias=".service_locator.FWCfwU."/>
     <service id=".service_locator.Blc_TTv" alias=".service_locator.xEtfc9T"/>
     <service id=".service_locator.s7qvCS9" alias=".service_locator.XLUr0sJ"/>
     <service id=".service_locator.LMuqDDe" alias=".service_locator.VHsrTPK"/>
@@ -9056,6 +9066,7 @@
     <service id=".service_locator.lUJI3Z8" alias=".service_locator.LNwsF6h"/>
     <service id=".service_locator.vKWD28h" alias=".service_locator.By014CM"/>
     <service id=".service_locator.8f5Ba4L" alias=".service_locator.HGK3GJE"/>
+    <service id=".service_locator.GeFND7u" alias=".service_locator.aPvvAg5"/>
     <service id=".service_locator.GDg2hr7" alias=".service_locator.O2p6Lk7"/>
     <service id=".service_locator.dGUCsbe" alias=".service_locator.oR77BOj"/>
     <service id=".service_locator._kIAbz1" alias=".service_locator.TpoC7U9"/>

@@ -360,7 +360,15 @@
         <a href="{{ path('travel_story_show', {id: sid}) }}" class="pc-title">{{ story.title }}</a>
 
         {% if story.destination %}
-          <div class="ts-destination">{{ story.destination }}</div>
+          <div class="ts-destination">
+            <span class="ts-country-tag"
+                  role="button"
+                  tabindex="0"
+                  aria-label="Show {{ story.destination }} on map"
+                  data-destination="{{ story.destination|trim|e('html_attr') }}">
+              <span class="ts-destination-text">{{ story.destination }}</span>
+            </span>
+          </div>
         {% endif %}
 
         {% if story.coverImageUrl %}
@@ -376,7 +384,11 @@
 
         <div class="ts-meta">
           {% if story.overallRating %}
-            <span class="ts-tag">{{ story.overallRating }}/5</span>
+            {% set rating = story.overallRating|default(0)|round(0, 'floor') %}
+            <span class="ts-tag ts-rating" aria-label="Rating {{ rating }} out of 5">
+              <span class="ts-rating-stars">{% for i in 1..5 %}{{ i <= rating ? '★' : '☆' }}{% endfor %}</span>
+              <span class="ts-rating-value">{{ rating }}/5</span>
+            </span>
           {% endif %}
           {% if story.travelType %}
             <span class="ts-tag">{{ story.travelType|capitalize }}</span>

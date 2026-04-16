@@ -61,26 +61,6 @@ class BlogProfileController extends AbstractController
 
         $tab = $this->normalizeTab((string) $request->query->get('tab', 'shared'));
 
-        $posts = $postRepository->findPublicByUserId((int) $target->getUserId());
-        $travelStories = $travelStoryRepository->findByUserId((int) $target->getUserId());
-
-        $shared = [];
-        foreach ($posts as $post) {
-            $shared[] = [
-                'kind' => 'post',
-                'entity' => $post,
-                'createdAt' => $post->getCreatedAt() ?? new \DateTime('2000-01-01'),
-            ];
-        }
-        foreach ($travelStories as $story) {
-            $shared[] = [
-                'kind' => 'travel_story',
-                'entity' => $story,
-                'createdAt' => $story->getCreatedAt() ?? new \DateTime('2000-01-01'),
-            ];
-        }
-        usort($shared, static fn(array $a, array $b): int => $b['createdAt'] <=> $a['createdAt']);
-
         $followersCount = (int) $followingRepository->count(['followed_id' => (int) $target->getUserId()]);
         $followingCount = (int) $followingRepository->count(['follower_id' => (int) $target->getUserId()]);
 
@@ -90,6 +70,33 @@ class BlogProfileController extends AbstractController
                 'follower_id' => $myId,
                 'followed_id' => (int) $target->getUserId(),
             ]) !== null;
+        }
+
+        $canViewContent = $isSelf || $isFollowing;
+
+        $posts = [];
+        $travelStories = [];
+        $shared = [];
+
+        if ($canViewContent) {
+            $posts = $postRepository->findPublicByUserId((int) $target->getUserId());
+            $travelStories = $travelStoryRepository->findByUserId((int) $target->getUserId());
+
+            foreach ($posts as $post) {
+                $shared[] = [
+                    'kind' => 'post',
+                    'entity' => $post,
+                    'createdAt' => $post->getCreatedAt() ?? new \DateTime('2000-01-01'),
+                ];
+            }
+            foreach ($travelStories as $story) {
+                $shared[] = [
+                    'kind' => 'travel_story',
+                    'entity' => $story,
+                    'createdAt' => $story->getCreatedAt() ?? new \DateTime('2000-01-01'),
+                ];
+            }
+            usort($shared, static fn(array $a, array $b): int => $b['createdAt'] <=> $a['createdAt']);
         }
 
         $activeStoriesCount = count($storyRepository->findActiveForUser((int) $target->getUserId()));
@@ -105,6 +112,7 @@ class BlogProfileController extends AbstractController
             'followingCount' => $followingCount,
             'isFollowing' => $isFollowing,
             'isSelf' => $isSelf,
+            'canViewContent' => $canViewContent,
             'activeStoriesCount' => $activeStoriesCount,
         ]);
     }
