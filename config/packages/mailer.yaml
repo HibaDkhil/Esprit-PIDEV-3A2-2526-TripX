@@ -1,3 +1,5 @@
 framework:
     mailer:
-        dsn: '%env(MAILER_DSN)%'
+        transports:
+            default: '%env(MAILER_DSN)%'
+            booking: '%env(BOOKING_MAILER_DSN)%'

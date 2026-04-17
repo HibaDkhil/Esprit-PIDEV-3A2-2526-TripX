@@ -29,58 +29,104 @@ services:
             $geminiModel: '%env(GEMINI_MODEL)%'
 
     # Inject services into AuthController via setters
-    # Inject services into AuthController via setters
     App\Controller\user\AuthController:
         calls:
             - setAuthService: ['@App\service\AuthService']
             - setSecurity: ['@Symfony\Bundle\SecurityBundle\Security']
             - setPreferenceService: ['@App\service\PreferenceService']
 
+    # ============ ACCOMMODATION SERVICES ============
+    
+    # Cache Service
     App\service\Accommodation\CacheService:
         arguments:
             $projectDir: '%kernel.project_dir%'
 
+    # Weather Service
     App\service\Accommodation\WeatherService:
         arguments:
+            $httpClient: '@http_client'
+            $cache: '@App\service\Accommodation\CacheService'
             $openWeatherApiKey: '%env(OPENWEATHER_API_KEY)%'
 
+    # SerpApiService base class
     App\service\Accommodation\SerpApiService:
         arguments:
+            $httpClient: '@http_client'
+            $cache: '@App\service\Accommodation\CacheService'
             $serpApiKey: '%env(SERPAPI_API_KEY)%'
 
-    App\service\Accommodation\FlightService:
-        arguments:
-            $serpApiKey: '%env(SERPAPI_API_KEY)%'
-
+    # Image Service
     App\service\Accommodation\ImageService:
         arguments:
+            $httpClient: '@http_client'
+            $cache: '@App\service\Accommodation\CacheService'
             $serpApiKey: '%env(SERPAPI_API_KEY)%'
 
+    # Local Service
+    App\service\Accommodation\LocalService:
+        arguments:
+            $httpClient: '@http_client'
+            $cache: '@App\service\Accommodation\CacheService'
+            $serpApiKey: '%env(SERPAPI_API_KEY)%'
+
+    # Review Service
+    App\service\Accommodation\ReviewService:
+        arguments:
+            $httpClient: '@http_client'
+            $cache: '@App\service\Accommodation\CacheService'
+            $serpApiKey: '%env(SERPAPI_API_KEY)%'
+
+    # Flight Service
+    App\service\Accommodation\FlightService:
+        arguments:
+            $httpClient: '@http_client'
+            $cache: '@App\service\Accommodation\CacheService'
+            $serpApiKey: '%env(SERPAPI_API_KEY)%'
+
+    # Itinerary Service
     App\service\Accommodation\ItineraryService:
         arguments:
+            $cache: '@App\service\Accommodation\CacheService'
             $geminiApiKey: '%env(RAGHED_GEMINI)%'
 
+    # RoomInsightsService
     App\service\Accommodation\RoomInsightsService:
         arguments:
             $raggedGemini: '%env(RAGHED_GEMINI)%'
 
+    # Google Calendar Service
     App\service\Accommodation\GoogleCalendarAccService:
         arguments:
             $projectDir: '%kernel.project_dir%'
 
-    App\service\Accommodation\LocalService:
+    # Booking Mailer Service
+    App\service\Accommodation\BookingAccMailerService:
         arguments:
-            $serpApiKey: '%env(SERPAPI_API_KEY)%'
+            $mailer: '@mailer.mailer'
+            $userRepo: '@App\Repository\UserRepository'
+            $fromEmail: '%env(BOOKING_MAILER_FROM)%'
+            $fromName: '%env(BOOKING_MAILER_NAME)%'
 
-    App\service\Accommodation\ReviewService:
+    # Notification Service
+    App\service\NotificationService:
         arguments:
-            $serpApiKey: '%env(SERPAPI_API_KEY)%'
+            $em: '@doctrine.orm.entity_manager'
+            $notificationRepo: '@App\Repository\AdminNotificationRepository'
 
+    # Transport Optimal Route Service
     App\service\TransportOptimalRouteService:
         arguments:
             $groqApiKey: '%env(TRANSPORTAI)%'
 
+    # Admin Controller
     App\Controller\admin\OverviewController:
         arguments:
             $groqApiKey: '%env(TRANSPORTAI)%'
         tags: ['controller.service_arguments']
+    
+    # Image Watermark Service
+    App\service\Accommodation\ImageWatermarkService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+        

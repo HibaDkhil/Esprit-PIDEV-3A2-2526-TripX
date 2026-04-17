@@ -143,7 +143,7 @@ class AdminPacksController extends AbstractController
             'categories'     => $this->em->getRepository(PackCategory::class)->findAll(),
             'destinations'   => $this->destinationService->getAll(),
             'accommodations' => $this->accommodationRepo->findAll(),
-            'transports'     => $this->transportService->getAll(),
+            'transports'     => $this->transportService->getAllTransports(),
             'activities'     => $this->activityService->getAll(),
         ];
     }

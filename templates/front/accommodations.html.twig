@@ -6,6 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Montserrat:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="/css/air-scroll.css">
 <style>
 /* ── Reset & Layout Shell ─────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1026,18 +1027,12 @@ option { color: var(--text-primary, #000); background: var(--bg-card, #fff); }
 
 {# ── Hero Header — Cinematic photo hero ── #}
 <div class="hero-header">
-  {#
-    Put your photo inside the public/ folder, for example:
-      public/images/hero-bg.jpg
-    Then reference it here as /images/hero-bg.jpg
-  #}
   <img
     class="hero-bg-img"
     src="/images/hero-bg.jpg"
     alt="Accommodations background"
   >
 
-  {# Text — bottom left, editorial style #}
   <div class="hero-content">
     <div class="hero-eyebrow">
       <span class="hero-eyebrow-dot"></span>
@@ -1052,7 +1047,6 @@ option { color: var(--text-primary, #000); background: var(--bg-card, #fff); }
     </p>
   </div>
 
-  {# Stats — bottom right, optional (remove if you don't have the data) #}
   <div class="hero-stats">
     <div class="hero-stat">
       <div class="hero-stat-num">{{ totalCount }}+</div>
@@ -1313,30 +1307,37 @@ option { color: var(--text-primary, #000); background: var(--bg-card, #fff); }
                  data-lng="{{ a.longitude ?? '' }}"
                  onclick="focusOnMap({{ a.id }})">
 
-              <div class="card-img">
-                {% if a.imagePath %}
-                  <img src="/{{ a.imagePath }}" alt="{{ a.name|e('html_attr') }}" onerror="this.style.display='none'">
-                {% else %}
-                  <span class="card-img-fallback ic ic-48" data-card-fallback="{{ a.id }}"></span>
-                {% endif %}
-                <div class="card-img-overlay"></div>
-                <div class="card-select-checkbox" onclick="event.stopPropagation(); toggleSelection({{ a.id }})"></div>
-                {% if a.type %}
-                  <div class="card-type-badge">{{ a.type }}</div>
-                {% endif %}
-                <div class="card-map-btn"
-                     onclick="event.stopPropagation();flyToMarker({{ a.id }})"
-                     title="Show on map">
-                  <span class="ic ic-14" data-card-map-icon="{{ a.id }}"></span>
-                </div>
-                {% if a.minPrice is not null %}
-                  <div class="card-price-badge">
-                    <span class="card-price-from">from</span>
-                    <span class="card-price-val">€{{ a.minPrice|number_format(0) }}</span>
-                    <span class="card-price-night">/night</span>
-                  </div>
-                {% endif %}
-              </div>
+    <div class="card-img">
+    {% if a.imagePath %}
+        <img 
+            src="{{ asset(a.imagePath) }}" 
+            alt="{{ a.name|e('html_attr') }}"
+            onerror="this.style.display='none';"
+        >
+    {% else %}
+        <span class="card-img-fallback ic ic-48" data-card-fallback="{{ a.id }}"></span>
+    {% endif %}
+    <div class="card-img-overlay"></div>
+    <div class="card-select-checkbox" onclick="event.stopPropagation(); toggleSelection({{ a.id }})"></div>
+    
+    {% if a.type %}
+        <div class="card-type-badge">{{ a.type }}</div>
+    {% endif %}
+    
+    <div class="card-map-btn"
+         onclick="event.stopPropagation();flyToMarker({{ a.id }})"
+         title="Show on map">
+        <span class="ic ic-14" data-card-map-icon="{{ a.id }}"></span>
+    </div>
+    
+    {% if a.minPrice is not null %}
+        <div class="card-price-badge">
+            <span class="card-price-from">from</span>
+            <span class="card-price-val">€{{ a.minPrice|number_format(0) }}</span>
+            <span class="card-price-night">/night</span>
+        </div>
+    {% endif %}
+</div>
 
               <div class="card-body">
                 <div class="card-name">{{ a.name }}</div>
@@ -1391,6 +1392,41 @@ option { color: var(--text-primary, #000); background: var(--bg-card, #fff); }
   </div>
 </div>
 
+{# ── AIR SCROLL WIDGETS ── #}
+
+{# Floating Toggle Button #}
+<button id="airScrollToggle" class="air-scroll-toggle">
+    <span class="toggle-icon">✋</span>
+    <span class="toggle-text">Air Scroll</span>
+    <span class="toggle-badge">NEW</span>
+</button>
+
+{# Draggable Widget (hidden by default) #}
+<div id="airScrollWidget" class="air-scroll-widget" style="display: none;">
+    <div class="air-scroll-header" id="airScrollHeader">
+        <span class="air-scroll-title">
+            <span>✋</span>
+            Air Scroll Active
+        </span>
+        <button class="air-scroll-close" id="airScrollClose">×</button>
+    </div>
+    <div class="air-scroll-video-container">
+        <video id="airWebcam" autoplay playsinline></video>
+        <canvas id="airCanvas"></canvas>
+    </div>
+    <div class="air-scroll-status">
+        <span class="status-dot" id="airStatusDot"></span>
+        <span class="status-text" id="airStatusText">Waiting for hand...</span>
+        <span class="air-scroll-gesture" id="airGestureText">—</span>
+    </div>
+    <div class="air-scroll-hints">
+        <span>☝️ Point = Track</span>
+        <span>✊ Fist = Stop</span>
+        <span>🖐️ Palm = Scroll</span>
+        <span>✌️ Victory = Reset</span>
+    </div>
+</div>
+
 {# Toast #}
 <div id="toast"></div>
 
@@ -1398,6 +1434,9 @@ option { color: var(--text-primary, #000); background: var(--bg-card, #fff); }
 
 {% block javascripts %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+<script src="/js/air-scroll.js"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 //  ICON SYSTEM — Solar Bold Duotone via Iconify API
@@ -1583,6 +1622,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   plotMarkers(currentAccommodations);
   initDrawers();
   renderSelectedAccommodations();
+  
+  // Initialize Air Scroll (only if element exists)
+  if (typeof AirScroll !== 'undefined' && document.getElementById('airScrollWidget')) {
+    AirScroll.init('acc-cards-area');
+  }
 });
 
 function syncDrawerTop() {
@@ -2032,7 +2076,6 @@ async function doSearch() {
   const type = document.querySelector('.type-pill.active')?.dataset.type || '';
   if (type) params.set('type', type);
 
-  // ★ FIX: only send price params if user actually moved the slider
   if (priceMinVal > PRICE_MIN_GLOBAL) params.set('minPrice', priceMinVal);
   if (priceMaxVal < PRICE_MAX_GLOBAL) params.set('maxPrice', priceMaxVal);
 
@@ -2100,10 +2143,9 @@ async function renderCards(items) {
       .map(am => `<span class="amenity-tag">${escapeHtml(am)}</span>`)
       .join('');
 
-    const imgHtml = a.imagePath
-      ? `<img src="/${escapeHtml(a.imagePath)}" alt="${escapeHtml(a.name)}" onerror="this.style.display='none'">`
-      : `<span class="card-img-fallback ic ic-48">${inlineSVG(IC.hotel, 48)}</span>`;
-
+const imgHtml = a.imagePath
+    ? `<img src="${escapeHtml(a.imagePath)}" alt="${escapeHtml(a.name)}" onerror="this.style.display='none';">`
+    : `<span class="card-img-fallback ic ic-48">${inlineSVG(IC.hotel, 48)}</span>`;
     const priceHtml = a.minPrice ? `
       <div class="card-price-badge">
         <span class="card-price-from">from</span>
@@ -2214,6 +2256,10 @@ document.addEventListener('keydown', e => {
   if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
     e.preventDefault();
     document.getElementById('q-input').focus();
+  }
+  // ESC to deactivate air scroll
+  if (e.key === 'Escape' && window.AirScroll && AirScroll.isActive && AirScroll.isActive()) {
+    AirScroll.deactivate();
   }
 });
 

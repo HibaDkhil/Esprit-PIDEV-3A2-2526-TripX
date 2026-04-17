@@ -50,7 +50,30 @@
   padding: 0 24px;
 }
 .details-main    { display: flex; flex-direction: column; gap: 40px; }
-.details-sidebar { position: sticky; top: 100px; display: flex; flex-direction: column; gap: 24px; }
+
+/* ── FIXED: Sidebar with bounded height and scroll ── */
+.details-sidebar {
+  position: sticky;
+  top: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(167,139,250,0.3) transparent;
+}
+.details-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+.details-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.details-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(167,139,250,0.3);
+  border-radius: 2px;
+}
 
 /* ── Section Cards ── */
 .section-card {
@@ -68,26 +91,35 @@
 .section-header {
   padding: 20px 24px;
   border-bottom: 1px solid rgba(167,139,250,0.15);
-  display: flex; align-items: center;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap; gap: 12px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 .section-header h2 {
-  font-size: 20px; font-weight: 700;
+  font-size: 20px;
+  font-weight: 700;
   font-family: 'Playfair Display', serif;
   color: #fff;
-  display: flex; align-items: center; gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 .section-content { padding: 24px; }
 
 /* ── Amenities ── */
 .amenities-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
 .amenity-item {
-  display: flex; align-items: center; gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 10px 12px;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(167,139,250,0.2);
-  border-radius: 12px; font-size: 13px; color: #cbd5e1;
+  border-radius: 12px;
+  font-size: 13px;
+  color: #cbd5e1;
 }
 
 /* ── Rooms ── */
@@ -95,7 +127,8 @@
 .room-card {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(167,139,250,0.2);
-  border-radius: 16px; padding: 16px;
+  border-radius: 16px;
+  padding: 16px;
   transition: var(--transition);
 }
 .room-card:hover {
@@ -103,56 +136,143 @@
   transform: translateY(-2px);
   background: rgba(167,139,250,0.08);
 }
-.room-header   { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.room-name     { font-size: 18px; font-weight: 700; color: #fff; }
-.room-price    { font-size: 20px; font-weight: 800; color: var(--accent); }
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.room-name { font-size: 18px; font-weight: 700; color: #fff; }
+.room-price { font-size: 20px; font-weight: 800; color: var(--accent); }
 .room-price small { font-size: 12px; font-weight: normal; color: #94a3b8; }
-.room-details  { display: flex; gap: 16px; margin-bottom: 12px; font-size: 13px; color: #94a3b8; }
-.room-amenities{ display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-.room-amenity  { padding: 4px 10px; background: rgba(167,139,250,0.15); border-radius: 20px; font-size: 11px; color: #c4b5fd; }
+.room-details {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+.room-amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.room-amenity {
+  padding: 4px 10px;
+  background: rgba(167,139,250,0.15);
+  border-radius: 20px;
+  font-size: 11px;
+  color: #c4b5fd;
+}
 
 /* ── Empty state ── */
-.empty-state { text-align: center; padding: 40px; color: #64748b; }
-.empty-state .icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+}
+.empty-state .icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
 
 /* ── Nearby ── */
-.nearby-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.nearby-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
 .nearby-card {
-  display: flex; gap: 12px; padding: 12px;
+  display: flex;
+  gap: 12px;
+  padding: 12px;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(167,139,250,0.15);
-  border-radius: 12px; transition: var(--transition);
+  border-radius: 12px;
+  transition: var(--transition);
 }
-.nearby-card:hover { background: rgba(167,139,250,0.1); transform: translateY(-2px); }
-.nearby-icon   { font-size: 32px; }
-.nearby-info h4{ font-size: 14px; font-weight: 600; margin-bottom: 4px; color: #e2e8f0; }
-.nearby-info p { font-size: 12px; color: #94a3b8; }
+.nearby-card:hover {
+  background: rgba(167,139,250,0.1);
+  transform: translateY(-2px);
+}
+.nearby-icon { font-size: 32px; }
+.nearby-info h4 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #e2e8f0;
+}
+.nearby-info p {
+  font-size: 12px;
+  color: #94a3b8;
+}
 
 /* ── Gallery ── */
 .gallery-stack-wrapper {
-  display: flex; flex-wrap: wrap; gap: 0; padding: 20px 0 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  padding: 20px 0 10px;
 }
 .gallery-card {
-  display: flex; height: 220px; width: 160px;
-  border-radius: 10px; box-shadow: -1rem 0 3rem rgba(0,0,0,0.6);
-  margin-left: -60px; transition: 0.4s ease-out;
-  position: relative; left: 0; overflow: hidden; cursor: pointer; flex-shrink: 0;
+  display: flex;
+  height: 220px;
+  width: 160px;
+  border-radius: 10px;
+  box-shadow: -1rem 0 3rem rgba(0,0,0,0.6);
+  margin-left: -60px;
+  transition: 0.4s ease-out;
+  position: relative;
+  left: 0;
+  overflow: hidden;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 .gallery-card:first-child { margin-left: 0; }
-.gallery-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.4s ease-out; }
-.gallery-card:hover { transform: translateY(-20px); box-shadow: 0 20px 40px rgba(167,139,250,0.3); z-index: 10; }
-.gallery-card:hover ~ .gallery-card { position: relative; left: 50px; transition: 0.4s ease-out; }
+.gallery-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: 0.4s ease-out;
+}
+.gallery-card:hover {
+  transform: translateY(-20px);
+  box-shadow: 0 20px 40px rgba(167,139,250,0.3);
+  z-index: 10;
+}
+.gallery-card:hover ~ .gallery-card {
+  position: relative;
+  left: 50px;
+  transition: 0.4s ease-out;
+}
 .gallery-card .gallery-overlay {
-  position: absolute; inset: 0;
+  position: absolute;
+  inset: 0;
   background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
-  opacity: 0; transition: 0.3s ease-out;
+  opacity: 0;
+  transition: 0.3s ease-out;
 }
 .gallery-card:hover .gallery-overlay { opacity: 1; }
-.gallery-card .gallery-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 4px; }
-.gallery-card .gallery-bar-empty { background: rgba(255,255,255,0.1); width: 100%; height: 100%; }
+.gallery-card .gallery-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+.gallery-card .gallery-bar-empty {
+  background: rgba(255,255,255,0.1);
+  width: 100%;
+  height: 100%;
+}
 .gallery-card .gallery-bar-fill {
-  position: absolute; top: 0; left: 0;
-  width: 0; height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
   background: linear-gradient(90deg, #6831cfab, #a777ff 100%);
   transition: 0.4s ease-out;
 }
@@ -160,80 +280,254 @@
 
 /* ── Reviews ── */
 .reviews-summary {
-  text-align: center; padding: 20px;
+  text-align: center;
+  padding: 20px;
   background: linear-gradient(135deg, rgba(167,139,250,0.1), rgba(56,189,248,0.1));
-  border-radius: 20px; margin-bottom: 24px;
+  border-radius: 20px;
+  margin-bottom: 24px;
 }
-.average-rating { font-size: 48px; font-weight: 800; color: var(--gold); }
-.stars  { color: var(--gold); font-size: 20px; letter-spacing: 2px; }
-.reviews-list { display: flex; flex-direction: column; gap: 20px; max-height: 400px; overflow-y: auto; }
-.review-item   { padding: 16px; border-bottom: 1px solid rgba(167,139,250,0.15); }
-.review-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-.review-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; }
-.review-author { font-weight: 600; color: #fff; }
-.review-rating { color: var(--gold); font-size: 12px; }
-.review-text   { font-size: 14px; line-height: 1.5; color: #94a3b8; }
+.average-rating {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--gold);
+}
+.stars {
+  color: var(--gold);
+  font-size: 20px;
+  letter-spacing: 2px;
+}
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.review-item {
+  padding: 16px;
+  border-bottom: 1px solid rgba(167,139,250,0.15);
+}
+.review-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.review-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: white;
+}
+.review-author {
+  font-weight: 600;
+  color: #fff;
+}
+.review-rating {
+  color: var(--gold);
+  font-size: 12px;
+}
+.review-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #94a3b8;
+}
 
 /* ── Weather ── */
 .weather-card {
-  display: flex; flex-direction: column;
-  width: 100%; border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-radius: 15px;
   background: linear-gradient(to right, rgb(20, 30, 48), rgb(36, 59, 85));
   overflow: hidden;
   box-shadow: rgba(0,0,0,0.7) 5px 10px 50px, rgba(0,0,0,0.4) -5px 0px 80px;
-  cursor: pointer; transition: all 0.3s ease-in-out; color: white;
+  transition: all 0.3s ease-in-out;
+  color: white;
 }
-.weather-card:hover { box-shadow: rgba(0,0,0,0.9) 5px 10px 50px, rgba(0,0,0,0.7) -5px 0px 120px; }
+.weather-card:hover {
+  box-shadow: rgba(0,0,0,0.9) 5px 10px 50px, rgba(0,0,0,0.7) -5px 0px 120px;
+}
 .info-section {
-  position: relative; display: flex; align-items: center;
-  justify-content: space-between; width: 100%;
-  padding: 20px 0; min-height: 180px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px 0;
+  min-height: 130px;
+  flex-shrink: 0;
 }
-.left-side  { display: flex; flex-direction: column; justify-content: space-around; height: 100%; z-index: 1; padding-left: 18px; gap: 8px; }
-.right-side { display: flex; flex-direction: column; align-items: flex-end; justify-content: space-around; height: 100%; padding-right: 18px; z-index: 1; gap: 8px; }
-.right-side > div { display: flex; flex-direction: column; align-items: flex-end; }
-.weather      { display: flex; align-items: center; gap: 8px; }
-.temperature  { font-size: 42px; font-weight: 600; line-height: 1; }
-.range        { font-size: 14px; opacity: 0.8; }
-.hour         { font-size: 20px; font-weight: 500; line-height: 1.2; }
-.date         { font-size: 13px; opacity: 0.8; }
-.city         { font-weight: 600; font-size: 14px; }
-.background-design { position: absolute; height: 100%; width: 100%; background-color: #3b1f6e; overflow: hidden; border-radius: 15px; }
-.circle { background-color: #6831cf; }
-.circle:nth-child(1) { position: absolute; top: -80%; right: -50%; width: 300px; height: 300px; opacity: 0.3; border-radius: 50%; }
-.circle:nth-child(2) { position: absolute; top: -70%; right: -30%; width: 210px; height: 210px; opacity: 0.3; border-radius: 50%; }
-.circle:nth-child(3) { position: absolute; top: -35%; right:  -8%; width: 100px; height: 100px; opacity: 0.7; border-radius: 50%; }
-.days-section { display: flex; align-items: center; justify-content: space-between; width: 100%; background: rgba(0,0,0,0.3); gap: 1px; }
-.days-section button { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70px; width: 100%; background: rgba(255,255,255,0.05); border: none; cursor: pointer; transition: 100ms ease; gap: 5px; color: white; }
-.days-section button:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); }
-.days-section .day { font-size: 12px; font-weight: 500; }
-.days-section .forecast-temp { font-size: 14px; font-weight: 600; }
-.forecast-icon { width: 24px; height: 24px; }
+.left-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 100%;
+  z-index: 1;
+  padding-left: 18px;
+  gap: 4px;
+}
+.right-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 100%;
+  padding-right: 18px;
+  z-index: 1;
+  gap: 4px;
+}
+.right-side > div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.weather {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.temperature {
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1;
+}
+.range {
+  font-size: 11px;
+  opacity: 0.8;
+}
+.city {
+  font-weight: 600;
+  font-size: 12px;
+}
+.background-design {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-color: #3b1f6e;
+  overflow: hidden;
+  border-radius: 15px;
+}
+.circle {
+  background-color: #6831cf;
+}
+.circle:nth-child(1) {
+  position: absolute;
+  top: -80%;
+  right: -50%;
+  width: 300px;
+  height: 300px;
+  opacity: 0.3;
+  border-radius: 50%;
+}
+.circle:nth-child(2) {
+  position: absolute;
+  top: -70%;
+  right: -30%;
+  width: 210px;
+  height: 210px;
+  opacity: 0.3;
+  border-radius: 50%;
+}
+.circle:nth-child(3) {
+  position: absolute;
+  top: -35%;
+  right: -8%;
+  width: 100px;
+  height: 100px;
+  opacity: 0.7;
+  border-radius: 50%;
+}
+.days-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: rgba(0,0,0,0.3);
+  gap: 1px;
+  flex-shrink: 0;
+}
+.days-section button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: none;
+  cursor: pointer;
+  transition: 100ms ease;
+  gap: 2px;
+  color: white;
+}
+.days-section button:hover {
+  background: rgba(255,255,255,0.12);
+  transform: translateY(-2px);
+}
+.days-section .day {
+  font-size: 10px;
+  font-weight: 500;
+}
+.days-section .forecast-temp {
+  font-size: 12px;
+  font-weight: 600;
+}
 
 /* ── Booking Panel ── */
 .booking-panel {
   background: linear-gradient(to right, rgb(20, 30, 48), rgb(36, 59, 85));
   border: 1px solid rgba(167,139,250,0.2);
-  border-radius: 15px; padding: 24px;
+  border-radius: 15px;
+  padding: 24px;
   box-shadow: rgba(0,0,0,0.7) 5px 10px 50px;
-  color: #e2e8f0; transition: all 0.3s ease-in-out;
+  color: #e2e8f0;
+  transition: all 0.3s ease-in-out;
+  flex-shrink: 0;
 }
-.booking-panel:hover { box-shadow: rgba(0,0,0,0.9) 5px 10px 50px, rgba(0,0,0,0.5) -5px 0px 80px; }
-.booking-price { font-size: 28px; font-weight: 800; color: var(--accent); margin-bottom: 20px; }
-.booking-price small { font-size: 14px; font-weight: normal; color: #94a3b8; }
+.booking-panel:hover {
+  box-shadow: rgba(0,0,0,0.9) 5px 10px 50px, rgba(0,0,0,0.5) -5px 0px 80px;
+}
+.booking-price {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 20px;
+}
+.booking-price small {
+  font-size: 14px;
+  font-weight: normal;
+  color: #94a3b8;
+}
 .date-input {
-  width: 100%; padding: 12px;
+  width: 100%;
+  padding: 12px;
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(167,139,250,0.2);
-  border-radius: 12px; margin-bottom: 12px; color: #e2e8f0;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  color: #e2e8f0;
 }
-.date-input option { background: #1a2035; }
+.date-input option {
+  background: #1a2035;
+}
 .book-btn {
-  width: 100%; padding: 14px;
+  width: 100%;
+  padding: 14px;
   background: linear-gradient(135deg, #4a2f7c, #8a4ff8);
-  border: none; border-radius: 50px;
-  color: white; font-weight: 700; font-size: 16px;
-  cursor: pointer; transition: 0.4s ease-out; margin-top: 16px;
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.4s ease-out;
+  margin-top: 16px;
 }
 .book-btn:hover {
   background: linear-gradient(135deg, #8a4ff8, #38bdf8);
@@ -241,50 +535,131 @@
   transform: translateY(-2px);
 }
 
-/* ── Mini Map ── */
-.mini-map { height: 200px; border-radius: 12px; overflow: hidden; }
+/* ── Mini Map Container Fix ── */
+.section-card:last-child {
+  overflow: hidden;
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+.section-card:last-child .section-header {
+  border-bottom: none;
+  padding-bottom: 16px;
+}
+.section-card:last-child .section-content {
+  padding: 0 !important;
+  overflow: hidden;
+  line-height: 0;
+}
+.mini-map {
+  height: 200px;
+  width: 100%;
+  display: block;
+  background: rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* ── Leaflet Map Styles ── */
+.leaflet-container {
+  background: #1a2035;
+  z-index: 1;
+  width: 100% !important;
+  height: 100% !important;
+}
+.leaflet-control-attribution {
+  background: rgba(0,0,0,0.5) !important;
+  color: #94a3b8 !important;
+  font-size: 9px !important;
+}
+.leaflet-popup-content-wrapper {
+  background: #1e2a3e;
+  color: #e2e8f0;
+  border-radius: 8px;
+}
+.leaflet-popup-tip {
+  background: #1e2a3e;
+}
 
 /* ── Itinerary ── */
-.itinerary-content { font-family: monospace; line-height: 1.6; white-space: pre-wrap; font-size: 14px; color: #94a3b8; }
+.itinerary-content {
+  font-family: monospace;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  font-size: 14px;
+  color: #94a3b8;
+}
 .generate-itinerary {
   padding: 10px 20px;
   background: linear-gradient(135deg, #4a2f7c, #8a4ff8);
-  border: none; border-radius: 50px;
-  color: white; font-weight: 600; cursor: pointer; transition: 0.4s ease-out;
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.4s ease-out;
 }
-.generate-itinerary:hover { box-shadow: 0px 0px 20px rgba(157,71,255,0.5), inset 4px 4px 8px rgba(219,175,255,0.5), inset -4px -4px 8px rgba(137,19,216,0.35); }
+.generate-itinerary:hover {
+  box-shadow: 0px 0px 20px rgba(157,71,255,0.5), inset 4px 4px 8px rgba(219,175,255,0.5), inset -4px -4px 8px rgba(137,19,216,0.35);
+}
 select#itinerary-days, select#nearby-category {
-  padding: 8px 12px; border-radius: 12px;
+  padding: 8px 12px;
+  border-radius: 12px;
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(167,139,250,0.2);
-  color: #e2e8f0; margin-right: 8px;
+  color: #e2e8f0;
+  margin-right: 8px;
 }
-select#itinerary-days option, select#nearby-category option { background: #1a2035; }
+select#itinerary-days option, select#nearby-category option {
+  background: #1a2035;
+}
 
-/* ── Skeleton ── */
+/* ── Skeleton Loading ── */
 .skeleton {
   background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(167,139,250,0.08) 50%, rgba(255,255,255,0.04) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 12px;
 }
-@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
 
 /* ── Image Modal ── */
 .modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-  z-index: 2000; display: flex; align-items: center; justify-content: center;
-  opacity: 0; visibility: hidden; transition: all 0.3s ease; cursor: pointer;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.95);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
-.modal-overlay.open { opacity: 1; visibility: visible; }
-.modal-content { max-width: 90vw; max-height: 90vh; cursor: default; }
-.modal-content img { max-width: 100%; max-height: 90vh; border-radius: 12px; }
+.modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+.modal-content {
+  max-width: 90vw;
+  max-height: 90vh;
+  cursor: default;
+}
+.modal-content img {
+  max-width: 100%;
+  max-height: 90vh;
+  border-radius: 12px;
+}
 
 /* ═══════════════════════════════════════════
    BOOKING DRAWER
+   (Keep your existing drawer CSS here)
 ═══════════════════════════════════════════ */
 .drawer-backdrop {
-  position: fixed; inset: 0;
+  position: fixed;
+  inset: 0;
   background: rgba(0, 0, 0, 0);
   backdrop-filter: blur(0px);
   z-index: 3000;
@@ -298,7 +673,8 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
 }
 .booking-drawer {
   position: fixed;
-  top: 0; right: 0;
+  top: 0;
+  right: 0;
   width: 520px;
   height: 100vh;
   z-index: 3001;
@@ -315,14 +691,20 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
 }
 .booking-drawer.open { transform: translateX(0); }
 .drawer-close {
-  position: absolute; top: 18px; right: 20px; z-index: 10;
-  width: 36px; height: 36px;
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 50%;
   color: #94a3b8;
   cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 18px;
   transition: all 0.2s;
   backdrop-filter: blur(10px);
@@ -342,49 +724,77 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
   z-index: 5;
   flex-shrink: 0;
 }
-.progress-step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
 .progress-dot {
-  width: 32px; height: 32px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: rgba(255,255,255,0.06);
   border: 2px solid rgba(167,139,250,0.2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 700; color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative; z-index: 2;
+  position: relative;
+  z-index: 2;
 }
 .progress-dot.active {
   background: linear-gradient(135deg, #4a2f7c, #8a4ff8);
-  border-color: #a78bfa; color: white;
+  border-color: #a78bfa;
+  color: white;
   box-shadow: 0 0 20px rgba(138,79,248,0.5);
 }
 .progress-dot.done {
   background: linear-gradient(135deg, #065f46, #059669);
-  border-color: #10b981; color: white;
+  border-color: #10b981;
+  color: white;
   box-shadow: 0 0 12px rgba(16,185,129,0.4);
 }
 .progress-label {
-  font-size: 10px; font-weight: 600;
-  color: #475569; letter-spacing: 0.5px; text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 600;
+  color: #475569;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
   transition: color 0.3s;
 }
 .progress-step.active .progress-label { color: #a78bfa; }
-.progress-step.done .progress-label   { color: #10b981; }
+.progress-step.done .progress-label { color: #10b981; }
 .progress-line {
-  flex: 1; height: 2px;
+  flex: 1;
+  height: 2px;
   background: rgba(167,139,250,0.12);
-  position: relative; margin-bottom: 22px;
+  position: relative;
+  margin-bottom: 22px;
   max-width: 60px;
 }
 .progress-line-fill {
-  position: absolute; top: 0; left: 0;
-  height: 100%; width: 0%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
   background: linear-gradient(90deg, #4a2f7c, #8a4ff8);
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.drawer-steps { flex: 1; overflow: hidden; position: relative; min-height: 0; }
+.drawer-steps {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  min-height: 0;
+}
 .drawer-step {
-  position: absolute; inset: 0;
+  position: absolute;
+  inset: 0;
   overflow-y: auto;
   padding: 24px 28px 28px;
   transform: translateX(100%);
@@ -396,88 +806,208 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
 .drawer-step::-webkit-scrollbar { width: 4px; }
 .drawer-step::-webkit-scrollbar-track { background: transparent; }
 .drawer-step::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.3); border-radius: 2px; }
-.drawer-step.active  { transform: translateX(0); opacity: 1; }
-.drawer-step.exiting { transform: translateX(-40px); opacity: 0; }
-
-/* ── Step 0: Room Preview ── */
+.drawer-step.active {
+  transform: translateX(0);
+  opacity: 1;
+}
+.drawer-step.exiting {
+  transform: translateX(-40px);
+  opacity: 0;
+}
 .room-carousel {
-  position: relative; height: 240px; border-radius: 16px;
-  overflow: hidden; margin-bottom: 24px;
+  position: relative;
+  height: 240px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 24px;
   background: rgba(255,255,255,0.04);
 }
-.carousel-slides { display: flex; height: 100%; transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); }
-.carousel-slide { min-width: 100%; height: 100%; object-fit: cover; flex-shrink: 0; }
+.carousel-slides {
+  display: flex;
+  height: 100%;
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+.carousel-slide {
+  min-width: 100%;
+  height: 100%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
 .carousel-slide-placeholder {
-  min-width: 100%; height: 100%;
-  display: flex; align-items: center; justify-content: center;
+  min-width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 80px;
   background: linear-gradient(135deg, rgba(74,47,124,0.3), rgba(56,189,248,0.1));
 }
 .carousel-btn {
-  position: absolute; top: 50%; transform: translateY(-50%);
-  width: 36px; height: 36px;
-  background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
   border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 50%; color: white; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; transition: all 0.2s; z-index: 5;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s;
+  z-index: 5;
 }
-.carousel-btn:hover { background: rgba(138,79,248,0.6); border-color: rgba(167,139,250,0.5); }
+.carousel-btn:hover {
+  background: rgba(138,79,248,0.6);
+  border-color: rgba(167,139,250,0.5);
+}
 .carousel-btn.prev { left: 12px; }
 .carousel-btn.next { right: 12px; }
-.carousel-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 5; }
-.carousel-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: rgba(255,255,255,0.4); transition: all 0.3s; cursor: pointer;
+.carousel-dots {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 5;
 }
-.carousel-dot.active { width: 20px; border-radius: 3px; background: #a78bfa; }
-.room-preview-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-.room-preview-name  { font-size: 22px; font-weight: 700; color: #fff; font-family: 'Playfair Display', serif; }
+.carousel-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.carousel-dot.active {
+  width: 20px;
+  border-radius: 3px;
+  background: #a78bfa;
+}
+.room-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.room-preview-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  font-family: 'Playfair Display', serif;
+}
 .room-preview-badge {
   padding: 4px 12px;
   background: rgba(167,139,250,0.15);
   border: 1px solid rgba(167,139,250,0.3);
-  border-radius: 20px; font-size: 11px; font-weight: 600;
-  color: #c4b5fd; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #c4b5fd;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
-.room-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+.room-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
 .room-stat {
   padding: 12px;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(167,139,250,0.12);
-  border-radius: 12px; text-align: center;
+  border-radius: 12px;
+  text-align: center;
 }
-.room-stat-icon  { font-size: 20px; margin-bottom: 4px; }
-.room-stat-value { font-size: 15px; font-weight: 700; color: #fff; }
-.room-stat-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
-.preview-price-tag { display: flex; align-items: baseline; gap: 6px; margin-bottom: 20px; }
-.preview-price-amount { font-size: 36px; font-weight: 800; color: #a78bfa; }
-.preview-price-per    { font-size: 14px; color: #64748b; }
-.drawer-amenities { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.room-stat-icon {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+.room-stat-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+.room-stat-label {
+  font-size: 10px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.preview-price-tag {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+.preview-price-amount {
+  font-size: 36px;
+  font-weight: 800;
+  color: #a78bfa;
+}
+.preview-price-per {
+  font-size: 14px;
+  color: #64748b;
+}
+.drawer-amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
 .drawer-amenity {
   padding: 6px 12px;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(167,139,250,0.15);
-  border-radius: 20px; font-size: 12px; color: #94a3b8;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #94a3b8;
 }
-
-/* ── Step 1: Stay Details ── */
 .stay-section-title {
-  font-size: 12px; font-weight: 700;
-  color: #64748b; text-transform: uppercase; letter-spacing: 1px;
-  margin-bottom: 10px; margin-top: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  margin-top: 20px;
 }
 .stay-section-title:first-child { margin-top: 0; }
-.date-range-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px; }
-.date-field { display: flex; flex-direction: column; gap: 6px; }
-.date-field label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+.date-range-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.date-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 .drawer-input {
-  width: 100%; padding: 12px 14px;
+  width: 100%;
+  padding: 12px 14px;
   background: rgba(255,255,255,0.06);
   border: 1.5px solid rgba(167,139,250,0.15);
   border-radius: 12px;
-  color: #e2e8f0; font-size: 14px;
-  transition: all 0.2s; outline: none;
+  color: #e2e8f0;
+  font-size: 14px;
+  transition: all 0.2s;
+  outline: none;
   font-family: 'DM Sans', sans-serif;
   box-sizing: border-box;
 }
@@ -488,68 +1018,133 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
 }
 .drawer-input option { background: #1a2035; }
 .nights-pill {
-  text-align: center; padding: 8px;
+  text-align: center;
+  padding: 8px;
   background: linear-gradient(135deg, rgba(74,47,124,0.3), rgba(56,189,248,0.1));
   border: 1px solid rgba(167,139,250,0.2);
-  border-radius: 30px; margin: 12px 0;
-  font-size: 13px; font-weight: 600; color: #a78bfa;
+  border-radius: 30px;
+  margin: 12px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #a78bfa;
   transition: all 0.3s;
 }
 .guest-stepper {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 12px 16px;
   background: rgba(255,255,255,0.04);
   border: 1.5px solid rgba(167,139,250,0.15);
-  border-radius: 12px; margin-bottom: 12px;
+  border-radius: 12px;
+  margin-bottom: 12px;
 }
-.stepper-label { display: flex; flex-direction: column; gap: 2px; }
-.stepper-label span:first-child { font-size: 14px; font-weight: 600; color: #e2e8f0; }
-.stepper-label span:last-child  { font-size: 11px; color: #64748b; }
-.stepper-controls { display: flex; align-items: center; gap: 12px; }
+.stepper-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.stepper-label span:first-child {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+.stepper-label span:last-child {
+  font-size: 11px;
+  color: #64748b;
+}
+.stepper-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 .stepper-btn {
-  width: 32px; height: 32px;
+  width: 32px;
+  height: 32px;
   background: rgba(167,139,250,0.12);
   border: 1px solid rgba(167,139,250,0.25);
-  border-radius: 8px; color: #a78bfa;
-  cursor: pointer; font-size: 18px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s; line-height: 1;
+  border-radius: 8px;
+  color: #a78bfa;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  line-height: 1;
 }
 .stepper-btn:hover:not(:disabled) {
   background: rgba(167,139,250,0.25);
   border-color: rgba(167,139,250,0.5);
   transform: scale(1.1);
 }
-.stepper-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-.stepper-count { font-size: 18px; font-weight: 700; color: #fff; min-width: 20px; text-align: center; }
+.stepper-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.stepper-count {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  min-width: 20px;
+  text-align: center;
+}
 .price-breakdown {
   background: linear-gradient(135deg, rgba(74,47,124,0.2), rgba(56,189,248,0.08));
   border: 1px solid rgba(167,139,250,0.2);
-  border-radius: 16px; padding: 16px; margin-top: 20px;
+  border-radius: 16px;
+  padding: 16px;
+  margin-top: 20px;
 }
-.price-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 14px; color: #94a3b8; }
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 14px;
+  color: #94a3b8;
+}
 .price-row.total {
   border-top: 1px solid rgba(167,139,250,0.2);
-  margin-top: 8px; padding-top: 14px;
-  font-size: 18px; font-weight: 800; color: #fff;
+  margin-top: 8px;
+  padding-top: 14px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
 }
 .price-row.total span:last-child { color: #a78bfa; }
-
-/* ══════════════════════════════════════════════════════
-   STEP 2: PAYMENT WALLET
-══════════════════════════════════════════════════════ */
 .booking-recap {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(167,139,250,0.15);
-  border-radius: 14px; padding: 14px; margin-bottom: 20px;
-  display: flex; justify-content: space-between; align-items: center;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-.recap-label  { font-size: 11px; color: #64748b; margin-bottom: 2px; }
-.recap-value  { font-size: 13px; font-weight: 600; color: #e2e8f0; }
-.recap-price  { font-size: 22px; font-weight: 800; color: #a78bfa; }
+.recap-label {
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+.recap-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+.recap-price {
+  font-size: 22px;
+  font-weight: 800;
+  color: #a78bfa;
+}
 .wallet-section-label {
-  font-size: 11px; font-weight: 700;
-  color: #64748b; text-transform: uppercase; letter-spacing: 1px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   margin-bottom: 14px;
 }
 .pay-wallet-outer {
@@ -579,13 +1174,11 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
   background: #1e2a1e;
   border-radius: 22px 22px 55px 55px;
   z-index: 5;
-  box-shadow:
-    inset 0 25px 35px rgba(0,0,0,0.5),
-    inset 0 5px 15px rgba(0,0,0,0.6);
+  box-shadow: inset 0 25px 35px rgba(0,0,0,0.5), inset 0 5px 15px rgba(0,0,0,0.6);
 }
 @keyframes pwSlideIn {
-  0%   { transform: translateY(-90px); opacity: 0; }
-  100% { transform: translateY(0);     opacity: 1; }
+  0% { transform: translateY(-90px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
 }
 .pay-card {
   position: absolute;
@@ -596,9 +1189,7 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
   border-radius: 16px;
   padding: 16px 18px;
   color: white;
-  box-shadow:
-    inset 0 1px 1px rgba(255,255,255,0.25),
-    0 -4px 15px rgba(0,0,0,0.15);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.25), 0 -4px 15px rgba(0,0,0,0.15);
   transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   animation: pwSlideIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
   cursor: pointer;
@@ -608,8 +1199,10 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
 .pay-card::before {
   content: '';
   position: absolute;
-  top: -50%; left: -50%;
-  width: 200%; height: 200%;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
   background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%);
   pointer-events: none;
 }
@@ -652,19 +1245,28 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
 }
 .pay-card-value { font-size: 10px; font-weight: 600; }
 .pay-card-num-wrap { text-align: right; }
-.pay-card-stars { font-size: 14px; letter-spacing: 3px; opacity: 0.8; }
-.pay-network-badge { font-size: 11px; font-weight: 800; letter-spacing: 0.5px; opacity: 0.9; }
+.pay-card-stars {
+  font-size: 14px;
+  letter-spacing: 3px;
+  opacity: 0.8;
+}
 .pay-visa {
   background: linear-gradient(135deg, #1a3a6f 0%, #1565c0 70%, #0d47a1 100%);
-  bottom: 88px; z-index: 10; animation-delay: 0.08s;
+  bottom: 88px;
+  z-index: 10;
+  animation-delay: 0.08s;
 }
 .pay-mc {
   background: linear-gradient(135deg, #6a0000 0%, #b71c1c 55%, #c62828 100%);
-  bottom: 60px; z-index: 20; animation-delay: 0.18s;
+  bottom: 60px;
+  z-index: 20;
+  animation-delay: 0.18s;
 }
 .pay-amex {
   background: linear-gradient(135deg, #1b3a20 0%, #2e7d32 55%, #388e3c 100%);
-  bottom: 32px; z-index: 30; animation-delay: 0.28s;
+  bottom: 32px;
+  z-index: 30;
+  animation-delay: 0.28s;
 }
 .pay-pocket {
   position: absolute;
@@ -687,130 +1289,211 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
   gap: 5px;
 }
 .pay-balance-stars {
-  color: #5a7a53; font-size: 20px; letter-spacing: 4px;
+  color: #5a7a53;
+  font-size: 20px;
+  letter-spacing: 4px;
   transition: opacity 0.3s, transform 0.3s;
 }
 .pay-balance-real {
-  color: #8dc880; font-size: 19px; font-weight: 700;
-  opacity: 0; position: absolute; top: 0; left: 50%;
+  color: #8dc880;
+  font-size: 19px;
+  font-weight: 700;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 50%;
   transform: translate(-50%, 8px);
   transition: opacity 0.3s, transform 0.3s;
   white-space: nowrap;
 }
 .pay-eye-wrap {
-  margin-top: 6px; height: 18px; width: 18px;
-  position: relative; opacity: 0.3; transition: opacity 0.3s;
+  margin-top: 6px;
+  height: 18px;
+  width: 18px;
+  position: relative;
+  opacity: 0.3;
+  transition: opacity 0.3s;
 }
 .pay-eye {
-  position: absolute; top: 0; left: 0;
-  stroke: #4ade80; transition: opacity 0.3s, transform 0.3s;
+  position: absolute;
+  top: 0;
+  left: 0;
+  stroke: #4ade80;
+  transition: opacity 0.3s, transform 0.3s;
 }
 .pay-wallet:hover { transform: translateY(-4px); }
 .pay-wallet:hover .pay-eye-wrap { opacity: 1; }
-.pay-wallet:hover .pay-visa  { transform: translateY(-72px) rotate(-3.5deg); }
-.pay-wallet:hover .pay-mc   { transform: translateY(-44px) rotate(2deg); }
+.pay-wallet:hover .pay-visa { transform: translateY(-72px) rotate(-3.5deg); }
+.pay-wallet:hover .pay-mc { transform: translateY(-44px) rotate(2deg); }
 .pay-wallet:hover .pay-amex { transform: translateY(-10px); }
 .pay-card:hover { z-index: 100 !important; }
-.pay-wallet:hover .pay-visa:hover  { transform: translateY(-62px) scale(1.04) rotate(0deg); }
-.pay-wallet:hover .pay-mc:hover    { transform: translateY(-70px) scale(1.04) rotate(0deg); }
-.pay-wallet:hover .pay-amex:hover  { transform: translateY(-62px) scale(1.04) rotate(0deg); }
+.pay-wallet:hover .pay-visa:hover { transform: translateY(-62px) scale(1.04) rotate(0deg); }
+.pay-wallet:hover .pay-mc:hover { transform: translateY(-70px) scale(1.04) rotate(0deg); }
+.pay-wallet:hover .pay-amex:hover { transform: translateY(-62px) scale(1.04) rotate(0deg); }
 .pay-wallet:hover .pay-balance-stars { opacity: 0; transform: translateY(-4px); }
-.pay-wallet:hover .pay-balance-real  { opacity: 1; transform: translate(-50%, 0); }
+.pay-wallet:hover .pay-balance-real { opacity: 1; transform: translate(-50%, 0); }
 .pay-wallet:hover .pay-eye-slash { opacity: 0; transform: scale(0.5); }
-.pay-wallet:hover .pay-eye-open  { opacity: 1; transform: scale(1.1); }
+.pay-wallet:hover .pay-eye-open { opacity: 1; transform: scale(1.1); }
 .pay-card.selected { outline: none; z-index: 200 !important; }
 .pay-card.selected::after {
-  content: '✓'; position: absolute; top: 8px; right: 8px;
-  width: 20px; height: 20px; border-radius: 50%;
+  content: '✓';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
   background: rgba(255,255,255,0.25);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 700; line-height: 20px; text-align: center;
-  backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.3);
 }
-.pay-visa.selected  { box-shadow: 0 0 0 2px #5b9bd5, 0 8px 30px rgba(21,101,192,0.5); }
-.pay-mc.selected    { box-shadow: 0 0 0 2px #e57373, 0 8px 30px rgba(198,40,40,0.5); }
-.pay-amex.selected  { box-shadow: 0 0 0 2px #81c784, 0 8px 30px rgba(56,142,60,0.5); }
+.pay-visa.selected { box-shadow: 0 0 0 2px #5b9bd5, 0 8px 30px rgba(21,101,192,0.5); }
+.pay-mc.selected { box-shadow: 0 0 0 2px #e57373, 0 8px 30px rgba(198,40,40,0.5); }
+.pay-amex.selected { box-shadow: 0 0 0 2px #81c784, 0 8px 30px rgba(56,142,60,0.5); }
 .pay-wallet-hint {
-  font-size: 11px; color: #4a5568; margin-top: 10px;
-  font-style: italic; text-align: center; transition: color 0.3s;
+  font-size: 11px;
+  color: #4a5568;
+  margin-top: 10px;
+  font-style: italic;
+  text-align: center;
+  transition: color 0.3s;
 }
-.pay-wallet-hint.selected-hint { color: #a78bfa; font-style: normal; font-weight: 600; }
+.pay-wallet-hint.selected-hint {
+  color: #a78bfa;
+  font-style: normal;
+  font-weight: 600;
+}
 .pay-format-pill {
-  display: inline-flex; align-items: center; gap: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 5px 14px;
   background: rgba(167,139,250,0.1);
   border: 1px solid rgba(167,139,250,0.2);
-  border-radius: 20px; font-size: 11px; font-weight: 600; color: #a78bfa;
-  margin-bottom: 14px; transition: all 0.3s;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #a78bfa;
+  margin-bottom: 14px;
+  transition: all 0.3s;
 }
-.pay-format-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.pay-format-pill .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
 .payment-field { margin-bottom: 14px; }
 .payment-field label {
-  display: block; font-size: 11px; font-weight: 700;
-  color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
 }
 .payment-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .secure-badge {
-  display: flex; align-items: center; gap: 8px; justify-content: center;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
   padding: 10px 16px;
   background: rgba(16,185,129,0.08);
   border: 1px solid rgba(16,185,129,0.2);
-  border-radius: 30px; margin: 16px 0;
-  font-size: 12px; font-weight: 600; color: #34d399;
+  border-radius: 30px;
+  margin: 16px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #34d399;
 }
-.demo-notice { text-align: center; font-size: 11px; color: #475569; margin-top: 8px; line-height: 1.5; }
-
-/* ── Step 3: Confirmation ── */
+.demo-notice {
+  text-align: center;
+  font-size: 11px;
+  color: #475569;
+  margin-top: 8px;
+  line-height: 1.5;
+}
 .confirmation-wrapper {
-  display: flex; flex-direction: column;
-  align-items: center; text-align: center; padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 0;
 }
 .confirm-checkmark {
-  width: 80px; height: 80px; border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
   background: linear-gradient(135deg, #065f46, #10b981);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 36px; margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  margin-bottom: 20px;
   animation: pulse-success 2s ease-in-out infinite;
 }
 @keyframes pulse-success {
   0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
-  50%      { box-shadow: 0 0 0 20px rgba(16,185,129,0); }
+  50% { box-shadow: 0 0 0 20px rgba(16,185,129,0); }
 }
 @keyframes pop-in {
-  0%   { transform: scale(0.5); opacity: 0; }
-  70%  { transform: scale(1.1); }
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.1); }
   100% { transform: scale(1); opacity: 1; }
 }
 .confirm-checkmark.animate {
   animation: pop-in 0.6s cubic-bezier(0.175,0.885,0.32,1.275) forwards, pulse-success 2s 0.6s ease-in-out infinite;
 }
 .confirm-title {
-  font-size: 28px; font-weight: 800; color: #fff;
-  font-family: 'Playfair Display', serif; margin-bottom: 8px;
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 8px;
 }
-.confirm-subtitle { font-size: 14px; color: #64748b; margin-bottom: 24px; }
+.confirm-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 24px;
+}
 .booking-reference {
   padding: 12px 24px;
   background: linear-gradient(135deg, rgba(74,47,124,0.3), rgba(56,189,248,0.1));
   border: 1px solid rgba(167,139,250,0.3);
-  border-radius: 30px; margin-bottom: 24px;
-  font-family: monospace; font-size: 18px; font-weight: 700;
-  color: #a78bfa; letter-spacing: 2px;
+  border-radius: 30px;
+  margin-bottom: 24px;
+  font-family: monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: #a78bfa;
+  letter-spacing: 2px;
 }
 .confirm-summary {
-  width: 100%; background: rgba(255,255,255,0.04);
+  width: 100%;
+  background: rgba(255,255,255,0.04);
   border: 1px solid rgba(167,139,250,0.12);
-  border-radius: 16px; overflow: hidden;
+  border-radius: 16px;
+  overflow: hidden;
 }
 .confirm-row {
-  display: flex; justify-content: space-between;
-  padding: 12px 16px; border-bottom: 1px solid rgba(167,139,250,0.08); font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(167,139,250,0.08);
+  font-size: 14px;
 }
 .confirm-row:last-child { border-bottom: none; }
 .confirm-row span:first-child { color: #64748b; }
-.confirm-row span:last-child  { color: #e2e8f0; font-weight: 600; }
-
-/* ── Drawer Footer ── */
+.confirm-row span:last-child { color: #e2e8f0; font-weight: 600; }
 .drawer-footer {
   padding: 16px 28px 24px;
   border-top: 1px solid rgba(167,139,250,0.1);
@@ -819,49 +1502,81 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
   flex-shrink: 0;
 }
 .drawer-cta {
-  width: 100%; padding: 15px;
+  width: 100%;
+  padding: 15px;
   background: linear-gradient(135deg, #4a2f7c, #8a4ff8);
-  border: none; border-radius: 14px;
-  color: white; font-weight: 700; font-size: 15px;
-  cursor: pointer; transition: all 0.35s ease-out;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  font-family: 'DM Sans', sans-serif; letter-spacing: 0.3px;
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.35s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: 0.3px;
 }
 .drawer-cta:hover:not(:disabled) {
   background: linear-gradient(135deg, #8a4ff8, #38bdf8);
   box-shadow: 0 8px 30px rgba(138,79,248,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
   transform: translateY(-2px);
 }
-.drawer-cta:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-.drawer-cta.loading  { pointer-events: none; }
-.drawer-cta .spinner {
-  width: 18px; height: 18px; border-radius: 50%;
-  border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
-  animation: spin 0.8s linear infinite; display: none;
+.drawer-cta:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
-.drawer-cta.loading .spinner   { display: block; }
+.drawer-cta.loading { pointer-events: none; }
+.drawer-cta .spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
+  display: none;
+}
+.drawer-cta.loading .spinner { display: block; }
 .drawer-cta.loading .cta-label { display: none; }
 .drawer-back {
-  display: flex; align-items: center; gap: 6px;
-  background: none; border: none; color: #64748b;
-  cursor: pointer; font-size: 13px; font-weight: 500;
-  padding: 8px 0; margin-bottom: 10px;
-  transition: color 0.2s; font-family: 'DM Sans', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 0;
+  margin-bottom: 10px;
+  transition: color 0.2s;
+  font-family: 'DM Sans', sans-serif;
 }
 .drawer-back:hover { color: #a78bfa; }
 .drawer-back svg { width: 16px; height: 16px; }
 @keyframes spin { to { transform: rotate(360deg); } }
-
 #confetti-canvas {
-  position: fixed; inset: 0; pointer-events: none;
-  z-index: 3500; opacity: 0; transition: opacity 0.5s;
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3500;
+  opacity: 0;
+  transition: opacity 0.5s;
 }
 #confetti-canvas.active { opacity: 1; }
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
   .details-grid { grid-template-columns: 1fr; }
-  .details-sidebar { position: static; }
+  .details-sidebar {
+    position: static;
+    max-height: none;
+    overflow-y: visible;
+  }
   .hero-content h1 { font-size: 32px; }
 }
 @media (max-width: 768px) {
@@ -873,6 +1588,9 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
   .nearby-grid { grid-template-columns: 1fr; }
   .gallery-card { width: 120px; height: 160px; margin-left: -40px; }
   .booking-drawer { width: 100vw; border-left: none; border-top: 1px solid rgba(167,139,250,0.2); }
+  .days-section button { height: 45px; }
+  .temperature { font-size: 28px; }
+  .info-section { min-height: 110px; padding: 12px 0; }
 }
 </style>
 {% endblock %}
@@ -965,7 +1683,7 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
       </div>
     </div>
 
-    {# Itinerary — FIX: onclick directly on the button #}
+    {# Itinerary #}
     <div class="section-card">
       <div class="section-header">
         <h2>🤖 AI-Powered Itinerary</h2>
@@ -990,13 +1708,13 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
   <div class="details-sidebar">
     {# Weather #}
     <div id="weather-container">
-      <div class="skeleton" style="height:280px;border-radius:15px;"></div>
+      <div class="skeleton" style="height:250px;border-radius:15px;"></div>
     </div>
 
     {# Booking panel #}
     <div class="booking-panel">
       <div class="booking-price">From <span id="min-price">---</span><small>/night</small></div>
-      <input type="date" id="checkin-date"  class="date-input">
+      <input type="date" id="checkin-date" class="date-input">
       <input type="date" id="checkout-date" class="date-input">
       <select id="guest-count" class="date-input">
         <option value="1">1 Guest</option>
@@ -1390,6 +2108,249 @@ function openModal(url) {
 function closeModal() { document.getElementById('image-modal').classList.remove('open'); }
 
 // ══════════════════════════════════════════════════════════
+// WEATHER
+// ══════════════════════════════════════════════════════════
+async function loadWeather() {
+    const container = document.getElementById('weather-container');
+    if (!container) return;
+    
+    try {
+        const response = await fetch(`/api/weather/${accommodationId}`);
+        const data = await response.json();
+        
+        if (data.error) {
+            container.innerHTML = '<div class="weather-card" style="padding:20px;text-align:center;">❌ Weather unavailable</div>';
+            return;
+        }
+        
+        if (data.current) {
+            const current = data.current;
+            const forecast = data.forecast || [];
+            
+            let forecastHtml = '';
+            if (forecast.length > 0) {
+                forecastHtml = '<div class="days-section">';
+                forecast.slice(0, 5).forEach(day => {
+                    forecastHtml += `
+                        <button onclick="showToast('${day.condition} · ${day.temp}°C', 'info')">
+                            <span class="day">${day.day}</span>
+                            <span class="forecast-temp">${day.temp}°</span>
+                        </button>
+                    `;
+                });
+                forecastHtml += '</div>';
+            }
+            
+            container.innerHTML = `
+                <div class="weather-card">
+                    <div class="background-design">
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                    </div>
+                    <div class="info-section">
+                        <div class="left-side">
+                            <div class="city">${escapeHtml(current.city || '')}, ${escapeHtml(current.country || '')}</div>
+                            <div class="weather">
+                                <span>${current.condition || ''}</span>
+                            </div>
+                        </div>
+                        <div class="right-side">
+                            <div class="temperature">${current.temp}°C</div>
+                            <div class="range">↓${current.temp_min}° ↑${current.temp_max}°</div>
+                            <div style="font-size:12px;">💧 ${current.humidity}%</div>
+                        </div>
+                    </div>
+                    ${forecastHtml}
+                </div>
+            `;
+        } else {
+            container.innerHTML = '<div class="weather-card" style="padding:20px;text-align:center;">⚠️ Weather data unavailable</div>';
+        }
+    } catch (error) {
+        console.error('Weather error:', error);
+        container.innerHTML = '<div class="weather-card" style="padding:20px;text-align:center;">❌ Failed to load weather</div>';
+    }
+}
+
+// ══════════════════════════════════════════════════════════
+// NEARBY PLACES
+// ══════════════════════════════════════════════════════════
+async function loadNearby() {
+    const container = document.getElementById('nearby-container');
+    const categorySelect = document.getElementById('nearby-category');
+    const category = categorySelect ? categorySelect.value : 'restaurants';
+    
+    if (!container) return;
+    
+    container.innerHTML = '<div class="skeleton" style="height:100px;"></div>';
+    
+    try {
+        const response = await fetch(`/api/nearby/${accommodationId}`);
+        const data = await response.json();
+        
+        const places = data[category];
+        
+        if (places && places.places && places.places.length > 0) {
+            const icons = {
+                restaurants: '🍽️',
+                attractions: '🏛️',
+                shopping: '🛍️',
+                transport: '🚇'
+            };
+            
+            container.innerHTML = `
+                <div class="nearby-grid">
+                    ${places.places.map(place => `
+                        <div class="nearby-card" onclick="showToast('${escapeHtml(place.name)}', 'info')">
+                            <div class="nearby-icon">${icons[category] || '📍'}</div>
+                            <div class="nearby-info">
+                                <h4>${escapeHtml(place.name)}</h4>
+                                ${place.rating ? `<p>⭐ ${place.rating} ${place.reviews ? `(${place.reviews})` : ''}</p>` : ''}
+                                ${place.distance ? `<p>📏 ${place.distance}</p>` : ''}
+                                ${place.price ? `<p>💰 ${place.price}</p>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        } else {
+            container.innerHTML = '<div class="empty-state"><div class="icon">📍</div><p>No places found nearby</p></div>';
+        }
+    } catch (error) {
+        console.error('Nearby error:', error);
+        container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Unable to load nearby places</p></div>';
+    }
+}
+
+// ══════════════════════════════════════════════════════════
+// GALLERY
+// ══════════════════════════════════════════════════════════
+async function loadGallery() {
+    const container = document.getElementById('gallery-container');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="skeleton" style="height:220px;"></div>';
+    
+    try {
+        const response = await fetch(`/api/images/${accommodationId}`);
+        const data = await response.json();
+        
+        if (data && data.images && data.images.length > 0) {
+            galleryImages = data.images;
+            
+            container.innerHTML = `
+                <div class="gallery-stack-wrapper">
+                    ${data.images.slice(0, 8).map((img, idx) => `
+                        <div class="gallery-card" onclick="openModal('${img.url}')">
+                            <img src="${img.thumbnail || img.url}" alt="${escapeHtml(img.title || 'Gallery image')}" loading="lazy">
+                            <div class="gallery-overlay"></div>
+                            <div class="gallery-bar">
+                                <div class="gallery-bar-empty"></div>
+                                <div class="gallery-bar-fill"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                ${data.images.length > 8 ? `<p style="text-align:center;margin-top:16px;color:#64748b;">+${data.images.length - 8} more images</p>` : ''}
+            `;
+        } else {
+            container.innerHTML = '<div class="empty-state"><div class="icon">📸</div><p>No gallery images available</p></div>';
+        }
+    } catch (error) {
+        console.error('Gallery error:', error);
+        container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Unable to load gallery</p></div>';
+    }
+}
+
+// ══════════════════════════════════════════════════════════
+// REVIEWS
+// ══════════════════════════════════════════════════════════
+async function loadReviews() {
+    const container = document.getElementById('reviews-container');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="skeleton" style="height:150px;"></div>';
+    
+    try {
+        const response = await fetch(`/api/reviews/${accommodationId}`);
+        const data = await response.json();
+        
+        if (data && data.reviews && data.reviews.length > 0) {
+            const stars = (rating) => '★'.repeat(Math.floor(rating)) + '☆'.repeat(5 - Math.floor(rating));
+            
+            container.innerHTML = `
+                <div class="reviews-summary">
+                    <div class="average-rating">${data.average_rating || 4.5}</div>
+                    <div class="stars">${stars(data.average_rating || 4.5)}</div>
+                    <div>Based on ${data.total_reviews || data.reviews.length} reviews</div>
+                </div>
+                <div class="reviews-list">
+                    ${data.reviews.slice(0, 5).map(review => `
+                        <div class="review-item">
+                            <div class="review-header">
+                                <div class="review-avatar">${(review.author || 'G')[0].toUpperCase()}</div>
+                                <div>
+                                    <div class="review-author">${escapeHtml(review.author || 'Guest')}</div>
+                                    <div class="review-rating">${stars(review.rating || 4)}</div>
+                                </div>
+                                ${review.date ? `<div style="margin-left:auto;font-size:11px;color:#64748b;">${review.date}</div>` : ''}
+                            </div>
+                            <div class="review-text">${escapeHtml(review.text || 'No review text available.')}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                ${data.reviews.length > 5 ? `<p style="text-align:center;margin-top:16px;color:#64748b;">+${data.reviews.length - 5} more reviews</p>` : ''}
+            `;
+        } else {
+            container.innerHTML = '<div class="empty-state"><div class="icon">⭐</div><p>No reviews yet</p></div>';
+        }
+    } catch (error) {
+        console.error('Reviews error:', error);
+        container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Unable to load reviews</p></div>';
+    }
+}
+
+// ══════════════════════════════════════════════════════════
+// MINI MAP
+// ══════════════════════════════════════════════════════════
+function initMiniMap() {
+    const container = document.getElementById('mini-map');
+    if (!container) return;
+    
+    // Clear any existing map
+    if (map) {
+        map.remove();
+        map = null;
+    }
+    
+    // Default coordinates (Paris)
+    let lat = 48.8566;
+    let lng = 2.3522;
+    
+    try {
+        map = L.map('mini-map').setView([lat, lng], 13);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+        
+        L.marker([lat, lng]).addTo(map)
+            .bindPopup('📍 ' + (typeof accommodationName !== 'undefined' ? accommodationName : 'Property Location'))
+            .openPopup();
+            
+        // Force map to redraw correctly
+        setTimeout(() => {
+            if (map) map.invalidateSize();
+        }, 100);
+    } catch (error) {
+        console.error('Map error:', error);
+        container.innerHTML = '<div style="padding:20px;text-align:center;color:#64748b;">Map unavailable</div>';
+    }
+}
+
+// ══════════════════════════════════════════════════════════
 // ITINERARY
 // ══════════════════════════════════════════════════════════
 async function generateItinerary() {
@@ -1412,11 +2373,13 @@ async function generateItinerary() {
     });
     const data = await res.json();
     if (data.itinerary) {
-      container.textContent = data.itinerary;
+      container.innerHTML = `<div style="font-family: monospace; line-height: 1.6; white-space: pre-wrap;">${escapeHtml(data.itinerary)}</div>`;
+      showToast('✨ Itinerary generated successfully!', 'success');
     } else {
       container.innerHTML = '<p style="color:#ef4444;text-align:center;">Failed to generate itinerary. Please try again.</p>';
     }
   } catch (e) {
+    console.error('Itinerary error:', e);
     container.innerHTML = '<p style="color:#ef4444;text-align:center;">Network error. Please try again.</p>';
   } finally {
     if (btn) {
@@ -2095,5 +3058,6 @@ window.selectPayCard          = selectPayCard;
 window.syncCardHolderToWallet = syncCardHolderToWallet;
 window.generateItinerary      = generateItinerary;
 window.sanitizePhone          = sanitizePhone;
+window.loadNearby             = loadNearby;
 </script>
 {% endblock %}

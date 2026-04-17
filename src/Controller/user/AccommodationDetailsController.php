@@ -22,6 +22,7 @@ use App\service\Accommodation\LocalService;
 use App\service\Accommodation\ImageService;
 use App\service\Accommodation\ReviewService;
 use App\service\Accommodation\ItineraryService;
+use App\service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -41,6 +42,7 @@ class AccommodationDetailsController extends AbstractController
     private ReviewService $reviewService;
     private ItineraryService $itineraryService;
     private RoomImagesRepository $roomImagesRepo;
+    private NotificationService $notificationService;
 
     /**
      * Maps city names to their primary IATA airport codes.
@@ -99,7 +101,8 @@ class AccommodationDetailsController extends AbstractController
         ImageService $imageService,
         ReviewService $reviewService,
         ItineraryService $itineraryService,
-        RoomImagesRepository $roomImagesRepo
+        RoomImagesRepository $roomImagesRepo,
+        NotificationService $notificationService
     ) {
         $this->accommodationRepo = $accommodationRepo;
         $this->em                = $em;
@@ -110,6 +113,246 @@ class AccommodationDetailsController extends AbstractController
         $this->reviewService     = $reviewService;
         $this->itineraryService  = $itineraryService;
         $this->roomImagesRepo    = $roomImagesRepo;
+        $this->notificationService = $notificationService;
+    }
+
+    /**
+     * DEBUG ENDPOINT - Test all APIs at once
+     */
+    #[Route('/debug/all-apis', name: 'debug_all_apis', methods: ['GET'])]
+    public function debugAllApis(): JsonResponse
+    {
+        $results = [];
+
+        // 1. Test Gemini/Itinerary API
+        $results['gemini'] = $this->debugGeminiApi();
+        
+        // 2. Test SerpApi (Images)
+        $results['serpapi_images'] = $this->debugSerpApiImages();
+        
+        // 3. Test SerpApi (Local)
+        $results['serpapi_local'] = $this->debugSerpApiLocal();
+        
+        // 4. Test Weather API
+        $results['weather'] = $this->debugWeatherApi();
+        
+        // 5. Check if services are properly injected
+        $results['service_status'] = [
+            'weatherService' => $this->weatherService ? 'OK' : 'NULL',
+            'imageService' => $this->imageService ? 'OK' : 'NULL',
+            'localService' => $this->localService ? 'OK' : 'NULL',
+            'reviewService' => $this->reviewService ? 'OK' : 'NULL',
+            'itineraryService' => $this->itineraryService ? 'OK' : 'NULL',
+            'flightService' => $this->flightService ? 'OK' : 'NULL',
+        ];
+        
+        // 6. Environment variables status
+        $results['env_status'] = [
+            'SERPAPI_API_KEY' => $this->getEnvStatus('SERPAPI_API_KEY'),
+            'OPENWEATHER_API_KEY' => $this->getEnvStatus('OPENWEATHER_API_KEY'),
+            'RAGHED_GEMINI' => $this->getEnvStatus('RAGHED_GEMINI'),
+        ];
+        
+        return $this->json($results);
+    }
+
+    private function debugGeminiApi(): array
+    {
+        $apiKey = $_ENV['RAGHED_GEMINI'] ?? getenv('RAGHED_GEMINI');
+        
+        if (empty($apiKey)) {
+            return ['error' => 'GEMINI API key is missing from .env', 'key_found' => false];
+        }
+        
+        $result = [
+            'key_found' => true,
+            'key_length' => strlen($apiKey),
+            'key_prefix' => substr($apiKey, 0, 10) . '...',
+        ];
+        
+        // Test with a simple prompt
+        $prompt = "Say 'API works' in one word.";
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . $apiKey
+        );
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+            'contents' => [
+                ['parts' => [['text' => $prompt]]]
+            ],
+            'generationConfig' => [
+                'temperature' => 0.7,
+                'maxOutputTokens' => 100,
+            ],
+        ]));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+        
+        $result['http_code'] = $httpCode;
+        
+        if ($curlError) {
+            $result['curl_error'] = $curlError;
+            return $result;
+        }
+        
+        if ($httpCode === 200) {
+            $data = json_decode($response, true);
+            $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
+            $result['success'] = true;
+            $result['response'] = $text;
+        } else {
+            $result['success'] = false;
+            $result['response_preview'] = substr($response, 0, 500);
+        }
+        
+        return $result;
+    }
+
+    private function debugSerpApiImages(): array
+    {
+        try {
+            $images = $this->imageService->getDestinationImages('Paris', 'France');
+            
+            if ($images && isset($images['images']) && count($images['images']) > 0) {
+                return [
+                    'success' => true,
+                    'image_count' => $images['total'] ?? count($images['images']),
+                    'first_image' => $images['images'][0]['url'] ?? null,
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'error' => 'No images returned',
+                    'raw_response' => $images,
+                ];
+            }
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ];
+        }
+    }
+
+    private function debugSerpApiLocal(): array
+    {
+        try {
+            $places = $this->localService->getNearbyPlaces('restaurant', 'Paris');
+            
+            if ($places && isset($places['places']) && count($places['places']) > 0) {
+                return [
+                    'success' => true,
+                    'place_count' => $places['total'] ?? count($places['places']),
+                    'first_place' => $places['places'][0]['name'] ?? null,
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'error' => 'No places returned',
+                    'raw_response' => $places,
+                ];
+            }
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ];
+        }
+    }
+
+    private function debugWeatherApi(): array
+    {
+        try {
+            $weather = $this->weatherService->getCurrentWeather('Paris', 'France');
+            
+            if ($weather && isset($weather['temp'])) {
+                return [
+                    'success' => true,
+                    'temperature' => $weather['temp'],
+                    'condition' => $weather['condition'] ?? null,
+                    'city' => $weather['city'] ?? null,
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'error' => 'No weather data returned',
+                    'raw_response' => $weather,
+                ];
+            }
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ];
+        }
+    }
+
+    private function getEnvStatus(string $key): array
+    {
+        $value = $_ENV[$key] ?? getenv($key);
+        
+        return [
+            'exists' => !empty($value),
+            'length' => $value ? strlen($value) : 0,
+            'prefix' => $value ? substr($value, 0, 10) . '...' : null,
+        ];
+    }
+
+    /**
+     * DEBUG: Test itinerary generation specifically
+     */
+    #[Route('/debug/itinerary/{id}', name: 'debug_itinerary', methods: ['GET'])]
+    public function debugItinerary(int $id): JsonResponse
+    {
+        $accommodation = $this->accommodationRepo->find($id);
+        
+        if (!$accommodation) {
+            return $this->json(['error' => 'Accommodation not found'], 404);
+        }
+        
+        $results = [];
+        
+        // Check if service exists
+        $results['service_exists'] = $this->itineraryService ? true : false;
+        
+        if (!$this->itineraryService) {
+            $results['error'] = 'ItineraryService is null - check services.yaml configuration';
+            return $this->json($results);
+        }
+        
+        // Test with mock data first
+        $results['test_city'] = $accommodation->getCity();
+        
+        // Try to generate a simple 1-day itinerary
+        try {
+            $itinerary = $this->itineraryService->generateItinerary(
+                $accommodation->getCity(),
+                ['Eiffel Tower', 'Louvre Museum'],
+                1
+            );
+            
+            $results['generated'] = true;
+            $results['itinerary_length'] = strlen($itinerary ?? '');
+            $results['itinerary_preview'] = $itinerary ? substr($itinerary, 0, 500) : null;
+            $results['is_mock'] = strpos($itinerary ?? '', 'Cultural Immersion') !== false;
+        } catch (\Exception $e) {
+            $results['error'] = $e->getMessage();
+            $results['trace'] = $e->getTraceAsString();
+        }
+        
+        return $this->json($results);
     }
 
     #[Route('/accommodations/{id}', name: 'accommodation_details', methods: ['GET'], requirements: ['id' => '\d+'])]
@@ -253,32 +496,80 @@ class AccommodationDetailsController extends AbstractController
         $accommodation = $this->accommodationRepo->find($id);
 
         if (!$accommodation) {
-            return $this->json(['error' => 'Not found'], 404);
+            return $this->json(['error' => 'Accommodation not found'], 404);
         }
 
         $data = json_decode($request->getContent(), true);
         $days = (int) ($data['days'] ?? 3);
 
-        $attractions = [];
-        $nearby = $this->localService->getAttractionsByCategory('attractions', $accommodation->getCity());
-
-        if ($nearby && isset($nearby['places'])) {
-            foreach ($nearby['places'] as $place) {
-                $attractions[] = $place['name'];
-            }
+        // Check if itinerary service is available
+        if (!$this->itineraryService) {
+            error_log('ItineraryService is null in AccommodationDetailsController');
+            return $this->json([
+                'error' => 'Itinerary service is not available',
+                'itinerary' => $this->getFallbackItinerary($accommodation->getCity(), $days)
+            ]);
         }
 
-        $itinerary = $this->itineraryService->generateItinerary(
-            $accommodation->getCity(),
-            $attractions,
-            $days
-        );
+        $attractions = [];
+        
+        try {
+            $nearby = $this->localService->getAttractionsByCategory('attractions', $accommodation->getCity());
+            if ($nearby && isset($nearby['places'])) {
+                foreach ($nearby['places'] as $place) {
+                    $attractions[] = $place['name'];
+                }
+            }
+        } catch (\Exception $e) {
+            error_log('Error fetching attractions for itinerary: ' . $e->getMessage());
+            // Use default attractions if local service fails
+            $attractions = ['local attractions', 'cultural sites', 'restaurants', 'shopping areas'];
+        }
 
-        return $this->json([
-            'itinerary' => $itinerary,
-            'city'      => $accommodation->getCity(),
-            'days'      => $days
-        ]);
+        try {
+            $itinerary = $this->itineraryService->generateItinerary(
+                $accommodation->getCity(),
+                $attractions,
+                $days
+            );
+            
+            // Check if we got mock data (indicates API failure)
+            $isMock = $itinerary && strpos($itinerary, 'Cultural Immersion') !== false;
+            
+            return $this->json([
+                'itinerary' => $itinerary,
+                'city' => $accommodation->getCity(),
+                'days' => $days,
+                'is_mock' => $isMock,
+                'api_working' => !$isMock
+            ]);
+        } catch (\Exception $e) {
+            error_log('Itinerary generation exception: ' . $e->getMessage());
+            return $this->json([
+                'error' => 'Failed to generate itinerary: ' . $e->getMessage(),
+                'itinerary' => $this->getFallbackItinerary($accommodation->getCity(), $days)
+            ]);
+        }
+    }
+
+    private function getFallbackItinerary(string $city, int $days): string
+    {
+        $lines = [];
+        for ($i = 1; $i <= $days; $i++) {
+            $lines[] = "🌟 DAY {$i}: Explore {$city}";
+            $lines[] = "• Morning: Start your day with breakfast at a local café";
+            $lines[] = "• Afternoon: Visit the main attractions and landmarks";
+            $lines[] = "• Evening: Enjoy dinner at a traditional restaurant";
+            $lines[] = "• Dinner recommendation: Ask locals for their favorite spot";
+            $lines[] = "";
+        }
+        $lines[] = "💡 Travel Tips:";
+        $lines[] = "• Book popular attractions in advance";
+        $lines[] = "• Learn basic local phrases";
+        $lines[] = "• Use public transportation";
+        $lines[] = "• Check weather forecast before heading out";
+        
+        return implode("\n", $lines);
     }
 
     #[Route('/api/accommodation/rooms/{id}', name: 'api_accommodation_rooms', methods: ['GET'])]
@@ -481,6 +772,35 @@ class AccommodationDetailsController extends AbstractController
         // ── Persist the booking ───────────────────────────────────────────────────────
         $this->em->persist($booking);
         $this->em->flush();
+
+        // ── CREATE NOTIFICATION FOR ADMIN ──────────────────────────────────────────────
+        // Get user name for notification
+        $userName = 'Guest';
+        if ($user) {
+            if (method_exists($user, 'getFirstName') && method_exists($user, 'getLastName')) {
+                $userName = trim($user->getFirstName() . ' ' . $user->getLastName());
+                if (empty($userName)) {
+                    $userName = $user->getUserIdentifier();
+                }
+            } else {
+                $userName = $user->getUserIdentifier();
+            }
+        }
+        
+        // Get accommodation name
+        $accommodation = $room->getAccommodation();
+        $accommodationName = $accommodation ? $accommodation->getName() : 'Accommodation';
+        
+        // Create the notification
+        $this->notificationService->createNewBookingNotification(
+            $booking->getId(),
+            $userName,
+            $accommodationName,
+            $accommodation ? $accommodation->getId() : null
+        );
+        
+        // Log that notification was created
+        error_log('[Booking] New booking #' . $booking->getId() . ' created by ' . $userName . ' at ' . $accommodationName . ' - Admin notified');
 
         // ── Generate a human-readable reference ───────────────────────────────────────
         $reference = sprintf(
