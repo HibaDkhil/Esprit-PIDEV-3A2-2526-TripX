@@ -6,11 +6,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-
+use Scheb\TwoFactorBundle\Model\Google\TwoFactorInterface;
 
 #[ORM\Entity(repositoryClass: \App\Repository\UserRepository::class)]
 #[ORM\Table(name: 'user')]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFactorInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -74,12 +74,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Regex(pattern: '/[a-z]/', message: 'Password must contain at least 1 lowercase letter')]
     private ?string $plainPassword = null;
 
-    #[ORM\Column(type: 'string', length: 100, nullable: true)]
-    private ?string $facePersonId = null;
-
     #[ORM\Column(type: 'json', nullable: true)]
     private ?array $faceDescriptor = null;
 
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $googleAuthenticatorSecret = null;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    private bool $dynamicThemeEnabled = true;
+    public function isGoogleAuthenticatorEnabled(): bool
+    {
+        return $this->googleAuthenticatorSecret !== null;
+    }
+
+    public function getGoogleAuthenticatorSecret(): ?string
+    {
+        return $this->googleAuthenticatorSecret;
+    }
+
+    public function setGoogleAuthenticatorSecret(?string $googleAuthenticatorSecret): self
+    {
+        $this->googleAuthenticatorSecret = $googleAuthenticatorSecret;
+        return $this;
+    }
+
+    public function getGoogleAuthenticatorUsername(): string
+    {
+        return $this->email;
+    }
     public function __construct()
     {
         $this->createdAt = new \DateTime();
@@ -289,17 +311,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return array_unique($roles);
     }
 
-    public function getFacePersonId(): ?string
-    {
-        return $this->facePersonId;
-    }
-
-    public function setFacePersonId(?string $facePersonId): static
-    {
-        $this->facePersonId = $facePersonId;
-        return $this;
-    }
-
     public function getFaceDescriptor(): ?array
     {
         return $this->faceDescriptor;
@@ -308,6 +319,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setFaceDescriptor(?array $faceDescriptor): static
     {
         $this->faceDescriptor = $faceDescriptor;
+        return $this;
+    }
+
+    public function isDynamicThemeEnabled(): bool
+    {
+        return $this->dynamicThemeEnabled;
+    }
+
+    public function setDynamicThemeEnabled(bool $dynamicThemeEnabled): self
+    {
+        $this->dynamicThemeEnabled = $dynamicThemeEnabled;
         return $this;
     }
 

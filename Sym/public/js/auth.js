@@ -151,7 +151,6 @@
       const timeLeft = lockUntil - now;
 
       if (timeLeft <= 0) {
-        // Unlock & Refresh to permit typing
         location.reload();
         return;
       }
@@ -161,11 +160,13 @@
         if (el) {
           el.disabled = true;
           el.style.opacity = '0.5';
-          el.style.background = '#1e293b';
           el.style.cursor = 'not-allowed';
         }
       });
-      if (loginBtn) loginBtn.textContent = `Locked: ${timeLeft}s`;
+
+      if (loginBtn) {
+        loginBtn.innerHTML = `Locked: ${timeLeft}s <br><span style="font-size:10px; text-decoration:underline; cursor:pointer;" onclick="fetch('/face/dev-reset-lock').then(()=>location.reload())">(Dev Reset)</span>`;
+      }
       setTimeout(updateCountdown, 1000);
     }
 

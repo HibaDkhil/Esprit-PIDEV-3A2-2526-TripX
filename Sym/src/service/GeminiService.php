@@ -18,8 +18,16 @@ class GeminiService
     }
 
     public function chat(string $userMessage, array $context = []): string
-{
-    $prompt = $this->buildPrompt($userMessage, $context);
+    {
+        // Truncate context to prevent 400 errors (too large payload)
+        if (isset($context['activities']) && is_array($context['activities']) && count($context['activities']) > 50) {
+            $context['activities'] = array_slice($context['activities'], 0, 50);
+        }
+        if (isset($context['destinations']) && is_array($context['destinations']) && count($context['destinations']) > 20) {
+            $context['destinations'] = array_slice($context['destinations'], 0, 20);
+        }
+
+        $prompt = $this->buildPrompt($userMessage, $context);
     
     // Log for debugging
     error_log('ARIA Prompt: ' . substr($prompt, 0, 500));

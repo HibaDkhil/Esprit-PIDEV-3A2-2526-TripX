@@ -8,11 +8,17 @@
     <link rel="stylesheet" href="/assets.php?f=css/animations.css">
     {% block stylesheets %}{% endblock %}
 </head>
-<body class="page-wipe-container"{% if app.user %} data-auth="1"{% endif %}>
+<body class="page-wipe-container" 
+      {% if app.user %} 
+        data-auth="1" 
+      {% endif %}>
     <div id="cursor-dot"></div>
     <div id="cursor-halo"></div>
     
-    {% include 'front/aria_chat.html.twig' %}
+    {% block aria_chat %}
+        {% include 'front/aria_chat.html.twig' %}
+    {% endblock %}
+
 
 
     <nav class="nav" id="main-nav" style="position: relative; z-index: 1000;">
@@ -78,8 +84,8 @@
     <script src="/assets.php?f=js/main.js"></script>
     <script src="/js/tracker.js"></script>
     {% block javascripts %}{% endblock %}
-    
-    
+
+
 
 </body>
 

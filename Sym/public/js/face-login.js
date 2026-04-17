@@ -97,7 +97,11 @@
         }
       })
       .catch(function (err) {
-        handleFailure(err.message || 'Network error');
+        if (err.status === 429) {
+          handleFailure("Security Lockout: Too many attempts. Please wait.");
+        } else {
+          handleFailure(err.message || 'Network error');
+        }
       });
   }
 

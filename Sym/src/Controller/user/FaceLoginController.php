@@ -8,12 +8,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 
 #[Route('/face', name: 'face_')]
 class FaceLoginController extends AbstractController
@@ -21,6 +21,7 @@ class FaceLoginController extends AbstractController
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly EventDispatcherInterface $dispatcher,
+        private readonly Security $security,
     ) {}
 
     /* ═══════════════════════════════════════════
@@ -99,6 +100,17 @@ class FaceLoginController extends AbstractController
             return $this->json(['success' => false, 'message' => 'No face descriptor received.'], 400);
         }
 
+        // Check for session lockout
+        $session = $request->getSession();
+        $lockedUntil = $session->get('locked_until');
+        if ($lockedUntil && time() < $lockedUntil) {
+            $minutesLeft = ceil(($lockedUntil - time()) / 60);
+            return $this->json([
+                'success' => false,
+                'message' => "Security Lock: Too many attempts. Please wait {$minutesLeft} minute(s).",
+            ], 429);
+        }
+
         try {
             // Find the best match among all users with a registered face
             $users = $this->em->getRepository(User::class)->createQueryBuilder('u')
@@ -107,7 +119,7 @@ class FaceLoginController extends AbstractController
                 ->getResult();
 
             $bestMatch = null;
-            $minDistance = 0.6; // Threshold for face-api.js
+            $minDistance = 0.4; // Threshold for face-api.js
 
             /** @var User $user */
             foreach ($users as $user) {
@@ -138,12 +150,17 @@ class FaceLoginController extends AbstractController
             }
 
             // Log the user in
-            $token = new UsernamePasswordToken($user, 'main', $user->getRoles());
-            $this->container->get('security.token_storage')->setToken($token);
-            $request->getSession()->set('_security_main', serialize($token));
-
-            $loginEvent = new InteractiveLoginEvent($request, $token);
-            $this->dispatcher->dispatch($loginEvent, 'security.interactive_login');
+            // Log the user in explicitly telling Symfony which firewall and provider to use
+            $result = $this->security->login($user, 'form_login', 'main');
+            
+            // If 2FA is required, Security::login returns a RedirectResponse to /2fa
+            if ($result instanceof RedirectResponse) {
+                return $this->json([
+                    'success'    => true,
+                    'message'    => 'Two-Factor Authentication required.',
+                    'redirect'   => $result->getTargetUrl(),
+                ]);
+            }
 
             return $this->json([
                 'success'    => true,
@@ -172,12 +189,33 @@ class FaceLoginController extends AbstractController
         ]);
     }
 
-    private function euclideanDistance(array $a, array $b): float
+    #[Route('/dev-reset-lock', name: 'dev_reset_lock', methods: ['GET'])]
+    public function devResetLock(Request $request): Response
     {
-        $sum = 0;
-        foreach ($a as $i => $val) {
-            $sum += ($val - $b[$i]) ** 2;
+        // Only allow on localhost for safety
+        if (in_array($request->getClientIp(), ['127.0.0.1', '::1'])) {
+            $session = $request->getSession();
+            $session->remove('locked_until');
+            $session->remove('login_attempts');
+            $session->remove('login_block_count');
         }
+        return new Response('Lock cleared');
+    }
+
+    private function euclideanDistance($a, $b): float
+    {
+        if (!is_array($a) || !is_array($b)) return 1.0;
+        
+        $sum = 0;
+        // Use the smaller count to avoid undefined index if they differ
+        $count = min(count($a), count($b));
+        
+        for ($i = 0; $i < $count; $i++) {
+            $valA = (float)($a[$i] ?? 0);
+            $valB = (float)($b[$i] ?? 0);
+            $sum += ($valA - $valB) ** 2;
+        }
+        
         return sqrt($sum);
     }
 }

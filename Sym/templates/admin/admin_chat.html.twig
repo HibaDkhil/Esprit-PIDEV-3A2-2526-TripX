@@ -1,0 +1,225 @@
+{# templates/admin/admin_chat.html.twig #}
+{% extends 'admin/admin_base.html.twig' %}
+{% block title %}Admin Chat — TripX{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ asset('css/admin-chat.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .ac-wrapper {
+      width: 100%;
+      height: 100%;
+      min-height: 500px;
+      position: relative;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      grid-template-columns: 1fr 280px;
+      grid-template-areas:
+        "header header"
+        "main sidebar";
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+    }
+    .ac-emoji-picker {
+      position: absolute; 
+      bottom: 60px; 
+      right: 50px; 
+      background: var(--bg-surface); 
+      padding: 10px; 
+      border: 1px solid var(--border-color); 
+      border-radius: 8px; 
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3); 
+      display: grid; 
+      grid-template-columns: repeat(5, 1fr); 
+      gap: 8px; 
+      z-index: 100;
+    }
+    .ac-main {
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .ac-messages {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="ac-wrapper">
+  
+  {# Ambient particles #}
+  <div class="ac-particle ac-particle--1"></div>
+  <div class="ac-particle ac-particle--2"></div>
+  <div class="ac-particle ac-particle--3"></div>
+
+  {# Header #}
+  <header class="ac-header">
+    <div class="ac-header-left">
+      <div class="ac-logo">
+        <svg viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="20" fill="url(#logo-gradient)"/>
+          <text x="10" y="28" font-size="20" font-family="serif" fill="white">⚡</text>
+          <defs>
+            <linearGradient id="logo-gradient" x1="0" y1="0" x2="40" y2="40">
+              <stop offset="0%" stop-color="#FF6B6B"/>
+              <stop offset="100%" stop-color="#4ECDC4"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div>
+          <div class="ac-logo-title">Admin Chat</div>
+          <div class="ac-logo-subtitle">Real-time Communication</div>
+        </div>
+      </div>
+    </div>
+    <div class="ac-header-right">
+      <div class="ac-status" id="connectionStatus">
+        <span class="ac-status-dot"></span>
+        <span class="ac-status-text">Connecting...</span>
+      </div>
+      <div class="ac-user-badge">
+        <div class="ac-user-avatar">
+          {{ app.user ? app.user.firstName|first|upper : 'A' }}
+        </div>
+        <span class="ac-user-name">{{ app.user ? app.user.firstName : 'Admin' }}</span>
+      </div>
+    </div>
+  </header>
+
+  {# Main chat area #}
+  <main class="ac-main">
+    
+    {# Messages container #}
+    <div class="ac-messages" id="messagesContainer">
+      <div class="ac-welcome">
+        <div class="ac-welcome-icon">
+          <i class="fas fa-shield-halved"></i>
+        </div>
+        <h2>Welcome to Admin Chat</h2>
+        <p>Secure real-time communication for TripX administrators</p>
+      </div>
+      
+      {# Messages will be dynamically inserted here #}
+    </div>
+
+    {# Typing indicator #}
+    <div class="ac-typing" id="typingIndicator" style="display: none;">
+      <div class="ac-typing-avatar">?</div>
+      <div class="ac-typing-bubble">
+        <div class="ac-typing-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <span class="ac-typing-name">Someone</span>
+      </div>
+    </div>
+
+    {# Input area #}
+    <div class="ac-input-area">
+      <div class="ac-input-container" style="position: relative;">
+        <!-- Hidden file input for images -->
+        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+        
+        <button class="ac-attach-btn" id="attachBtn" title="Attach image">
+          <i class="fas fa-image"></i>
+        </button>
+        <div class="ac-input-wrapper">
+          <textarea 
+            id="messageInput" 
+            class="ac-textarea" 
+            placeholder="Type your message..."
+            rows="1"
+          ></textarea>
+        </div>
+        
+        <!-- Emoji Picker Popover -->
+        <div id="emojiPicker" style="display: none;" class="ac-emoji-picker">
+          <span style="cursor:pointer; font-size: 1.2rem;" onclick="appendEmoji('😊')">😊</span>
+          <span style="cursor:pointer; font-size: 1.2rem;" onclick="appendEmoji('😂')">😂</span>
+          <span style="cursor:pointer; font-size: 1.2rem;" onclick="appendEmoji('❤️')">❤️</span>
+          <span style="cursor:pointer; font-size: 1.2rem;" onclick="appendEmoji('🔥')">🔥</span>
+          <span style="cursor:pointer; font-size: 1.2rem;" onclick="appendEmoji('👍')">👍</span>
+          <span style="cursor:pointer; font-size: 1.2rem;" onclick="appendEmoji('🙏')">🙏</span>
+          <span style="cursor:pointer; font-size: 1.2rem;" onclick="appendEmoji('✨')">✨</span>
+          <span style="cursor:pointer; font-size: 1.2rem;" onclick="appendEmoji('🎉')">🎉</span>
+          <span style="cursor:pointer; font-size: 1.2rem;" onclick="appendEmoji('🚀')">🚀</span>
+          <span style="cursor:pointer; font-size: 1.2rem;" onclick="appendEmoji('✈️')">✈️</span>
+        </div>
+        
+        <button class="ac-emoji-btn" id="emojiBtn" title="Emoji">
+          <i class="fas fa-face-smile"></i>
+        </button>
+        <button class="ac-send-btn" id="sendBtn">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  {# Online admins sidebar #}
+  <aside class="ac-sidebar">
+    <div class="ac-sidebar-header">
+      <h3>Online Admins</h3>
+      <span class="ac-online-count" id="onlineCount">0</span>
+    </div>
+    <div class="ac-admins-list" id="adminsList">
+      {# Dynamically populated #}
+    </div>
+  </aside>
+
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+  {{ parent() }}
+  
+  {# Firebase SDK #}
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  
+  {# Admin Chat Application #}
+  <script>
+    // Initialize Firebase dynamically with backend variables
+    // so API keys remain safely in the .env and are not pushed to github
+    const firebaseConfig = {{ firebase_config|json_encode|raw }};
+    console.log("🔥 Initializing Firebase with config:", Object.keys(firebaseConfig).length ? "Valid" : "Empty!", firebaseConfig);
+    
+    if (!firebaseConfig.apiKey) {
+      alert("⚠️ Firebase API Key is entirely missing! .env file is not being loaded properly.");
+    }
+    
+    try {
+      firebase.initializeApp(firebaseConfig);
+    } catch(e) {
+      console.error("🔥 Firebase Init Error:", e);
+    }
+    const database = firebase.database();
+    
+    // Inject current backend user directly (Bypassing Firebase Auth)
+    window.TRIPX_ADMIN_USER = {
+      uid: "{{ app.user.userId|default(app.user.id|default(0)) }}",
+      email: "{{ app.user.email }}",
+      name: "{{ app.user.firstName|default('Admin') }} {{ app.user.lastName|default('') }}",
+      avatar: "{{ app.user.firstName|default('A')|first|upper }}"
+    };
+    console.log("👤 Backend User Loaded:", window.TRIPX_ADMIN_USER);
+    
+    // Emoji append helper
+    window.appendEmoji = function(emoji) {
+      const input = document.getElementById('messageInput');
+      input.value += emoji;
+      input.focus();
+    };
+  </script>
+  <script src="{{ asset('js/admin-chat.js') }}"></script>
+{% endblock %}

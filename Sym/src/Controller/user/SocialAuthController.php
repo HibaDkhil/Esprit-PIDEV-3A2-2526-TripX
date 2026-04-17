@@ -27,22 +27,4 @@ class SocialAuthController extends AbstractController
     {
         // This method will not be executed - the authenticator handles it
     }
-
-    /**
-     * Link to this controller to start the LinkedIn connect process
-     */
-    #[Route('/connect/linkedin', name: 'connect_linkedin_start')]
-    public function connectLinkedIn(ClientRegistry $clientRegistry): RedirectResponse
-    {
-        return $clientRegistry->getClient('linkedin')->redirect([], []);
-    }
-
-    /**
-     * After going to LinkedIn, you're redirected back here
-     */
-    #[Route('/connect/linkedin/check', name: 'linkedin_auth_check')]
-    public function connectLinkedInCheck(): void
-    {
-        // This method will not be executed - the authenticator handles it
-    }
 }

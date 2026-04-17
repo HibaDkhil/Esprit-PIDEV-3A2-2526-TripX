@@ -34,7 +34,7 @@
     // Track time spent on page when user leaves
     window.addEventListener('beforeunload', () => {
         const timeSpent = Math.round((Date.now() - startTime) / 1000); // in seconds
-        logActivity('TIME_SPENT', timeSpent.toString(), 'SECONDS');
+        logActivity('TIME_SPENT', timeSpent.toString(), window.location.pathname);
     });
 
     // Track clicks on specific interactive features (e.g., ARIA, AI picks)

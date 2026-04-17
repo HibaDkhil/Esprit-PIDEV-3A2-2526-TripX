@@ -12,6 +12,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\SecurityBundle\Security;
+use Doctrine\ORM\EntityManagerInterface;
+use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticator;
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Writer\PngWriter;
+
 
 class UserController extends AbstractController
 {
@@ -19,13 +24,20 @@ class UserController extends AbstractController
     private PreferenceService $preferenceService;
     private Security $security;
     private LoyaltyService $loyaltyService;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(UserProfileService $profileService, PreferenceService $preferenceService, Security $security, LoyaltyService $loyaltyService)
-    {
+    public function __construct(
+        UserProfileService $profileService, 
+        PreferenceService $preferenceService, 
+        Security $security, 
+        LoyaltyService $loyaltyService,
+        EntityManagerInterface $entityManager
+    ) {
         $this->profileService = $profileService;
         $this->preferenceService = $preferenceService;
         $this->security = $security;
         $this->loyaltyService = $loyaltyService;
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -44,12 +56,12 @@ class UserController extends AbstractController
 
         // Get enriched profile data from service
         $profileData = $this->profileService->getProfileData($user);
-        
-        $styles = ['adventurer','adventurer-neutral','avataaars','bottts','croodles','dylan','fun-emoji','glass','identicon','initials','lorelei','micah','miniavs','notionists','open-peeps'];
-        
+
+        $styles = ['adventurer', 'adventurer-neutral', 'avataaars', 'bottts', 'croodles', 'dylan', 'fun-emoji', 'glass', 'identicon', 'initials', 'lorelei', 'micah', 'miniavs', 'notionists', 'open-peeps'];
+
         // Get avatar style from session
         $avatarStyle = $request->getSession()->get('user_avatar_style');
-        
+
         // If not in session, try database
         if (!$avatarStyle && $user->getAvatarId() !== null) {
             $idx = $user->getAvatarId();
@@ -58,10 +70,10 @@ class UserController extends AbstractController
                 $request->getSession()->set('user_avatar_style', $avatarStyle);
             }
         }
-        
+
         // Fallback
         $avatarStyle = $avatarStyle ?: 'adventurer';
-        
+
         // Merge avatar style into profile data
         $profileData['userAvatarStyle'] = $avatarStyle;
 
@@ -88,9 +100,9 @@ class UserController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $avatarStyle = $data['style'] ?? 'adventurer';
 
-        $styles = ['adventurer','adventurer-neutral','avataaars','bottts','croodles','dylan','fun-emoji','glass','identicon','initials','lorelei','micah','miniavs','notionists','open-peeps'];
+        $styles = ['adventurer', 'adventurer-neutral', 'avataaars', 'bottts', 'croodles', 'dylan', 'fun-emoji', 'glass', 'identicon', 'initials', 'lorelei', 'micah', 'miniavs', 'notionists', 'open-peeps'];
         $idx = array_search($avatarStyle, $styles);
-        
+
         if ($idx !== false) {
             $user->setAvatarId($idx);
             $em->flush();
@@ -120,9 +132,9 @@ class UserController extends AbstractController
         if (!$data) {
             return $this->json(['success' => false, 'error' => 'Invalid data'], 400);
         }
-        $firstName = trim((string)($data['firstName'] ?? ''));
-        $lastName = trim((string)($data['lastName'] ?? ''));
-        $email = trim((string)($data['email'] ?? ''));
+        $firstName = trim((string) ($data['firstName'] ?? ''));
+        $lastName = trim((string) ($data['lastName'] ?? ''));
+        $email = trim((string) ($data['email'] ?? ''));
         if ($firstName === '' || $lastName === '' || $email === '') {
             return $this->json(['success' => false, 'error' => 'First name, last name, and email are required.'], 400);
         }
@@ -242,4 +254,93 @@ class UserController extends AbstractController
             return $this->json(['success' => false, 'error' => 'Failed to delete account'], 500);
         }
     }
+
+
+
+    #[Route('/profile/2fa/setup', name: 'profile_2fa_setup')]
+    public function setup2fa(Request $request, GoogleAuthenticator $googleAuthenticator): Response
+    {
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        // Generate secret if not exists in session (or user already has it)
+        $secret = $user->getGoogleAuthenticatorSecret();
+        if (!$secret) {
+            $secret = $request->getSession()->get('2fa_setup_secret');
+            if (!$secret) {
+                $secret = $googleAuthenticator->generateSecret();
+                $request->getSession()->set('2fa_setup_secret', $secret);
+            }
+        }
+
+        // Temporary user to generate QR code without saving to database
+        $tempUser = clone $user;
+        $tempUser->setGoogleAuthenticatorSecret($secret);
+
+        // Generate QR code
+        $qrCode = Builder::create()
+            ->writer(new PngWriter())
+            ->data($googleAuthenticator->getQRContent($tempUser))
+            ->size(200)
+            ->build();
+
+        $qrCodeDataUri = $qrCode->getDataUri();
+
+        return $this->render('front/2fa_setup.html.twig', [
+            'qrCode' => $qrCodeDataUri,
+            'secret' => $secret
+        ]);
+    }
+
+    #[Route('/profile/2fa/enable', name: 'profile_2fa_enable', methods: ['POST'])]
+    public function enable2fa(Request $request, GoogleAuthenticator $googleAuthenticator): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->json(['success' => false, 'error' => 'Unauthorized']);
+        }
+
+        $code = $request->request->get('code');
+        
+        $secret = $user->getGoogleAuthenticatorSecret();
+        $isSetup = false;
+        
+        if (!$secret) {
+            $secret = $request->getSession()->get('2fa_setup_secret');
+            if (!$secret) {
+                return $this->json(['success' => false, 'error' => 'Session expired. Reload page.']);
+            }
+            $isSetup = true;
+        }
+
+        $user->setGoogleAuthenticatorSecret($secret);
+
+        if ($googleAuthenticator->checkCode($user, $code)) {
+            if ($isSetup) {
+                $this->entityManager->flush();
+                $request->getSession()->remove('2fa_setup_secret');
+            }
+            return $this->json(['success' => true]);
+        }
+
+        if ($isSetup) {
+            $user->setGoogleAuthenticatorSecret(null);
+        }
+
+        return $this->json(['success' => false, 'error' => 'Invalid code']);
+    }
+
+    #[Route('/profile/2fa/disable', name: 'profile_2fa_disable', methods: ['POST'])]
+    public function disable2fa(): JsonResponse
+    {
+        $user = $this->getUser();
+        $user->setGoogleAuthenticatorSecret(null);
+        $this->entityManager->flush();
+
+        return $this->json(['success' => true]);
+    }
+
 }

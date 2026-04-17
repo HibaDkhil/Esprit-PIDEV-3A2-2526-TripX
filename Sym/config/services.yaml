@@ -87,11 +87,13 @@ services:
     App\Security\LoginFailureHandler:
         arguments:
             $router: '@router'
-    #App\service\AzureFaceService:
-        #arguments:
-            #$azureFaceApiKey:      '%env(AZURE_FACE_API_KEY)%'
-            #$azureFaceEndpoint:    '%env(AZURE_FACE_ENDPOINT)%'
-    App\service\AzureFaceService:
+    Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleTotpFactory:
+        alias: scheb_two_factor.security.google_totp_factory
+        public: true
+
+    Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticator:
         arguments:
-            $azureFaceApiKey: '%env(GOOGLE_VISION_API_KEY)%'
-            $azureFaceEndpoint: '%env(GOOGLE_VISION_API_KEY)%'
+            $totpFactory: '@scheb_two_factor.security.google_totp_factory'
+            $leeway: 0
+        public: true
+
