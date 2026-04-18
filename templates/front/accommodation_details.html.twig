@@ -49,9 +49,9 @@
   margin: 40px auto;
   padding: 0 24px;
 }
-.details-main    { display: flex; flex-direction: column; gap: 40px; }
+.details-main { display: flex; flex-direction: column; gap: 40px; }
 
-/* ── FIXED: Sidebar with bounded height and scroll ── */
+/* ── Sidebar ── */
 .details-sidebar {
   position: sticky;
   top: 100px;
@@ -64,16 +64,9 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(167,139,250,0.3) transparent;
 }
-.details-sidebar::-webkit-scrollbar {
-  width: 4px;
-}
-.details-sidebar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.details-sidebar::-webkit-scrollbar-thumb {
-  background: rgba(167,139,250,0.3);
-  border-radius: 2px;
-}
+.details-sidebar::-webkit-scrollbar { width: 4px; }
+.details-sidebar::-webkit-scrollbar-track { background: transparent; }
+.details-sidebar::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.3); border-radius: 2px; }
 
 /* ── Section Cards ── */
 .section-card {
@@ -324,244 +317,167 @@
   font-weight: 700;
   color: white;
 }
-.review-author {
-  font-weight: 600;
-  color: #fff;
-}
-.review-rating {
-  color: var(--gold);
-  font-size: 12px;
-}
+.review-author { font-weight: 600; color: #fff; }
+.review-rating { color: var(--gold); font-size: 12px; }
 .review-text {
   font-size: 14px;
   line-height: 1.5;
   color: #94a3b8;
 }
 
-/* ── Weather ── */
-.weather-card {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+/* ══════════════════════════════════════════
+   WEATHER CARD
+══════════════════════════════════════════ */
+.wx-card {
   border-radius: 15px;
-  background: linear-gradient(to right, rgb(20, 30, 48), rgb(36, 59, 85));
   overflow: hidden;
-  box-shadow: rgba(0,0,0,0.7) 5px 10px 50px, rgba(0,0,0,0.4) -5px 0px 80px;
-  transition: all 0.3s ease-in-out;
-  color: white;
+  background: linear-gradient(135deg, #1a1040 0%, #2d1b69 50%, #1a2744 100%);
+  border: 1px solid rgba(167,139,250,0.2);
+  box-shadow: rgba(0,0,0,0.7) 5px 10px 50px;
+  color: #fff;
+  flex-shrink: 0;
 }
-.weather-card:hover {
-  box-shadow: rgba(0,0,0,0.9) 5px 10px 50px, rgba(0,0,0,0.7) -5px 0px 120px;
-}
-.info-section {
-  position: relative;
+.wx-main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
-  padding: 16px 0;
-  min-height: 130px;
-  flex-shrink: 0;
+  padding: 20px 20px 16px;
+  position: relative;
 }
-.left-side {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  height: 100%;
-  z-index: 1;
-  padding-left: 18px;
-  gap: 4px;
+.wx-main::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: rgba(138,79,248,0.25);
+  pointer-events: none;
 }
-.right-side {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: space-around;
-  height: 100%;
-  padding-right: 18px;
-  z-index: 1;
-  gap: 4px;
+.wx-main::after {
+  content: '';
+  position: absolute;
+  top: -30px; right: -20px;
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  background: rgba(167,139,250,0.35);
+  pointer-events: none;
 }
-.right-side > div {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+.wx-left { position: relative; z-index: 1; }
+.wx-location {
+  font-size: 13px;
+  font-weight: 700;
+  color: #c4b5fd;
+  margin-bottom: 4px;
 }
-.weather {
+.wx-condition {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
   gap: 6px;
 }
-.temperature {
-  font-size: 32px;
-  font-weight: 600;
-  line-height: 1;
+.wx-condition img {
+  width: 28px;
+  height: 28px;
 }
-.range {
-  font-size: 11px;
-  opacity: 0.8;
-}
-.city {
-  font-weight: 600;
-  font-size: 12px;
-}
-.background-design {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  background-color: #3b1f6e;
-  overflow: hidden;
-  border-radius: 15px;
-}
-.circle {
-  background-color: #6831cf;
-}
-.circle:nth-child(1) {
-  position: absolute;
-  top: -80%;
-  right: -50%;
-  width: 300px;
-  height: 300px;
-  opacity: 0.3;
-  border-radius: 50%;
-}
-.circle:nth-child(2) {
-  position: absolute;
-  top: -70%;
-  right: -30%;
-  width: 210px;
-  height: 210px;
-  opacity: 0.3;
-  border-radius: 50%;
-}
-.circle:nth-child(3) {
-  position: absolute;
-  top: -35%;
-  right: -8%;
-  width: 100px;
-  height: 100px;
-  opacity: 0.7;
-  border-radius: 50%;
-}
-.days-section {
+.wx-meta {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  background: rgba(0,0,0,0.3);
-  gap: 1px;
-  flex-shrink: 0;
+  gap: 14px;
+  font-size: 11px;
+  color: #94a3b8;
 }
-.days-section button {
+.wx-right {
+  text-align: right;
+  position: relative;
+  z-index: 1;
+}
+.wx-temp {
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  letter-spacing: -2px;
+}
+.wx-temp sup {
+  font-size: 20px;
+  font-weight: 400;
+  vertical-align: super;
+  color: #c4b5fd;
+}
+.wx-range {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+.wx-forecast {
+  display: flex;
+  border-top: 1px solid rgba(167,139,250,0.15);
+}
+.wx-day {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 50px;
-  width: 100%;
-  background: rgba(255,255,255,0.05);
-  border: none;
+  padding: 10px 4px;
+  gap: 3px;
+  background: rgba(0,0,0,0.2);
+  border-right: 1px solid rgba(167,139,250,0.08);
   cursor: pointer;
-  transition: 100ms ease;
-  gap: 2px;
-  color: white;
+  transition: background 0.15s;
 }
-.days-section button:hover {
-  background: rgba(255,255,255,0.12);
-  transform: translateY(-2px);
-}
-.days-section .day {
-  font-size: 10px;
-  font-weight: 500;
-}
-.days-section .forecast-temp {
-  font-size: 12px;
+.wx-day:last-child { border-right: none; }
+.wx-day:hover { background: rgba(167,139,250,0.12); }
+.wx-day-label {
+  font-size: 9px;
   font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
-
-/* ── Booking Panel ── */
-.booking-panel {
-  background: linear-gradient(to right, rgb(20, 30, 48), rgb(36, 59, 85));
-  border: 1px solid rgba(167,139,250,0.2);
-  border-radius: 15px;
-  padding: 24px;
-  box-shadow: rgba(0,0,0,0.7) 5px 10px 50px;
-  color: #e2e8f0;
-  transition: all 0.3s ease-in-out;
-  flex-shrink: 0;
+.wx-day img {
+  width: 22px;
+  height: 22px;
 }
-.booking-panel:hover {
-  box-shadow: rgba(0,0,0,0.9) 5px 10px 50px, rgba(0,0,0,0.5) -5px 0px 80px;
-}
-.booking-price {
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--accent);
-  margin-bottom: 20px;
-}
-.booking-price small {
-  font-size: 14px;
-  font-weight: normal;
-  color: #94a3b8;
-}
-.date-input {
-  width: 100%;
-  padding: 12px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(167,139,250,0.2);
-  border-radius: 12px;
-  margin-bottom: 12px;
-  color: #e2e8f0;
-}
-.date-input option {
-  background: #1a2035;
-}
-.book-btn {
-  width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, #4a2f7c, #8a4ff8);
-  border: none;
-  border-radius: 50px;
-  color: white;
+.wx-day-temp {
+  font-size: 12px;
   font-weight: 700;
-  font-size: 16px;
-  cursor: pointer;
-  transition: 0.4s ease-out;
-  margin-top: 16px;
-}
-.book-btn:hover {
-  background: linear-gradient(135deg, #8a4ff8, #38bdf8);
-  box-shadow: 0px 0px 20px rgba(157,71,255,0.5), 0px 5px 5px -1px rgba(163,58,233,0.25), inset 4px 4px 8px rgba(219,175,255,0.5), inset -4px -4px 8px rgba(137,19,216,0.35);
-  transform: translateY(-2px);
+  color: #a78bfa;
 }
 
-/* ── Mini Map Container Fix ── */
-.section-card:last-child {
+/* ── Mini Map — sidebar card ── */
+.map-sidebar-card {
+  background: linear-gradient(to right, rgb(20, 30, 48), rgb(36, 59, 85));
+  border: 1px solid rgba(167,139,250,0.15);
+  border-radius: 15px;
   overflow: hidden;
-  margin-bottom: 0;
+  box-shadow: rgba(0,0,0,0.7) 5px 10px 50px, rgba(0,0,0,0.4) -5px 0px 80px;
   flex-shrink: 0;
+  min-height: 260px;
 }
-.section-card:last-child .section-header {
-  border-bottom: none;
-  padding-bottom: 16px;
+.map-sidebar-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(167,139,250,0.15);
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
-.section-card:last-child .section-content {
-  padding: 0 !important;
-  overflow: hidden;
-  line-height: 0;
+.map-sidebar-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Playfair Display', serif;
+  color: #fff;
+  margin: 0;
 }
 .mini-map {
-  height: 200px;
+  height: 220px;
   width: 100%;
   display: block;
   background: rgba(0,0,0,0.2);
-  z-index: 1;
 }
-
-/* ── Leaflet Map Styles ── */
 .leaflet-container {
-  background: #1a2035;
-  z-index: 1;
+  background: #1a2035 !important;
   width: 100% !important;
   height: 100% !important;
 }
@@ -575,9 +491,7 @@
   color: #e2e8f0;
   border-radius: 8px;
 }
-.leaflet-popup-tip {
-  background: #1e2a3e;
-}
+.leaflet-popup-tip { background: #1e2a3e; }
 
 /* ── Itinerary ── */
 .itinerary-content {
@@ -608,11 +522,9 @@ select#itinerary-days, select#nearby-category {
   color: #e2e8f0;
   margin-right: 8px;
 }
-select#itinerary-days option, select#nearby-category option {
-  background: #1a2035;
-}
+select#itinerary-days option, select#nearby-category option { background: #1a2035; }
 
-/* ── Skeleton Loading ── */
+/* ── Skeleton ── */
 .skeleton {
   background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(167,139,250,0.08) 50%, rgba(255,255,255,0.04) 75%);
   background-size: 200% 100%;
@@ -638,75 +550,45 @@ select#itinerary-days option, select#nearby-category option {
   transition: all 0.3s ease;
   cursor: pointer;
 }
-.modal-overlay.open {
-  opacity: 1;
-  visibility: visible;
-}
-.modal-content {
-  max-width: 90vw;
-  max-height: 90vh;
-  cursor: default;
-}
-.modal-content img {
-  max-width: 100%;
-  max-height: 90vh;
-  border-radius: 12px;
-}
+.modal-overlay.open { opacity: 1; visibility: visible; }
+.modal-content { max-width: 90vw; max-height: 90vh; cursor: default; }
+.modal-content img { max-width: 100%; max-height: 90vh; border-radius: 12px; }
 
-/* ═══════════════════════════════════════════
-   BOOKING DRAWER
-   (Keep your existing drawer CSS here)
-═══════════════════════════════════════════ */
+/* ── Booking Drawer ── */
 .drawer-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0);
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0);
   backdrop-filter: blur(0px);
   z-index: 3000;
   pointer-events: none;
   transition: background 0.5s ease, backdrop-filter 0.5s ease;
 }
 .drawer-backdrop.open {
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(0,0,0,0.65);
   backdrop-filter: blur(6px);
   pointer-events: all;
 }
 .booking-drawer {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 520px;
-  height: 100vh;
+  position: fixed; top: 0; right: 0;
+  width: 520px; height: 100vh;
   z-index: 3001;
   background: linear-gradient(160deg, #0d1b2e 0%, #14243e 40%, #1a1a3e 100%);
-  border-left: 1px solid rgba(167, 139, 250, 0.2);
+  border-left: 1px solid rgba(167,139,250,0.2);
   box-shadow: -20px 0 80px rgba(0,0,0,0.8), -2px 0 30px rgba(167,139,250,0.05);
   transform: translateX(100%);
-  transition: transform 0.55s cubic-bezier(0.32, 0.72, 0, 1);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  font-family: 'DM Sans', sans-serif;
-  color: #e2e8f0;
+  transition: transform 0.55s cubic-bezier(0.32,0.72,0,1);
+  display: flex; flex-direction: column; overflow: hidden;
+  font-family: 'DM Sans', sans-serif; color: #e2e8f0;
 }
 .booking-drawer.open { transform: translateX(0); }
 .drawer-close {
-  position: absolute;
-  top: 18px;
-  right: 20px;
-  z-index: 10;
-  width: 36px;
-  height: 36px;
+  position: absolute; top: 18px; right: 20px; z-index: 10;
+  width: 36px; height: 36px;
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 50%;
-  color: #94a3b8;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  transition: all 0.2s;
+  border-radius: 50%; color: #94a3b8; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; transition: all 0.2s;
   backdrop-filter: blur(10px);
 }
 .drawer-close:hover {
@@ -716,300 +598,142 @@ select#itinerary-days option, select#nearby-category option {
   transform: rotate(90deg);
 }
 .drawer-progress {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  padding: 64px 28px 16px;
-  position: relative;
-  z-index: 5;
-  flex-shrink: 0;
+  display: flex; align-items: center; gap: 0;
+  padding: 64px 28px 16px; position: relative; z-index: 5; flex-shrink: 0;
 }
-.progress-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  flex: 1;
-}
+.progress-step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
 .progress-dot {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 32px; height: 32px; border-radius: 50%;
   background: rgba(255,255,255,0.06);
   border: 2px solid rgba(167,139,250,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 700;
-  color: #64748b;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #64748b;
+  transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+  position: relative; z-index: 2;
 }
 .progress-dot.active {
   background: linear-gradient(135deg, #4a2f7c, #8a4ff8);
-  border-color: #a78bfa;
-  color: white;
+  border-color: #a78bfa; color: white;
   box-shadow: 0 0 20px rgba(138,79,248,0.5);
 }
 .progress-dot.done {
   background: linear-gradient(135deg, #065f46, #059669);
-  border-color: #10b981;
-  color: white;
+  border-color: #10b981; color: white;
   box-shadow: 0 0 12px rgba(16,185,129,0.4);
 }
 .progress-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: #475569;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  transition: color 0.3s;
+  font-size: 10px; font-weight: 600; color: #475569;
+  letter-spacing: 0.5px; text-transform: uppercase; transition: color 0.3s;
 }
 .progress-step.active .progress-label { color: #a78bfa; }
 .progress-step.done .progress-label { color: #10b981; }
 .progress-line {
-  flex: 1;
-  height: 2px;
+  flex: 1; height: 2px;
   background: rgba(167,139,250,0.12);
-  position: relative;
-  margin-bottom: 22px;
-  max-width: 60px;
+  position: relative; margin-bottom: 22px; max-width: 60px;
 }
 .progress-line-fill {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 0%;
+  position: absolute; top: 0; left: 0; height: 100%; width: 0%;
   background: linear-gradient(90deg, #4a2f7c, #8a4ff8);
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
 }
-.drawer-steps {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-  min-height: 0;
-}
+.drawer-steps { flex: 1; overflow: hidden; position: relative; min-height: 0; }
 .drawer-step {
-  position: absolute;
-  inset: 0;
-  overflow-y: auto;
+  position: absolute; inset: 0; overflow-y: auto;
   padding: 24px 28px 28px;
-  transform: translateX(100%);
-  opacity: 0;
-  transition: transform 0.45s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
+  transform: translateX(100%); opacity: 0;
+  transition: transform 0.45s cubic-bezier(0.32,0.72,0,1), opacity 0.3s ease;
   scrollbar-width: thin;
   scrollbar-color: rgba(167,139,250,0.3) transparent;
 }
 .drawer-step::-webkit-scrollbar { width: 4px; }
 .drawer-step::-webkit-scrollbar-track { background: transparent; }
 .drawer-step::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.3); border-radius: 2px; }
-.drawer-step.active {
-  transform: translateX(0);
-  opacity: 1;
-}
-.drawer-step.exiting {
-  transform: translateX(-40px);
-  opacity: 0;
-}
+.drawer-step.active { transform: translateX(0); opacity: 1; }
+.drawer-step.exiting { transform: translateX(-40px); opacity: 0; }
 .room-carousel {
-  position: relative;
-  height: 240px;
-  border-radius: 16px;
-  overflow: hidden;
-  margin-bottom: 24px;
+  position: relative; height: 240px; border-radius: 16px;
+  overflow: hidden; margin-bottom: 24px;
   background: rgba(255,255,255,0.04);
 }
-.carousel-slides {
-  display: flex;
-  height: 100%;
-  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
-}
-.carousel-slide {
-  min-width: 100%;
-  height: 100%;
-  object-fit: cover;
-  flex-shrink: 0;
-}
+.carousel-slides { display: flex; height: 100%; transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); }
+.carousel-slide { min-width: 100%; height: 100%; object-fit: cover; flex-shrink: 0; }
 .carousel-slide-placeholder {
-  min-width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  min-width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
   font-size: 80px;
   background: linear-gradient(135deg, rgba(74,47,124,0.3), rgba(56,189,248,0.1));
 }
 .carousel-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 36px;
-  height: 36px;
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 50%;
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  transition: all 0.2s;
-  z-index: 5;
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 36px; height: 36px;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 50%;
+  color: white; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; transition: all 0.2s; z-index: 5;
 }
-.carousel-btn:hover {
-  background: rgba(138,79,248,0.6);
-  border-color: rgba(167,139,250,0.5);
-}
+.carousel-btn:hover { background: rgba(138,79,248,0.6); border-color: rgba(167,139,250,0.5); }
 .carousel-btn.prev { left: 12px; }
 .carousel-btn.next { right: 12px; }
 .carousel-dots {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
+  position: absolute; bottom: 10px; left: 50%;
   transform: translateX(-50%);
-  display: flex;
-  gap: 6px;
-  z-index: 5;
+  display: flex; gap: 6px; z-index: 5;
 }
 .carousel-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.4);
-  transition: all 0.3s;
-  cursor: pointer;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255,255,255,0.4); transition: all 0.3s; cursor: pointer;
 }
-.carousel-dot.active {
-  width: 20px;
-  border-radius: 3px;
-  background: #a78bfa;
-}
-.room-preview-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
-}
-.room-preview-name {
-  font-size: 22px;
-  font-weight: 700;
-  color: #fff;
-  font-family: 'Playfair Display', serif;
-}
+.carousel-dot.active { width: 20px; border-radius: 3px; background: #a78bfa; }
+.room-preview-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.room-preview-name { font-size: 22px; font-weight: 700; color: #fff; font-family: 'Playfair Display', serif; }
 .room-preview-badge {
   padding: 4px 12px;
   background: rgba(167,139,250,0.15);
   border: 1px solid rgba(167,139,250,0.3);
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #c4b5fd;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
+  border-radius: 20px; font-size: 11px; font-weight: 600;
+  color: #c4b5fd; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
 }
-.room-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 20px;
-}
+.room-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
 .room-stat {
   padding: 12px;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(167,139,250,0.12);
-  border-radius: 12px;
-  text-align: center;
+  border-radius: 12px; text-align: center;
 }
-.room-stat-icon {
-  font-size: 20px;
-  margin-bottom: 4px;
-}
-.room-stat-value {
-  font-size: 15px;
-  font-weight: 700;
-  color: #fff;
-}
-.room-stat-label {
-  font-size: 10px;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.preview-price-tag {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  margin-bottom: 20px;
-}
-.preview-price-amount {
-  font-size: 36px;
-  font-weight: 800;
-  color: #a78bfa;
-}
-.preview-price-per {
-  font-size: 14px;
-  color: #64748b;
-}
-.drawer-amenities {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 24px;
-}
+.room-stat-icon { font-size: 20px; margin-bottom: 4px; }
+.room-stat-value { font-size: 15px; font-weight: 700; color: #fff; }
+.room-stat-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+.preview-price-tag { display: flex; align-items: baseline; gap: 6px; margin-bottom: 20px; }
+.preview-price-amount { font-size: 36px; font-weight: 800; color: #a78bfa; }
+.preview-price-per { font-size: 14px; color: #64748b; }
+.drawer-amenities { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
 .drawer-amenity {
   padding: 6px 12px;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(167,139,250,0.15);
-  border-radius: 20px;
-  font-size: 12px;
-  color: #94a3b8;
+  border-radius: 20px; font-size: 12px; color: #94a3b8;
 }
 .stay-section-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 10px;
-  margin-top: 20px;
+  font-size: 12px; font-weight: 700; color: #64748b;
+  text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 10px; margin-top: 20px;
 }
 .stay-section-title:first-child { margin-top: 0; }
-.date-range-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 4px;
-}
-.date-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.date-range-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px; }
+.date-field { display: flex; flex-direction: column; gap: 6px; }
 .date-field label {
-  font-size: 11px;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 11px; font-weight: 600; color: #64748b;
+  text-transform: uppercase; letter-spacing: 0.5px;
 }
 .drawer-input {
-  width: 100%;
-  padding: 12px 14px;
+  width: 100%; padding: 12px 14px;
   background: rgba(255,255,255,0.06);
   border: 1.5px solid rgba(167,139,250,0.15);
-  border-radius: 12px;
-  color: #e2e8f0;
-  font-size: 14px;
-  transition: all 0.2s;
-  outline: none;
-  font-family: 'DM Sans', sans-serif;
-  box-sizing: border-box;
+  border-radius: 12px; color: #e2e8f0; font-size: 14px;
+  transition: all 0.2s; outline: none;
+  font-family: 'DM Sans', sans-serif; box-sizing: border-box;
 }
 .drawer-input:focus {
   border-color: rgba(167,139,250,0.6);
@@ -1018,162 +742,77 @@ select#itinerary-days option, select#nearby-category option {
 }
 .drawer-input option { background: #1a2035; }
 .nights-pill {
-  text-align: center;
-  padding: 8px;
+  text-align: center; padding: 8px;
   background: linear-gradient(135deg, rgba(74,47,124,0.3), rgba(56,189,248,0.1));
   border: 1px solid rgba(167,139,250,0.2);
-  border-radius: 30px;
-  margin: 12px 0;
-  font-size: 13px;
-  font-weight: 600;
-  color: #a78bfa;
-  transition: all 0.3s;
+  border-radius: 30px; margin: 12px 0;
+  font-size: 13px; font-weight: 600; color: #a78bfa; transition: all 0.3s;
 }
 .guest-stepper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: flex; align-items: center; justify-content: space-between;
   padding: 12px 16px;
   background: rgba(255,255,255,0.04);
   border: 1.5px solid rgba(167,139,250,0.15);
-  border-radius: 12px;
-  margin-bottom: 12px;
+  border-radius: 12px; margin-bottom: 12px;
 }
-.stepper-label {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.stepper-label span:first-child {
-  font-size: 14px;
-  font-weight: 600;
-  color: #e2e8f0;
-}
-.stepper-label span:last-child {
-  font-size: 11px;
-  color: #64748b;
-}
-.stepper-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+.stepper-label { display: flex; flex-direction: column; gap: 2px; }
+.stepper-label span:first-child { font-size: 14px; font-weight: 600; color: #e2e8f0; }
+.stepper-label span:last-child { font-size: 11px; color: #64748b; }
+.stepper-controls { display: flex; align-items: center; gap: 12px; }
 .stepper-btn {
-  width: 32px;
-  height: 32px;
+  width: 32px; height: 32px;
   background: rgba(167,139,250,0.12);
   border: 1px solid rgba(167,139,250,0.25);
-  border-radius: 8px;
-  color: #a78bfa;
-  cursor: pointer;
-  font-size: 18px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  line-height: 1;
+  border-radius: 8px; color: #a78bfa; cursor: pointer;
+  font-size: 18px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; line-height: 1;
 }
 .stepper-btn:hover:not(:disabled) {
   background: rgba(167,139,250,0.25);
   border-color: rgba(167,139,250,0.5);
   transform: scale(1.1);
 }
-.stepper-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-.stepper-count {
-  font-size: 18px;
-  font-weight: 700;
-  color: #fff;
-  min-width: 20px;
-  text-align: center;
-}
+.stepper-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.stepper-count { font-size: 18px; font-weight: 700; color: #fff; min-width: 20px; text-align: center; }
 .price-breakdown {
   background: linear-gradient(135deg, rgba(74,47,124,0.2), rgba(56,189,248,0.08));
   border: 1px solid rgba(167,139,250,0.2);
-  border-radius: 16px;
-  padding: 16px;
-  margin-top: 20px;
+  border-radius: 16px; padding: 16px; margin-top: 20px;
 }
 .price-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 0;
-  font-size: 14px;
-  color: #94a3b8;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0; font-size: 14px; color: #94a3b8;
 }
 .price-row.total {
   border-top: 1px solid rgba(167,139,250,0.2);
-  margin-top: 8px;
-  padding-top: 14px;
-  font-size: 18px;
-  font-weight: 800;
-  color: #fff;
+  margin-top: 8px; padding-top: 14px;
+  font-size: 18px; font-weight: 800; color: #fff;
 }
 .price-row.total span:last-child { color: #a78bfa; }
 .booking-recap {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(167,139,250,0.15);
-  border-radius: 14px;
-  padding: 14px;
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  border-radius: 14px; padding: 14px; margin-bottom: 20px;
+  display: flex; justify-content: space-between; align-items: center;
 }
-.recap-label {
-  font-size: 11px;
-  color: #64748b;
-  margin-bottom: 2px;
-}
-.recap-value {
-  font-size: 13px;
-  font-weight: 600;
-  color: #e2e8f0;
-}
-.recap-price {
-  font-size: 22px;
-  font-weight: 800;
-  color: #a78bfa;
-}
+.recap-label { font-size: 11px; color: #64748b; margin-bottom: 2px; }
+.recap-value { font-size: 13px; font-weight: 600; color: #e2e8f0; }
+.recap-price { font-size: 22px; font-weight: 800; color: #a78bfa; }
 .wallet-section-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 14px;
+  font-size: 11px; font-weight: 700; color: #64748b;
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;
 }
-.pay-wallet-outer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 24px;
-}
+.pay-wallet-outer { display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; }
 .pay-wallet {
-  position: relative;
-  width: 100%;
-  max-width: 380px;
-  height: 220px;
-  cursor: pointer;
-  perspective: 1000px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
+  position: relative; width: 100%; max-width: 380px; height: 220px;
+  cursor: pointer; perspective: 1000px;
+  display: flex; justify-content: center; align-items: flex-end;
   transition: transform 0.4s ease;
 }
 .pay-wallet-back {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  max-width: 380px;
-  height: 185px;
-  background: #1e2a1e;
-  border-radius: 22px 22px 55px 55px;
-  z-index: 5;
+  position: absolute; bottom: 0; width: 100%; max-width: 380px; height: 185px;
+  background: #1e2a1e; border-radius: 22px 22px 55px 55px; z-index: 5;
   box-shadow: inset 0 25px 35px rgba(0,0,0,0.5), inset 0 5px 15px rgba(0,0,0,0.6);
 }
 @keyframes pwSlideIn {
@@ -1181,146 +820,35 @@ select#itinerary-days option, select#nearby-category option {
   100% { transform: translateY(0); opacity: 1; }
 }
 .pay-card {
-  position: absolute;
-  width: calc(100% - 20px);
-  max-width: 360px;
-  height: 130px;
-  left: 10px;
-  border-radius: 16px;
-  padding: 16px 18px;
-  color: white;
+  position: absolute; width: calc(100% - 20px); max-width: 360px; height: 130px; left: 10px;
+  border-radius: 16px; padding: 16px 18px; color: white;
   box-shadow: inset 0 1px 1px rgba(255,255,255,0.25), 0 -4px 15px rgba(0,0,0,0.15);
-  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-  animation: pwSlideIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
-  cursor: pointer;
-  user-select: none;
-  overflow: hidden;
+  transition: transform 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  animation: pwSlideIn 0.8s cubic-bezier(0.2,0.8,0.2,1) backwards;
+  cursor: pointer; user-select: none; overflow: hidden;
 }
 .pay-card::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
   background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%);
   pointer-events: none;
 }
-.pay-card-inner {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-  position: relative;
-  z-index: 1;
-}
-.pay-card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-}
-.pay-chip {
-  width: 28px;
-  height: 21px;
-  background: rgba(255,255,255,0.18);
-  border-radius: 4px;
-  border: 1px solid rgba(255,255,255,0.12);
-}
-.pay-card-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-}
-.pay-card-label {
-  font-size: 8px;
-  opacity: 0.65;
-  text-transform: uppercase;
-  margin-bottom: 2px;
-  display: block;
-  letter-spacing: 0.5px;
-}
+.pay-card-inner { display: flex; flex-direction: column; justify-content: space-between; height: 100%; position: relative; z-index: 1; }
+.pay-card-top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+.pay-chip { width: 28px; height: 21px; background: rgba(255,255,255,0.18); border-radius: 4px; border: 1px solid rgba(255,255,255,0.12); }
+.pay-card-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+.pay-card-label { font-size: 8px; opacity: 0.65; text-transform: uppercase; margin-bottom: 2px; display: block; letter-spacing: 0.5px; }
 .pay-card-value { font-size: 10px; font-weight: 600; }
 .pay-card-num-wrap { text-align: right; }
-.pay-card-stars {
-  font-size: 14px;
-  letter-spacing: 3px;
-  opacity: 0.8;
-}
-.pay-visa {
-  background: linear-gradient(135deg, #1a3a6f 0%, #1565c0 70%, #0d47a1 100%);
-  bottom: 88px;
-  z-index: 10;
-  animation-delay: 0.08s;
-}
-.pay-mc {
-  background: linear-gradient(135deg, #6a0000 0%, #b71c1c 55%, #c62828 100%);
-  bottom: 60px;
-  z-index: 20;
-  animation-delay: 0.18s;
-}
-.pay-amex {
-  background: linear-gradient(135deg, #1b3a20 0%, #2e7d32 55%, #388e3c 100%);
-  bottom: 32px;
-  z-index: 30;
-  animation-delay: 0.28s;
-}
-.pay-pocket {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  max-width: 380px;
-  height: 155px;
-  z-index: 40;
-  filter: drop-shadow(0 12px 22px rgba(10,20,10,0.55));
-}
-.pay-pocket-content {
-  position: absolute;
-  top: 38px;
-  width: 100%;
-  text-align: center;
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-}
-.pay-balance-stars {
-  color: #5a7a53;
-  font-size: 20px;
-  letter-spacing: 4px;
-  transition: opacity 0.3s, transform 0.3s;
-}
-.pay-balance-real {
-  color: #8dc880;
-  font-size: 19px;
-  font-weight: 700;
-  opacity: 0;
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translate(-50%, 8px);
-  transition: opacity 0.3s, transform 0.3s;
-  white-space: nowrap;
-}
-.pay-eye-wrap {
-  margin-top: 6px;
-  height: 18px;
-  width: 18px;
-  position: relative;
-  opacity: 0.3;
-  transition: opacity 0.3s;
-}
-.pay-eye {
-  position: absolute;
-  top: 0;
-  left: 0;
-  stroke: #4ade80;
-  transition: opacity 0.3s, transform 0.3s;
-}
+.pay-card-stars { font-size: 14px; letter-spacing: 3px; opacity: 0.8; }
+.pay-visa { background: linear-gradient(135deg, #1a3a6f 0%, #1565c0 70%, #0d47a1 100%); bottom: 88px; z-index: 10; animation-delay: 0.08s; }
+.pay-mc { background: linear-gradient(135deg, #6a0000 0%, #b71c1c 55%, #c62828 100%); bottom: 60px; z-index: 20; animation-delay: 0.18s; }
+.pay-amex { background: linear-gradient(135deg, #1b3a20 0%, #2e7d32 55%, #388e3c 100%); bottom: 32px; z-index: 30; animation-delay: 0.28s; }
+.pay-pocket { position: absolute; bottom: 0; width: 100%; max-width: 380px; height: 155px; z-index: 40; filter: drop-shadow(0 12px 22px rgba(10,20,10,0.55)); }
+.pay-pocket-content { position: absolute; top: 38px; width: 100%; text-align: center; z-index: 50; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.pay-balance-stars { color: #5a7a53; font-size: 20px; letter-spacing: 4px; transition: opacity 0.3s, transform 0.3s; }
+.pay-balance-real { color: #8dc880; font-size: 19px; font-weight: 700; opacity: 0; position: absolute; top: 0; left: 50%; transform: translate(-50%, 8px); transition: opacity 0.3s, transform 0.3s; white-space: nowrap; }
+.pay-eye-wrap { margin-top: 6px; height: 18px; width: 18px; position: relative; opacity: 0.3; transition: opacity 0.3s; }
+.pay-eye { position: absolute; top: 0; left: 0; stroke: #4ade80; transition: opacity 0.3s, transform 0.3s; }
 .pay-wallet:hover { transform: translateY(-4px); }
 .pay-wallet:hover .pay-eye-wrap { opacity: 1; }
 .pay-wallet:hover .pay-visa { transform: translateY(-72px) rotate(-3.5deg); }
@@ -1335,248 +863,51 @@ select#itinerary-days option, select#nearby-category option {
 .pay-wallet:hover .pay-eye-slash { opacity: 0; transform: scale(0.5); }
 .pay-wallet:hover .pay-eye-open { opacity: 1; transform: scale(1.1); }
 .pay-card.selected { outline: none; z-index: 200 !important; }
-.pay-card.selected::after {
-  content: '✓';
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 20px;
-  text-align: center;
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255,255,255,0.3);
-}
+.pay-card.selected::after { content: '✓'; position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; line-height: 20px; text-align: center; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.3); }
 .pay-visa.selected { box-shadow: 0 0 0 2px #5b9bd5, 0 8px 30px rgba(21,101,192,0.5); }
 .pay-mc.selected { box-shadow: 0 0 0 2px #e57373, 0 8px 30px rgba(198,40,40,0.5); }
 .pay-amex.selected { box-shadow: 0 0 0 2px #81c784, 0 8px 30px rgba(56,142,60,0.5); }
-.pay-wallet-hint {
-  font-size: 11px;
-  color: #4a5568;
-  margin-top: 10px;
-  font-style: italic;
-  text-align: center;
-  transition: color 0.3s;
-}
-.pay-wallet-hint.selected-hint {
-  color: #a78bfa;
-  font-style: normal;
-  font-weight: 600;
-}
-.pay-format-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 14px;
-  background: rgba(167,139,250,0.1);
-  border: 1px solid rgba(167,139,250,0.2);
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #a78bfa;
-  margin-bottom: 14px;
-  transition: all 0.3s;
-}
-.pay-format-pill .dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-}
+.pay-wallet-hint { font-size: 11px; color: #4a5568; margin-top: 10px; font-style: italic; text-align: center; transition: color 0.3s; }
+.pay-wallet-hint.selected-hint { color: #a78bfa; font-style: normal; font-weight: 600; }
+.pay-format-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.2); border-radius: 20px; font-size: 11px; font-weight: 600; color: #a78bfa; margin-bottom: 14px; transition: all 0.3s; }
+.pay-format-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .payment-field { margin-bottom: 14px; }
-.payment-field label {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 6px;
-}
+.payment-field label { display: block; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
 .payment-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.secure-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  justify-content: center;
-  padding: 10px 16px;
-  background: rgba(16,185,129,0.08);
-  border: 1px solid rgba(16,185,129,0.2);
-  border-radius: 30px;
-  margin: 16px 0;
-  font-size: 12px;
-  font-weight: 600;
-  color: #34d399;
-}
-.demo-notice {
-  text-align: center;
-  font-size: 11px;
-  color: #475569;
-  margin-top: 8px;
-  line-height: 1.5;
-}
-.confirmation-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 20px 0;
-}
-.confirm-checkmark {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #065f46, #10b981);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 36px;
-  margin-bottom: 20px;
-  animation: pulse-success 2s ease-in-out infinite;
-}
-@keyframes pulse-success {
-  0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
-  50% { box-shadow: 0 0 0 20px rgba(16,185,129,0); }
-}
-@keyframes pop-in {
-  0% { transform: scale(0.5); opacity: 0; }
-  70% { transform: scale(1.1); }
-  100% { transform: scale(1); opacity: 1; }
-}
-.confirm-checkmark.animate {
-  animation: pop-in 0.6s cubic-bezier(0.175,0.885,0.32,1.275) forwards, pulse-success 2s 0.6s ease-in-out infinite;
-}
-.confirm-title {
-  font-size: 28px;
-  font-weight: 800;
-  color: #fff;
-  font-family: 'Playfair Display', serif;
-  margin-bottom: 8px;
-}
-.confirm-subtitle {
-  font-size: 14px;
-  color: #64748b;
-  margin-bottom: 24px;
-}
-.booking-reference {
-  padding: 12px 24px;
-  background: linear-gradient(135deg, rgba(74,47,124,0.3), rgba(56,189,248,0.1));
-  border: 1px solid rgba(167,139,250,0.3);
-  border-radius: 30px;
-  margin-bottom: 24px;
-  font-family: monospace;
-  font-size: 18px;
-  font-weight: 700;
-  color: #a78bfa;
-  letter-spacing: 2px;
-}
-.confirm-summary {
-  width: 100%;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(167,139,250,0.12);
-  border-radius: 16px;
-  overflow: hidden;
-}
-.confirm-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(167,139,250,0.08);
-  font-size: 14px;
-}
+.secure-badge { display: flex; align-items: center; gap: 8px; justify-content: center; padding: 10px 16px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); border-radius: 30px; margin: 16px 0; font-size: 12px; font-weight: 600; color: #34d399; }
+.demo-notice { text-align: center; font-size: 11px; color: #475569; margin-top: 8px; line-height: 1.5; }
+.confirmation-wrapper { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 20px 0; }
+.confirm-checkmark { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #065f46, #10b981); display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 20px; animation: pulse-success 2s ease-in-out infinite; }
+@keyframes pulse-success { 0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50% { box-shadow: 0 0 0 20px rgba(16,185,129,0); } }
+@keyframes pop-in { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+.confirm-checkmark.animate { animation: pop-in 0.6s cubic-bezier(0.175,0.885,0.32,1.275) forwards, pulse-success 2s 0.6s ease-in-out infinite; }
+.confirm-title { font-size: 28px; font-weight: 800; color: #fff; font-family: 'Playfair Display', serif; margin-bottom: 8px; }
+.confirm-subtitle { font-size: 14px; color: #64748b; margin-bottom: 24px; }
+.booking-reference { padding: 12px 24px; background: linear-gradient(135deg, rgba(74,47,124,0.3), rgba(56,189,248,0.1)); border: 1px solid rgba(167,139,250,0.3); border-radius: 30px; margin-bottom: 24px; font-family: monospace; font-size: 18px; font-weight: 700; color: #a78bfa; letter-spacing: 2px; }
+.confirm-summary { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(167,139,250,0.12); border-radius: 16px; overflow: hidden; }
+.confirm-row { display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid rgba(167,139,250,0.08); font-size: 14px; }
 .confirm-row:last-child { border-bottom: none; }
 .confirm-row span:first-child { color: #64748b; }
 .confirm-row span:last-child { color: #e2e8f0; font-weight: 600; }
-.drawer-footer {
-  padding: 16px 28px 24px;
-  border-top: 1px solid rgba(167,139,250,0.1);
-  background: rgba(0,0,0,0.2);
-  backdrop-filter: blur(10px);
-  flex-shrink: 0;
-}
-.drawer-cta {
-  width: 100%;
-  padding: 15px;
-  background: linear-gradient(135deg, #4a2f7c, #8a4ff8);
-  border: none;
-  border-radius: 14px;
-  color: white;
-  font-weight: 700;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.35s ease-out;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-family: 'DM Sans', sans-serif;
-  letter-spacing: 0.3px;
-}
-.drawer-cta:hover:not(:disabled) {
-  background: linear-gradient(135deg, #8a4ff8, #38bdf8);
-  box-shadow: 0 8px 30px rgba(138,79,248,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
-  transform: translateY(-2px);
-}
-.drawer-cta:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
+.drawer-footer { padding: 16px 28px 24px; border-top: 1px solid rgba(167,139,250,0.1); background: rgba(0,0,0,0.2); backdrop-filter: blur(10px); flex-shrink: 0; }
+.drawer-cta { width: 100%; padding: 15px; background: linear-gradient(135deg, #4a2f7c, #8a4ff8); border: none; border-radius: 14px; color: white; font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.35s ease-out; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'DM Sans', sans-serif; letter-spacing: 0.3px; }
+.drawer-cta:hover:not(:disabled) { background: linear-gradient(135deg, #8a4ff8, #38bdf8); box-shadow: 0 8px 30px rgba(138,79,248,0.4), inset 0 1px 0 rgba(255,255,255,0.2); transform: translateY(-2px); }
+.drawer-cta:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 .drawer-cta.loading { pointer-events: none; }
-.drawer-cta .spinner {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: white;
-  animation: spin 0.8s linear infinite;
-  display: none;
-}
+.drawer-cta .spinner { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; animation: spin 0.8s linear infinite; display: none; }
 .drawer-cta.loading .spinner { display: block; }
 .drawer-cta.loading .cta-label { display: none; }
-.drawer-back {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-  color: #64748b;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 8px 0;
-  margin-bottom: 10px;
-  transition: color 0.2s;
-  font-family: 'DM Sans', sans-serif;
-}
+.drawer-back { display: flex; align-items: center; gap: 6px; background: none; border: none; color: #64748b; cursor: pointer; font-size: 13px; font-weight: 500; padding: 8px 0; margin-bottom: 10px; transition: color 0.2s; font-family: 'DM Sans', sans-serif; }
 .drawer-back:hover { color: #a78bfa; }
 .drawer-back svg { width: 16px; height: 16px; }
 @keyframes spin { to { transform: rotate(360deg); } }
-#confetti-canvas {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 3500;
-  opacity: 0;
-  transition: opacity 0.5s;
-}
+#confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 3500; opacity: 0; transition: opacity 0.5s; }
 #confetti-canvas.active { opacity: 1; }
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
   .details-grid { grid-template-columns: 1fr; }
-  .details-sidebar {
-    position: static;
-    max-height: none;
-    overflow-y: visible;
-  }
+  .details-sidebar { position: static; max-height: none; overflow-y: visible; }
   .hero-content h1 { font-size: 32px; }
 }
 @media (max-width: 768px) {
@@ -1588,9 +919,7 @@ select#itinerary-days option, select#nearby-category option {
   .nearby-grid { grid-template-columns: 1fr; }
   .gallery-card { width: 120px; height: 160px; margin-left: -40px; }
   .booking-drawer { width: 100vw; border-left: none; border-top: 1px solid rgba(167,139,250,0.2); }
-  .days-section button { height: 45px; }
-  .temperature { font-size: 28px; }
-  .info-section { min-height: 110px; padding: 12px 0; }
+  .wx-temp { font-size: 40px; }
 }
 </style>
 {% endblock %}
@@ -1705,47 +1034,32 @@ select#itinerary-days option, select#nearby-category option {
 
   </div>
 
+  {# ── Sidebar: Weather + Map only ── #}
   <div class="details-sidebar">
+
     {# Weather #}
     <div id="weather-container">
-      <div class="skeleton" style="height:250px;border-radius:15px;"></div>
+      <div class="skeleton" style="height:180px;border-radius:15px;"></div>
     </div>
 
-    {# Booking panel #}
-    <div class="booking-panel">
-      <div class="booking-price">From <span id="min-price">---</span><small>/night</small></div>
-      <input type="date" id="checkin-date" class="date-input">
-      <input type="date" id="checkout-date" class="date-input">
-      <select id="guest-count" class="date-input">
-        <option value="1">1 Guest</option>
-        <option value="2">2 Guests</option>
-        <option value="3">3 Guests</option>
-        <option value="4">4 Guests</option>
-      </select>
-      <button class="book-btn" onclick="showToast('Browse available rooms below ↓', 'info')">💰 View Rooms</button>
-    </div>
-
-    {# Map #}
-    <div class="section-card">
-      <div class="section-header"><h2>📍 Location</h2></div>
-      <div class="section-content" style="padding:0;">
-        <div id="mini-map" class="mini-map"></div>
+    {# Mini Map — replaces the booking panel #}
+    <div class="map-sidebar-card">
+      <div class="map-sidebar-header">
+        <h2>📍 Location</h2>
       </div>
+      <div id="mini-map" class="mini-map"></div>
     </div>
+
   </div>
 </div>
 
-{# ══════════════════════════════════════════
-   BOOKING DRAWER
-══════════════════════════════════════════ #}
+{# Booking Drawer #}
 <div class="drawer-backdrop" id="drawer-backdrop"></div>
 <canvas id="confetti-canvas"></canvas>
 
 <div class="booking-drawer" id="booking-drawer">
-
   <button class="drawer-close" id="drawer-close-btn" onclick="closeDrawer()">✕</button>
 
-  {# Progress bar #}
   <div class="drawer-progress">
     <div class="progress-step active" id="prog-0">
       <div class="progress-dot active" id="dot-0">1</div>
@@ -1770,7 +1084,7 @@ select#itinerary-days option, select#nearby-category option {
 
   <div class="drawer-steps">
 
-    {# ── STEP 0: Room Preview ── #}
+    {# Step 0: Room Preview #}
     <div class="drawer-step active" id="step-0">
       <div class="room-carousel">
         <div class="carousel-slides" id="carousel-slides">
@@ -1809,13 +1123,13 @@ select#itinerary-days option, select#nearby-category option {
       <div class="drawer-amenities" id="preview-amenities"></div>
     </div>
 
-    {# ── STEP 1: Stay Details ── #}
+    {# Step 1: Stay Details #}
     <div class="drawer-step" id="step-1">
       <button class="drawer-back" onclick="goToStep(0)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         Back to room
       </button>
-      <div class="stay-section-title">Check-in & Check-out</div>
+      <div class="stay-section-title">Check-in &amp; Check-out</div>
       <div class="date-range-grid">
         <div class="date-field">
           <label>Check-in</label>
@@ -1836,7 +1150,7 @@ select#itinerary-days option, select#nearby-category option {
         <div class="stepper-controls">
           <button class="stepper-btn" id="guest-minus" onclick="adjustGuests(-1)">−</button>
           <span class="stepper-count" id="guest-count-display">1</span>
-          <button class="stepper-btn" id="guest-plus"  onclick="adjustGuests(1)">+</button>
+          <button class="stepper-btn" id="guest-plus" onclick="adjustGuests(1)">+</button>
         </div>
       </div>
       <div class="stay-section-title">Estimated Arrival Time</div>
@@ -1853,15 +1167,9 @@ select#itinerary-days option, select#nearby-category option {
         <option value="00:00">After midnight</option>
       </select>
       <div class="stay-section-title">Phone Number</div>
-<input type="tel" id="d-phone" class="drawer-input"
-       placeholder="+1 234 567 8900"
-       maxlength="16"
-       oninput="sanitizePhone(this)"
-       style="margin-bottom:12px;">
-<div class="stay-section-title">Special Requests <span style="color:#475569;font-weight:400;text-transform:none;">(optional)</span></div>
-<textarea id="d-requests" class="drawer-input" rows="3"
-  placeholder="Early check-in, high floor, quiet room..."
-  style="resize:none;line-height:1.5;"></textarea>
+      <input type="tel" id="d-phone" class="drawer-input" placeholder="+1 234 567 8900" maxlength="16" oninput="sanitizePhone(this)" style="margin-bottom:12px;">
+      <div class="stay-section-title">Special Requests <span style="color:#475569;font-weight:400;text-transform:none;">(optional)</span></div>
+      <textarea id="d-requests" class="drawer-input" rows="3" placeholder="Early check-in, high floor, quiet room..." style="resize:none;line-height:1.5;"></textarea>
       <div class="price-breakdown" id="price-breakdown">
         <div class="price-row">
           <span id="price-row-label">€— × — nights</span>
@@ -1878,13 +1186,12 @@ select#itinerary-days option, select#nearby-category option {
       </div>
     </div>
 
-    {# ── STEP 2: PAYMENT ── #}
+    {# Step 2: Payment #}
     <div class="drawer-step" id="step-2">
       <button class="drawer-back" onclick="goToStep(1)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         Back to stay details
       </button>
-
       <div class="booking-recap">
         <div>
           <div class="recap-label">Room</div>
@@ -1899,135 +1206,88 @@ select#itinerary-days option, select#nearby-category option {
           <div class="recap-price" id="recap-total">€—</div>
         </div>
       </div>
-
       <div class="wallet-section-label">Choose your card</div>
-
       <div class="pay-wallet-outer">
         <div class="pay-wallet" id="pay-wallet">
-
           <div class="pay-wallet-back"></div>
-
           <div class="pay-card pay-visa" id="pw-visa" onclick="selectPayCard('visa')">
             <div class="pay-card-inner">
-              <div class="pay-card-top">
-                <span>Visa</span>
-                <div class="pay-chip"></div>
-              </div>
+              <div class="pay-card-top"><span>Visa</span><div class="pay-chip"></div></div>
               <div class="pay-card-bottom">
-                <div>
-                  <span class="pay-card-label">Holder</span>
-                  <span class="pay-card-value" id="pw-visa-name">YOUR NAME</span>
-                </div>
-                <div class="pay-card-num-wrap">
-                  <span class="pay-card-stars">**** 4242</span>
-                </div>
+                <div><span class="pay-card-label">Holder</span><span class="pay-card-value" id="pw-visa-name">YOUR NAME</span></div>
+                <div class="pay-card-num-wrap"><span class="pay-card-stars">**** 4242</span></div>
               </div>
             </div>
           </div>
-
           <div class="pay-card pay-mc" id="pw-mc" onclick="selectPayCard('mc')">
             <div class="pay-card-inner">
-              <div class="pay-card-top">
-                <span>Mastercard</span>
-                <div class="pay-chip"></div>
-              </div>
+              <div class="pay-card-top"><span>Mastercard</span><div class="pay-chip"></div></div>
               <div class="pay-card-bottom">
-                <div>
-                  <span class="pay-card-label">Holder</span>
-                  <span class="pay-card-value" id="pw-mc-name">YOUR NAME</span>
-                </div>
-                <div class="pay-card-num-wrap">
-                  <span class="pay-card-stars">**** 5500</span>
-                </div>
+                <div><span class="pay-card-label">Holder</span><span class="pay-card-value" id="pw-mc-name">YOUR NAME</span></div>
+                <div class="pay-card-num-wrap"><span class="pay-card-stars">**** 5500</span></div>
               </div>
             </div>
           </div>
-
           <div class="pay-card pay-amex" id="pw-amex" onclick="selectPayCard('amex')">
             <div class="pay-card-inner">
-              <div class="pay-card-top">
-                <span>Amex</span>
-                <div class="pay-chip"></div>
-              </div>
+              <div class="pay-card-top"><span>Amex</span><div class="pay-chip"></div></div>
               <div class="pay-card-bottom">
-                <div>
-                  <span class="pay-card-label">Holder</span>
-                  <span class="pay-card-value" id="pw-amex-name">YOUR NAME</span>
-                </div>
-                <div class="pay-card-num-wrap">
-                  <span class="pay-card-stars">**** 3714</span>
-                </div>
+                <div><span class="pay-card-label">Holder</span><span class="pay-card-value" id="pw-amex-name">YOUR NAME</span></div>
+                <div class="pay-card-num-wrap"><span class="pay-card-stars">**** 3714</span></div>
               </div>
             </div>
           </div>
-
           <div class="pay-pocket">
-            <svg class="pay-pocket-svg" viewBox="0 0 380 155" fill="none" style="width:100%;height:100%;">
+            <svg viewBox="0 0 380 155" fill="none" style="width:100%;height:100%;">
               <path d="M 0 20 C 0 10, 5 10, 10 10 C 20 10, 25 25, 40 25 L 340 25 C 355 25, 360 10, 370 10 C 375 10, 380 10, 380 20 L 380 115 C 380 150, 360 155, 340 155 L 40 155 C 20 155, 0 150, 0 115 Z" fill="#1e2a1e"></path>
               <path d="M 8 22 C 8 16, 12 16, 15 16 C 23 16, 27 29, 40 29 L 340 29 C 353 29, 357 16, 365 16 C 368 16, 372 16, 372 22 L 372 115 C 372 148, 355 149, 340 149 L 40 149 C 25 149, 8 149, 8 115 Z" stroke="#2e4a2e" stroke-width="1.5" stroke-dasharray="6 4"></path>
             </svg>
             <div class="pay-pocket-content">
               <div style="position:relative;height:22px;width:100%;">
                 <div class="pay-balance-stars" id="pay-bal-stars">******</div>
-                <div class="pay-balance-real"  id="pay-bal-real">€—</div>
+                <div class="pay-balance-real" id="pay-bal-real">€—</div>
               </div>
               <div style="color:#4a6a44;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Total Due</div>
               <div class="pay-eye-wrap">
                 <svg class="pay-eye pay-eye-slash" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                  <line x1="3" y1="3" x2="21" y2="21"></line>
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle><line x1="3" y1="3" x2="21" y2="21"></line>
                 </svg>
                 <svg class="pay-eye pay-eye-open" style="opacity:0;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>
                 </svg>
               </div>
             </div>
           </div>
-
         </div>
         <div class="pay-wallet-hint" id="pay-wallet-hint">Hover to fan cards · click one to select</div>
       </div>
-
       <div class="pay-format-pill" id="pay-format-pill" style="display:none;">
         <span class="dot"></span>
         <span id="pay-format-text">16 digits · XXXX XXXX XXXX XXXX</span>
       </div>
-
       <div class="payment-field">
         <label>Card Number</label>
-        <input type="text" id="card-number" class="drawer-input"
-          placeholder="Select a card type above first"
-          maxlength="19" oninput="formatCardNumber(this)" autocomplete="cc-number">
+        <input type="text" id="card-number" class="drawer-input" placeholder="Select a card type above first" maxlength="19" oninput="formatCardNumber(this)" autocomplete="cc-number">
       </div>
       <div class="payment-field">
         <label>Cardholder Name</label>
-        <input type="text" id="card-holder" class="drawer-input"
-          placeholder="FIRST LAST" oninput="syncCardHolderToWallet()"
-          autocomplete="cc-name" style="text-transform:uppercase;">
+        <input type="text" id="card-holder" class="drawer-input" placeholder="FIRST LAST" oninput="syncCardHolderToWallet()" autocomplete="cc-name" style="text-transform:uppercase;">
       </div>
       <div class="payment-row">
         <div class="payment-field">
           <label>Expiry Date</label>
-          <input type="text" id="card-expiry" class="drawer-input"
-            placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)" autocomplete="cc-exp">
+          <input type="text" id="card-expiry" class="drawer-input" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)" autocomplete="cc-exp">
         </div>
         <div class="payment-field">
           <label>CVV</label>
-          <input type="text" id="card-cvv" class="drawer-input"
-            placeholder="•••" maxlength="4"
-            oninput="this.value=this.value.replace(/\D/g,'')" autocomplete="cc-csc">
+          <input type="text" id="card-cvv" class="drawer-input" placeholder="•••" maxlength="4" oninput="this.value=this.value.replace(/\D/g,'')" autocomplete="cc-csc">
         </div>
       </div>
-
       <div class="secure-badge">🔒 Secured by TripX Payments &nbsp;·&nbsp; 256-bit SSL</div>
-      <div class="demo-notice">
-        🎓 University project demo — no actual charge will be made.<br>Use any card number to complete your booking.
-      </div>
+      <div class="demo-notice">🎓 University project demo — no actual charge will be made.<br>Use any card number to complete your booking.</div>
     </div>
 
-    {# ── STEP 3: Confirmation ── #}
+    {# Step 3: Confirmation #}
     <div class="drawer-step" id="step-3">
       <div class="confirmation-wrapper">
         <div class="confirm-checkmark" id="confirm-checkmark">✓</div>
@@ -2053,7 +1313,6 @@ select#itinerary-days option, select#nearby-category option {
       <div class="spinner"></div>
     </button>
   </div>
-
 </div>
 
 {# Image modal #}
@@ -2074,15 +1333,26 @@ select#itinerary-days option, select#nearby-category option {
 const accommodationId = {{ accommodation.id }};
 const CURRENT_USER_NAME = {{ userName|json_encode|raw }};
 
-let map             = null;
-let galleryImages   = [];
-let roomsMap        = {};
-let currentRoom     = null;
-let currentStep     = 0;
-let carouselIndex   = 0;
-let guestCount      = 1;
-let bookingResult   = null;
-let carouselInterval= null;
+// NEW: Real accommodation data for the mini-map
+const ACCOMMODATION = {
+    id: {{ accommodation.id|json_encode|raw }},
+    name: {{ accommodation.name|json_encode|raw }},
+    latitude: {{ accommodation.latitude|json_encode|raw }},
+    longitude: {{ accommodation.longitude|json_encode|raw }},
+    city: {{ accommodation.city|json_encode|raw }},
+    country: {{ accommodation.country|json_encode|raw }}
+};
+
+let map = null;                    // kept for compatibility with your original code
+let miniMapInstance = null;        // dedicated for sidebar mini-map
+let galleryImages = [];
+let roomsMap = {};
+let currentRoom = null;
+let currentStep = 0;
+let carouselIndex = 0;
+let guestCount = 1;
+let bookingResult = null;
+let carouselInterval = null;
 let selectedNetwork = null;
 
 // ── Toast ──────────────────────────────────────────────────
@@ -2105,275 +1375,274 @@ function openModal(url) {
   document.getElementById('modal-image').src = url;
   document.getElementById('image-modal').classList.add('open');
 }
+
 function closeModal() { document.getElementById('image-modal').classList.remove('open'); }
 
 // ══════════════════════════════════════════════════════════
 // WEATHER
 // ══════════════════════════════════════════════════════════
 async function loadWeather() {
-    const container = document.getElementById('weather-container');
-    if (!container) return;
-    
-    try {
-        const response = await fetch(`/api/weather/${accommodationId}`);
-        const data = await response.json();
-        
-        if (data.error) {
-            container.innerHTML = '<div class="weather-card" style="padding:20px;text-align:center;">❌ Weather unavailable</div>';
-            return;
-        }
-        
-        if (data.current) {
-            const current = data.current;
-            const forecast = data.forecast || [];
-            
-            let forecastHtml = '';
-            if (forecast.length > 0) {
-                forecastHtml = '<div class="days-section">';
-                forecast.slice(0, 5).forEach(day => {
-                    forecastHtml += `
-                        <button onclick="showToast('${day.condition} · ${day.temp}°C', 'info')">
-                            <span class="day">${day.day}</span>
-                            <span class="forecast-temp">${day.temp}°</span>
-                        </button>
-                    `;
-                });
-                forecastHtml += '</div>';
-            }
-            
-            container.innerHTML = `
-                <div class="weather-card">
-                    <div class="background-design">
-                        <div class="circle"></div>
-                        <div class="circle"></div>
-                        <div class="circle"></div>
-                    </div>
-                    <div class="info-section">
-                        <div class="left-side">
-                            <div class="city">${escapeHtml(current.city || '')}, ${escapeHtml(current.country || '')}</div>
-                            <div class="weather">
-                                <span>${current.condition || ''}</span>
-                            </div>
-                        </div>
-                        <div class="right-side">
-                            <div class="temperature">${current.temp}°C</div>
-                            <div class="range">↓${current.temp_min}° ↑${current.temp_max}°</div>
-                            <div style="font-size:12px;">💧 ${current.humidity}%</div>
-                        </div>
-                    </div>
-                    ${forecastHtml}
-                </div>
-            `;
-        } else {
-            container.innerHTML = '<div class="weather-card" style="padding:20px;text-align:center;">⚠️ Weather data unavailable</div>';
-        }
-    } catch (error) {
-        console.error('Weather error:', error);
-        container.innerHTML = '<div class="weather-card" style="padding:20px;text-align:center;">❌ Failed to load weather</div>';
+  const container = document.getElementById('weather-container');
+  if (!container) return;
+  try {
+    const response = await fetch(`/api/weather/${accommodationId}`);
+    const data = await response.json();
+    if (data.error || !data.current) {
+      container.innerHTML = `
+        <div class="wx-card" style="padding:20px;text-align:center;color:#64748b;">
+          ⚠️ Weather unavailable
+        </div>`;
+      return;
     }
+    const c = data.current;
+    const forecast = data.forecast || [];
+    const iconUrl = c.icon
+      ? `https://openweathermap.org/img/wn/${c.icon}@2x.png`
+      : null;
+    let forecastHtml = '';
+    if (forecast.length > 0) {
+      forecastHtml = '<div class="wx-forecast">';
+      forecast.slice(0, 5).forEach(day => {
+        const dayIcon = day.icon
+          ? `<img src="https://openweathermap.org/img/wn/${day.icon}.png" alt="${escapeHtml(day.condition)}">`
+          : `<span style="font-size:16px;">—</span>`;
+        forecastHtml += `
+          <div class="wx-day" onclick="showToast('${escapeHtml(day.condition)} · ${day.temp}°C', 'info')">
+            <span class="wx-day-label">${escapeHtml(day.day)}</span>
+            ${dayIcon}
+            <span class="wx-day-temp">${day.temp}°</span>
+          </div>`;
+      });
+      forecastHtml += '</div>';
+    }
+    container.innerHTML = `
+      <div class="wx-card">
+        <div class="wx-main">
+          <div class="wx-left">
+            <div class="wx-location">${escapeHtml(c.city)}, ${escapeHtml(c.country)}</div>
+            <div class="wx-condition">
+              ${iconUrl ? `<img src="${iconUrl}" alt="${escapeHtml(c.condition)}">` : ''}
+              ${escapeHtml(c.description || c.condition)}
+            </div>
+            <div class="wx-meta">
+              <span>💧 ${c.humidity}%</span>
+              ${c.wind_speed ? `<span>💨 ${c.wind_speed} m/s</span>` : ''}
+              ${c.feels_like !== undefined ? `<span>🌡 feels ${c.feels_like}°</span>` : ''}
+            </div>
+          </div>
+          <div class="wx-right">
+            <div class="wx-temp">${c.temp}<sup>°C</sup></div>
+            <div class="wx-range">↓${c.temp_min}° &nbsp; ↑${c.temp_max}°</div>
+          </div>
+        </div>
+        ${forecastHtml}
+      </div>`;
+  } catch (error) {
+    console.error('Weather error:', error);
+    container.innerHTML = `
+      <div class="wx-card" style="padding:20px;text-align:center;color:#64748b;">
+        ❌ Failed to load weather
+      </div>`;
+  }
 }
 
 // ══════════════════════════════════════════════════════════
 // NEARBY PLACES
 // ══════════════════════════════════════════════════════════
 async function loadNearby() {
-    const container = document.getElementById('nearby-container');
-    const categorySelect = document.getElementById('nearby-category');
-    const category = categorySelect ? categorySelect.value : 'restaurants';
-    
-    if (!container) return;
-    
-    container.innerHTML = '<div class="skeleton" style="height:100px;"></div>';
-    
-    try {
-        const response = await fetch(`/api/nearby/${accommodationId}`);
-        const data = await response.json();
-        
-        const places = data[category];
-        
-        if (places && places.places && places.places.length > 0) {
-            const icons = {
-                restaurants: '🍽️',
-                attractions: '🏛️',
-                shopping: '🛍️',
-                transport: '🚇'
-            };
-            
-            container.innerHTML = `
-                <div class="nearby-grid">
-                    ${places.places.map(place => `
-                        <div class="nearby-card" onclick="showToast('${escapeHtml(place.name)}', 'info')">
-                            <div class="nearby-icon">${icons[category] || '📍'}</div>
-                            <div class="nearby-info">
-                                <h4>${escapeHtml(place.name)}</h4>
-                                ${place.rating ? `<p>⭐ ${place.rating} ${place.reviews ? `(${place.reviews})` : ''}</p>` : ''}
-                                ${place.distance ? `<p>📏 ${place.distance}</p>` : ''}
-                                ${place.price ? `<p>💰 ${place.price}</p>` : ''}
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        } else {
-            container.innerHTML = '<div class="empty-state"><div class="icon">📍</div><p>No places found nearby</p></div>';
-        }
-    } catch (error) {
-        console.error('Nearby error:', error);
-        container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Unable to load nearby places</p></div>';
+  const container = document.getElementById('nearby-container');
+  const categorySelect = document.getElementById('nearby-category');
+  const category = categorySelect ? categorySelect.value : 'restaurants';
+  if (!container) return;
+  container.innerHTML = '<div class="skeleton" style="height:100px;"></div>';
+  try {
+    const response = await fetch(`/api/nearby/${accommodationId}`);
+    const data = await response.json();
+    const places = data[category];
+    if (places && places.places && places.places.length > 0) {
+      const icons = { restaurants:'🍽️', attractions:'🏛️', shopping:'🛍️', transport:'🚇' };
+      container.innerHTML = `
+        <div class="nearby-grid">
+          ${places.places.map(place => `
+            <div class="nearby-card" onclick="showToast('${escapeHtml(place.name)}', 'info')">
+              <div class="nearby-icon">${icons[category] || '📍'}</div>
+              <div class="nearby-info">
+                <h4>${escapeHtml(place.name)}</h4>
+                ${place.rating ? `<p>⭐ ${place.rating} ${place.reviews ? `(${place.reviews})` : ''}</p>` : ''}
+                ${place.distance ? `<p>📏 ${place.distance}</p>` : ''}
+                ${place.price ? `<p>💰 ${place.price}</p>` : ''}
+              </div>
+            </div>`).join('')}
+        </div>`;
+    } else {
+      container.innerHTML = '<div class="empty-state"><div class="icon">📍</div><p>No places found nearby</p></div>';
     }
+  } catch (error) {
+    console.error('Nearby error:', error);
+    container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Unable to load nearby places</p></div>';
+  }
 }
 
 // ══════════════════════════════════════════════════════════
 // GALLERY
 // ══════════════════════════════════════════════════════════
 async function loadGallery() {
-    const container = document.getElementById('gallery-container');
-    if (!container) return;
-    
-    container.innerHTML = '<div class="skeleton" style="height:220px;"></div>';
-    
-    try {
-        const response = await fetch(`/api/images/${accommodationId}`);
-        const data = await response.json();
-        
-        if (data && data.images && data.images.length > 0) {
-            galleryImages = data.images;
-            
-            container.innerHTML = `
-                <div class="gallery-stack-wrapper">
-                    ${data.images.slice(0, 8).map((img, idx) => `
-                        <div class="gallery-card" onclick="openModal('${img.url}')">
-                            <img src="${img.thumbnail || img.url}" alt="${escapeHtml(img.title || 'Gallery image')}" loading="lazy">
-                            <div class="gallery-overlay"></div>
-                            <div class="gallery-bar">
-                                <div class="gallery-bar-empty"></div>
-                                <div class="gallery-bar-fill"></div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-                ${data.images.length > 8 ? `<p style="text-align:center;margin-top:16px;color:#64748b;">+${data.images.length - 8} more images</p>` : ''}
-            `;
-        } else {
-            container.innerHTML = '<div class="empty-state"><div class="icon">📸</div><p>No gallery images available</p></div>';
-        }
-    } catch (error) {
-        console.error('Gallery error:', error);
-        container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Unable to load gallery</p></div>';
+  const container = document.getElementById('gallery-container');
+  if (!container) return;
+  container.innerHTML = '<div class="skeleton" style="height:220px;"></div>';
+  try {
+    const response = await fetch(`/api/images/${accommodationId}`);
+    const data = await response.json();
+    if (data && data.images && data.images.length > 0) {
+      galleryImages = data.images;
+      container.innerHTML = `
+        <div class="gallery-stack-wrapper">
+          ${data.images.slice(0, 8).map(img => `
+            <div class="gallery-card" onclick="openModal('${img.url}')">
+              <img src="${img.thumbnail || img.url}" alt="${escapeHtml(img.title || 'Gallery image')}" loading="lazy">
+              <div class="gallery-overlay"></div>
+              <div class="gallery-bar">
+                <div class="gallery-bar-empty"></div>
+                <div class="gallery-bar-fill"></div>
+              </div>
+            </div>`).join('')}
+        </div>
+        ${data.images.length > 8 ? `<p style="text-align:center;margin-top:16px;color:#64748b;">+${data.images.length - 8} more images</p>` : ''}`;
+    } else {
+      container.innerHTML = '<div class="empty-state"><div class="icon">📸</div><p>No gallery images available</p></div>';
     }
+  } catch (error) {
+    console.error('Gallery error:', error);
+    container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Unable to load gallery</p></div>';
+  }
 }
 
 // ══════════════════════════════════════════════════════════
 // REVIEWS
 // ══════════════════════════════════════════════════════════
 async function loadReviews() {
-    const container = document.getElementById('reviews-container');
-    if (!container) return;
-    
-    container.innerHTML = '<div class="skeleton" style="height:150px;"></div>';
-    
-    try {
-        const response = await fetch(`/api/reviews/${accommodationId}`);
-        const data = await response.json();
-        
-        if (data && data.reviews && data.reviews.length > 0) {
-            const stars = (rating) => '★'.repeat(Math.floor(rating)) + '☆'.repeat(5 - Math.floor(rating));
-            
-            container.innerHTML = `
-                <div class="reviews-summary">
-                    <div class="average-rating">${data.average_rating || 4.5}</div>
-                    <div class="stars">${stars(data.average_rating || 4.5)}</div>
-                    <div>Based on ${data.total_reviews || data.reviews.length} reviews</div>
+  const container = document.getElementById('reviews-container');
+  if (!container) return;
+  container.innerHTML = '<div class="skeleton" style="height:150px;"></div>';
+  try {
+    const response = await fetch(`/api/reviews/${accommodationId}`);
+    const data = await response.json();
+    if (data && data.reviews && data.reviews.length > 0) {
+      const stars = (r) => '★'.repeat(Math.floor(r)) + '☆'.repeat(5 - Math.floor(r));
+      container.innerHTML = `
+        <div class="reviews-summary">
+          <div class="average-rating">${data.average_rating || 4.5}</div>
+          <div class="stars">${stars(data.average_rating || 4.5)}</div>
+          <div>Based on ${data.total_reviews || data.reviews.length} reviews</div>
+        </div>
+        <div class="reviews-list">
+          ${data.reviews.slice(0, 5).map(review => `
+            <div class="review-item">
+              <div class="review-header">
+                <div class="review-avatar">${(review.author || 'G')[0].toUpperCase()}</div>
+                <div>
+                  <div class="review-author">${escapeHtml(review.author || 'Guest')}</div>
+                  <div class="review-rating">${stars(review.rating || 4)}</div>
                 </div>
-                <div class="reviews-list">
-                    ${data.reviews.slice(0, 5).map(review => `
-                        <div class="review-item">
-                            <div class="review-header">
-                                <div class="review-avatar">${(review.author || 'G')[0].toUpperCase()}</div>
-                                <div>
-                                    <div class="review-author">${escapeHtml(review.author || 'Guest')}</div>
-                                    <div class="review-rating">${stars(review.rating || 4)}</div>
-                                </div>
-                                ${review.date ? `<div style="margin-left:auto;font-size:11px;color:#64748b;">${review.date}</div>` : ''}
-                            </div>
-                            <div class="review-text">${escapeHtml(review.text || 'No review text available.')}</div>
-                        </div>
-                    `).join('')}
-                </div>
-                ${data.reviews.length > 5 ? `<p style="text-align:center;margin-top:16px;color:#64748b;">+${data.reviews.length - 5} more reviews</p>` : ''}
-            `;
-        } else {
-            container.innerHTML = '<div class="empty-state"><div class="icon">⭐</div><p>No reviews yet</p></div>';
-        }
-    } catch (error) {
-        console.error('Reviews error:', error);
-        container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Unable to load reviews</p></div>';
+                ${review.date ? `<div style="margin-left:auto;font-size:11px;color:#64748b;">${review.date}</div>` : ''}
+              </div>
+              <div class="review-text">${escapeHtml(review.text || 'No review text available.')}</div>
+            </div>`).join('')}
+        </div>
+        ${data.reviews.length > 5 ? `<p style="text-align:center;margin-top:16px;color:#64748b;">+${data.reviews.length - 5} more reviews</p>` : ''}`;
+    } else {
+      container.innerHTML = '<div class="empty-state"><div class="icon">⭐</div><p>No reviews yet</p></div>';
     }
+  } catch (error) {
+    console.error('Reviews error:', error);
+    container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Unable to load reviews</p></div>';
+  }
 }
 
 // ══════════════════════════════════════════════════════════
-// MINI MAP
+// MINI MAP — FIXED: Uses real latitude & longitude
 // ══════════════════════════════════════════════════════════
 function initMiniMap() {
-    const container = document.getElementById('mini-map');
-    if (!container) return;
-    
-    // Clear any existing map
-    if (map) {
-        map.remove();
-        map = null;
-    }
-    
-    // Default coordinates (Paris)
-    let lat = 48.8566;
-    let lng = 2.3522;
-    
-    try {
-        map = L.map('mini-map').setView([lat, lng], 13);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
-            subdomains: 'abcd',
-            maxZoom: 19
-        }).addTo(map);
-        
-        L.marker([lat, lng]).addTo(map)
-            .bindPopup('📍 ' + (typeof accommodationName !== 'undefined' ? accommodationName : 'Property Location'))
-            .openPopup();
-            
-        // Force map to redraw correctly
-        setTimeout(() => {
-            if (map) map.invalidateSize();
-        }, 100);
-    } catch (error) {
-        console.error('Map error:', error);
-        container.innerHTML = '<div style="padding:20px;text-align:center;color:#64748b;">Map unavailable</div>';
-    }
+  const container = document.getElementById('mini-map');
+  if (!container) return;
+
+  // Clean up any previous mini-map
+  if (miniMapInstance) {
+    miniMapInstance.remove();
+    miniMapInstance = null;
+  }
+
+  const lat = parseFloat(ACCOMMODATION.latitude);
+  const lng = parseFloat(ACCOMMODATION.longitude);
+
+  if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+    console.warn('No valid coordinates for accommodation');
+    container.innerHTML = '<div style="padding:40px;text-align:center;color:#64748b;">📍 Location map not available</div>';
+    return;
+  }
+
+  miniMapInstance = L.map('mini-map', { 
+    zoomControl: true, 
+    scrollWheelZoom: false,
+    attributionControl: false 
+  }).setView([lat, lng], 16);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 19
+  }).addTo(miniMapInstance);
+
+  // Custom glowing purple pin
+  const iconHtml = `
+    <div style="background:linear-gradient(135deg,#a78bfa,#c026d3); width:40px; height:40px;
+                border-radius:50% 50% 50% 0; transform:rotate(-45deg); display:flex;
+                align-items:center; justify-content:center; box-shadow:0 0 20px rgba(167,139,250,0.8);
+                border:3px solid #1e2a3e;">
+      <span style="transform:rotate(45deg); font-size:22px; color:white;">🏨</span>
+    </div>`;
+
+  const customIcon = L.divIcon({
+    className: 'custom-pin',
+    html: iconHtml,
+    iconSize: [40, 52],
+    iconAnchor: [20, 52],
+    popupAnchor: [0, -40]
+  });
+
+  L.marker([lat, lng], { icon: customIcon })
+    .addTo(miniMapInstance)
+    .bindPopup(`
+      <div style="font-family:DM Sans,sans-serif; min-width:180px;">
+        <strong style="color:#a78bfa;">${escapeHtml(ACCOMMODATION.name)}</strong><br>
+        <small style="color:#94a3b8;">${escapeHtml(ACCOMMODATION.city)}, ${escapeHtml(ACCOMMODATION.country)}</small>
+      </div>
+    `, { closeButton: false })
+    .openPopup();
+
+  // Force correct sizing (important for sticky sidebar)
+  miniMapInstance.invalidateSize();
+  setTimeout(() => { if (miniMapInstance) miniMapInstance.invalidateSize(); }, 300);
+  setTimeout(() => { if (miniMapInstance) miniMapInstance.invalidateSize(); }, 800);
 }
 
 // ══════════════════════════════════════════════════════════
 // ITINERARY
 // ══════════════════════════════════════════════════════════
 async function generateItinerary() {
-  const btn       = document.getElementById('generate-itinerary-btn');
+  const btn = document.getElementById('generate-itinerary-btn');
   const container = document.getElementById('itinerary-container');
-  const days      = document.getElementById('itinerary-days').value;
-
-  if (btn) {
-    btn.disabled    = true;
-    btn.textContent = '⏳ Generating...';
-  }
-
+  const days = document.getElementById('itinerary-days').value;
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Generating...'; }
   container.innerHTML = '<div class="skeleton" style="height:200px;border-radius:12px;"></div>';
-
   try {
-    const res  = await fetch(`/api/itinerary/${accommodationId}`, {
-      method:  'POST',
+    const res = await fetch(`/api/itinerary/${accommodationId}`, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ days: parseInt(days) })
+      body: JSON.stringify({ days: parseInt(days) })
     });
     const data = await res.json();
     if (data.itinerary) {
-      container.innerHTML = `<div style="font-family: monospace; line-height: 1.6; white-space: pre-wrap;">${escapeHtml(data.itinerary)}</div>`;
+      container.innerHTML = `<div style="font-family:monospace;line-height:1.6;white-space:pre-wrap;">${escapeHtml(data.itinerary)}</div>`;
       showToast('✨ Itinerary generated successfully!', 'success');
     } else {
       container.innerHTML = '<p style="color:#ef4444;text-align:center;">Failed to generate itinerary. Please try again.</p>';
@@ -2382,10 +1651,7 @@ async function generateItinerary() {
     console.error('Itinerary error:', e);
     container.innerHTML = '<p style="color:#ef4444;text-align:center;">Network error. Please try again.</p>';
   } finally {
-    if (btn) {
-      btn.disabled    = false;
-      btn.textContent = 'Generate';
-    }
+    if (btn) { btn.disabled = false; btn.textContent = 'Generate'; }
   }
 }
 
@@ -2393,24 +1659,9 @@ async function generateItinerary() {
 // PAYMENT WALLET
 // ══════════════════════════════════════════════════════════
 const NETWORK_CONFIG = {
-  visa: {
-    id: 'pw-visa', label: 'Visa', maxLength: 19,
-    format: '16 digits · XXXX XXXX XXXX XXXX', cvvLen: 3,
-    placeholder: '4242 4242 4242 4242', cvvPlaceholder: '•••',
-    startDigit: '4', pillColor: '#5b9bd5',
-  },
-  mc: {
-    id: 'pw-mc', label: 'Mastercard', maxLength: 19,
-    format: '16 digits · XXXX XXXX XXXX XXXX', cvvLen: 3,
-    placeholder: '5500 0000 0000 0004', cvvPlaceholder: '•••',
-    startDigit: '5', pillColor: '#e57373',
-  },
-  amex: {
-    id: 'pw-amex', label: 'American Express', maxLength: 17,
-    format: '15 digits · XXXX XXXXXX XXXXX', cvvLen: 4,
-    placeholder: '3714 496353 98431', cvvPlaceholder: '••••',
-    startDigit: '3', pillColor: '#81c784',
-  },
+  visa: { id:'pw-visa', label:'Visa', maxLength:19, format:'16 digits · XXXX XXXX XXXX XXXX', cvvLen:3, placeholder:'4242 4242 4242 4242', cvvPlaceholder:'•••', startDigit:'4', pillColor:'#5b9bd5' },
+  mc: { id:'pw-mc', label:'Mastercard', maxLength:19, format:'16 digits · XXXX XXXX XXXX XXXX', cvvLen:3, placeholder:'5500 0000 0000 0004', cvvPlaceholder:'•••', startDigit:'5', pillColor:'#e57373' },
+  amex: { id:'pw-amex', label:'American Express', maxLength:17, format:'15 digits · XXXX XXXXXX XXXXX', cvvLen:4, placeholder:'3714 496353 98431', cvvPlaceholder:'••••', startDigit:'3', pillColor:'#81c784' },
 };
 
 function selectPayCard(network) {
@@ -2421,7 +1672,7 @@ function selectPayCard(network) {
   const hint = document.getElementById('pay-wallet-hint');
   hint.textContent = cfg.label + ' selected ✓';
   hint.className = 'pay-wallet-hint selected-hint';
-  const pill     = document.getElementById('pay-format-pill');
+  const pill = document.getElementById('pay-format-pill');
   const pillText = document.getElementById('pay-format-text');
   pill.style.display = 'inline-flex';
   pill.style.borderColor = cfg.pillColor + '44';
@@ -2486,7 +1737,7 @@ function populatePaymentStep() {
 // ══════════════════════════════════════════════════════════
 function updateCarouselWithImages(images) {
   const slidesEl = document.getElementById('carousel-slides');
-  const dotsEl   = document.getElementById('carousel-dots');
+  const dotsEl = document.getElementById('carousel-dots');
   if (!slidesEl) return;
   if (!images || images.length === 0) {
     slidesEl.innerHTML = '<div class="carousel-slide-placeholder">🏨</div>';
@@ -2512,8 +1763,8 @@ function updateCarouselWithImages(images) {
 
 function updateCarousel() {
   const slides = document.getElementById('carousel-slides');
-  const dots   = document.querySelectorAll('.carousel-dot');
-  const count  = slides.children.length;
+  const dots = document.querySelectorAll('.carousel-dot');
+  const count = slides.children.length;
   if (count === 0) return;
   slides.style.transform = `translateX(-${carouselIndex * 100}%)`;
   dots.forEach((d, i) => d.classList.toggle('active', i === carouselIndex));
@@ -2525,12 +1776,14 @@ function carouselNext() {
   carouselIndex = (carouselIndex + 1) % count;
   updateCarousel();
 }
+
 function carouselPrev() {
   const count = document.getElementById('carousel-slides').children.length;
   if (!count) return;
   carouselIndex = (carouselIndex - 1 + count) % count;
   updateCarousel();
 }
+
 function carouselGoTo(i) {
   const count = document.getElementById('carousel-slides').children.length;
   if (!count) return;
@@ -2548,15 +1801,13 @@ function startCarouselAutoSlide() {
     }
   }, 4000);
 }
+
 function stopCarouselAutoSlide() {
   if (carouselInterval) { clearInterval(carouselInterval); carouselInterval = null; }
 }
 
 async function loadRoomImages(roomId) {
-  if (currentRoom?.images?.length > 0) {
-    updateCarouselWithImages(currentRoom.images);
-    return;
-  }
+  if (currentRoom?.images?.length > 0) { updateCarouselWithImages(currentRoom.images); return; }
   try {
     const data = await fetch(`/api/room/images/${roomId}`).then(r => r.json());
     currentRoom.images = data.images || [];
@@ -2573,8 +1824,7 @@ async function loadRoomImages(roomId) {
 function openBookingDrawer(roomId) {
   currentRoom = roomsMap[roomId];
   if (!currentRoom) return;
-  guestCount    = 1;
-  carouselIndex = 0;
+  guestCount = 1; carouselIndex = 0;
   goToStep(0);
   populateStep0();
   loadRoomImages(roomId);
@@ -2590,6 +1840,7 @@ function closeDrawer() {
   if (currentStep > 0 && !confirm('Close booking? Your progress will be lost.')) return;
   _closeDrawer();
 }
+
 function _closeDrawer() {
   document.getElementById('booking-drawer').classList.remove('open');
   document.getElementById('drawer-backdrop').classList.remove('open');
@@ -2623,15 +1874,15 @@ function goToStep(step) {
 
 function updateProgress() {
   for (let i = 0; i <= 3; i++) {
-    const dot  = document.getElementById('dot-'  + i);
+    const dot = document.getElementById('dot-' + i);
     const prog = document.getElementById('prog-' + i);
-    if (dot)  dot.classList.remove('active','done');
+    if (dot) dot.classList.remove('active','done');
     if (prog) prog.classList.remove('active','done');
     if (i < currentStep) {
-      if (dot)  dot.classList.add('done');
+      if (dot) dot.classList.add('done');
       if (prog) prog.classList.add('done');
     } else if (i === currentStep) {
-      if (dot)  dot.classList.add('active');
+      if (dot) dot.classList.add('active');
       if (prog) prog.classList.add('active');
     }
   }
@@ -2642,18 +1893,18 @@ function updateProgress() {
 }
 
 function updateCTA() {
-  const btn    = document.getElementById('drawer-cta-btn');
-  const label  = document.getElementById('cta-label');
+  const btn = document.getElementById('drawer-cta-btn');
+  const label = document.getElementById('cta-label');
   const footer = document.getElementById('drawer-footer');
   if (btn) { btn.disabled = false; btn.classList.remove('loading'); btn.onclick = drawerCTAClick; }
   if (footer) footer.style.display = '';
-  const labels = ['Reserve This Room →', 'Continue to Payment →', '🔐 Complete Booking', '✓ Close — All Done!'];
+  const labels = ['Reserve This Room →','Continue to Payment →','🔐 Complete Booking','✓ Close — All Done!'];
   if (label) label.textContent = labels[currentStep] || '';
   if (currentStep === 3 && btn) btn.onclick = _closeDrawer;
 }
 
 function drawerCTAClick() {
-  if      (currentStep === 0) { goToStep(1); }
+  if (currentStep === 0) { goToStep(1); }
   else if (currentStep === 1) { if (!validateStay()) return; populatePaymentRecap(); goToStep(2); }
   else if (currentStep === 2) { submitBooking(); }
   else if (currentStep === 3) { _closeDrawer(); }
@@ -2665,17 +1916,17 @@ function drawerCTAClick() {
 function populateStep0() {
   const r = currentRoom;
   if (!r) return;
-  document.getElementById('preview-name').textContent     = r.room_name || 'Standard Room';
-  document.getElementById('preview-type').textContent     = r.room_type || 'Standard';
-  document.getElementById('preview-capacity').textContent = r.capacity  || '—';
-  document.getElementById('preview-size').textContent     = r.size      || '—';
-  document.getElementById('preview-beds').textContent     = Math.ceil((r.capacity || 2) / 2);
-  document.getElementById('preview-price').textContent    = '€' + r.price_per_night;
+  document.getElementById('preview-name').textContent = r.room_name || 'Standard Room';
+  document.getElementById('preview-type').textContent = r.room_type || 'Standard';
+  document.getElementById('preview-capacity').textContent = r.capacity || '—';
+  document.getElementById('preview-size').textContent = r.size || '—';
+  document.getElementById('preview-beds').textContent = Math.ceil((r.capacity || 2) / 2);
+  document.getElementById('preview-price').textContent = '€' + r.price_per_night;
   document.getElementById('guest-capacity-hint').textContent = 'Max ' + (r.capacity || 4) + ' guests';
   const amenWrap = document.getElementById('preview-amenities');
   const icons = { wifi:'📶','air conditioning':'❄️',breakfast:'🍳',gym:'💪',spa:'🧖',pool:'🏊',parking:'🅿️',tv:'📺',minibar:'🍸',safe:'🔒',balcony:'🌅',sea:'🌊' };
   amenWrap.innerHTML = (r.amenities || 'WiFi, Air Conditioning').split(',').map(a => {
-    const key  = a.trim().toLowerCase();
+    const key = a.trim().toLowerCase();
     const icon = Object.keys(icons).find(k => key.includes(k));
     return `<div class="drawer-amenity">${icon ? icons[icon] + ' ' : ''}${escapeHtml(a.trim())}</div>`;
   }).join('');
@@ -2685,13 +1936,13 @@ function populateStep0() {
 // STEP 1 — Stay Details
 // ══════════════════════════════════════════════════════════
 function setDefaultDates() {
-  const today    = new Date();
-  const checkin  = new Date(today); checkin.setDate(today.getDate() + 1);
+  const today = new Date();
+  const checkin = new Date(today); checkin.setDate(today.getDate() + 1);
   const checkout = new Date(today); checkout.setDate(today.getDate() + 4);
   const ci = document.getElementById('d-checkin');
   const co = document.getElementById('d-checkout');
   if (ci) { ci.value = checkin.toISOString().split('T')[0]; ci.min = today.toISOString().split('T')[0]; }
-  if (co)   co.value = checkout.toISOString().split('T')[0];
+  if (co) co.value = checkout.toISOString().split('T')[0];
   guestCount = 1;
   const gd = document.getElementById('guest-count-display');
   if (gd) gd.textContent = 1;
@@ -2706,12 +1957,13 @@ function adjustGuests(delta) {
   if (gd) gd.textContent = guestCount;
   updateGuestButtons();
 }
+
 function updateGuestButtons() {
-  const max   = currentRoom ? (currentRoom.capacity || 4) : 4;
+  const max = currentRoom ? (currentRoom.capacity || 4) : 4;
   const minus = document.getElementById('guest-minus');
-  const plus  = document.getElementById('guest-plus');
+  const plus = document.getElementById('guest-plus');
   if (minus) minus.disabled = (guestCount <= 1);
-  if (plus)  plus.disabled  = (guestCount >= max);
+  if (plus) plus.disabled = (guestCount >= max);
 }
 
 function getNights() {
@@ -2726,24 +1978,24 @@ function getNights() {
 
 function recalcPrice() {
   const nights = getNights();
-  const price  = currentRoom ? currentRoom.price_per_night : 0;
-  const ci     = document.getElementById('d-checkin');
-  const co     = document.getElementById('d-checkout');
+  const price = currentRoom ? currentRoom.price_per_night : 0;
+  const ci = document.getElementById('d-checkin');
+  const co = document.getElementById('d-checkout');
   if (ci && co && ci.value) co.min = ci.value;
-  const pill   = document.getElementById('nights-pill');
+  const pill = document.getElementById('nights-pill');
   const setRow = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   if (nights <= 0) {
     if (pill) pill.textContent = 'Select valid dates';
     setRow('price-row-label','—'); setRow('price-row-sub','€—'); setRow('price-row-tax','€—'); setRow('price-row-total','€—');
     return;
   }
-  const sub   = price * nights;
-  const tax   = Math.round(sub * 0.10 * 100) / 100;
+  const sub = price * nights;
+  const tax = Math.round(sub * 0.10 * 100) / 100;
   const total = Math.round((sub + tax) * 100) / 100;
   if (pill) pill.textContent = `🌙 ${nights} night${nights !== 1 ? 's' : ''}`;
   setRow('price-row-label', `€${price} × ${nights} night${nights !== 1 ? 's' : ''}`);
-  setRow('price-row-sub',   `€${sub.toFixed(2)}`);
-  setRow('price-row-tax',   `€${tax.toFixed(2)}`);
+  setRow('price-row-sub', `€${sub.toFixed(2)}`);
+  setRow('price-row-tax', `€${tax.toFixed(2)}`);
   setRow('price-row-total', `€${total.toFixed(2)}`);
 }
 
@@ -2763,17 +2015,16 @@ function validateStay() {
 // ══════════════════════════════════════════════════════════
 function populatePaymentRecap() {
   const nights = getNights();
-  const price  = currentRoom ? currentRoom.price_per_night : 0;
-  const sub    = price * nights;
-  const tax    = Math.round(sub * 0.10 * 100) / 100;
-  const total  = Math.round((sub + tax) * 100) / 100;
-  const set    = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  set('recap-room',   currentRoom.room_name || 'Room');
+  const price = currentRoom ? currentRoom.price_per_night : 0;
+  const sub = price * nights;
+  const tax = Math.round(sub * 0.10 * 100) / 100;
+  const total = Math.round((sub + tax) * 100) / 100;
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('recap-room', currentRoom.room_name || 'Room');
   set('recap-nights', nights + 'n');
-  set('recap-total',  '€' + total.toFixed(2));
+  set('recap-total', '€' + total.toFixed(2));
 }
 
-// ── Phone sanitizer ────────────────────────────────────────
 function sanitizePhone(input) {
   let val = input.value.replace(/[^\d\s\+\-\(\)]/g, '');
   const digits = val.replace(/\D/g, '');
@@ -2781,15 +2032,14 @@ function sanitizePhone(input) {
   input.value = val;
 }
 
-// ── Card number formatter ──────────────────────────────────
 function formatCardNumber(input) {
   const isAmex = selectedNetwork === 'amex';
   let raw = input.value.replace(/\D/g, '');
   if (isAmex) {
     raw = raw.substring(0, 15);
     let parts = [];
-    if (raw.length > 0)  parts.push(raw.substring(0, 4));
-    if (raw.length > 4)  parts.push(raw.substring(4, 10));
+    if (raw.length > 0) parts.push(raw.substring(0, 4));
+    if (raw.length > 4) parts.push(raw.substring(4, 10));
     if (raw.length > 10) parts.push(raw.substring(10, 15));
     input.value = parts.join(' ');
   } else {
@@ -2798,30 +2048,24 @@ function formatCardNumber(input) {
   }
 }
 
-// ── Expiry formatter + live validator ─────────────────────
 function formatExpiry(input) {
   let val = input.value.replace(/\D/g, '').substring(0, 4);
   if (val.length >= 2) {
     let month = parseInt(val.substring(0, 2), 10);
-    if (month < 1)  month = 1;
+    if (month < 1) month = 1;
     if (month > 12) month = 12;
     val = String(month).padStart(2, '0') + '/' + val.substring(2);
   }
   input.value = val;
-
   if (val.length === 5) {
     const month = parseInt(val.substring(0, 2), 10);
-    const year  = parseInt('20' + val.substring(3), 10);
-    const now   = new Date();
-    const el    = document.getElementById('card-expiry');
+    const year = parseInt('20' + val.substring(3), 10);
+    const now = new Date();
+    const el = document.getElementById('card-expiry');
     if (year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth() + 1)) {
-      el.style.borderColor = '#ef4444';
-      el.style.borderWidth = '2px';
-      el.title = 'This card has expired';
+      el.style.borderColor = '#ef4444'; el.style.borderWidth = '2px'; el.title = 'This card has expired';
     } else {
-      el.style.borderColor = '';
-      el.style.borderWidth = '';
-      el.title = '';
+      el.style.borderColor = ''; el.style.borderWidth = ''; el.title = '';
     }
   }
 }
@@ -2832,53 +2076,34 @@ function formatExpiry(input) {
 async function submitBooking() {
   const btn = document.getElementById('drawer-cta-btn');
   document.querySelectorAll('.drawer-input').forEach(el => { el.style.borderColor = ''; el.style.borderWidth = ''; });
-
   if (!selectedNetwork) { showToast('❌ Please select a card type from your wallet', 'error'); return; }
-
-  const cfg    = NETWORK_CONFIG[selectedNetwork];
+  const cfg = NETWORK_CONFIG[selectedNetwork];
   const rawNum = document.getElementById('card-number').value.replace(/\s/g,'');
   const minLen = selectedNetwork === 'amex' ? 15 : 13;
   if (rawNum.length < minLen) { showToast(`❌ Enter a valid ${cfg.label} card number`, 'error'); markError('card-number'); return; }
-
   const expiry = document.getElementById('card-expiry').value;
-  if (!expiry || expiry.length < 5) {
-    showToast('❌ Enter a valid expiry date (MM/YY)', 'error');
-    markError('card-expiry');
-    return;
-  }
+  if (!expiry || expiry.length < 5) { showToast('❌ Enter a valid expiry date (MM/YY)', 'error'); markError('card-expiry'); return; }
   const expMonth = parseInt(expiry.substring(0, 2), 10);
-  const expYear  = parseInt('20' + expiry.substring(3), 10);
-  const now      = new Date();
-  if (expMonth < 1 || expMonth > 12) {
-    showToast('❌ Expiry month must be between 01 and 12', 'error');
-    markError('card-expiry');
-    return;
-  }
-  if (expYear < now.getFullYear() || (expYear === now.getFullYear() && expMonth < now.getMonth() + 1)) {
-    showToast('❌ This card has expired', 'error');
-    markError('card-expiry');
-    return;
-  }
-
+  const expYear = parseInt('20' + expiry.substring(3), 10);
+  const now = new Date();
+  if (expMonth < 1 || expMonth > 12) { showToast('❌ Expiry month must be between 01 and 12', 'error'); markError('card-expiry'); return; }
+  if (expYear < now.getFullYear() || (expYear === now.getFullYear() && expMonth < now.getMonth() + 1)) { showToast('❌ This card has expired', 'error'); markError('card-expiry'); return; }
   const cvv = document.getElementById('card-cvv').value;
   if (!cvv || cvv.length < cfg.cvvLen) { showToast(`❌ Enter your ${cfg.cvvLen}-digit CVV`, 'error'); markError('card-cvv'); return; }
-
   const holder = document.getElementById('card-holder').value.trim();
   if (!holder) { showToast('❌ Enter the cardholder name', 'error'); markError('card-holder'); return; }
-
   if (btn) { btn.classList.add('loading'); btn.disabled = true; }
-
   try {
     const payload = {
-      room_id:           currentRoom.id,
-      check_in:          document.getElementById('d-checkin').value,
-      check_out:         document.getElementById('d-checkout').value,
-      guests:            guestCount,
-      phone:             document.getElementById('d-phone').value.trim(),
-      special_requests:  document.getElementById('d-requests').value.trim(),
+      room_id: currentRoom.id,
+      check_in: document.getElementById('d-checkin').value,
+      check_out: document.getElementById('d-checkout').value,
+      guests: guestCount,
+      phone: document.getElementById('d-phone').value.trim(),
+      special_requests: document.getElementById('d-requests').value.trim(),
       estimated_arrival: document.getElementById('d-arrival').value
     };
-    const res  = await fetch('/api/book', {
+    const res = await fetch('/api/book', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -2911,21 +2136,15 @@ async function submitBooking() {
   }
 }
 
-function markError(id) {
-  const el = document.getElementById(id);
-  if (el) { el.style.borderColor = '#ef4444'; el.style.borderWidth = '2px'; }
-}
-function clearError(id) {
-  const el = document.getElementById(id);
-  if (el) { el.style.borderColor = ''; el.style.borderWidth = ''; }
-}
+function markError(id) { const el = document.getElementById(id); if (el) { el.style.borderColor = '#ef4444'; el.style.borderWidth = '2px'; } }
+function clearError(id) { const el = document.getElementById(id); if (el) { el.style.borderColor = ''; el.style.borderWidth = ''; } }
 
 function getFieldElement(fieldName) {
   const mapping = {
-    'check_in': 'd-checkin', 'check_out': 'd-checkout',
-    'phone': 'd-phone', 'phone_number': 'd-phone',
-    'estimated_arrival': 'd-arrival', 'special_requests': 'd-requests',
-    'dates': 'd-checkin', 'nights': 'd-checkin',
+    'check_in':'d-checkin','check_out':'d-checkout',
+    'phone':'d-phone','phone_number':'d-phone',
+    'estimated_arrival':'d-arrival','special_requests':'d-requests',
+    'dates':'d-checkin','nights':'d-checkin',
   };
   const id = mapping[fieldName];
   return id ? document.getElementById(id) : null;
@@ -2933,12 +2152,12 @@ function getFieldElement(fieldName) {
 
 function populateConfirmation(data) {
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  set('booking-ref',   data.reference || 'TRX-' + Date.now());
-  set('conf-room',     currentRoom.room_name || 'Room');
-  set('conf-checkin',  formatDate(document.getElementById('d-checkin').value));
+  set('booking-ref', data.reference || 'TRX-' + Date.now());
+  set('conf-room', currentRoom.room_name || 'Room');
+  set('conf-checkin', formatDate(document.getElementById('d-checkin').value));
   set('conf-checkout', formatDate(document.getElementById('d-checkout').value));
-  set('conf-guests',   guestCount + (guestCount === 1 ? ' Guest' : ' Guests'));
-  set('conf-total',    '€' + (data.total || 0).toFixed(2));
+  set('conf-guests', guestCount + (guestCount === 1 ? ' Guest' : ' Guests'));
+  set('conf-total', '€' + (data.total || 0).toFixed(2));
   setTimeout(() => {
     const chk = document.getElementById('confirm-checkmark');
     if (chk) chk.classList.add('animate');
@@ -3015,7 +2234,6 @@ async function loadRooms() {
             🛏️ Book This Room
           </button>
         </div>`).join('');
-      document.getElementById('min-price').textContent = `€${minPrice}`;
     } else {
       container.innerHTML = '<div class="empty-state"><div class="icon">🛏️</div><p>No rooms available.</p></div>';
     }
@@ -3033,10 +2251,23 @@ document.addEventListener('DOMContentLoaded', () => {
   loadNearby();
   loadGallery();
   loadReviews();
-  initMiniMap();
+  initMiniMap();                    // Now uses real location
 
   const nearbyCategory = document.getElementById('nearby-category');
   if (nearbyCategory) nearbyCategory.addEventListener('change', loadNearby);
+
+  // Re-invalidate map size when sidebar scrolls
+  const sidebar = document.querySelector('.details-sidebar');
+  if (sidebar) {
+    sidebar.addEventListener('scroll', () => { 
+      if (miniMapInstance) miniMapInstance.invalidateSize(); 
+    }, { passive: true });
+  }
+
+  // Re-invalidate on window resize
+  window.addEventListener('resize', () => { 
+    if (miniMapInstance) miniMapInstance.invalidateSize(); 
+  }, { passive: true });
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && document.getElementById('booking-drawer').classList.contains('open')) {
@@ -3046,18 +2277,19 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── Expose globals ─────────────────────────────────────────
-window.showToast              = showToast;
-window.openModal              = openModal;
-window.closeModal             = closeModal;
-window.openBookingDrawer      = openBookingDrawer;
-window.closeDrawer            = closeDrawer;
-window.carouselPrev           = carouselPrev;
-window.carouselNext           = carouselNext;
-window.carouselGoTo           = carouselGoTo;
-window.selectPayCard          = selectPayCard;
+window.showToast = showToast;
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.openBookingDrawer = openBookingDrawer;
+window.closeDrawer = closeDrawer;
+window.carouselPrev = carouselPrev;
+window.carouselNext = carouselNext;
+window.carouselGoTo = carouselGoTo;
+window.selectPayCard = selectPayCard;
 window.syncCardHolderToWallet = syncCardHolderToWallet;
-window.generateItinerary      = generateItinerary;
-window.sanitizePhone          = sanitizePhone;
-window.loadNearby             = loadNearby;
+window.generateItinerary = generateItinerary;
+window.sanitizePhone = sanitizePhone;
+window.loadNearby = loadNearby;
+
 </script>
 {% endblock %}
