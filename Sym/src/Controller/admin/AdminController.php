@@ -595,4 +595,102 @@ class AdminController extends AbstractController
     ]);
 }
 
+    #[Route('/api/notifications', name: 'api_notifications', methods: ['GET'])]
+    public function getNotifications(EntityManagerInterface $em): JsonResponse
+    {
+        $since = new \DateTime('-24 hours');
+        
+        $users = $em->getRepository(User::class)->createQueryBuilder('u')
+            ->where('u.createdAt >= :since')
+            ->setParameter('since', $since)
+            ->orderBy('u.createdAt', 'DESC')
+            ->setMaxResults(5)
+            ->getQuery()->getResult();
+            
+        $dests = $em->getRepository(Destination::class)->createQueryBuilder('d')
+            ->where('d.createdAt >= :since')
+            ->setParameter('since', $since)
+            ->orderBy('d.createdAt', 'DESC')
+            ->setMaxResults(5)
+            ->getQuery()->getResult();
+            
+        $transports = $em->getRepository(\App\Entity\Transport::class)->createQueryBuilder('t')
+            ->where('t.createdAt >= :since')
+            ->setParameter('since', $since)
+            ->orderBy('t.createdAt', 'DESC')
+            ->setMaxResults(5)
+            ->getQuery()->getResult();
+
+        $accommodations = $em->getRepository(\App\Entity\Accommodation::class)->createQueryBuilder('a')
+            ->where('a.createdAt >= :since')
+            ->setParameter('since', $since)
+            ->orderBy('a.createdAt', 'DESC')
+            ->setMaxResults(5)
+            ->getQuery()->getResult();
+
+        $notifs = [];
+        
+        foreach ($users as $u) {
+            $notifs[] = [
+                'time' => $u->getCreatedAt()->getTimestamp(),
+                'timeStr' => $this->timeElapsedString($u->getCreatedAt()),
+                'title' => 'New User Registered',
+                'desc' => $u->getFirstName() . ' ' . $u->getLastName() . ' created an account.',
+                'icon' => '👤',
+                'bg' => 'rgba(16,185,129,0.1)',
+                'color' => '#10b981'
+            ];
+        }
+        foreach ($dests as $d) {
+             $notifs[] = [
+                'time' => $d->getCreatedAt()->getTimestamp(),
+                'timeStr' => $this->timeElapsedString($d->getCreatedAt()),
+                'title' => 'New Destination',
+                'desc' => '"' . $d->getName() . '" was added.',
+                'icon' => '📍',
+                'bg' => 'rgba(14,165,255,0.1)',
+                'color' => '#0ea5ff'
+            ];
+        }
+        foreach ($transports as $t) {
+            $notifs[] = [
+               'time' => $t->getCreatedAt()->getTimestamp(),
+               'timeStr' => $this->timeElapsedString($t->getCreatedAt()),
+               'title' => 'New Transport',
+               'desc' => clone $t->getProviderName() ? $t->getProviderName() . ' added a ' . $t->getTransportType() . '.' : 'A new transport was added.',
+               'icon' => '✈️',
+               'bg' => 'rgba(139,92,246,0.1)',
+               'color' => '#8b5cf6'
+           ];
+       }
+        foreach ($accommodations as $a) {
+             $notifs[] = [
+                'time' => $a->getCreatedAt()->getTimestamp(),
+                'timeStr' => $this->timeElapsedString($a->getCreatedAt()),
+                'title' => 'Accommodation Alert',
+                'desc' => '"' . clone $a->getName() . '" is pending review.',
+                'icon' => '🏨',
+                'bg' => 'rgba(245,158,11,0.1)',
+                'color' => '#f59e0b'
+            ];
+        }
+
+        usort($notifs, function($a, $b) {
+            return $b['time'] <=> $a['time'];
+        });
+
+        return new JsonResponse(array_slice($notifs, 0, 10));
+    }
+
+    private function timeElapsedString(\DateTimeInterface $datetime): string
+    {
+        $now = new \DateTime();
+        $diff = $now->diff($datetime);
+        
+        if ($diff->d > 0) return $diff->d . ' days ago';
+        if ($diff->h > 0) return $diff->h . ' hours ago';
+        if ($diff->i > 0) return $diff->i . ' mins ago';
+        return 'Just now';
+    }
+
 }

@@ -743,8 +743,8 @@
             <div style="position:relative;width:200px;height:200px;margin:0 auto">
               <canvas id="dna-donut"></canvas>
               <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
-                <div style="font-family:var(--font-display);font-size:26px">{{ pageVisits|default(0) }}</div>
-                <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase">page visits</div>
+                <div style="font-family:var(--font-display);font-size:26px">{{ totalMinutes|default(0)|round }}m</div>
+                <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase">time tracked</div>
               </div>
             </div>
           </div>
@@ -1453,16 +1453,17 @@ document.addEventListener('DOMContentLoaded', function() {
     new Chart(donutCtx, {
       type: 'doughnut',
       data: {
-        labels: ['Home', 'Destinations', 'Activities', 'Offers', 'Other'],
+        labels: ['Home', 'Destinations', 'Activities', 'Accomm.', 'Transport', 'Offers/Blog'],
         datasets: [{
           data: [
-            {{ pageBreakdown.Home|default(0) }},
-            {{ pageBreakdown.Destinations|default(0) }},
-            {{ pageBreakdown.Activities|default(0) }},
-            {{ pageBreakdown.Offers|default(0) }},
-            {{ pageBreakdown.Other|default(0) }}
+            {{ timeBreakdown.Home|default(0) }},
+            {{ timeBreakdown.Destinations|default(0) }},
+            {{ timeBreakdown.Activities|default(0) }},
+            {{ timeBreakdown.Accommodations|default(0) }},
+            {{ timeBreakdown.Transport|default(0) }},
+            {{ (timeBreakdown.Offers|default(0)) + (timeBreakdown.Blog|default(0)) }}
           ],
-          backgroundColor: ['#00a6ed','#ff4d6d','#00c896','#f59e0b','#6b7280'],
+          backgroundColor: ['#00a6ed','#ff4d6d','#00c896','#f59e0b','#7209b7','#f43f5e'],
           borderWidth: 0,
           hoverOffset: 12
         }]

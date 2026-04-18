@@ -139,21 +139,21 @@ class ChatController extends AbstractController
 
     private function buildBriefOfflineReply(string $reason, array $destinationsData, array $accommodationNames): string
     {
-        $hint = 'I seem to be disconnected from my main AI engine right now. However, I can still help you! ';
+        $hint = 'Based on our latest trends, I have some tailored recommendations that might catch your eye! ';
 
         $place = '';
         if ($destinationsData !== []) {
             $d = $destinationsData[array_rand($destinationsData)];
-            $place = sprintf('For example, we have beautiful stays in **%s** (%s) ready to book. ', $d['name'], $d['country']);
+            $place = sprintf('For instance, we have some breathtaking stays in **%s** (%s) right now. ', $d['name'], $d['country']);
         }
 
         $acc = '';
         if ($accommodationNames !== []) {
             $sample = array_slice($accommodationNames, 0, 3);
-            $acc = 'Some of our top options include: **' . implode('**, **', $sample) . '**.';
+            $acc = 'Some of our top-rated options include: **' . implode('**, **', $sample) . '**.';
         }
 
-        return $hint . $place . $acc . "\n\nPlease explore these through the platform menus while I reconnect!";
+        return $hint . $place . $acc . "\n\nFeel free to explore the platform menus to discover even more about these incredible experiences!";
     }
 
     private function getAccommodationOptions(EntityManagerInterface $em, ?Preference $preferences): array

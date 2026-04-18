@@ -537,43 +537,16 @@
 
         <!-- Notifications Dropdown -->
         <div class="dropdown-container" style="position: relative; display: inline-block;">
-          <button class="topbar-btn" onclick="toggleDropdown('notifDropdown')" title="Notifications">
-            🔔<span style="position:absolute; top:-2px; right:-2px; background:var(--accent-primary); width:10px; height:10px; border-radius:50%; border: 2px solid var(--bg-surface);"></span>
+          <button class="topbar-btn" onclick="toggleNotifDropdown()" title="Notifications">
+            🔔<span id="notifBadge" style="position:absolute; top:-2px; right:-2px; background:var(--accent-primary); width:10px; height:10px; border-radius:50%; border: 2px solid var(--bg-surface); display: none;"></span>
           </button>
           <div id="notifDropdown" class="admin-dropdown" style="display: none; position: absolute; top: calc(100% + 10px); right: 0; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 320px; z-index: 9999; overflow: hidden;">
             <div style="padding: 16px; border-bottom: 1px solid var(--border-color); background: rgba(14,165,255,0.05); display: flex; justify-content: space-between; align-items: center;">
               <h4 style="margin: 0; color: var(--text-primary); font-family: var(--font-display); font-size: 1rem;">Notifications</h4>
-              <span style="font-size: 0.75rem; color: var(--accent-primary); cursor: pointer;">Mark all read</span>
+              <span onclick="markNotifsRead()" style="font-size: 0.75rem; color: var(--accent-primary); cursor: pointer;">Mark all read</span>
             </div>
-            <div style="display: flex; flex-direction: column; max-height: 350px; overflow-y: auto;">
-              
-              <div style="padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; gap: 12px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='var(--bg-card-hover)'" onmouseout="this.style.background='transparent'">
-                <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(16,185,129,0.1); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">👤</div>
-                <div>
-                  <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 2px;">New User Registered</strong>
-                  <span style="color: var(--text-muted); font-size: 0.8rem; line-height: 1.3; display: block;">A new user has just created an account on TripX platform.</span>
-                  <span style="color: var(--accent-primary); font-size: 0.7rem; margin-top: 4px; display: block;">2 minutes ago</span>
-                </div>
-              </div>
-
-              <div style="padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; gap: 12px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='var(--bg-card-hover)'" onmouseout="this.style.background='transparent'">
-                <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(14,165,255,0.1); color: var(--accent-primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">📍</div>
-                <div>
-                  <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 2px;">New Destination Added</strong>
-                  <span style="color: var(--text-muted); font-size: 0.8rem; line-height: 1.3; display: block;">"Bali Retreat Package" was just published by an admin.</span>
-                  <span style="color: var(--accent-primary); font-size: 0.7rem; margin-top: 4px; display: block;">1 hour ago</span>
-                </div>
-              </div>
-
-              <div style="padding: 16px; display: flex; gap: 12px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='var(--bg-card-hover)'" onmouseout="this.style.background='transparent'">
-                <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(245,158,11,0.1); color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">🏨</div>
-                <div>
-                  <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 2px;">Accommodation Alert</strong>
-                  <span style="color: var(--text-muted); font-size: 0.8rem; line-height: 1.3; display: block;">A new resort listing "Maldives Oceanic" is pending review.</span>
-                  <span style="color: var(--accent-primary); font-size: 0.7rem; margin-top: 4px; display: block;">3 hours ago</span>
-                </div>
-              </div>
-
+            <div id="notifList" style="display: flex; flex-direction: column; max-height: 350px; overflow-y: auto;">
+                <div style="padding:20px; text-align:center; color:var(--text-muted); font-size:13px;">Loading...</div>
             </div>
           </div>
         </div>
@@ -732,6 +705,63 @@
      const el = document.getElementById(id);
      if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
   }
+
+  // ─── Live Notifications ───
+  let notifsFetched = false;
+  function toggleNotifDropdown() {
+      toggleDropdown('notifDropdown');
+      const drop = document.getElementById('notifDropdown');
+      if (drop.style.display === 'block' && !notifsFetched) {
+          fetchNotifications();
+      }
+  }
+
+  function fetchNotifications() {
+      fetch('{{ path("admin_api_notifications") }}')
+          .then(r => r.json())
+          .then(data => {
+              notifsFetched = true;
+              const list = document.getElementById('notifList');
+              list.innerHTML = '';
+              if (data.length === 0) {
+                  list.innerHTML = '<div style="padding:24px; text-align:center; color:var(--text-muted); font-size:13px;">No new activities in the last 24h 🎉</div>';
+                  document.getElementById('notifBadge').style.display = 'none';
+                  return;
+              }
+              document.getElementById('notifBadge').style.display = 'block';
+              
+              data.forEach(n => {
+                  const html = `
+                  <div style="padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; gap: 12px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='var(--bg-card-hover)'" onmouseout="this.style.background='transparent'">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: ${n.bg}; color: ${n.color}; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">${n.icon}</div>
+                    <div>
+                      <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 2px;">${n.title}</strong>
+                      <span style="color: var(--text-muted); font-size: 0.8rem; line-height: 1.3; display: block;">${n.desc}</span>
+                      <span style="color: var(--accent-primary); font-size: 0.7rem; margin-top: 4px; display: block;">${n.timeStr}</span>
+                    </div>
+                  </div>`;
+                  list.insertAdjacentHTML('beforeend', html);
+              });
+          })
+          .catch(err => {
+              document.getElementById('notifList').innerHTML = '<div style="padding:20px; text-align:center; color:#ef4444; font-size:13px;">Failed to load notifications</div>';
+          });
+  }
+
+  function markNotifsRead() {
+      document.getElementById('notifBadge').style.display = 'none';
+  }
+
+  // Pre-fetch notifications badge status on load
+  document.addEventListener("DOMContentLoaded", () => {
+      fetch('{{ path("admin_api_notifications") }}')
+          .then(r => r.json())
+          .then(data => {
+              if (data.length > 0) {
+                  document.getElementById('notifBadge').style.display = 'block';
+              }
+          }).catch(console.error);
+  });
 </script>
 {% block page_scripts %}{% endblock %}
 {% endblock %}
