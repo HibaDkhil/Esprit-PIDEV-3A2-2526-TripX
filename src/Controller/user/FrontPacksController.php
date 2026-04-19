@@ -10,6 +10,9 @@ use App\service\LoyaltyService;
 use App\service\DestinationService;
 use App\service\RestCountriesService;
 use App\service\PackRecommendationService;
+use App\service\PackBookingDetailsPdfService;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,6 +31,7 @@ class FrontPacksController extends AbstractController
         private DestinationService          $destinationService,
         private RestCountriesService        $restCountriesService,
         private PackRecommendationService   $recommendationService,
+        private PackBookingDetailsPdfService $bookingDetailsPdfService,
         private EntityManagerInterface      $em
     ) {}
 
@@ -247,6 +251,79 @@ class FrontPacksController extends AbstractController
             'countryInfo'     => $countryInfo,
             'destination'     => $destination,
             'scoreData'       => $scoreData,
+        ]);
+    }
+
+    // ─── BOOKING DETAILS PAGE ─────────────────────────────────────────────────
+
+    #[Route('/my-bookings/{id}', name: 'user_booking_details')]
+    public function bookingDetails(int $id): Response
+    {
+        /** @var \App\Entity\User $user */
+        $user    = $this->getUser();
+        $booking = $this->bookingPacksService->find($id);
+
+        // Security: only the owner can view
+        if (!$booking || $booking->getUserId() !== $user->getId()) {
+            $this->addFlash('error', 'Booking not found.');
+            return $this->redirectToRoute('user_packs_offers', ['section' => 'bookings']);
+        }
+
+        $pack = $this->packService->find($booking->getPackId());
+
+        // Duration in days
+        $durationDays = 0;
+        if ($booking->getTravelStartDate() && $booking->getTravelEndDate()) {
+            $durationDays = $booking->getTravelStartDate()
+                ->diff($booking->getTravelEndDate())->days;
+        }
+
+        // Generate QR code pointing to the PDF download URL
+        $pdfUrl = $this->generateUrl(
+            'user_booking_pdf',
+            ['id' => $id],
+            \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL
+        );
+
+        $qrCode = new QrCode($pdfUrl);
+        $writer  = new PngWriter();
+        $result  = $writer->write($qrCode);
+        $qrDataUri = 'data:image/png;base64,' . base64_encode($result->getString());
+
+        return $this->render('front/pack_booking_details.html.twig', [
+            'booking'       => $booking,
+            'pack'          => $pack,
+            'durationDays'  => $durationDays,
+            'qrCodeDataUri' => $qrDataUri,
+        ]);
+    }
+
+    // ─── BOOKING PDF DOWNLOAD ─────────────────────────────────────────────────
+
+    #[Route('/my-bookings/{id}/pdf', name: 'user_booking_pdf')]
+    public function bookingPdf(int $id): Response
+    {
+        /** @var \App\Entity\User $user */
+        $user    = $this->getUser();
+        $booking = $this->bookingPacksService->find($id);
+
+        // Security: owner only
+        if (!$booking || $booking->getUserId() !== $user->getId()) {
+            throw $this->createNotFoundException('Booking not found.');
+        }
+/*
+        $userName = method_exists($user, 'getFullName')
+            ? $user->getFullName()
+            : ($user->getFirstName() . ' ' . $user->getLastName());
+*/
+        $userName = trim($user->getFirstName() . ' ' . $user->getLastName());
+
+        $pdf      = $this->bookingDetailsPdfService->generate($booking, trim($userName));
+        $filename = 'TripX-Booking-TRX-' . $id . '.pdf';
+
+        return new Response($pdf, 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
     }
 

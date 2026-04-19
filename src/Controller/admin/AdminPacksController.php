@@ -14,6 +14,8 @@ use App\Repository\AccommodationRepository;
 use App\service\TransportService;
 use App\service\ActivityService;
 use App\service\PackGeneratorService;
+use App\service\BookingPdfService;
+use App\service\HolidayOfferSyncService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -38,6 +40,8 @@ class AdminPacksController extends AbstractController
         private TransportService        $transportService,
         private ActivityService         $activityService,
         private PackGeneratorService    $packGeneratorService,
+        private BookingPdfService       $bookingPdfService,
+        private HolidayOfferSyncService $holidayOfferSyncService,
         private EntityManagerInterface  $em,
         private PaginatorInterface      $paginator
     ) {}
@@ -263,6 +267,32 @@ class AdminPacksController extends AbstractController
         return $this->render('admin/offer_form.html.twig', ['target_offer' => $offer, 'packs' => $packs]);
     }
 
+    #[Route('/offers/sync-holidays', name: 'offers_sync_holidays', methods: ['POST'])]
+    public function syncHolidayOffers(): Response
+    {
+        $result = $this->holidayOfferSyncService->sync();
+
+        if ($result['created'] > 0) {
+            $this->addFlash(
+                'success',
+                sprintf(
+                    'Holiday sync complete! Created %d new offer%s across your active packs.',
+                    $result['created'],
+                    $result['created'] !== 1 ? 's' : ''
+                )
+            );
+        } else {
+            $this->addFlash(
+                'info',
+                'Holiday sync complete — no new offers needed. '
+                . $result['skipped'] . ' pack(s) already had offers, '
+                . $result['noHoliday'] . ' had no upcoming holidays in the next 15 days.'
+            );
+        }
+
+        return $this->redirectToRoute('admin_offers');
+    }
+
     #[Route('/offers/delete/{id}', name: 'offer_delete')]
     public function deleteOffer(int $id): Response
     {
@@ -329,7 +359,20 @@ class AdminPacksController extends AbstractController
         ]);
     }
 
-    #[Route('/bookings/status/{id}/{status}', name: 'booking_status')]
+    #[Route('/bookings/export-pdf', name: 'bookings_export_pdf')]
+    public function exportBookingsPdf(): Response
+    {
+        $pdf = $this->bookingPdfService->generateReport();
+
+        $filename = 'tripx-bookings-report-' . date('Y-m-d') . '.pdf';
+
+        return new Response($pdf, 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
+    #[Route('/bookings/status/{id}/{status}', name: 'booking_status', requirements: ['id' => '\d+', 'status' => 'PENDING|CONFIRMED|CANCELLED|COMPLETED'])]
     public function updateBookingStatus(int $id, string $status): Response
     {
         $allowed = ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'];
@@ -340,7 +383,7 @@ class AdminPacksController extends AbstractController
         return $this->redirectToRoute('admin_pack_bookings');
     }
 
-    #[Route('/bookings/delete/{id}', name: 'booking_delete')]
+    #[Route('/bookings/delete/{id}', name: 'pack_booking_delete')]
     public function deleteBooking(int $id): Response
     {
         if ($this->bookingPacksService->delete($id)) $this->addFlash('success', 'Booking removed.');

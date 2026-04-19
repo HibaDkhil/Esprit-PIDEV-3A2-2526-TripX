@@ -30,10 +30,20 @@
 {% endblock %}
 
 {% block content %}
-<div class="reveal">
-  <div style="margin-bottom:32px;">
-    <h1 class="display-sm" style="margin-bottom:4px">Pack Bookings</h1>
-    <p class="text-muted" style="font-size:14px">Review and manage all pack bookings.</p>
+<div >
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;">
+    <div>
+      <h1 class="display-sm" style="margin-bottom:4px">Pack Bookings</h1>
+      <p class="text-muted" style="font-size:14px">Review and manage all pack bookings.</p>
+    </div>
+    <a href="{{ path('admin_bookings_export_pdf') }}"
+       style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;
+              background:linear-gradient(135deg,#0f172a,#1e3a5f);
+              color:#fff;border-radius:10px;text-decoration:none;
+              font-size:13px;font-weight:700;border:1px solid #00a6ed;
+              white-space:nowrap;">
+      &#x2193; Export PDF Report
+    </a>
   </div>
 
   {# Stats #}
@@ -101,7 +111,7 @@
                 <a href="{{ path('admin_booking_status', {id: item.idBooking, status: 'COMPLETED'}) }}"
                    style="padding:6px 10px;border-radius:6px;border:1px solid #6366f1;color:#6366f1;text-decoration:none;font-size:12px;font-weight:600;">Complete</a>
               {% endif %}
-              <a href="{{ path('admin_booking_delete', {id: item.idBooking}) }}"
+              <a href="{{ path('admin_pack_booking_delete', {id: item.idBooking}) }}"
                  class="btn btn-primary btn-sm"
                  onclick="return confirm('Delete this booking permanently?')">Delete</a>
             </div>

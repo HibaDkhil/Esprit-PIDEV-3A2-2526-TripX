@@ -378,7 +378,8 @@
           finalPrice: {{ booking.finalPrice|number_format(2)|replace({',': ''})|raw }},
           notes:      {{ (booking.notes ?? '')|json_encode|raw }},
           canCancel:  {{ booking.status == 'PENDING' ? 'true' : 'false' }},
-          cancelUrl:  {{ path('user_pack_booking_cancel', {id: booking.idBooking})|json_encode|raw }}
+          cancelUrl:  {{ path('user_pack_booking_cancel', {id: booking.idBooking})|json_encode|raw }},
+          detailsUrl: {{ path('user_booking_details', {id: booking.idBooking})|json_encode|raw }}
         }{% if not loop.last %},{% endif %}
         {% endfor %}
       ];
@@ -739,6 +740,7 @@ function renderBookingCard(b) {
   const cancelBtn = b.canCancel
     ? `<a href="${b.cancelUrl}" style="display:inline-block;padding:8px 18px;border-radius:8px;border:1px solid #ef4444;color:#ef4444;text-decoration:none;font-size:13px;font-weight:600;" onclick="return confirm('Cancel this booking?')">Cancel Booking</a>`
     : '';
+  const detailsBtn = `<a href="${b.detailsUrl}" style="display:inline-block;padding:8px 18px;border-radius:8px;background:var(--accent-primary);color:#fff;text-decoration:none;font-size:13px;font-weight:600;margin-right:8px;">View Details &amp; QR</a>`;
   const notes = b.notes
     ? `<div style="font-size:13px;color:var(--text-muted);font-style:italic;margin-bottom:16px;">"${b.notes}"</div>`
     : '';
@@ -761,7 +763,7 @@ function renderBookingCard(b) {
           <div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Discount</div><div style="font-weight:600;color:#10b981;">-€${b.discount}</div></div>
           <div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Final Price</div><div style="font-family:var(--font-display);font-size:20px;color:var(--accent-primary);">€${b.finalPrice}</div></div>
         </div>
-        ${notes}${cancelBtn}
+        ${notes}<div style="display:flex;gap:8px;flex-wrap:wrap;">${detailsBtn}${cancelBtn}</div>
       </div>
     </div>
   </div>`;
