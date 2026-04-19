@@ -1764,7 +1764,17 @@ async function compareWithAI() {
       headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
       body: JSON.stringify({ ids: selectedAccommodations })
     });
-    if (!response.ok) throw new Error('Comparison failed');
+    if (!response.ok) {
+      // Read the real error body from the server
+      let errMsg = 'HTTP ' + response.status;
+      try {
+        const errData = await response.json();
+        errMsg = errData.error || errData.message || errData.detail || JSON.stringify(errData);
+      } catch (_) {
+        try { errMsg += ': ' + await response.text(); } catch(__) {}
+      }
+      throw new Error(errMsg);
+    }
     const data = await response.json();
     displayComparisonResult(data);
   } catch (error) {

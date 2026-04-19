@@ -143,6 +143,13 @@ services:
             $groqApiKey: '%env(TRANSPORTAI)%'
         tags: ['controller.service_arguments']
 
+    # ============ AI COMPARISON CONTROLLER ============
+
+    App\Controller\user\AIComparisonController:
+        arguments:
+            $transportAiKey: '%env(TRANSPORTAI)%'
+        tags: ['controller.service_arguments']
+
     # ============ HEALTH CHECK SERVICES ============
     
     # ElevenLabs API Health Check
