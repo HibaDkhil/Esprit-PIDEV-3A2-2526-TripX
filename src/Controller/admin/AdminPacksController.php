@@ -13,8 +13,11 @@ use App\service\DestinationService;
 use App\Repository\AccommodationRepository;
 use App\service\TransportService;
 use App\service\ActivityService;
+use App\service\PackGeneratorService;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -34,7 +37,9 @@ class AdminPacksController extends AbstractController
         private AccommodationRepository $accommodationRepo,
         private TransportService        $transportService,
         private ActivityService         $activityService,
-        private EntityManagerInterface  $em
+        private PackGeneratorService    $packGeneratorService,
+        private EntityManagerInterface  $em,
+        private PaginatorInterface      $paginator
     ) {}
 
     // ─── PACKS ────────────────────────────────────────────────────────────────
@@ -42,23 +47,34 @@ class AdminPacksController extends AbstractController
     #[Route('/packs', name: 'packs')]
     public function packs(Request $request): Response
     {
-        $query = $request->query->get('q', '');
-        $items = $this->packService->getAll($query);
-        $categories = $this->em->getRepository(PackCategory::class)->findAll();
+        $query    = $request->query->get('q', '');
+        $status   = $request->query->get('status', '');
+        $category = $request->query->get('category', '');
 
-        return $this->render('admin/packs.html.twig', [
-            'items'        => $items,
-            'categories'   => $categories,
-            'currentQuery' => $query,
-            'stats'        => $this->packService->getStats(),
-        ]);
+        $all = $this->packService->getAll($query);
+
+        if ($status)   $all = array_filter($all, fn($p) => $p->getStatus() === strtoupper($status));
+        if ($category) $all = array_filter($all, fn($p) => $p->getCategoryId() == $category);
+
+        $pagination = $this->paginator->paginate(
+            array_values($all),
+            $request->query->getInt('page', 1),
+            10
+        );
+
+        return $this->render('admin/packs.html.twig', array_merge([
+            'pagination'    => $pagination,
+            'currentQuery'  => $query,
+            'currentStatus' => $status,
+            'currentCat'    => $category,
+            'stats'         => $this->packService->getStats(),
+        ], $this->getDropdowns()));
     }
 
     #[Route('/packs/add', name: 'pack_add', methods: ['GET', 'POST'])]
     public function addPack(Request $request): Response
     {
         $dropdowns = $this->getDropdowns();
-
         if ($request->isMethod('POST')) {
             $pack = new Pack();
             $this->hydratePack($pack, $request);
@@ -66,11 +82,7 @@ class AdminPacksController extends AbstractController
             $this->addFlash('success', 'Pack added successfully.');
             return $this->redirectToRoute('admin_packs');
         }
-
-        return $this->render('admin/pack_form.html.twig', array_merge(
-            ['target_pack' => null],
-            $dropdowns
-        ));
+        return $this->render('admin/pack_form.html.twig', array_merge(['target_pack' => null], $dropdowns));
     }
 
     #[Route('/packs/edit/{id}', name: 'pack_edit', methods: ['GET', 'POST'])]
@@ -81,28 +93,20 @@ class AdminPacksController extends AbstractController
             $this->addFlash('error', 'Pack not found.');
             return $this->redirectToRoute('admin_packs');
         }
-
         $dropdowns = $this->getDropdowns();
-
         if ($request->isMethod('POST')) {
             $this->hydratePack($pack, $request);
             $this->packService->save($pack);
             $this->addFlash('success', 'Pack updated successfully.');
             return $this->redirectToRoute('admin_packs');
         }
-
-        return $this->render('admin/pack_form.html.twig', array_merge(
-            ['target_pack' => $pack],
-            $dropdowns
-        ));
+        return $this->render('admin/pack_form.html.twig', array_merge(['target_pack' => $pack], $dropdowns));
     }
 
     #[Route('/packs/delete/{id}', name: 'pack_delete')]
     public function deletePack(int $id): Response
     {
-        if ($this->packService->delete($id)) {
-            $this->addFlash('success', 'Pack removed.');
-        }
+        if ($this->packService->delete($id)) $this->addFlash('success', 'Pack removed.');
         return $this->redirectToRoute('admin_packs');
     }
 
@@ -116,6 +120,22 @@ class AdminPacksController extends AbstractController
             $this->addFlash('success', 'Pack status updated.');
         }
         return $this->redirectToRoute('admin_packs');
+    }
+
+    #[Route('/packs/generate', name: 'pack_generate', methods: ['POST'])]
+    public function generatePack(Request $request): JsonResponse
+    {
+        try {
+            $body     = json_decode($request->getContent(), true) ?? [];
+            $vibe     = trim($body['vibe']     ?? 'Adventure');
+            $country  = trim($body['country']  ?? '') ?: null;
+            $duration = trim($body['duration'] ?? 'medium');
+            $audience = trim($body['audience'] ?? 'Couples');
+            $proposal = $this->packGeneratorService->generate($vibe, $country, $duration, $audience);
+            return $this->json(['ok' => true, 'proposal' => $proposal]);
+        } catch (\Throwable $e) {
+            return $this->json(['ok' => false, 'error' => $e->getMessage()], 500);
+        }
     }
 
     private function hydratePack(Pack $pack, Request $req): void
@@ -143,7 +163,7 @@ class AdminPacksController extends AbstractController
             'categories'     => $this->em->getRepository(PackCategory::class)->findAll(),
             'destinations'   => $this->destinationService->getAll(),
             'accommodations' => $this->accommodationRepo->findAll(),
-            'transports'     => $this->transportService->getAll(),
+            'transports'     => $this->transportService->getAllTransports(),
             'activities'     => $this->activityService->getAll(),
         ];
     }
@@ -154,10 +174,7 @@ class AdminPacksController extends AbstractController
     public function categories(): Response
     {
         $items = $this->em->getRepository(PackCategory::class)->findAll();
-        return $this->render('admin/categories.html.twig', [
-            'items' => $items,
-            'stats' => ['total' => count($items)],
-        ]);
+        return $this->render('admin/categories.html.twig', ['items' => $items, 'stats' => ['total' => count($items)]]);
     }
 
     #[Route('/pack-categories/add', name: 'pack_category_add', methods: ['POST'])]
@@ -175,11 +192,7 @@ class AdminPacksController extends AbstractController
     public function editCategory(int $id, Request $request): Response
     {
         $cat = $this->em->getRepository(PackCategory::class)->find($id);
-        if ($cat) {
-            $cat->setName($request->request->get('name'));
-            $this->em->flush();
-            $this->addFlash('success', 'Category updated.');
-        }
+        if ($cat) { $cat->setName($request->request->get('name')); $this->em->flush(); $this->addFlash('success', 'Category updated.'); }
         return $this->redirectToRoute('admin_pack_categories');
     }
 
@@ -187,11 +200,7 @@ class AdminPacksController extends AbstractController
     public function deleteCategory(int $id): Response
     {
         $cat = $this->em->getRepository(PackCategory::class)->find($id);
-        if ($cat) {
-            $this->em->remove($cat);
-            $this->em->flush();
-            $this->addFlash('success', 'Category removed.');
-        }
+        if ($cat) { $this->em->remove($cat); $this->em->flush(); $this->addFlash('success', 'Category removed.'); }
         return $this->redirectToRoute('admin_pack_categories');
     }
 
@@ -200,13 +209,28 @@ class AdminPacksController extends AbstractController
     #[Route('/offers', name: 'offers')]
     public function offers(Request $request): Response
     {
-        $query = $request->query->get('q', '');
-        $items = $this->offerService->getAll($query);
+        $query  = $request->query->get('q', '');
+        $status = $request->query->get('status', '');
+        $type   = $request->query->get('type', '');
+
+        $all = $this->offerService->getAll($query);
+
+        if ($status === 'active')   $all = array_filter($all, fn($o) => $o->isActive());
+        if ($status === 'inactive') $all = array_filter($all, fn($o) => !$o->isActive());
+        if ($type)                  $all = array_filter($all, fn($o) => $o->getDiscountType() === $type);
+
+        $pagination = $this->paginator->paginate(
+            array_values($all),
+            $request->query->getInt('page', 1),
+            10
+        );
 
         return $this->render('admin/offers.html.twig', [
-            'items'        => $items,
-            'currentQuery' => $query,
-            'stats'        => $this->offerService->getStats(),
+            'pagination'    => $pagination,
+            'currentQuery'  => $query,
+            'currentStatus' => $status,
+            'currentType'   => $type,
+            'stats'         => $this->offerService->getStats(),
         ]);
     }
 
@@ -214,7 +238,6 @@ class AdminPacksController extends AbstractController
     public function addOffer(Request $request): Response
     {
         $packs = $this->packService->getAll();
-
         if ($request->isMethod('POST')) {
             $offer = new Offer();
             $this->hydrateOffer($offer, $request);
@@ -222,43 +245,28 @@ class AdminPacksController extends AbstractController
             $this->addFlash('success', 'Offer added successfully.');
             return $this->redirectToRoute('admin_offers');
         }
-
-        return $this->render('admin/offer_form.html.twig', [
-            'target_offer' => null,
-            'packs'        => $packs,
-        ]);
+        return $this->render('admin/offer_form.html.twig', ['target_offer' => null, 'packs' => $packs]);
     }
 
     #[Route('/offers/edit/{id}', name: 'offer_edit', methods: ['GET', 'POST'])]
     public function editOffer(int $id, Request $request): Response
     {
         $offer = $this->offerService->find($id);
-        if (!$offer) {
-            $this->addFlash('error', 'Offer not found.');
-            return $this->redirectToRoute('admin_offers');
-        }
-
+        if (!$offer) { $this->addFlash('error', 'Offer not found.'); return $this->redirectToRoute('admin_offers'); }
         $packs = $this->packService->getAll();
-
         if ($request->isMethod('POST')) {
             $this->hydrateOffer($offer, $request);
             $this->offerService->save($offer);
             $this->addFlash('success', 'Offer updated successfully.');
             return $this->redirectToRoute('admin_offers');
         }
-
-        return $this->render('admin/offer_form.html.twig', [
-            'target_offer' => $offer,
-            'packs'        => $packs,
-        ]);
+        return $this->render('admin/offer_form.html.twig', ['target_offer' => $offer, 'packs' => $packs]);
     }
 
     #[Route('/offers/delete/{id}', name: 'offer_delete')]
     public function deleteOffer(int $id): Response
     {
-        if ($this->offerService->delete($id)) {
-            $this->addFlash('success', 'Offer removed.');
-        }
+        if ($this->offerService->delete($id)) $this->addFlash('success', 'Offer removed.');
         return $this->redirectToRoute('admin_offers');
     }
 
@@ -266,11 +274,7 @@ class AdminPacksController extends AbstractController
     public function toggleOffer(int $id): Response
     {
         $offer = $this->offerService->find($id);
-        if ($offer) {
-            $offer->setIsActive(!$offer->isActive());
-            $this->offerService->save($offer);
-            $this->addFlash('success', 'Offer status updated.');
-        }
+        if ($offer) { $offer->setIsActive(!$offer->isActive()); $this->offerService->save($offer); $this->addFlash('success', 'Offer status updated.'); }
         return $this->redirectToRoute('admin_offers');
     }
 
@@ -290,18 +294,38 @@ class AdminPacksController extends AbstractController
     // ─── BOOKINGS ─────────────────────────────────────────────────────────────
 
     #[Route('/bookings', name: 'pack_bookings')]
-    public function bookings(): Response
+    public function bookings(Request $request): Response
     {
-        $items = $this->bookingPacksService->getAll();
+        $status = $request->query->get('status', '');
+        $search = $request->query->get('q', '');
+
+        $all = $this->bookingPacksService->getAll();
+
+        // Build pack map for title lookup + search
         $packs = [];
-        foreach ($this->packService->getAll() as $p) {
-            $packs[$p->getIdPack()] = $p;
+        foreach ($this->packService->getAll() as $p) $packs[$p->getIdPack()] = $p;
+
+        if ($status) $all = array_filter($all, fn($b) => $b->getStatus() === strtoupper($status));
+        if ($search) {
+            $all = array_filter($all, function ($b) use ($packs, $search) {
+                $title = isset($packs[$b->getPackId()]) ? $packs[$b->getPackId()]->getTitle() : '';
+                return stripos($title, $search) !== false
+                    || str_contains((string) $b->getUserId(), $search);
+            });
         }
 
+        $pagination = $this->paginator->paginate(
+            array_values($all),
+            $request->query->getInt('page', 1),
+            10
+        );
+
         return $this->render('admin/bookingspacks.html.twig', [
-            'items' => $items,
-            'packs' => $packs,
-            'stats' => $this->bookingPacksService->getStats(),
+            'pagination'    => $pagination,
+            'packs'         => $packs,
+            'stats'         => $this->bookingPacksService->getStats(),
+            'currentStatus' => $status,
+            'currentQuery'  => $search,
         ]);
     }
 
@@ -319,9 +343,7 @@ class AdminPacksController extends AbstractController
     #[Route('/bookings/delete/{id}', name: 'booking_delete')]
     public function deleteBooking(int $id): Response
     {
-        if ($this->bookingPacksService->delete($id)) {
-            $this->addFlash('success', 'Booking removed.');
-        }
+        if ($this->bookingPacksService->delete($id)) $this->addFlash('success', 'Booking removed.');
         return $this->redirectToRoute('admin_pack_bookings');
     }
 

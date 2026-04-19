@@ -97,8 +97,8 @@
             <select name="transportId" class="form-control">
               <option value="">— Select transport —</option>
               {% for t in transports %}
-                <option value="{{ t.id }}"
-                  {% if target_pack and target_pack.transportId == t.id %}selected{% endif %}>
+                <option value="{{ t.transportId }}"
+                  {% if target_pack and target_pack.transportId == t.transportId %}selected{% endif %}>
                   {{ t.providerName }} — {{ t.vehicleModel }}
                 </option>
               {% endfor %}

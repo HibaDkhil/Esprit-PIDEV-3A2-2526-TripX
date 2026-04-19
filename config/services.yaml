@@ -48,6 +48,18 @@ services:
         arguments:
             $serpApiKey: '%env(SERPAPI_API_KEY)%'
 
+    App\service\CalendarificService:
+        arguments:
+            $calendarificApiKey: '%env(CALENDARIFIC_API_KEY)%'
+    
+    App\service\GeminiPackService:
+        arguments:
+            $apiKey: '%env(GROQ_PACK_API_KEY)%'
+    
+    App\Controller\admin\AdminPacksController:
+        arguments:
+            $paginator: '@knp_paginator'
+    
     App\service\Accommodation\FlightService:
         arguments:
             $serpApiKey: '%env(SERPAPI_API_KEY)%'
@@ -84,3 +96,5 @@ services:
         arguments:
             $groqApiKey: '%env(TRANSPORTAI)%'
         tags: ['controller.service_arguments']
+
+    

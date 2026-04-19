@@ -18,7 +18,7 @@ class LoyaltyPoints
     #[Assert\NotBlank]
     #[Assert\Positive]
     private ?int $userId = null;
-
+    
     #[ORM\Column(name: 'total_points', type: 'integer', options: ['default' => 0])]
     #[Assert\PositiveOrZero(message: 'Points cannot be negative.')]
     private int $totalPoints = 0;

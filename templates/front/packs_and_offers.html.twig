@@ -1,81 +1,149 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}Packs & Offers — TripX{% endblock %}
 
 {% block stylesheets %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Montserrat:wght@100..900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-    .page-top { padding-top: calc(var(--nav-height) + 48px); padding-bottom: 60px; }
+  .page-top { padding-top: calc(var(--nav-height) + 48px); padding-bottom: 60px; }
 
-    /* ── Filter Tabs (transport style) ── */
-    .section-tabs {
-      display: flex; gap: 0;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-md);
-      padding: 6px; margin-bottom: 40px;
-      width: fit-content;
-    }
-    .section-tab {
-      padding: 10px 24px;
-      border-radius: var(--border-radius-sm);
-      font-family: var(--font-mono); font-size: 11px;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--text-muted);
-      cursor: pointer !important;
-      transition: all var(--transition-fast);
-      border: none; background: none;
-    }
-    .section-tab.active { background: var(--accent-primary); color: #fff; }
-    .section-tab:hover:not(.active) { color: var(--accent-primary); }
+  /* ── Section tabs ── */
+  .section-tabs {
+    display:flex; gap:0; background:var(--bg-surface);
+    border:1px solid var(--border-color); border-radius:var(--border-radius-md);
+    padding:6px; margin-bottom:40px; width:fit-content;
+  }
+  .section-tab {
+    padding:10px 24px; border-radius:var(--border-radius-sm);
+    font-family:var(--font-mono); font-size:11px;
+    letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--text-muted); cursor:pointer; transition:all var(--transition-fast);
+    border:none; background:none;
+  }
+  .section-tab.active { background:var(--accent-primary); color:#fff; }
+  .section-tab:hover:not(.active) { color:var(--accent-primary); }
 
-    /* ── Section panels ── */
-    .section-panel { display: none; }
-    .section-panel.active { display: block; }
+  /* ── Section panels ── */
+  .section-panel { display:none; }
+  .section-panel.active { display:block; }
 
-    /* ── Pack / Offer cards ── */
-    .pack-card, .offer-card {
-      background: var(--bg-card); border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-lg); overflow: hidden;
-      transition: all var(--transition-smooth);
-    }
-    .pack-card:hover, .offer-card:hover {
-      transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--accent-primary);
-    }
+  /* ── Filter bar ── */
+  .filter-bar {
+    display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end;
+    background:var(--bg-card); border:1px solid var(--border-color);
+    border-radius:var(--border-radius-lg); padding:20px 24px; margin-bottom:28px;
+  }
+  .filter-group { display:flex; flex-direction:column; gap:6px; }
+  .filter-group label { font-size:11px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); }
+  .filter-group input[type="text"],
+  .filter-group select {
+    padding:9px 14px; border-radius:8px; border:1px solid var(--border-color);
+    background:var(--bg-base); color:var(--text-primary); font-size:13px; min-width:160px;
+  }
+  .filter-group input[type="text"]:focus,
+  .filter-group select:focus { outline:none; border-color:var(--accent-primary); }
+  .filter-group select option {
+    background: var(--bg-card);
+    color: var(--text-primary);
+  }
 
-    /* ── Booking card ── */
-    .booking-card {
-      background: var(--bg-card); border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-lg); overflow: hidden;
-      margin-bottom: 16px;
-    }
+  /* ── Price range slider ── */
+  .range-wrap { display:flex; flex-direction:column; gap:6px; min-width:200px; }
+  .range-wrap label { font-size:11px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); }
+  .range-inputs { display:flex; gap:8px; align-items:center; }
+  .range-inputs input[type="range"] {
+    -webkit-appearance:none; width:100%; height:4px;
+    background:var(--border-color); border-radius:2px; outline:none; cursor:pointer;
+  }
+  .range-inputs input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    background:var(--accent-primary); cursor:pointer; box-shadow:0 0 0 3px rgba(0,166,237,.2);
+  }
+  .range-val { font-size:12px; font-family:var(--font-mono); color:var(--accent-primary); white-space:nowrap; min-width:100px; }
 
-    /* ── Search bar ── */
-    .pack-search, .offer-search {
-      display: flex; gap: 12px; margin-bottom: 32px; max-width: 560px;
-    }
-    .pack-search input, .offer-search input {
-      flex: 1; padding: 12px 18px; border-radius: 12px;
-      border: 1px solid var(--border-color);
-      background: var(--bg-card); color: var(--text-primary); font-size: 15px;
-    }
+  /* ── AI recommended toggle ── */
+  .rec-toggle { display:flex; align-items:center; gap:8px; cursor:pointer; padding:9px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-base); user-select:none; white-space:nowrap; }
+  .rec-toggle input { accent-color:var(--accent-primary); width:15px; height:15px; cursor:pointer; }
+  .rec-toggle span { font-size:12px; color:var(--text-muted); }
+
+  /* ── Cards ── */
+  .pack-card, .offer-card {
+    background:var(--bg-card); border:1px solid var(--border-color);
+    border-radius:var(--border-radius-lg); overflow:hidden;
+    transition:all var(--transition-smooth);
+  }
+  .pack-card:hover, .offer-card:hover {
+    transform:translateY(-5px); box-shadow:var(--shadow-lg); border-color:var(--accent-primary);
+  }
+  .booking-card {
+    background:var(--bg-card); border:1px solid var(--border-color);
+    border-radius:var(--border-radius-lg); overflow:hidden; margin-bottom:16px;
+  }
+
+  /* ── Paginator carousel ── */
+  .paginator-wrap { overflow:hidden; }
+  .paginator-track {
+    display:flex; transition:transform .45s cubic-bezier(.4,0,.2,1);
+  }
+  .paginator-page {
+    min-width:100%; display:grid;
+    grid-template-columns:repeat(3,1fr); gap:22px;
+  }
+  .paginator-page.list-mode {
+    grid-template-columns:1fr; gap:0;
+  }
+
+  /* ── Paginator controls ── */
+  .pager-controls {
+    display:flex; align-items:center; justify-content:center; gap:16px; margin-top:28px;
+  }
+  .pager-btn {
+    width:38px; height:38px; border-radius:50%; border:1px solid var(--border-color);
+    background:var(--bg-card); color:var(--text-primary); font-size:16px;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:all .2s;
+  }
+  .pager-btn:hover:not(:disabled) { border-color:var(--accent-primary); color:var(--accent-primary); }
+  .pager-btn:disabled { opacity:.3; cursor:not-allowed; }
+  .pager-dots { display:flex; gap:7px; align-items:center; }
+  .pager-dot {
+    width:8px; height:8px; border-radius:50%; background:var(--border-color);
+    cursor:pointer; transition:all .25s;
+  }
+  .pager-dot.active { background:var(--accent-primary); width:22px; border-radius:4px; }
+
+  /* ── Score badge ── */
+  .score-badge {
+    position:absolute; top:12px; right:12px; border-radius:999px; padding:4px 10px;
+    font-family:var(--font-mono); font-size:11px; font-weight:700;
+    color:#fff; backdrop-filter:blur(4px);
+  }
+  .country-strip {
+    display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-muted);
+    margin-bottom:8px; flex-wrap:wrap;
+  }
+  .holiday-pill {
+    display:inline-flex; align-items:center; gap:5px;
+    background:rgba(245,158,11,0.12); color:#f59e0b;
+    border:1px solid rgba(245,158,11,0.28);
+    border-radius:999px; padding:3px 10px;
+    font-size:11px; font-family:var(--font-mono); margin-bottom:8px;
+  }
 </style>
 {% endblock %}
 
 {% block body %}
-
 <div class="page-top">
   <div class="container">
 
-    {# ── Page Header ── #}
+    {# ── Header ── #}
     <div class="section-label reveal"><span>Travel Hub</span></div>
     <h1 class="display-md reveal" style="margin-bottom:8px">Packs <span class="gradient-text-warm">&amp; Offers ✦</span></h1>
     <p class="serif-mood text-muted reveal reveal-delay-1" style="margin-bottom:32px">
       Browse packages, grab deals, track your bookings and loyalty — all in one place.
     </p>
 
-    {# ── Content Selector Filter ── #}
+    {# ── Tab bar ── #}
     <div class="section-tabs reveal reveal-delay-2">
       <button class="section-tab active" data-target="all">🌐 All</button>
       <button class="section-tab" data-target="packs">📦 Packs</button>
@@ -91,56 +159,100 @@
       <div class="section-label reveal"><span>Travel Packages</span></div>
       <h2 class="display-sm reveal" style="margin-bottom:24px">Available <span class="gradient-text-warm">Packs</span></h2>
 
-      <div class="pack-search">
-        <input type="text" id="pack-search-input" placeholder="Search packs by name..."
-            oninput="ajaxSearchPacks(this.value)">
-        <button class="btn btn-primary ripple-btn"
-            onclick="ajaxSearchPacks(document.getElementById('pack-search-input').value)"
-            style="cursor:pointer !important;">Search</button>
+      {# ── Packs filter bar ── #}
+      <div class="filter-bar reveal">
+        <div class="filter-group">
+          <label>Search</label>
+          <input type="text" id="pf-search" placeholder="Pack name…" oninput="applyPackFilters()">
+        </div>
+
+        <div class="range-wrap">
+          <label>Price range: <span class="range-val" id="pf-price-display">€0 – €10 000</span></label>
+          <div class="range-inputs" style="flex-direction:column;gap:4px;">
+            <input type="range" id="pf-price-min" min="0" max="10000" step="50" value="0"    oninput="syncRange('pf-price-min','pf-price-max','pf-price-display'); applyPackFilters()">
+            <input type="range" id="pf-price-max" min="0" max="10000" step="50" value="10000" oninput="syncRange('pf-price-min','pf-price-max','pf-price-display'); applyPackFilters()">
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label>Duration</label>
+          <select id="pf-duration" onchange="applyPackFilters()">
+            <option value="">Any</option>
+            <option value="short">Short (1–4 days)</option>
+            <option value="medium">Medium (5–7 days)</option>
+            <option value="long">Long (8+ days)</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Has offer</label>
+          <select id="pf-offer" onchange="applyPackFilters()">
+            <option value="">Any</option>
+            <option value="yes">With offer</option>
+            <option value="no">No offer</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>&nbsp;</label>
+          <label class="rec-toggle">
+            <input type="checkbox" id="pf-rec" onchange="applyPackFilters()">
+            <span>✦ Recommended For You</span>
+          </label>
+        </div>
+
+        <div class="filter-group">
+          <label>&nbsp;</label>
+          <button class="btn btn-secondary" style="font-size:12px;padding:9px 16px;" onclick="resetPackFilters()">Reset</button>
+        </div>
       </div>
+
       <div id="packs-ajax-status" style="font-size:13px;color:var(--text-muted);margin-bottom:12px;min-height:20px;"></div>
 
+      {# ── Packs paginator ── #}
       {% if packsWithOffers is empty %}
         <div style="text-align:center;padding:60px 20px;color:var(--text-muted);">
           <div style="font-size:48px;margin-bottom:16px;">🧳</div>
           <p>No packs available right now.</p>
         </div>
       {% else %}
-      <div class="grid-3" id="packs-grid" style="gap:28px;">
+
+      {# Embed all pack data as JSON for JS filtering #}
+      <script>
+      const ALL_PACKS = [
         {% for row in packsWithOffers %}
         {% set pack  = row.pack %}
         {% set offer = row.offer %}
-        <div class="pack-card" data-pack-title="{{ pack.title|lower }}">
-          <div style="height:160px;background:linear-gradient(135deg,#0d1b2a,#1a3a5c);display:flex;align-items:center;justify-content:center;font-size:56px;position:relative;">
-            ✈️
-            {% if offer %}
-              <span style="position:absolute;top:14px;left:14px;background:var(--accent-primary);color:#fff;font-family:var(--font-display);font-size:14px;padding:3px 10px;border-radius:8px;">
-                {% if offer.discountType == 'PERCENTAGE' %}-{{ offer.discountValue }}%{% else %}-€{{ offer.discountValue }}{% endif %}
-              </span>
-            {% endif %}
-          </div>
-          <div style="padding:20px;">
-            <h3 style="font-family:var(--font-display);font-size:18px;line-height:1.3;margin-bottom:8px;">{{ pack.title }}</h3>
-            {% if pack.description %}
-              <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;">
-                {{ pack.description|slice(0,90) }}{% if pack.description|length > 90 %}…{% endif %}
-              </p>
-            {% endif %}
-            <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
-              <span class="badge badge-indigo">{{ pack.durationDays }} days</span>
-              {% if offer %}<span class="badge badge-teal">🏷 {{ offer.title }}</span>{% endif %}
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-              <div>
-                <div style="font-family:var(--font-display);font-size:26px;color:var(--accent-primary);line-height:1;">€{{ pack.basePrice|number_format(0) }}</div>
-                <div style="font-size:11px;color:var(--text-muted);">per person</div>
-              </div>
-              <a href="{{ path('user_pack_details', {id: pack.idPack}) }}" class="btn btn-primary ripple-btn" style="cursor:pointer !important;">View Pack</a>
-            </div>
-          </div>
-        </div>
+        {% set dest  = row.destination %}
+        {% set cname = dest ? dest.country : null %}
+        {% set ci    = (cname and countryInfoByName[cname] is defined) ? countryInfoByName[cname] : null %}
+        {% set sd    = scoreMap is defined and scoreMap[pack.idPack] is defined ? scoreMap[pack.idPack] : null %}
+        {
+          id:       {{ pack.idPack }},
+          title:    {{ pack.title|json_encode|raw }},
+          desc:     {{ (pack.description ?? '')|slice(0,90)|json_encode|raw }},
+          price:    {{ pack.basePrice }},
+          days:     {{ pack.durationDays }},
+          hasOffer: {{ offer ? 'true' : 'false' }},
+          isRec:    {{ (sd and sd.score >= 60) ? 'true' : 'false' }},
+          score:    {{ sd ? sd.score : 0 }},
+          label:    {{ sd ? sd.label|json_encode|raw : 'null' }},
+          color:    {{ sd ? sd.color|json_encode|raw : 'null' }},
+          offerText:{{ offer ? ((offer.discountType == 'PERCENTAGE' ? ('-'~offer.discountValue~'%') : ('-€'~offer.discountValue)))|json_encode|raw : 'null' }},
+          offerTitle:{{ offer ? offer.title|json_encode|raw : 'null' }},
+          destName: {{ dest ? (dest.name~' — '~dest.country)|json_encode|raw : 'null' }},
+          flagUrl:  {{ (ci and ci.flagPng) ? ci.flagPng|json_encode|raw : 'null' }},
+          detailUrl:{{ path('user_pack_details', {id: pack.idPack})|json_encode|raw }}
+        }{% if not loop.last %},{% endif %}
         {% endfor %}
+      ];
+      </script>
+
+      <div class="paginator-wrap" id="packs-paginator-wrap">
+        <div class="paginator-track" id="packs-track"></div>
       </div>
+      <div class="pager-controls" id="packs-pager"></div>
+
       {% endif %}
     </div>
 
@@ -151,9 +263,32 @@
       <div class="section-label reveal"><span>Live Deals</span></div>
       <h2 class="display-sm reveal" style="margin-bottom:24px">Active <span class="gradient-text-warm">Offers</span></h2>
 
-      <div class="offer-search">
-        <input type="text" id="offer-search-input" placeholder="Search offers..." oninput="filterOffers(this.value)">
-        <button class="btn btn-primary ripple-btn" onclick="filterOffers(document.getElementById('offer-search-input').value)" style="cursor:pointer !important;">Search</button>
+      {# ── Offers filter bar ── #}
+      <div class="filter-bar reveal">
+        <div class="filter-group">
+          <label>Search</label>
+          <input type="text" id="of-search" placeholder="Offer name…" oninput="applyOfferFilters()">
+        </div>
+        <div class="filter-group">
+          <label>Discount type</label>
+          <select id="of-type" onchange="applyOfferFilters()">
+            <option value="">Any</option>
+            <option value="PERCENTAGE">% Percentage</option>
+            <option value="FIXED">€ Fixed</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Applies to</label>
+          <select id="of-scope" onchange="applyOfferFilters()">
+            <option value="">Any</option>
+            <option value="pack">Specific pack</option>
+            <option value="all">All packs</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>&nbsp;</label>
+          <button class="btn btn-secondary" style="font-size:12px;padding:9px 16px;" onclick="resetOfferFilters()">Reset</button>
+        </div>
       </div>
 
       {% if offers is empty %}
@@ -162,49 +297,36 @@
           <p>No active offers right now. Check back soon!</p>
         </div>
       {% else %}
-      <div class="grid-3" id="offers-grid" style="gap:28px;">
+
+      <script>
+      const ALL_OFFERS = [
         {% for offer in offers %}
         {% set pack = packs[offer.packId] is defined ? packs[offer.packId] : null %}
-        <div class="offer-card" data-offer-title="{{ offer.title|lower }}">
-          <div style="background:linear-gradient(135deg,#1a0a00,#2d0a0a);padding:24px;position:relative;overflow:hidden;">
-            <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 100% 50%,rgba(255,77,109,0.2),transparent 60%);pointer-events:none;"></div>
-            <div style="position:relative;z-index:1;">
-              <div style="font-family:var(--font-mono);font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">
-                {% if offer.discountType == 'PERCENTAGE' %}Percentage Off{% else %}Fixed Discount{% endif %}
-              </div>
-              <div style="font-family:var(--font-display);font-size:48px;color:var(--accent-primary);line-height:1;">
-                {% if offer.discountType == 'PERCENTAGE' %}{{ offer.discountValue }}%{% else %}€{{ offer.discountValue }}{% endif %}
-              </div>
-            </div>
-          </div>
-          <div style="padding:20px;">
-            <h3 style="font-family:var(--font-display);font-size:18px;margin-bottom:8px;">{{ offer.title }}</h3>
-            {% if offer.description %}
-              <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;">{{ offer.description }}</p>
-            {% endif %}
-            <div style="display:flex;gap:8px;margin-bottom:16px;">
-              {% if pack %}
-                <span class="badge badge-indigo">{{ pack.title|slice(0,30) }}{% if pack.title|length > 30 %}…{% endif %}</span>
-              {% else %}
-                <span class="badge badge-teal">All Packs</span>
-              {% endif %}
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid var(--border-color);">
-              <div style="font-size:12px;color:var(--text-muted);">
-                {{ offer.startDate|date('d M') }} → {{ offer.endDate|date('d M Y') }}
-              </div>
-              {% if pack %}
-                <a href="{{ path('user_pack_details', {id: pack.idPack}) }}" class="btn btn-primary btn-sm ripple-btn" style="cursor:pointer !important;">Book Now</a>
-              {% else %}
-                <a href="#" onclick="switchTab('packs')" class="btn btn-primary btn-sm ripple-btn" style="cursor:pointer !important;">Browse Packs</a>
-              {% endif %}
-            </div>
-          </div>
-        </div>
+        {
+          id:          {{ offer.idOffer }},
+          title:       {{ offer.title|json_encode|raw }},
+          desc:        {{ (offer.description ?? '')|json_encode|raw }},
+          discountType:{{ offer.discountType|json_encode|raw }},
+          discountVal: {{ offer.discountValue }},
+          hasPack:     {{ pack ? 'true' : 'false' }},
+          packTitle:   {{ pack ? pack.title|slice(0,30)|json_encode|raw : 'null' }},
+          packId:      {{ pack ? pack.idPack : 'null' }},
+          dateRange:   {{ (offer.startDate|date('d M') ~ ' → ' ~ offer.endDate|date('d M Y'))|json_encode|raw }},
+          detailUrl:   {{ pack ? path('user_pack_details', {id: pack.idPack})|json_encode|raw : 'null' }}
+        }{% if not loop.last %},{% endif %}
         {% endfor %}
+      ];
+      </script>
+
+      <div class="paginator-wrap" id="offers-paginator-wrap">
+        <div class="paginator-track" id="offers-track"></div>
       </div>
+      <div class="pager-controls" id="offers-pager"></div>
+
       {% endif %}
     </div>
+
+
 
     {# ════════════════════════════════════
        BOOKINGS SECTION
@@ -213,67 +335,60 @@
       <div class="section-label reveal"><span>Your Trips</span></div>
       <h2 class="display-sm reveal" style="margin-bottom:24px">My Pack <span class="gradient-text-warm">Bookings</span></h2>
 
+      {# ── Bookings filter bar ── #}
+      {% if bookings is not empty %}
+      <div class="filter-bar reveal" style="margin-bottom:28px;">
+        <div class="filter-group">
+          <label>Status</label>
+          <select id="bf-status" onchange="applyBookingFilters()">
+            <option value="">All statuses</option>
+            <option value="PENDING">Pending</option>
+            <option value="CONFIRMED">Confirmed</option>
+            <option value="CANCELLED">Cancelled</option>
+            <option value="COMPLETED">Completed</option>
+          </select>
+        </div>
+      </div>
+      {% endif %}
+
       {% if bookings is empty %}
         <div style="text-align:center;padding:60px 20px;color:var(--text-muted);">
           <div style="font-size:56px;margin-bottom:16px;">🧳</div>
           <p style="margin-bottom:20px;">You haven't made any bookings yet.</p>
-          <button onclick="switchTab('packs')" class="btn btn-primary ripple-btn" style="cursor:pointer !important;">Browse Packs</button>
+          <button onclick="switchTab('packs')" class="btn btn-primary ripple-btn">Browse Packs</button>
         </div>
       {% else %}
+
+      <script>
+      const ALL_BOOKINGS = [
         {% for booking in bookings %}
         {% set statusColors = {'PENDING':'#f59e0b','CONFIRMED':'#10b981','CANCELLED':'#ef4444','COMPLETED':'#6366f1'} %}
-        {% set statusColor = statusColors[booking.status] ?? 'var(--text-muted)' %}
-        <div class="booking-card">
-          <div style="display:grid;grid-template-columns:4px 1fr;">
-            <div style="background:{{ statusColor }};"></div>
-            <div style="padding:24px;">
-              <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
-                <div>
-                  <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-bottom:4px;">#{{ booking.idBooking }} · {{ booking.bookingDate|date('d M Y') }}</div>
-                  <h3 style="font-family:var(--font-display);font-size:20px;">
-                    {{ packMap[booking.packId] is defined ? packMap[booking.packId].title : 'Pack #' ~ booking.packId }}
-                  </h3>
-                </div>
-                <span style="padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;background:{{ statusColor }}22;color:{{ statusColor }};">
-                  {{ booking.status }}
-                </span>
-              </div>
-              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:16px;margin-bottom:16px;">
-                <div>
-                  <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Departure</div>
-                  <div style="font-weight:600;">{{ booking.travelStartDate|date('d M Y') }}</div>
-                </div>
-                <div>
-                  <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Return</div>
-                  <div style="font-weight:600;">{{ booking.travelEndDate|date('d M Y') }}</div>
-                </div>
-                <div>
-                  <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Travelers</div>
-                  <div style="font-weight:600;">{{ booking.numTravelers }}</div>
-                </div>
-                <div>
-                  <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Discount</div>
-                  <div style="font-weight:600;color:#10b981;">-€{{ booking.discountApplied|number_format(2) }}</div>
-                </div>
-                <div>
-                  <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Final Price</div>
-                  <div style="font-family:var(--font-display);font-size:22px;color:var(--accent-primary);">€{{ booking.finalPrice|number_format(2) }}</div>
-                </div>
-              </div>
-              {% if booking.notes %}
-                <div style="font-size:13px;color:var(--text-muted);font-style:italic;margin-bottom:16px;">"{{ booking.notes }}"</div>
-              {% endif %}
-              {% if booking.status == 'PENDING' %}
-                <a href="{{ path('user_pack_booking_cancel', {id: booking.idBooking}) }}"
-                   style="display:inline-block;padding:8px 18px;border-radius:8px;border:1px solid #ef4444;color:#ef4444;text-decoration:none;font-size:13px;font-weight:600;cursor:pointer !important;"
-                   onclick="return confirm('Cancel this booking?')">
-                  Cancel Booking
-                </a>
-              {% endif %}
-            </div>
-          </div>
-        </div>
+        {% set statusColor = statusColors[booking.status] ?? '#9ca3af' %}
+        {% set packTitle = packMap[booking.packId] is defined ? packMap[booking.packId].title : ('Pack #'~booking.packId) %}
+        {
+          id:         {{ booking.idBooking }},
+          packTitle:  {{ packTitle|json_encode|raw }},
+          status:     {{ booking.status|json_encode|raw }},
+          statusColor:{{ statusColor|json_encode|raw }},
+          bookingDate:{{ booking.bookingDate|date('d M Y')|json_encode|raw }},
+          startDate:  {{ booking.travelStartDate|date('d M Y')|json_encode|raw }},
+          endDate:    {{ booking.travelEndDate|date('d M Y')|json_encode|raw }},
+          travelers:  {{ booking.numTravelers }},
+          discount:   {{ booking.discountApplied|number_format(2)|raw }},
+          finalPrice: {{ booking.finalPrice|number_format(2)|replace({',': ''})|raw }},
+          notes:      {{ (booking.notes ?? '')|json_encode|raw }},
+          canCancel:  {{ booking.status == 'PENDING' ? 'true' : 'false' }},
+          cancelUrl:  {{ path('user_pack_booking_cancel', {id: booking.idBooking})|json_encode|raw }}
+        }{% if not loop.last %},{% endif %}
         {% endfor %}
+      ];
+      </script>
+
+      <div class="paginator-wrap" id="bookings-paginator-wrap">
+      <div class="paginator-track" id="bookings-track"></div>
+      </div>
+    <div class="pager-controls" id="bookings-pager"></div>
+
       {% endif %}
     </div>
 
@@ -343,13 +458,13 @@
           <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px;">
             Earn <strong style="color:var(--accent-primary);">50 points</strong> every time you book a pack.
           </p>
-          <button onclick="switchTab('packs')" class="btn btn-primary ripple-btn" style="cursor:pointer !important;">Browse Packs & Earn Points ✦</button>
+          <button onclick="switchTab('packs')" class="btn btn-primary ripple-btn">Browse Packs & Earn Points ✦</button>
         </div>
       </div>
     </div>
 
-  </div>{# end container #}
-</div>{# end page-top #}
+  </div>
+</div>
 
 <footer class="footer">
   <div class="container">
@@ -359,112 +474,310 @@
     </div>
   </div>
 </footer>
-
 {% endblock %}
 
 {% block javascripts %}
 <script>
-  // ── Tab switching ──
-  function switchTab(name) {
-    document.querySelectorAll('.section-tab').forEach(t => {
-      t.classList.toggle('active', t.dataset.target === name || (name === 'all' && t.dataset.target === 'all'));
-    });
+// ══════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ══════════════════════════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.section-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.target === name || (name === 'all' && t.dataset.target === 'all'))
+  );
+  if (name === 'all') {
+    document.querySelectorAll('.section-panel').forEach(p => p.classList.add('active'));
+  } else {
+    document.querySelectorAll('.section-panel').forEach(p =>
+      p.classList.toggle('active', p.dataset.section === name)
+    );
+  }
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+document.querySelectorAll('.section-tab').forEach(tab =>
+  tab.addEventListener('click', () => switchTab(tab.dataset.target))
+);
+document.querySelectorAll('.section-panel').forEach(p => p.classList.add('active'));
 
-    if (name === 'all') {
-      document.querySelectorAll('.section-panel').forEach(p => p.classList.add('active'));
-    } else {
-      document.querySelectorAll('.section-panel').forEach(p => {
-        p.classList.toggle('active', p.dataset.section === name);
+// ══════════════════════════════════════════════════════════════
+// PRICE RANGE SYNC
+// ══════════════════════════════════════════════════════════════
+function syncRange(minId, maxId, displayId) {
+  const minEl = document.getElementById(minId);
+  const maxEl = document.getElementById(maxId);
+  let min = parseInt(minEl.value), max = parseInt(maxEl.value);
+  if (min > max) { minEl.value = max; min = max; }
+  document.getElementById(displayId).textContent = `€${min.toLocaleString()} – €${max.toLocaleString()}`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// GENERIC PAGINATOR (carousel with slide animation)
+// ══════════════════════════════════════════════════════════════
+function buildPaginator(containerId, pagerId, items, perPage, renderFn, listMode) {
+  const track  = document.getElementById(containerId);
+  const pager  = document.getElementById(pagerId);
+  if (!track || !pager) return;
+
+  let current = 0;
+  const pages = Math.ceil(items.length / perPage);
+
+  function render() {
+    // Build pages
+    track.innerHTML = '';
+    for (let p = 0; p < pages; p++) {
+      const pageEl = document.createElement('div');
+      pageEl.className = 'paginator-page' + (listMode ? ' list-mode' : '');
+      const slice = items.slice(p * perPage, (p + 1) * perPage);
+      slice.forEach(item => {
+        const el = document.createElement('div');
+        el.innerHTML = renderFn(item);
+        pageEl.appendChild(el.firstElementChild || el);
       });
+      track.appendChild(pageEl);
     }
-    window.scrollTo({top: 0, behavior: 'smooth'});
+    // Slide
+    track.style.transform = `translateX(-${current * 100}%)`;
+
+    // Pager controls
+    pager.innerHTML = '';
+
+    if (pages <= 1) return;
+
+    const prev = document.createElement('button');
+    prev.className = 'pager-btn'; prev.innerHTML = '←';
+    prev.disabled = current === 0;
+    prev.onclick = () => { current--; render(); };
+    pager.appendChild(prev);
+
+    const dots = document.createElement('div');
+    dots.className = 'pager-dots';
+    for (let i = 0; i < pages; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'pager-dot' + (i === current ? ' active' : '');
+      dot.onclick = () => { current = i; render(); };
+      dots.appendChild(dot);
+    }
+    pager.appendChild(dots);
+
+    const next = document.createElement('button');
+    next.className = 'pager-btn'; next.innerHTML = '→';
+    next.disabled = current === pages - 1;
+    next.onclick = () => { current++; render(); };
+    pager.appendChild(next);
   }
 
-  document.querySelectorAll('.section-tab').forEach(tab => {
-    tab.addEventListener('click', () => switchTab(tab.dataset.target));
+  render();
+}
+
+// ══════════════════════════════════════════════════════════════
+// PACKS
+// ══════════════════════════════════════════════════════════════
+let filteredPacks = typeof ALL_PACKS !== 'undefined' ? [...ALL_PACKS] : [];
+
+function applyPackFilters() {
+  if (typeof ALL_PACKS === 'undefined') return;
+  const q      = document.getElementById('pf-search').value.toLowerCase();
+  const min    = parseInt(document.getElementById('pf-price-min').value);
+  const max    = parseInt(document.getElementById('pf-price-max').value);
+  const dur    = document.getElementById('pf-duration').value;
+  const offer  = document.getElementById('pf-offer').value;
+  const recOn  = document.getElementById('pf-rec').checked;
+
+  filteredPacks = ALL_PACKS.filter(p => {
+    if (q && !p.title.toLowerCase().includes(q)) return false;
+    if (p.price < min || p.price > max) return false;
+    if (dur === 'short'  && p.days > 4)  return false;
+    if (dur === 'medium' && (p.days < 5 || p.days > 7)) return false;
+    if (dur === 'long'   && p.days < 8)  return false;
+    if (offer === 'yes'  && !p.hasOffer) return false;
+    if (offer === 'no'   && p.hasOffer)  return false;
+    if (recOn && !p.isRec) return false;
+    return true;
   });
 
-  // Default: show all sections
-  document.querySelectorAll('.section-panel').forEach(p => p.classList.add('active'));
+  const status = document.getElementById('packs-ajax-status');
+  status.textContent = filteredPacks.length + ' pack(s) found';
+  renderPackPaginator();
+}
 
-  // ── Pack search ──
-  let packSearchTimer = null;
+function renderPackPaginator() {
+  buildPaginator('packs-track', 'packs-pager', filteredPacks, 6, renderPackCard, false);
+}
 
-  function ajaxSearchPacks(q) {
-    clearTimeout(packSearchTimer);
-    const status = document.getElementById('packs-ajax-status');
+function renderPackCard(p) {
+  const offerTag = p.offerText
+    ? `<span style="position:absolute;top:14px;left:14px;background:var(--accent-primary);color:#fff;font-family:var(--font-display);font-size:13px;padding:3px 10px;border-radius:8px;">${p.offerText}</span>`
+    : '';
+  const scoreBadge = p.label
+    ? `<span style="display:inline-block;margin-bottom:8px;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:${p.color}22;color:${p.color};border:1px solid ${p.color}44;">${p.label}</span>`
+    : '';
+  const destBadge = p.destName
+    ? `<span class="badge badge-teal">${p.flagUrl ? `<img src="${p.flagUrl}" style="height:12px;vertical-align:-2px;margin-right:4px;border-radius:2px;">` : ''}${p.destName}</span>`
+    : '';
+  const offerBadge = p.offerTitle
+    ? `<span class="badge badge-teal">🏷 ${p.offerTitle}</span>`
+    : '';
 
-    // Debounce — wait 350ms after user stops typing
-    packSearchTimer = setTimeout(() => {
-        status.textContent = 'Searching...';
+  return `<div class="pack-card">
+    <div style="height:140px;background:linear-gradient(135deg,#0d1b2a,#1a3a5c);display:flex;align-items:center;justify-content:center;font-size:48px;position:relative;">
+      ✈️${offerTag}
+    </div>
+    <div style="padding:16px;">
+      <h3 style="font-family:var(--font-display);font-size:16px;line-height:1.3;margin-bottom:6px;">${p.title}</h3>
+      ${scoreBadge}
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.5;">${p.desc}${p.desc.length >= 90 ? '…' : ''}</p>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <span class="badge badge-indigo">${p.days} days</span>
+        ${destBadge}${offerBadge}
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-family:var(--font-display);font-size:22px;color:var(--accent-primary);line-height:1;">€${Number(p.price).toLocaleString()}</div>
+          <div style="font-size:11px;color:var(--text-muted);">per person</div>
+        </div>
+        <a href="${p.detailUrl}" class="btn btn-primary ripple-btn" style="font-size:12px;padding:8px 14px;">View Pack</a>
+      </div>
+    </div>
+  </div>`;
+}
 
-        fetch(`/packs-offers/search?q=${encodeURIComponent(q)}`)
-            .then(res => res.json())
-            .then(packs => {
-                status.textContent = packs.length + ' pack(s) found';
-                const grid = document.getElementById('packs-grid');
-                grid.innerHTML = '';
+function resetPackFilters() {
+  document.getElementById('pf-search').value   = '';
+  document.getElementById('pf-price-min').value = 0;
+  document.getElementById('pf-price-max').value = 10000;
+  document.getElementById('pf-duration').value  = '';
+  document.getElementById('pf-offer').value     = '';
+  document.getElementById('pf-rec').checked     = false;
+  document.getElementById('pf-price-display').textContent = '€0 – €10 000';
+  document.getElementById('packs-ajax-status').textContent = '';
+  filteredPacks = [...ALL_PACKS];
+  renderPackPaginator();
+}
 
-                if (packs.length === 0) {
-                    grid.innerHTML = `
-                        <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);">
-                            <div style="font-size:48px;margin-bottom:16px;">🧳</div>
-                            <p>No packs found for "${q}".</p>
-                        </div>`;
-                    return;
-                }
+// ══════════════════════════════════════════════════════════════
+// OFFERS
+// ══════════════════════════════════════════════════════════════
+let filteredOffers = typeof ALL_OFFERS !== 'undefined' ? [...ALL_OFFERS] : [];
 
-                packs.forEach(pack => {
-                    const offerBadge = pack.offer
-                        ? `<span class="badge badge-teal">🏷 ${pack.offer.title}</span>`
-                        : '';
-                    const offerTag = pack.offer
-                        ? `<span style="position:absolute;top:14px;left:14px;background:var(--accent-primary);color:#fff;font-family:var(--font-display);font-size:14px;padding:3px 10px;border-radius:8px;">
-                            ${pack.offer.discountType === 'PERCENTAGE' ? '-' + pack.offer.discountValue + '%' : '-€' + pack.offer.discountValue}
-                           </span>`
-                        : '';
+function applyOfferFilters() {
+  if (typeof ALL_OFFERS === 'undefined') return;
+  const q     = document.getElementById('of-search').value.toLowerCase();
+  const type  = document.getElementById('of-type').value;
+  const scope = document.getElementById('of-scope').value;
 
-                    grid.innerHTML += `
-                        <div class="pack-card">
-                            <div style="height:160px;background:linear-gradient(135deg,#0d1b2a,#1a3a5c);display:flex;align-items:center;justify-content:center;font-size:56px;position:relative;">
-                                ✈️${offerTag}
-                            </div>
-                            <div style="padding:20px;">
-                                <h3 style="font-family:var(--font-display);font-size:18px;line-height:1.3;margin-bottom:8px;">${pack.title}</h3>
-                                <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;">
-                                    ${pack.description}${pack.description.length >= 90 ? '…' : ''}
-                                </p>
-                                <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
-                                    <span class="badge badge-indigo">${pack.duration} days</span>
-                                    ${offerBadge}
-                                </div>
-                                <div style="display:flex;justify-content:space-between;align-items:center;">
-                                    <div>
-                                        <div style="font-family:var(--font-display);font-size:26px;color:var(--accent-primary);line-height:1;">€${pack.price}</div>
-                                        <div style="font-size:11px;color:var(--text-muted);">per person</div>
-                                    </div>
-                                    <a href="/packs/${pack.id}" class="btn btn-primary ripple-btn" style="cursor:pointer !important;">View Pack</a>
-                                </div>
-                            </div>
-                        </div>`;
-                });
-            })
-            .catch(() => {
-                status.textContent = 'Search failed. Please try again.';
-            });
-    }, 350);
-  }
+  filteredOffers = ALL_OFFERS.filter(o => {
+    if (q && !o.title.toLowerCase().includes(q)) return false;
+    if (type  && o.discountType !== type)           return false;
+    if (scope === 'pack' && !o.hasPack)             return false;
+    if (scope === 'all'  &&  o.hasPack)             return false;
+    return true;
+  });
+  renderOfferPaginator();
+}
 
-  // ── Offer search ──
-  function filterOffers(q) {
-    q = q.toLowerCase();
-    document.querySelectorAll('#offers-grid .offer-card').forEach(card => {
-      card.style.display = card.dataset.offerTitle.includes(q) ? '' : 'none';
-    });
-  }
+function renderOfferPaginator() {
+  buildPaginator('offers-track', 'offers-pager', filteredOffers, 6, renderOfferCard, false);
+}
 
-  // ── Check for ?section= param to auto-switch ──
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('section')) switchTab(params.get('section'));
+function renderOfferCard(o) {
+  const discountDisplay = o.discountType === 'PERCENTAGE' ? `${o.discountVal}%` : `€${o.discountVal}`;
+  const packBadge = o.hasPack
+    ? `<span class="badge badge-indigo">${o.packTitle}${o.packTitle && o.packTitle.length >= 30 ? '…' : ''}</span>`
+    : `<span class="badge badge-teal">All Packs</span>`;
+  const cta = o.detailUrl
+    ? `<a href="${o.detailUrl}" class="btn btn-primary btn-sm ripple-btn">Book Now</a>`
+    : `<a href="#" onclick="switchTab('packs')" class="btn btn-primary btn-sm ripple-btn">Browse Packs</a>`;
+
+  return `<div class="offer-card">
+    <div style="background:linear-gradient(135deg,#1a0a00,#2d0a0a);padding:20px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-20px;right:-20px;width:120px;height:120px;border-radius:50%;background:rgba(239,68,68,0.08);"></div>
+      <div style="position:relative;z-index:1;display:flex;align-items:center;gap:16px;">
+        <div style="font-size:36px;">🏷️</div>
+        <div>
+          <div style="font-size:11px;font-family:var(--font-mono);color:rgba(255,255,255,0.5);text-transform:uppercase;margin-bottom:4px;">Discount</div>
+          <div style="font-family:var(--font-display);font-size:40px;color:var(--accent-primary);line-height:1;">${discountDisplay}</div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:16px;">
+      <h3 style="font-family:var(--font-display);font-size:16px;margin-bottom:6px;">${o.title}</h3>
+      ${o.desc ? `<p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.5;">${o.desc}</p>` : ''}
+      <div style="display:flex;gap:8px;margin-bottom:12px;">${packBadge}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border-color);">
+        <div style="font-size:11px;color:var(--text-muted);">${o.dateRange}</div>
+        ${cta}
+      </div>
+    </div>
+  </div>`;
+}
+
+function resetOfferFilters() {
+  document.getElementById('of-search').value = '';
+  document.getElementById('of-type').value   = '';
+  document.getElementById('of-scope').value  = '';
+  filteredOffers = [...ALL_OFFERS];
+  renderOfferPaginator();
+}
+
+// ══════════════════════════════════════════════════════════════
+// BOOKINGS
+// ══════════════════════════════════════════════════════════════
+let filteredBookings = typeof ALL_BOOKINGS !== 'undefined' ? [...ALL_BOOKINGS] : [];
+
+function applyBookingFilters() {
+  if (typeof ALL_BOOKINGS === 'undefined') return;
+  const status = document.getElementById('bf-status').value;
+  filteredBookings = ALL_BOOKINGS.filter(b => !status || b.status === status);
+  renderBookingPaginator();
+}
+
+function renderBookingPaginator() {
+  buildPaginator('bookings-track', 'bookings-pager', filteredBookings, 5, renderBookingCard, true);
+}
+
+function renderBookingCard(b) {
+  const cancelBtn = b.canCancel
+    ? `<a href="${b.cancelUrl}" style="display:inline-block;padding:8px 18px;border-radius:8px;border:1px solid #ef4444;color:#ef4444;text-decoration:none;font-size:13px;font-weight:600;" onclick="return confirm('Cancel this booking?')">Cancel Booking</a>`
+    : '';
+  const notes = b.notes
+    ? `<div style="font-size:13px;color:var(--text-muted);font-style:italic;margin-bottom:16px;">"${b.notes}"</div>`
+    : '';
+
+  return `<div class="booking-card">
+    <div style="display:grid;grid-template-columns:4px 1fr;">
+      <div style="background:${b.statusColor};"></div>
+      <div style="padding:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:14px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-bottom:4px;">#${b.id} · ${b.bookingDate}</div>
+            <h3 style="font-family:var(--font-display);font-size:18px;">${b.packTitle}</h3>
+          </div>
+          <span style="padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;background:${b.statusColor}22;color:${b.statusColor};">${b.status}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:14px;margin-bottom:14px;">
+          <div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Departure</div><div style="font-weight:600;">${b.startDate}</div></div>
+          <div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Return</div><div style="font-weight:600;">${b.endDate}</div></div>
+          <div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Travelers</div><div style="font-weight:600;">${b.travelers}</div></div>
+          <div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Discount</div><div style="font-weight:600;color:#10b981;">-€${b.discount}</div></div>
+          <div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Final Price</div><div style="font-family:var(--font-display);font-size:20px;color:var(--accent-primary);">€${b.finalPrice}</div></div>
+        </div>
+        ${notes}${cancelBtn}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof ALL_PACKS    !== 'undefined') renderPackPaginator();
+  if (typeof ALL_OFFERS   !== 'undefined') renderOfferPaginator();
+  if (typeof ALL_BOOKINGS !== 'undefined') renderBookingPaginator();
+});
+
+// Auto-switch from URL param
+const params = new URLSearchParams(window.location.search);
+if (params.get('section')) switchTab(params.get('section'));
 </script>
 {% endblock %}
