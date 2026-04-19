@@ -980,35 +980,65 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
       </div>
     </div>
 
-    {# Nearby #}
+    {# Nearby - LAZY LOAD with "See Nearby Places" button #}
     <div class="section-card">
       <div class="section-header">
         <h2>🏙️ What's Nearby</h2>
-        <select id="nearby-category">
-          <option value="restaurants">🍽️ Restaurants</option>
-          <option value="attractions">🏛️ Attractions</option>
-          <option value="shopping">🛍️ Shopping</option>
-          <option value="transport">🚇 Transport</option>
-        </select>
+        <div style="display: flex; gap: 8px;">
+          <select id="nearby-category" style="padding: 8px 12px; border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(167,139,250,0.2); color: #e2e8f0;">
+            <option value="restaurants">🍽️ Restaurants</option>
+            <option value="attractions">🏛️ Attractions</option>
+            <option value="shopping">🛍️ Shopping</option>
+            <option value="transport">🚇 Transport</option>
+          </select>
+          <button id="load-nearby-btn" class="generate-itinerary" onclick="loadNearby()" style="background: linear-gradient(135deg, #4a2f7c, #8a4ff8);">
+            📍 See Nearby Places
+          </button>
+        </div>
       </div>
       <div class="section-content">
-        <div id="nearby-container"><div class="skeleton" style="height:100px;"></div></div>
+        <div id="nearby-container">
+          <div class="empty-state">
+            <div class="icon">📍</div>
+            <p>Select a category and click "See Nearby Places" to discover attractions</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    {# Gallery #}
+    {# Gallery - LAZY LOAD with "See Gallery" button #}
     <div class="section-card">
-      <div class="section-header"><h2>📸 {{ accommodation.city }} Gallery</h2></div>
+      <div class="section-header">
+        <h2>📸 {{ accommodation.city }} Gallery</h2>
+        <button id="load-gallery-btn" class="generate-itinerary" onclick="loadGallery()" style="background: linear-gradient(135deg, #4a2f7c, #8a4ff8);">
+          🖼️ See Gallery
+        </button>
+      </div>
       <div class="section-content">
-        <div id="gallery-container"><div class="skeleton" style="height:220px;"></div></div>
+        <div id="gallery-container">
+          <div class="empty-state">
+            <div class="icon">📸</div>
+            <p>Click "See Gallery" to view beautiful photos of {{ accommodation.city }}</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    {# Reviews #}
+    {# Reviews - LAZY LOAD with "See Reviews" button #}
     <div class="section-card">
-      <div class="section-header"><h2>⭐ Guest Reviews</h2></div>
+      <div class="section-header">
+        <h2>⭐ Guest Reviews</h2>
+        <button id="load-reviews-btn" class="generate-itinerary" onclick="loadReviews()" style="background: linear-gradient(135deg, #4a2f7c, #8a4ff8);">
+          📝 See Reviews
+        </button>
+      </div>
       <div class="section-content">
-        <div id="reviews-container"><div class="skeleton" style="height:150px;"></div></div>
+        <div id="reviews-container">
+          <div class="empty-state">
+            <div class="icon">⭐</div>
+            <p>Click "See Reviews" to read what guests are saying</p>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1037,12 +1067,12 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
   {# ── Sidebar: Weather + Map only ── #}
   <div class="details-sidebar">
 
-    {# Weather #}
+    {# Weather - AUTO LOAD (fast, single API) #}
     <div id="weather-container">
       <div class="skeleton" style="height:180px;border-radius:15px;"></div>
     </div>
 
-    {# Mini Map — replaces the booking panel #}
+    {# Mini Map #}
     <div class="map-sidebar-card">
       <div class="map-sidebar-header">
         <h2>📍 Location</h2>
@@ -1333,7 +1363,7 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
 const accommodationId = {{ accommodation.id }};
 const CURRENT_USER_NAME = {{ userName|json_encode|raw }};
 
-// NEW: Real accommodation data for the mini-map
+// Real accommodation data for the mini-map
 const ACCOMMODATION = {
     id: {{ accommodation.id|json_encode|raw }},
     name: {{ accommodation.name|json_encode|raw }},
@@ -1343,8 +1373,8 @@ const ACCOMMODATION = {
     country: {{ accommodation.country|json_encode|raw }}
 };
 
-let map = null;                    // kept for compatibility with your original code
-let miniMapInstance = null;        // dedicated for sidebar mini-map
+let map = null;
+let miniMapInstance = null;
 let galleryImages = [];
 let roomsMap = {};
 let currentRoom = null;
@@ -1354,6 +1384,11 @@ let guestCount = 1;
 let bookingResult = null;
 let carouselInterval = null;
 let selectedNetwork = null;
+
+// Track loaded state to prevent duplicate loads
+let galleryLoaded = false;
+let reviewsLoaded = false;
+let nearbyLoaded = false;
 
 // ── Toast ──────────────────────────────────────────────────
 function showToast(msg, type = 'success') {
@@ -1379,7 +1414,7 @@ function openModal(url) {
 function closeModal() { document.getElementById('image-modal').classList.remove('open'); }
 
 // ══════════════════════════════════════════════════════════
-// WEATHER
+// WEATHER - AUTO LOAD
 // ══════════════════════════════════════════════════════════
 async function loadWeather() {
   const container = document.getElementById('weather-container');
@@ -1447,14 +1482,17 @@ async function loadWeather() {
 }
 
 // ══════════════════════════════════════════════════════════
-// NEARBY PLACES
+// NEARBY PLACES - LAZY LOAD
 // ══════════════════════════════════════════════════════════
 async function loadNearby() {
   const container = document.getElementById('nearby-container');
   const categorySelect = document.getElementById('nearby-category');
   const category = categorySelect ? categorySelect.value : 'restaurants';
   if (!container) return;
+  
+  // Show loading state
   container.innerHTML = '<div class="skeleton" style="height:100px;"></div>';
+  
   try {
     const response = await fetch(`/api/nearby/${accommodationId}`);
     const data = await response.json();
@@ -1474,22 +1512,32 @@ async function loadNearby() {
               </div>
             </div>`).join('')}
         </div>`;
+      showToast(`Found ${places.places.length} ${category} nearby!`, 'success');
     } else {
-      container.innerHTML = '<div class="empty-state"><div class="icon">📍</div><p>No places found nearby</p></div>';
+      container.innerHTML = '<div class="empty-state"><div class="icon">📍</div><p>No places found nearby for this category</p></div>';
     }
   } catch (error) {
     console.error('Nearby error:', error);
     container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Unable to load nearby places</p></div>';
+    showToast('Failed to load nearby places', 'error');
   }
 }
 
 // ══════════════════════════════════════════════════════════
-// GALLERY
+// GALLERY - LAZY LOAD
 // ══════════════════════════════════════════════════════════
 async function loadGallery() {
   const container = document.getElementById('gallery-container');
   if (!container) return;
+  
+  if (galleryLoaded) {
+    showToast('Gallery already loaded', 'info');
+    return;
+  }
+  
+  // Show loading state
   container.innerHTML = '<div class="skeleton" style="height:220px;"></div>';
+  
   try {
     const response = await fetch(`/api/images/${accommodationId}`);
     const data = await response.json();
@@ -1508,22 +1556,33 @@ async function loadGallery() {
             </div>`).join('')}
         </div>
         ${data.images.length > 8 ? `<p style="text-align:center;margin-top:16px;color:#64748b;">+${data.images.length - 8} more images</p>` : ''}`;
+      galleryLoaded = true;
+      showToast(`Loaded ${data.images.length} beautiful images!`, 'success');
     } else {
-      container.innerHTML = '<div class="empty-state"><div class="icon">📸</div><p>No gallery images available</p></div>';
+      container.innerHTML = '<div class="empty-state"><div class="icon">📸</div><p>No gallery images available for this destination</p></div>';
     }
   } catch (error) {
     console.error('Gallery error:', error);
     container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Unable to load gallery</p></div>';
+    showToast('Failed to load gallery', 'error');
   }
 }
 
 // ══════════════════════════════════════════════════════════
-// REVIEWS
+// REVIEWS - LAZY LOAD
 // ══════════════════════════════════════════════════════════
 async function loadReviews() {
   const container = document.getElementById('reviews-container');
   if (!container) return;
+  
+  if (reviewsLoaded) {
+    showToast('Reviews already loaded', 'info');
+    return;
+  }
+  
+  // Show loading state
   container.innerHTML = '<div class="skeleton" style="height:150px;"></div>';
+  
   try {
     const response = await fetch(`/api/reviews/${accommodationId}`);
     const data = await response.json();
@@ -1550,23 +1609,25 @@ async function loadReviews() {
             </div>`).join('')}
         </div>
         ${data.reviews.length > 5 ? `<p style="text-align:center;margin-top:16px;color:#64748b;">+${data.reviews.length - 5} more reviews</p>` : ''}`;
+      reviewsLoaded = true;
+      showToast(`Loaded ${data.reviews.length} guest reviews!`, 'success');
     } else {
-      container.innerHTML = '<div class="empty-state"><div class="icon">⭐</div><p>No reviews yet</p></div>';
+      container.innerHTML = '<div class="empty-state"><div class="icon">⭐</div><p>No reviews available for this property</p></div>';
     }
   } catch (error) {
     console.error('Reviews error:', error);
     container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Unable to load reviews</p></div>';
+    showToast('Failed to load reviews', 'error');
   }
 }
 
 // ══════════════════════════════════════════════════════════
-// MINI MAP — FIXED: Uses real latitude & longitude
+// MINI MAP
 // ══════════════════════════════════════════════════════════
 function initMiniMap() {
   const container = document.getElementById('mini-map');
   if (!container) return;
 
-  // Clean up any previous mini-map
   if (miniMapInstance) {
     miniMapInstance.remove();
     miniMapInstance = null;
@@ -1592,7 +1653,6 @@ function initMiniMap() {
     maxZoom: 19
   }).addTo(miniMapInstance);
 
-  // Custom glowing purple pin
   const iconHtml = `
     <div style="background:linear-gradient(135deg,#a78bfa,#c026d3); width:40px; height:40px;
                 border-radius:50% 50% 50% 0; transform:rotate(-45deg); display:flex;
@@ -1619,7 +1679,6 @@ function initMiniMap() {
     `, { closeButton: false })
     .openPopup();
 
-  // Force correct sizing (important for sticky sidebar)
   miniMapInstance.invalidateSize();
   setTimeout(() => { if (miniMapInstance) miniMapInstance.invalidateSize(); }, 300);
   setTimeout(() => { if (miniMapInstance) miniMapInstance.invalidateSize(); }, 800);
@@ -2070,6 +2129,20 @@ function formatExpiry(input) {
   }
 }
 
+function markError(id) { const el = document.getElementById(id); if (el) { el.style.borderColor = '#ef4444'; el.style.borderWidth = '2px'; } }
+function clearError(id) { const el = document.getElementById(id); if (el) { el.style.borderColor = ''; el.style.borderWidth = ''; } }
+
+function getFieldElement(fieldName) {
+  const mapping = {
+    'check_in':'d-checkin','check_out':'d-checkout',
+    'phone':'d-phone','phone_number':'d-phone',
+    'estimated_arrival':'d-arrival','special_requests':'d-requests',
+    'dates':'d-checkin','nights':'d-checkin',
+  };
+  const id = mapping[fieldName];
+  return id ? document.getElementById(id) : null;
+}
+
 // ══════════════════════════════════════════════════════════
 // BOOKING SUBMISSION
 // ══════════════════════════════════════════════════════════
@@ -2134,20 +2207,6 @@ async function submitBooking() {
   } finally {
     if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
   }
-}
-
-function markError(id) { const el = document.getElementById(id); if (el) { el.style.borderColor = '#ef4444'; el.style.borderWidth = '2px'; } }
-function clearError(id) { const el = document.getElementById(id); if (el) { el.style.borderColor = ''; el.style.borderWidth = ''; } }
-
-function getFieldElement(fieldName) {
-  const mapping = {
-    'check_in':'d-checkin','check_out':'d-checkout',
-    'phone':'d-phone','phone_number':'d-phone',
-    'estimated_arrival':'d-arrival','special_requests':'d-requests',
-    'dates':'d-checkin','nights':'d-checkin',
-  };
-  const id = mapping[fieldName];
-  return id ? document.getElementById(id) : null;
 }
 
 function populateConfirmation(data) {
@@ -2246,15 +2305,17 @@ async function loadRooms() {
 // INIT
 // ══════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
+  // Auto-load: rooms (fast, DB) + weather (1 API) + map
   loadRooms();
   loadWeather();
-  loadNearby();
-  loadGallery();
-  loadReviews();
-  initMiniMap();                    // Now uses real location
-
+  initMiniMap();
+  
+  // Lazy load handlers (buttons only - no auto calls)
   const nearbyCategory = document.getElementById('nearby-category');
-  if (nearbyCategory) nearbyCategory.addEventListener('change', loadNearby);
+  if (nearbyCategory) {
+    // Note: loadNearby is called only when button is clicked, not on category change
+    // Category change just updates the select, user must click "See Nearby Places"
+  }
 
   // Re-invalidate map size when sidebar scrolls
   const sidebar = document.querySelector('.details-sidebar');
@@ -2276,7 +2337,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// ── Expose globals ─────────────────────────────────────────
+// Expose globals
 window.showToast = showToast;
 window.openModal = openModal;
 window.closeModal = closeModal;
@@ -2290,6 +2351,8 @@ window.syncCardHolderToWallet = syncCardHolderToWallet;
 window.generateItinerary = generateItinerary;
 window.sanitizePhone = sanitizePhone;
 window.loadNearby = loadNearby;
+window.loadGallery = loadGallery;
+window.loadReviews = loadReviews;
 
 </script>
 {% endblock %}

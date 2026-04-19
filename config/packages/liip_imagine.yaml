@@ -1,47 +1,9 @@
 liip_imagine:
-    driver: gd   # Most stable for watermarks
-
-    data_loader: filesystem
-    loaders:
-        filesystem:
-            filesystem:
-                data_root:
-                    - '%kernel.project_dir%/public'
-
-    resolvers:
-        default:
-            web_path:
-                web_root: '%kernel.project_dir%/public'
-                cache_prefix: 'media/cache'
-
+    driver: gd
+    
     filter_sets:
-        watermark:
+        # Simple resize only (test this first)
+        room_carousel:
             quality: 85
             filters:
-                # First resize, then apply watermark with better visibility
-                thumbnail: { size: [1200, 800], mode: outbound }
-                watermark_image:
-                    image: 'images/watermark.png'
-                    size: 0.20          # Bigger watermark (20% of image width)
-                    position: 'bottom-right'
-                    opacity: 0.85       # Quite visible
-
-        watermark_room:
-            quality: 85
-            filters:
-                thumbnail: { size: [800, 600], mode: outbound }
-                watermark_image:
-                    image: 'images/watermark.png'
-                    size: 0.18
-                    position: 'bottom-right'
-                    opacity: 0.80
-
-        watermark_thumb:
-            quality: 82
-            filters:
-                thumbnail: { size: [320, 200], mode: outbound }
-                watermark_image:
-                    image: 'images/watermark.png'
-                    size: 0.12
-                    position: 'bottom-right'
-                    opacity: 0.75
+                thumbnail: { size: [680, 440], mode: outbound }

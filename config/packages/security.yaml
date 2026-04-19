@@ -33,6 +33,7 @@ security:
         target:       app_login
 
   access_control:
+    - { path: ^/metrics, roles: PUBLIC_ACCESS }
     - { path: ^/$,           roles: PUBLIC_ACCESS }
     - { path: ^/register,    roles: PUBLIC_ACCESS }
     - { path: ^/onboarding,  roles: PUBLIC_ACCESS }
