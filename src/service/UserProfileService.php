@@ -25,7 +25,7 @@ class UserProfileService
         $logs  = $this->em->getRepository(UserActivityLog::class)->findBy(
             ['userId' => $user->getUserId()],
             ['timestamp' => 'DESC'],
-            200
+            300
         );
 
         // ── Base stats ──────────────────────────────────────────────
@@ -33,17 +33,17 @@ class UserProfileService
         $pageVisits    = 0;
         $aiInteractions = 0;
         $activityStats = ['VISIT' => 0, 'SEARCH' => 0, 'BOOKING' => 0, 'AI_FEATURE' => 0, 'NAV' => 0];
+        $aiFeatureUsage = [];
 
         // hourly activity: 0–23
         $hourlyActivity = array_fill(0, 24, 0);
 
         // top pages
         $pageCount = [];
+        $lastPageVisited = 'Home';
 
-        // destination clicks
-        $destClicks = [];
-        $recentSearches = [];
-        $pageCategoryCounts = [
+        // time per category (new tracking)
+        $categoryTimeSpent = [
             'Home' => 0,
             'Destinations' => 0,
             'Activities' => 0,
@@ -55,18 +55,34 @@ class UserProfileService
             'Other' => 0,
         ];
 
+        // destination clicks
+        $destClicks = [];
+        $recentSearches = [];
+        $pageCategoryCounts = $categoryTimeSpent;
+
         foreach ($logs as $log) {
             $type   = $log->getActivityType();
             $target = $log->getTargetId() ?? '';
+            $tType  = $log->getTargetType() ?? '';
             $hour   = (int) ($log->getTimestamp() ? $log->getTimestamp()->format('G') : 0);
 
             $hourlyActivity[$hour]++;
 
             if ($type === 'TIME_SPENT') {
-                $totalMinutes += (int) $target / 60;
+                $seconds = (int)$target;
+                $totalMinutes += $seconds / 60;
+                
+                // If tType contains a path (from updated tracker.js)
+                if (str_starts_with($tType, '/')) {
+                    $cat = $this->mapPageCategory($tType);
+                    $categoryTimeSpent[$cat] += $seconds;
+                }
             } elseif ($type === 'VISIT') {
                 $pageVisits++;
                 $activityStats['VISIT']++;
+                if ($activityStats['VISIT'] === 1) {
+                    $lastPageVisited = $this->formatTargetLabel($target);
+                }
                 $pageCount[$target] = ($pageCount[$target] ?? 0) + 1;
                 $pageCategory = $this->mapPageCategory($target);
                 $pageCategoryCounts[$pageCategory]++;
@@ -83,6 +99,8 @@ class UserProfileService
             } elseif ($type === 'AI_FEATURE') {
                 $activityStats['AI_FEATURE']++;
                 $aiInteractions++;
+                $feature = $this->formatTargetLabel($target);
+                $aiFeatureUsage[$feature] = ($aiFeatureUsage[$feature] ?? 0) + 1;
             } elseif ($type === 'NAV') {
                 $activityStats['NAV']++;
             } elseif ($type === 'DESTINATION') {
@@ -94,9 +112,14 @@ class UserProfileService
         arsort($pageCount);
         $topPages = array_slice($pageCount, 0, 5, true);
 
+        // top AI usage
+        arsort($aiFeatureUsage);
+        $topAIUsed = array_slice($aiFeatureUsage, 0, 5, true);
+
         // top 5 destination clicks
         arsort($destClicks);
         $destinationClicks = array_slice($destClicks, 0, 5, true);
+        
         $pageBreakdown = [];
         foreach ($pageCategoryCounts as $label => $count) {
             if ($count > 0) {
@@ -104,8 +127,16 @@ class UserProfileService
             }
         }
 
+        // ── Time Percentage Calculation ──────────────────────────────
+        $totalSecondsLogged = array_sum($categoryTimeSpent);
+        $timeBreakdown = [];
+        if ($totalSecondsLogged > 0) {
+            foreach ($categoryTimeSpent as $cat => $secs) {
+                $timeBreakdown[$cat] = round(($secs / $totalSecondsLogged) * 100);
+            }
+        }
+
         // ── Engagement score (0-100) ─────────────────────────────────
-        // Weighted: 40% visits, 30% time, 20% AI use, 10% bookings
         $visitScore   = min(40, $pageVisits * 2);
         $timeScore    = min(30, (int)($totalMinutes / 2));
         $aiScore      = min(20, $aiInteractions * 4);
@@ -114,6 +145,7 @@ class UserProfileService
 
         // ── Travel Persona ───────────────────────────────────────────
         $travelPersona = $this->deriveTravelPersona($prefs, $activityStats, $aiInteractions);
+        $travelPersonaSlug = $this->derivePersonaSlug($travelPersona);
 
         $activityLogsView = [];
         foreach (array_slice($logs, 0, 10) as $log) {
@@ -124,7 +156,7 @@ class UserProfileService
             ];
         }
 
-        return [
+        $profileData = [
             'user'            => $user,
             'preferences'     => $prefs,
             'prefPriorities'    => $this->decodePrefArray($prefs?->getPriorities()),
@@ -141,17 +173,158 @@ class UserProfileService
             'activityStats'   => $activityStats,
             'hourlyActivity'  => array_values($hourlyActivity),
             'pageBreakdown'   => $pageBreakdown,
+            'timeBreakdown'   => $timeBreakdown,
             'topPages'        => $topPages,
+            'topAIUsed'       => $topAIUsed,
+            'lastPageVisited' => $lastPageVisited,
             'destinationClicks' => $destinationClicks,
             'aiInteractions'  => $aiInteractions,
             'travelPersona'   => $travelPersona,
-            'engagementScore' => min(100, $engagementScore),
+            'travelPersonaSlug' => $travelPersonaSlug,
+            'dynamicThemeEnabled' => $user->isDynamicThemeEnabled(),
+            'engagementScore' => min(100, (int)$engagementScore),
             'profileHandle'   => $this->buildProfileHandle($user),
             'profileSidebarBadges' => $this->buildProfileSidebarBadges($prefs, $travelPersona),
             'profileStatBookings' => $activityStats['BOOKING'],
             'profileStatDestinationsTapped' => count($destinationClicks),
             'profileStatMinutes' => (int) round($totalMinutes),
+            'trips' => $this->getTripHistory($user),
         ];
+
+        // ── Aria Picks for You (Real Recommendations) ────────────────
+        $profileData['ariaPicks'] = $this->getRealRecommendations($user, $prefs);
+        $profileData['latestTrip'] = $profileData['trips'][0] ?? null;
+        
+        return $profileData;
+    }
+
+    private function getRealRecommendations(User $user, ?Preference $prefs): array
+    {
+        $picks = [];
+        
+        // 1. Destination Pick
+        $type = 'city';
+        if ($prefs) {
+            $climates = strtolower($prefs->getPreferredClimate() ?? '');
+            if (str_contains($climates, 'beach') || str_contains($climates, 'tropical')) $type = 'beach';
+            elseif (str_contains($climates, 'mountain')) $type = 'mountain';
+            elseif (str_contains($climates, 'desert')) $type = 'desert';
+        }
+        
+        $dest = $this->em->getRepository(\App\Entity\Destination::class)->findOneBy(['type' => $type], ['popularity' => 'DESC']);
+        if ($dest) {
+            $picks[] = [
+                'name' => $dest->getName() . ', ' . $dest->getCountry(),
+                'desc' => "Matches your " . ($prefs ? "preferred climate ({$type})" : "exploring style") . " Perfectly.",
+                'emoji' => $type === 'beach' ? '🏖️' : ($type === 'mountain' ? '🏔️' : '📍'),
+                'match' => 95,
+                'path' => '/destinations/' . $dest->getId()
+            ];
+        }
+
+        // 2. Activity Pick
+        $activity = $this->em->getRepository(\App\Entity\Activity::class)->findOneBy(['isActive' => true], ['averageRating' => 'DESC']);
+        if ($activity) {
+            $picks[] = [
+                'name' => $activity->getName(),
+                'desc' => "Top-rated activity tailored to your " . ($prefs?->getTravelPace() ?? 'Moderate') . " pace.",
+                'emoji' => '🏄',
+                'match' => 92,
+                'path' => '/activities/' . $activity->getId()
+            ];
+        }
+
+        // 3. Accommodation Pick
+        $accType = 'Hotel';
+        if ($prefs) {
+            $types = $this->decodePrefArray($prefs->getAccommodationTypes());
+            if (isset($types[0])) $accType = $types[0];
+        }
+        $acc = $this->em->getRepository(\App\Entity\Accommodation::class)->findOneBy(['type' => $accType], ['rating' => 'DESC']);
+        if ($acc) {
+            $picks[] = [
+                'name' => $acc->getName(),
+                'desc' => "Comfortable " . strtolower($accType) . " that fits your lifestyle preferences.",
+                'emoji' => '🏨',
+                'match' => 89,
+                'path' => '/accommodations/' . $acc->getId()
+            ];
+        }
+
+        return $picks;
+    }
+
+    /**
+     * Finds and normalizes all bookings across all types (Accommodation, Transport, Destination/Activity)
+     */
+    private function getTripHistory(User $user): array
+    {
+        $userId = $user->getUserId();
+        $trips = [];
+
+        // 1. Accommodation Bookings
+        $accBookings = $this->em->getRepository(\App\Entity\BookingAcc::class)->findBy(
+            ['userId' => $userId],
+            ['createdAt' => 'DESC'],
+            10
+        );
+        foreach ($accBookings as $b) {
+            $room = $b->getRoom();
+            $acc = $room ? $room->getAccommodation() : null;
+            if ($acc) {
+                $trips[] = [
+                    'name' => $acc->getName(),
+                    'photo' => $acc->getImagePath(),
+                    'rating' => $acc->getRating(),
+                    'date' => $b->getCheckIn()?->format('M d, Y'),
+                    'rawDate' => $b->getCreatedAt(),
+                    'type' => 'Accommodation'
+                ];
+            }
+        }
+
+        // 2. Transport Bookings
+        $transBookings = $this->em->getRepository(\App\Entity\Bookingtrans::class)->findBy(
+            ['userId' => (int)$userId],
+            ['bookingDate' => 'DESC'],
+            10
+        );
+        foreach ($transBookings as $b) {
+            $transport = $this->em->getRepository(\App\Entity\Transport::class)->find($b->getTransportId());
+            $trips[] = [
+                'name' => $transport ? ($transport->getProviderName() . ' ' . $transport->getVehicleModel()) : 'Transport Booking',
+                'photo' => $transport ? $transport->getImageUrl() : null,
+                'rating' => $transport ? $transport->getSustainabilityRating() : null,
+                'date' => $b->getBookingDate()?->format('M d, Y'),
+                'rawDate' => $b->getBookingDate(),
+                'type' => 'Transport'
+            ];
+        }
+
+        // 3. General Activity/Destination Bookings
+        $genBookings = $this->em->getRepository(\App\Entity\Booking::class)->findBy(
+            ['userId' => $userId],
+            ['createdAt' => 'DESC'],
+            10
+        );
+        foreach ($genBookings as $b) {
+            $dest = $this->em->getRepository(\App\Entity\Destination::class)->find($b->getDestinationId());
+            $activity = $b->getActivityId() ? $this->em->getRepository(\App\Entity\Activity::class)->find($b->getActivityId()) : null;
+            
+            $trips[] = [
+                'name' => $activity ? $activity->getName() : ($dest ? $dest->getName() : 'Destination Trip'),
+                'photo' => $dest ? $dest->getImageUrl() : null,
+                'rating' => $activity ? $activity->getAverageRating() : ($dest ? $dest->getAverageRating() : null),
+                'date' => $b->getStartAt()?->format('M d, Y'),
+                'rawDate' => $b->getCreatedAt(),
+                'type' => $activity ? 'Activity' : 'Destination'
+            ];
+        }
+
+        // Sort all found trips by rawDate desc
+        usort($trips, fn($a, $b) => ($b['rawDate'] <=> $a['rawDate']));
+
+        return array_slice($trips, 0, 20);
     }
 
     private function buildProfileHandle(User $user): string
@@ -220,6 +393,7 @@ class UserProfileService
         // Climate based
         if (str_contains($climate, 'beach') || str_contains($climate, 'tropical')) return 'Beach Seeker';
         if (str_contains($climate, 'mountain') || str_contains($climate, 'cold')) return 'Mountain Soul';
+        if (str_contains($climate, 'desert') || str_contains($climate, 'hot') || str_contains($climate, 'dry')) return 'Desert Explorer';
 
         // Pace based
         if ($pace === 'slow') return 'Slow Travel Connoisseur';
@@ -238,6 +412,28 @@ class UserProfileService
         if ($stats['SEARCH'] > $stats['VISIT']) return 'Research-Driven Planner';
 
         return 'Global Nomad';
+    }
+
+    public function derivePersonaSlug(string $persona): string
+    {
+        return match ($persona) {
+            'AI-Powered Explorer'      => 'persona-tech',
+            'Luxury Wanderer'          => 'persona-luxury',
+            'Budget Backpacker'        => 'persona-budget',
+            'Beach Seeker'             => 'persona-beach',
+            'Mountain Soul'            => 'persona-mountain',
+            'Desert Explorer'          => 'persona-desert',
+            'Slow Travel Connoisseur'  => 'persona-vintage',
+            'Adrenaline Chaser'        => 'persona-action',
+            'Family Adventure Planner' => 'persona-family',
+            'Solo Pathfinder'          => 'persona-solo',
+            'Romantic Voyager'         => 'persona-romantic',
+            'Cultural Wanderer'        => 'persona-culture',
+            'Culinary Nomad'           => 'persona-food',
+            'Research-Driven Planner'  => 'persona-data',
+            'Global Nomad'             => 'persona-nature',
+            default                    => 'persona-freedom',
+        };
     }
 
     private function mapPageCategory(string $target): string

@@ -4,7 +4,6 @@ namespace App\Security;
 
 use App\service\PreferenceService;
 use App\Entity\User;
-use App\Entity\Preference;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,10 +22,15 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token): RedirectResponse
     {
+        // Reset session attempts on successful login
+        $session = $request->getSession();
+        $session->remove('login_attempts');
+        $session->remove('locked_until');
+        $session->remove('login_error_type');
+        
         $user = $token->getUser();
         $roles = $user->getRoles();
         
-        // Check if user has admin role
         $adminRoles = [
             'ROLE_ADMIN',
             'ROLE_ADMIN_DESTINATION',
@@ -38,28 +42,21 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
 
         foreach ($adminRoles as $role) {
             if (in_array($role, $roles)) {
-                error_log("LOGIN SUCCESS: ADMIN ROLE FOUND: " . $role . " FOR " . $user->getUserIdentifier());
                 return new RedirectResponse($this->urlGenerator->generate('admin_dashboard'));
             }
         }
 
-        // Check if user has completed onboarding (has preferences)
         if (!$user instanceof User) {
-            error_log("LOGIN SUCCESS: USER NOT INSTANCE OF User, REDIRECTING TO INDEX");
             return new RedirectResponse($this->urlGenerator->generate('index'));
         }
 
         $userId = $user->getUserId();
-        error_log("LOGIN SUCCESS: REGULAR USER " . $user->getUserIdentifier() . " (ID: $userId)");
         
         if (!$this->preferenceService->hasCompletedPreferences((int)$userId)) {
-            error_log("LOGIN SUCCESS: ONBOARDING NOT COMPLETE FOR ID: $userId");
             $request->getSession()->set('onboarding_user_id', $userId);
             return new RedirectResponse($this->urlGenerator->generate('app_onboarding'));
         }
 
-        error_log("LOGIN SUCCESS: REDIRECTING TO INDEX FOR " . $user->getUserIdentifier());
-        // Redirect to home page
         return new RedirectResponse($this->urlGenerator->generate('index'));
     }
 }

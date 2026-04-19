@@ -14,17 +14,26 @@
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^2.19",
         "dompdf/dompdf": "^3.1",
+        "endroid/qr-code": "5.0",
         "endroid/qr-code-bundle": "5.0",
+        "friendsofsymfony/ckeditor-bundle": "^2.8",
         "google/apiclient": "2.15",
         "intervention/image": "^3.11",
         "knplabs/knp-paginator-bundle": "*",
         "knplabs/knp-time-bundle": "^2.5",
+        "knpuniversity/oauth2-client-bundle": "*",
+        "league/oauth2-google": "*",
+        "league/oauth2-linkedin": "*",
         "liip/imagine-bundle": "^2.17",
+        "liip/monitor-bundle": "^2.25",
         "phpoffice/phpspreadsheet": "^5.5",
+        "php-ai/php-ml": "^0.10.0",
+        "predis/predis": "*",
         "promphp/prometheus_client_php": "^2.15",
         "promphp/prometheus_push_gateway_php": "^1.1",
         "scheb/2fa-bundle": "7.0",
         "scheb/2fa-google-authenticator": "7.0",
+        "snc/redis-bundle": "*",
         "symfony/asset": "6.4.*",
         "symfony/console": "6.4.*",
         "symfony/doctrine-bridge": "6.4.*",
@@ -79,7 +88,8 @@
     "scripts": {
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
-            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+            "assets:install %PUBLIC_DIR%": "symfony-cmd",
+            "ckeditor:install": "symfony-cmd"
         },
         "post-install-cmd": [
             "@auto-scripts"
@@ -98,7 +108,6 @@
         }
     },
     "require-dev": {
-        "blackfire/php-sdk": "*",
         "itsgoingd/clockwork": "^5.3",
         "symfony/maker-bundle": "^1.67"
     }

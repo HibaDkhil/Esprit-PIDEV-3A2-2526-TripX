@@ -180,6 +180,13 @@
       <div class="ob-progress-fill" id="progressFill"></div>
     </div>
 
+    {# Display success and flash messages #}
+    {% for message in app.flashes('success') %}
+      <div class="alert alert-success" style="margin: 20px 60px 0; background: rgba(15,216,80,0.1); border: 1px solid #0fd850; border-radius: 12px; padding: 16px; color: #0fd850; font-size: 14px; display: flex; align-items: center; gap: 10px; animation: fadeInUp 0.4s ease;">
+        <i class="fas fa-check-circle"></i> {{ message }}
+      </div>
+    {% endfor %}
+
     <div class="ob-slides-wrap" id="obSlidesWrap">
       {# Step 1: Gender (White) #}
       <div class="ob-slide slide-white active" data-slide="0">

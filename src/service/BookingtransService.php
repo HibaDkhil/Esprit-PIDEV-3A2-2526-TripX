@@ -47,9 +47,10 @@ class BookingtransService
         // Send PENDING email
         $transport = $this->transportService->findById($b->getTransportId());
         if ($transport) {
-            $user = $this->entityManager->getRepository(\App\Entity\User::class)->find($b->getUserId());
-            $userEmail = $user ? $user->getEmail() : 'test@tripx.com';
-            $this->mailerService->sendBookingPending($b, $transport, $userEmail);
+            $userEmail = $this->resolveUserEmail($b);
+            if ($userEmail) {
+                $this->mailerService->sendBookingPending($b, $transport, $userEmail);
+            }
         }
     }
 
@@ -111,8 +112,8 @@ class BookingtransService
             if ($oldStatus !== $newStatus) {
                 $transport = $this->transportService->findById($b->getTransportId());
                 if ($transport) {
-                    $user = $this->entityManager->getRepository(\App\Entity\User::class)->find($b->getUserId());
-                    $userEmail = $user ? $user->getEmail() : 'test@tripx.com';
+                    $userEmail = $this->resolveUserEmail($b);
+                    if (!$userEmail) return; // Cannot notify if no owner email
 
                     if ($newStatus === 'CONFIRMED') {
                         $this->mailerService->sendBookingConfirmation($b, $transport, $userEmail);
@@ -142,7 +143,39 @@ class BookingtransService
         return $this->repository->findBy(['userId' => $userId]);
     }
     public function findById(int $id): ?Bookingtrans
-{
-    return $this->repository->find($id);
-}
+    {
+        return $this->repository->find($id);
+    }
+
+    /**
+     * Notifies all users impacted by a schedule update (delay or cancellation).
+     */
+    public function notifyImpactedUsers(int $scheduleId, string $updateType, ?int $delayMinutes = null): void
+    {
+        $bookings = $this->repository->findBy(['scheduleId' => $scheduleId]);
+        foreach ($bookings as $b) {
+            // Only notify if the booking is not already cancelled
+            if ($b->getBookingStatus() !== 'CANCELLED') {
+                $transport = $this->transportService->findById($b->getTransportId());
+                $userEmail = $this->resolveUserEmail($b);
+                
+                if ($transport && $userEmail) {
+                    $this->mailerService->sendScheduleUpdateNotification($b, $transport, $updateType, $userEmail, $delayMinutes);
+                }
+            }
+        }
+    }
+
+    /**
+     * Resolves the email address for the owner of the booking.
+     * Guaranteed to return a real user email or null (no hardcoded admin fallbacks).
+     */
+    private function resolveUserEmail(Bookingtrans $booking): ?string
+    {
+        $userId = $booking->getUserId();
+        if (!$userId) return null;
+
+        $user = $this->entityManager->getRepository(\App\Entity\User::class)->find($userId);
+        return $user ? $user->getEmail() : null;
+    }
 }

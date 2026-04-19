@@ -1,529 +1,176 @@
-/* ════════════════════════════════════════════════════════════════════════
-   ARIA CHAT ASSISTANT - COMPLETE STYLES
-   ════════════════════════════════════════════════════════════════════════ */
+/* ============================================
+   ARIA Assistant Styles
+   Specificity Win: Using #aria-orb and #aria-panel
+============================================ */
 
-/* ── Floating Orb Button ──────────────────────────────────────────────── */
-.aria-orb {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 70px;
-    height: 70px;
+#aria-orb {
+    position: fixed !important;
+    bottom: 30px !important;
+    right: 30px !important;
+    width: 68px !important;
+    height: 68px !important;
+    cursor: pointer !important;
+    z-index: 2147483647 !important;
+    background: #0072ff !important;
+    border-radius: 50% !important;
+    border: 3px solid #00e5ff !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+#aria-orb:hover {
+    transform: scale(1.1) translateY(-5px);
+}
+
+.orb-core {
+    position: absolute;
+    inset: 0;
     background: linear-gradient(135deg, #00e5ff 0%, #0072ff 50%, #7928ca 100%);
     border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px;
-    color: white;
-    box-shadow:
-        0 8px 32px rgba(0, 198, 255, 0.5),
-        0 0 40px rgba(0, 114, 255, 0.3),
-        inset 0 0 20px rgba(255, 255, 255, 0.2);
-    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    animation: orb-pulse 2s ease-in-out infinite;
+    z-index: 1;
 }
 
-.aria-orb::before {
-    content: '';
+.orb-img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 50% !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+.orb-ring {
     position: absolute;
-    inset: -8px;
+    inset: -6px;
     border-radius: 50%;
-    border: 3px solid transparent;
-    background: linear-gradient(135deg, #00e5ff, #0072ff, #7928ca) border-box;
-    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    animation: orb-ring-rotate 3s linear infinite;
-    opacity: 0.7;
+    border: 4px solid #00e5ff;
+    z-index: 0;
+    animation: orb-ring-spin 4s linear infinite;
 }
 
-@keyframes orb-pulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-        box-shadow:
-            0 8px 32px rgba(0, 198, 255, 0.5),
-            0 0 40px rgba(0, 114, 255, 0.3),
-            inset 0 0 20px rgba(255, 255, 255, 0.2);
-    }
-
-    50% {
-        transform: scale(1.05);
-        box-shadow:
-            0 12px 40px rgba(0, 198, 255, 0.7),
-            0 0 60px rgba(0, 114, 255, 0.5),
-            inset 0 0 30px rgba(255, 255, 255, 0.3);
-    }
+@keyframes orb-ring-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
-@keyframes orb-ring-rotate {
-    0% {
-        transform: rotate(0deg) scale(1);
-        opacity: 0.7;
-    }
-
-    50% {
-        transform: rotate(180deg) scale(1.1);
-        opacity: 0.9;
-    }
-
-    100% {
-        transform: rotate(360deg) scale(1);
-        opacity: 0.7;
-    }
-}
-
-.aria-orb:hover {
-    transform: scale(1.15) translateY(-5px);
-    box-shadow:
-        0 15px 50px rgba(0, 198, 255, 0.7),
-        0 0 60px rgba(0, 114, 255, 0.5);
-}
-
-.aria-orb:active {
-    transform: scale(1.05);
-}
-
-/* ── Chat Panel Container ─────────────────────────────────────────────── */
-.aria-panel {
-    position: fixed;
-    bottom: 120px;
-    right: 30px;
-    width: 400px;
-    height: 600px;
-    background: linear-gradient(135deg, rgba(8, 18, 38, 0.98), rgba(2, 8, 22, 0.95));
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    border-radius: 28px;
-    display: none;
-    /* Hidden by default */
-    flex-direction: column;
-    z-index: 9998;
-    overflow: hidden;
-    border: 1px solid rgba(0, 229, 255, 0.3);
-    box-shadow:
-        0 25px 50px rgba(0, 0, 0, 0.5),
-        0 0 30px rgba(0, 114, 255, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    animation: panel-slide-up 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.aria-panel::before {
-    content: '';
+.orb-pulse {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.5), transparent);
-}
-
-@keyframes panel-slide-up {
-    from {
-        opacity: 0;
-        transform: translateY(30px) scale(0.9);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-/* ── Chat Header ──────────────────────────────────────────────────────── */
-.aria-header {
-    padding: 20px 24px;
-    background: linear-gradient(135deg, rgba(0, 114, 255, 0.15), rgba(0, 229, 255, 0.1));
-    border-bottom: 1px solid rgba(0, 229, 255, 0.3);
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    position: relative;
-    flex-shrink: 0;
-}
-
-.aria-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, #00e5ff, #0072ff, transparent);
-    animation: header-scan 4s linear infinite;
-}
-
-@keyframes header-scan {
-    0% {
-        left: -100%;
-    }
-
-    100% {
-        left: 200%;
-    }
-}
-
-.aria-avatar {
-    width: 44px;
-    height: 44px;
-    background: linear-gradient(135deg, #00e5ff, #0072ff, #7928ca);
+    inset: -12px;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    color: white;
-    flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(0, 114, 255, 0.4);
-    position: relative;
-}
-
-.aria-avatar::before {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #00e5ff, #0072ff);
-    filter: blur(12px);
+    border: 2px solid #00e5ff;
     opacity: 0.6;
-    animation: avatar-glow 2.5s ease-in-out infinite;
+    animation: orb-pulse-anim 2s ease-out infinite;
     z-index: -1;
 }
 
-@keyframes avatar-glow {
-
-    0%,
-    100% {
-        opacity: 0.4;
-        transform: scale(1);
-    }
-
-    50% {
-        opacity: 0.8;
-        transform: scale(1.15);
-    }
+@keyframes orb-pulse-anim {
+    0% { transform: scale(0.8); opacity: 0.8; }
+    100% { transform: scale(1.4); opacity: 0; }
 }
 
-.aria-info {
-    flex: 1;
-    min-width: 0;
+#aria-panel {
+    position: fixed !important;
+    bottom: 110px !important;
+    right: 30px !important;
+    width: 380px !important;
+    height: 580px !important;
+    background: #040d1e !important;
+    border: 2px solid #00e5ff !important;
+    border-radius: 24px !important;
+    display: none;
+    flex-direction: column !important;
+    z-index: 2147483646 !important;
+    overflow: hidden !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8) !important;
 }
 
-.aria-name {
-    font-weight: 800;
-    font-size: 18px;
-    background: linear-gradient(135deg, #fff, #00e5ff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    letter-spacing: 1.5px;
-    display: block;
-    line-height: 1.2;
+.aria-header {
+    padding: 16px 20px;
+    background: #071428;
+    border-bottom: 1px solid #00e5ff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-.aria-status {
-    font-size: 11px;
-    color: rgba(255, 255, 255, 0.6);
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.aria-close-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 18px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    width: 32px;
-    height: 32px;
+.aria-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #00e5ff, #0072ff);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    padding: 0;
+    color: white;
+    border: 2px solid #fff;
+    overflow: hidden;
 }
 
-.aria-close-btn:hover {
-    color: #ff4d6d;
-    background: rgba(255, 77, 109, 0.2);
-    border-color: rgba(255, 77, 109, 0.4);
-    transform: rotate(90deg) scale(1.1);
-}
+.aria-info { flex: 1; }
+.aria-name { font-weight: 800; font-size: 16px; color: #00e5ff; display: block; }
+.aria-status { font-size: 10px; color: #00ff88; text-transform: uppercase; }
 
-/* ── Messages Container ───────────────────────────────────────────────── */
+.aria-close-btn { background: none; border: none; color: #516d8a; font-size: 20px; cursor: pointer; }
+.aria-close-btn:hover { color: #ff4d6d; }
+
 .aria-messages {
     flex: 1;
     overflow-y: auto;
-    overflow-x: hidden;
-    padding: 24px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    background: rgba(0, 0, 0, 0.2);
-    min-height: 0;
+    gap: 12px;
+    background: #020816;
 }
 
-.aria-messages::-webkit-scrollbar {
-    width: 6px;
-}
-
-.aria-messages::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 10px;
-}
-
-.aria-messages::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #00e5ff, #0072ff);
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
-}
-
-/* ── Message Bubbles ──────────────────────────────────────────────────── */
-.aria-msg {
-    display: flex;
-    animation: message-appear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes message-appear {
-    from {
-        opacity: 0;
-        transform: translateY(15px) scale(0.9);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-.aria-msg.user {
-    justify-content: flex-end;
-}
-
-.aria-msg.bot {
-    justify-content: flex-start;
-}
+.aria-msg { display: flex; width: 100%; }
+.aria-msg.user { justify-content: flex-end; }
+.aria-msg.bot { justify-content: flex-start; }
 
 .aria-bubble {
     max-width: 85%;
-    padding: 12px 18px;
-    border-radius: 20px;
+    padding: 12px 16px;
+    border-radius: 18px;
     font-size: 14px;
-    line-height: 1.5;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
+    line-height: 1.4;
 }
 
-.aria-msg.user .aria-bubble {
-    background: linear-gradient(135deg, #0072ff 0%, #00e5ff 100%);
-    color: white;
-    border-bottom-right-radius: 6px;
-    box-shadow:
-        0 4px 12px rgba(0, 114, 255, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-}
+.aria-msg.user .aria-bubble { background: #0072ff; color: white; border-bottom-right-radius: 4px; }
+.aria-msg.bot .aria-bubble { background: #1e293b; color: #e8f4ff; border-bottom-left-radius: 4px; border: 1px solid #334155; }
 
-.aria-msg.bot .aria-bubble {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(0, 229, 255, 0.3);
-    color: rgba(255, 255, 255, 0.95);
-    border-bottom-left-radius: 6px;
-    backdrop-filter: blur(10px);
-}
-
-/* ── Typing Indicator ─────────────────────────────────────────────────── */
-.aria-typing {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    padding: 12px 0;
-}
-
-.aria-typing span {
-    width: 8px;
-    height: 8px;
-    background: #00e5ff;
-    border-radius: 50%;
-    animation: typing-bounce 1.4s ease-in-out infinite;
-    box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
-}
-
-.aria-typing span:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.aria-typing span:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
-@keyframes typing-bounce {
-
-    0%,
-    60%,
-    100% {
-        transform: translateY(0);
-        opacity: 0.5;
-        box-shadow: 0 0 5px rgba(0, 229, 255, 0.3);
-    }
-
-    30% {
-        transform: translateY(-10px);
-        opacity: 1;
-        box-shadow: 0 0 15px rgba(0, 229, 255, 0.8);
-    }
-}
-
-/* ── Image Preview ────────────────────────────────────────────────────── */
-.aria-img-preview {
-    padding: 0 24px;
-    margin-bottom: 8px;
-    display: none;
-    position: relative;
-}
-
-.aria-img-preview img {
-    width: 80px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid rgba(0, 229, 255, 0.3);
-}
-
-.aria-img-preview .remove-img {
-    position: absolute;
-    top: -6px;
-    left: 94px;
-    background: #ff4d6d;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 11px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    line-height: 1;
-    transition: all 0.2s;
-}
-
-.aria-img-preview .remove-img:hover {
-    background: #e63946;
-    transform: scale(1.1);
-}
-
-/* ── Input Row ────────────────────────────────────────────────────────── */
 .aria-input-row {
-    padding: 18px 20px;
-    background: rgba(0, 0, 0, 0.3);
-    border-top: 1px solid rgba(0, 229, 255, 0.2);
+    padding: 15px;
+    background: #071428;
+    border-top: 1px solid #1e293b;
     display: flex;
-    gap: 12px;
+    gap: 10px;
     align-items: center;
-    flex-shrink: 0;
-}
-
-.aria-attach-btn {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(0, 229, 255, 0.3);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    padding: 0;
-}
-
-.aria-attach-btn:hover {
-    background: rgba(0, 229, 255, 0.2);
-    border-color: #00e5ff;
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 229, 255, 0.3);
 }
 
 .aria-input {
     flex: 1;
-    min-width: 0;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(0, 229, 255, 0.3);
-    border-radius: 30px;
-    padding: 13px 18px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 20px;
+    padding: 10px 15px;
     color: white;
     font-size: 14px;
-    transition: all 0.3s ease;
-    font-family: inherit;
-}
-
-.aria-input:focus {
     outline: none;
-    border-color: #00e5ff;
-    box-shadow:
-        0 0 20px rgba(0, 229, 255, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.12);
 }
 
-.aria-input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+.aria-send, .aria-mic, .aria-stop {
+    width: 40px; height: 40px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer;
 }
 
-.aria-send {
-    width: 44px;
-    height: 44px;
-    background: linear-gradient(135deg, #0072ff, #00e5ff);
-    border: none;
-    border-radius: 50%;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    padding: 0;
-    box-shadow: 0 4px 12px rgba(0, 114, 255, 0.4);
-}
+.aria-send { background: #0072ff; color: white; }
+.aria-mic { background: #334155; color: #00e5ff; }
+.aria-stop { background: #334155; color: #ff4d6d; border-radius: 8px; }
 
-.aria-send:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(0, 229, 255, 0.6);
-}
+.aria-mic.listening { background: #ff4d6d; color: white; animation: mic-pulse 1s infinite alternate; }
 
-.aria-send:active {
-    transform: scale(0.95);
-}
-
-/* ── Responsive Design ────────────────────────────────────────────────── */
-@media (max-width: 600px) {
-    .aria-panel {
-        width: calc(100vw - 40px);
-        right: 20px;
-        bottom: 100px;
-        height: 550px;
-    }
-
-    .aria-orb {
-        bottom: 20px;
-        right: 20px;
-        width: 60px;
-        height: 60px;
-        font-size: 28px;
-    }
-}
+@keyframes mic-pulse { from { transform: scale(1); } to { transform: scale(1.1); } }

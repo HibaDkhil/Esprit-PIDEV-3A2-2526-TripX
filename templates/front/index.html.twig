@@ -3,8 +3,7 @@
 {% block title %}TripX — Discover the Future of Travel{% endblock %}
 
 {% block stylesheets %}
-  <link rel="stylesheet" href="/assets.php?f=css/main.css">
-  <link rel="stylesheet" href="/assets.php?f=css/animations.css">
+  {{ parent() }}
   <style>
     :root {
       --nav-height: 80px;
@@ -198,6 +197,27 @@
       0%, 100% { opacity: 0.35; transform: scale(1); }
       50% { opacity: 1; transform: scale(1.15); }
     }
+  
+  </style>
+
+  <script src="{{ asset('js/aria-dashboard.js') }}"></script>
+  
+  <style>
+    /* Aria Homepage Specific Force-Fix */
+    body #aria-orb {
+      display: flex !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      position: fixed !important;
+      bottom: 30px !important;
+      right: 30px !important;
+      z-index: 2147483647 !important;
+      filter: none !important;
+      background: linear-gradient(135deg, #00e5ff 0%, #0072ff 50%, #7928ca 100%) !important;
+    }
+    body #aria-panel {
+      z-index: 2147483646 !important;
+    }
   </style>
 {% endblock %}
 
@@ -268,7 +288,7 @@
       <h2 class="pp-home-title">🔮 <span>ARIA's Price Intelligence</span></h2>
       <p class="pp-home-sub">AI-powered price outlook for top-rated activities — simulated trends for MVP.</p>
     </div>
-    <a href="#" class="pp-view-predictions ripple-btn">View all predictions</a>
+    <a href="{{ path('price_dashboard') }}" class="pp-view-predictions ripple-btn">View all predictions</a>
   </div>
   <div class="pp-scroll stagger">
     {% for card in price_prediction_cards %}
@@ -278,24 +298,11 @@
 </section>
 {% endif %}
 
-<button class="aria-orb" id="aria-orb" aria-label="Open ARIA">🤖</button>
-<div class="aria-panel" id="aria-panel">
-  <div class="aria-header">
-    <div class="aria-avatar">🤖</div>
-    <div><span class="aria-name">ARIA</span><span class="aria-status">AI Travel Assistant</span></div>
-    <button id="aria-close" style="margin-left:auto;font-size:18px;color:var(--text-muted);background:none;border:none">✕</button>
-  </div>
-  <div class="aria-messages" id="aria-messages">
-    <div class="aria-msg bot"><div class="aria-bubble">Hello! I can suggest destinations, accommodations, and activities from TripX data.</div></div>
-  </div>
-  <div class="aria-input-row">
-    <input class="aria-input" id="aria-input" type="text" placeholder="Ask ARIA anything...">
-    <button class="aria-send" id="aria-send">➤</button>
-  </div>
-</div>
 
-<script src="/assets.php?f=js/main.js"></script>
-<script src="/assets.php?f=js/price-predictor.js"></script>
+
+
+
+
 <script>
   // Particle Background Logic
   const canvas = document.getElementById('particle-canvas');
@@ -330,39 +337,25 @@
     <div class="section-label reveal"><span>Where to Stay</span></div>
     <h2 class="section-title reveal" style="font-family: var(--font-display);">Curated Accommodations</h2>
     <div class="grid-3 stagger" style="margin-top:40px;">
+      {% for acc in accommodations %}
       <div class="card interactive">
-        <img src="/assets.php?f=images/accomodations/hotel1.jfif" style="width:100%; height:200px; object-fit:cover; border-radius:var(--border-radius-sm) var(--border-radius-sm) 0 0;" alt="Hotel">
-        <div class="card-body">
-          <h3 style="font-family: var(--font-display); font-size:1.2rem;">The Glass Cabins</h3>
-          <p class="text-muted" style="font-size:0.9rem;">Northern Lights views from your bed.</p>
-          <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center;">
-            <span class="text-primary font-bold">€350/night</span>
-            <button class="btn btn-primary btn-sm">View</button>
+        <a href="{{ path('accommodation_details', {id: acc.id}) }}" style="text-decoration:none; color:inherit;">
+          {% if acc.imagePath %}
+            <img src="{{ asset(acc.imagePath) }}" style="width:100%; height:200px; object-fit:cover; border-radius:var(--border-radius-sm) var(--border-radius-sm) 0 0;" alt="{{ acc.name }}">
+          {% else %}
+            <div style="width:100%; height:200px; background:linear-gradient(45deg,#0ea5e9,#0284c7); border-radius:var(--border-radius-sm) var(--border-radius-sm) 0 0; display:flex; align-items:center; justify-content:center; color:white; font-size:40px;">🏢</div>
+          {% endif %}
+          <div class="card-body">
+            <h3 style="font-family: var(--font-display); font-size:1.2rem;">{{ acc.name }}</h3>
+            <p class="text-muted" style="font-size:0.9rem;">{{ acc.city }}, {{ acc.country }}</p>
+            <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center;">
+              <span class="text-primary font-bold">From €{{ acc.stars * 50 }}/night</span> {# Fallback price logic if no rooms bound #}
+              <button class="btn btn-primary btn-sm">View</button>
+            </div>
           </div>
-        </div>
+        </a>
       </div>
-      <div class="card interactive">
-        <div style="width:100%; height:200px; background:linear-gradient(45deg,#0ea5e9,#0284c7); border-radius:var(--border-radius-sm) var(--border-radius-sm) 0 0; display:flex; align-items:center; justify-content:center; color:white; font-size:40px;">🌴</div>
-        <div class="card-body">
-          <h3 style="font-family: var(--font-display); font-size:1.2rem;">Oceanfront Villa</h3>
-          <p class="text-muted" style="font-size:0.9rem;">Private infinity pool in Bali.</p>
-          <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center;">
-            <span class="text-primary font-bold">€820/night</span>
-            <button class="btn btn-primary btn-sm">View</button>
-          </div>
-        </div>
-      </div>
-      <div class="card interactive">
-        <div style="width:100%; height:200px; background:linear-gradient(45deg,#f43f5e,#e11d48); border-radius:var(--border-radius-sm) var(--border-radius-sm) 0 0; display:flex; align-items:center; justify-content:center; color:white; font-size:40px;">🗼</div>
-        <div class="card-body">
-          <h3 style="font-family: var(--font-display); font-size:1.2rem;">Parisian Flat</h3>
-          <p class="text-muted" style="font-size:0.9rem;">Wake up to the Eiffel Tower.</p>
-          <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center;">
-            <span class="text-primary font-bold">€210/night</span>
-            <button class="btn btn-primary btn-sm">View</button>
-          </div>
-        </div>
-      </div>
+      {% endfor %}
     </div>
   </div>
 </section>
@@ -372,22 +365,21 @@
   <div class="section-label reveal"><span>Exclusive Deals</span></div>
   <h2 class="section-title reveal" style="font-family: var(--font-display);">Unlock the World</h2>
   <div class="grid-2 stagger" style="margin-top:40px;">
-    <div style="background:var(--bg-card); border-radius:var(--border-radius-lg); padding:32px; display:flex; gap:24px; align-items:center; border:1px solid var(--border-color);">
-      <div style="font-size:48px;">✈️</div>
+    {% set icons = ['✈️', '🎒', '🏨', '🏝️', '🌆', '🌉'] %}
+    {% for pack in packs %}
+    <div style="background:var(--bg-card); border-radius:var(--border-radius-lg); padding:32px; display:flex; gap:24px; align-items:center; border:1px solid var(--border-color); position: relative;">
+      <div style="font-size:48px;">{{ icons[loop.index0 % icons|length] }}</div>
       <div>
-        <h3 style="font-family: var(--font-display);">Europe Summer Pass</h3>
-        <p class="text-muted" style="font-size:0.9rem;">Unlimited train travel for 30 days.</p>
-        <span class="badge badge-primary" style="margin-top:12px; display:inline-block;">Save 25%</span>
+        <h3 style="font-family: var(--font-display);">{{ pack.title }}</h3>
+        <p class="text-muted" style="font-size:0.9rem;">{{ pack.description|slice(0, 60) }}...</p>
+        <div style="display:flex; align-items:center; gap:12px; margin-top:12px;">
+          <span class="badge badge-primary">From €{{ pack.basePrice }}</span>
+          <span class="text-muted" style="font-size:0.75rem; font-family:var(--font-mono)">{{ pack.durationDays }} Days</span>
+        </div>
       </div>
+      <a href="{{ path('user_pack_details', {id: pack.idPack}) }}" class="stretched-link"></a>
     </div>
-    <div style="background:var(--bg-card); border-radius:var(--border-radius-lg); padding:32px; display:flex; gap:24px; align-items:center; border:1px solid var(--border-color);">
-      <div style="font-size:48px;">🎒</div>
-      <div>
-        <h3 style="font-family: var(--font-display);">Backpacker Bundle</h3>
-        <p class="text-muted" style="font-size:0.9rem;">Hostels + Flights combo across SE Asia.</p>
-        <span class="badge badge-teal" style="margin-top:12px; display:inline-block;">Hot Deal</span>
-      </div>
-    </div>
+    {% endfor %}
   </div>
 </section>
 
@@ -447,7 +439,43 @@
     </div>
   </div>
 </footer>
+
+
+
 {% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="/assets.php?f=js/price-predictor.js"></script>
+<script>
+  // Particle Background Logic
+  const canvas = document.getElementById('particle-canvas');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    let pts = [];
+    function init() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      pts = [];
+      for(let i=0; i<80; i++) pts.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*2+1, vx: (Math.random()-0.5)*0.5, vy: (Math.random()-0.5)*0.5});
+    }
+    function anim() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = 'rgba(14,165,255,0.4)';
+      pts.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
+        if(p.x<0) p.x=canvas.width; if(p.x>canvas.width) p.x=0;
+        if(p.y<0) p.y=canvas.height; if(p.y>canvas.height) p.y=0;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI*2); ctx.fill();
+      });
+      requestAnimationFrame(anim);
+    }
+    window.addEventListener('resize', init);
+    init(); anim();
+  }
+</script>
+{% endblock %}
+
 
 
 

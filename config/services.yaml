@@ -3,6 +3,7 @@ parameters:
     env(RAGHED_GEMINI): ''
     env(SERPAPI_API_KEY): ''
     env(OPENWEATHER_API_KEY): ''
+    env(ELEVENLABS_API_KEY): ''
 
 services:
     _defaults:
@@ -16,19 +17,28 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    # ============ SECURITY HANDLERS ============
+    
     App\Security\LoginSuccessHandler:
         arguments:
             - '@router'
             - '@doctrine.orm.entity_manager'
             - '@App\service\PreferenceService'
 
+    App\Security\LoginFailureHandler:
+        arguments:
+            $router: '@router'
+
+    # ============ GEMINI SERVICE ============
+    
     App\service\GeminiService:
         arguments:
             $httpClient: '@http_client'
             $geminiApiKey: '%env(GEMINI_API_KEY)%'
             $geminiModel: '%env(GEMINI_MODEL)%'
 
-    # Inject services into AuthController via setters
+    # ============ AUTH CONTROLLER INJECTIONS ============
+    
     App\Controller\user\AuthController:
         calls:
             - setAuthService: ['@App\service\AuthService']
@@ -114,19 +124,56 @@ services:
             $em: '@doctrine.orm.entity_manager'
             $notificationRepo: '@App\Repository\AdminNotificationRepository'
 
+    # Image Watermark Service
+    App\service\Accommodation\ImageWatermarkService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    # ============ TRANSPORT SERVICES ============
+    
     # Transport Optimal Route Service
     App\service\TransportOptimalRouteService:
         arguments:
             $groqApiKey: '%env(TRANSPORTAI)%'
 
-    # Admin Controller
+    # ============ ADMIN CONTROLLER ============
+    
     App\Controller\admin\OverviewController:
         arguments:
             $groqApiKey: '%env(TRANSPORTAI)%'
         tags: ['controller.service_arguments']
+
+    # ============ HEALTH CHECK SERVICES ============
     
-    # Image Watermark Service
-    App\service\Accommodation\ImageWatermarkService:
+    # ElevenLabs API Health Check
+    App\service\HealthCheck\ElevenLabsStatusCheck:
         arguments:
-            $projectDir: '%kernel.project_dir%'
-        
+            $elevenLabsApiKey: '%env(ELEVENLABS_API_KEY)%'
+        tags:
+            - { name: liip_monitor.check, alias: eleven_labs_api }
+
+    # Mailer Health Check
+    App\service\HealthCheck\MailerStatusCheck:
+        arguments:
+            $transport: '@mailer.default_transport'
+        tags:
+            - { name: liip_monitor.check, alias: symfony_mailer }
+
+    # Redis Health Check
+    App\service\HealthCheck\RedisStatusCheck:
+        arguments:
+            $redisUrl: '%env(REDIS_URL)%'
+        tags:
+            - { name: liip_monitor.check, alias: redis_status }
+
+    # ============ TWO-FACTOR AUTHENTICATION SERVICES ============
+    
+    Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleTotpFactory:
+        alias: scheb_two_factor.security.google_totp_factory
+        public: true
+
+    Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticator:
+        arguments:
+            $totpFactory: '@scheb_two_factor.security.google_totp_factory'
+            $leeway: 0
+        public: true
