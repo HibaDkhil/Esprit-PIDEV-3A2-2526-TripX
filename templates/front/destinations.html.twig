@@ -55,6 +55,7 @@
       opacity: 0;
       transition: opacity var(--transition-smooth);
       gap: 14px;
+      z-index: 10;
     }
     .dest-card-inner:hover .dest-hover-layer { opacity: 1; }
     .dest-hover-btn {
@@ -120,13 +121,14 @@
         <button class="filter-pill">🌴 Islands</button>
         <button class="filter-pill">🏔️ Mountains</button>
       </div>
-      <div style="margin-left:auto;display:flex;gap:10px">
+      <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
         <div class="filter-pills">
           <button class="filter-pill">😎 Chill</button>
           <button class="filter-pill">🧗 Adventure</button>
           <button class="filter-pill">💑 Romantic</button>
           <button class="filter-pill">🎭 Cultural</button>
         </div>
+        <a href="{{ path('destination_recommendations') }}" class="btn btn-primary btn-sm ripple-btn" style="padding:8px 18px;font-size:11px;letter-spacing:0.08em;">✨ Get Recommendations</a>
       </div>
     </div>
   </div>
@@ -144,16 +146,16 @@
 <!-- Destinations Grid -->
 <section class="section-sm">
   <div class="container">
-    <div class="dest-grid stagger">
+    <div class="dest-grid">
       {% for dest in destinations %}
         {% set shape = ['tall', 'mid', 'short', 'tall', 'mid', 'short'][loop.index0 % 6] %}
         <div class="dest-card-wrap {{ shape }}">
           <div class="dest-card-inner">
             <div class="dest-card-bg" style="background:linear-gradient(135deg,#1a3a5c,#2d6a4f)">
                {% if dest.imageUrl %}
-                  <img src="{{ dest.imageUrl }}" style="width:100%; height:100%; object-fit:cover; opacity:0.6;" alt="{{ dest.name }}">
+                  <img src="{{ dest.imageUrl }}" style="width:100%; height:100%; object-fit:cover; opacity:0.6;" alt="{{ dest.name }}" onerror="this.src='https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80'">
                {% else %}
-                  🌍
+                  <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80" style="width:100%; height:100%; object-fit:cover; opacity:0.6;" alt="{{ dest.name }}">
                {% endif %}
             </div>
             <div class="dest-card-over"></div>
@@ -164,7 +166,7 @@
                 </span>
               </a>
               <a href="{{ path('booking_form', {destinationId: dest.destinationId}) }}" class="btn btn-primary btn-sm ripple-btn" style="margin-top:10px; padding:10px 24px; font-size:12px;">📋 Book Now</a>
-              <button class="btn btn-secondary btn-sm ripple-btn" style="margin-top:4px;">Recommend</button>
+              <a href="{{ path('destination_recommendations', {type: dest.type, season: dest.bestSeason}) }}" class="btn btn-secondary btn-sm ripple-btn" style="margin-top:4px;">✨ Recommend</a>
             </div>
             <div class="dest-card-cnt">
               <div class="dest-country">{{ dest.country }}</div>
@@ -179,9 +181,45 @@
       {% endfor %}
     </div>
 
-    <div class="text-center mt-48">
-      <button class="btn btn-secondary btn-lg ripple-btn">Load More Destinations</button>
+    {# ── Pagination Controls ── #}
+    {% if destinations.pageCount|default(0) > 1 or currentLimit is defined %}
+    <div style="display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:48px;">
+      {# Items per page selector #}
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono); letter-spacing:0.05em; text-transform:uppercase;">Show</span>
+        {% for size in [6, 12, 24, 48] %}
+          <a href="{{ path('destinations', {limit: size, page: 1}) }}"
+             class="btn btn-sm {{ currentLimit == size ? 'btn-primary' : 'btn-secondary' }} ripple-btn"
+             style="min-width:42px; text-align:center; font-size:12px; border-radius:50px;">{{ size }}</a>
+        {% endfor %}
+        <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono); letter-spacing:0.05em; text-transform:uppercase;">per page</span>
+      </div>
+
+      {# Page navigation #}
+      {% if destinations.pageCount|default(0) > 1 %}
+      <div style="display:flex; align-items:center; gap:8px;">
+        {% if destinations.currentPageNumber > 1 %}
+          <a href="{{ path('destinations', {page: destinations.currentPageNumber - 1, limit: currentLimit}) }}" class="btn btn-secondary ripple-btn" style="border-radius:50px; padding:10px 20px; font-size:13px;">← Previous</a>
+        {% endif %}
+
+        {% set startPage = max(1, destinations.currentPageNumber - 2) %}
+        {% set endPage = min(destinations.pageCount, destinations.currentPageNumber + 2) %}
+        {% for p in startPage..endPage %}
+          <a href="{{ path('destinations', {page: p, limit: currentLimit}) }}"
+             class="btn {{ p == destinations.currentPageNumber ? 'btn-primary' : 'btn-secondary' }} ripple-btn"
+             style="min-width:42px; text-align:center; border-radius:50px; padding:10px 16px; font-size:13px;">{{ p }}</a>
+        {% endfor %}
+
+        {% if destinations.currentPageNumber < destinations.pageCount %}
+          <a href="{{ path('destinations', {page: destinations.currentPageNumber + 1, limit: currentLimit}) }}" class="btn btn-secondary ripple-btn" style="border-radius:50px; padding:10px 20px; font-size:13px;">Next →</a>
+        {% endif %}
+      </div>
+      <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono);">
+        Page {{ destinations.currentPageNumber }} of {{ destinations.pageCount }}
+      </span>
+      {% endif %}
     </div>
+    {% endif %}
   </div>
 </section>
 
@@ -213,9 +251,3 @@
 <script src="/assets.php?f=js/main.js"></script>
 </body>
 </html>
-
-
-
-
-
-

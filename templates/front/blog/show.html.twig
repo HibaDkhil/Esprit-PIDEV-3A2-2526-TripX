@@ -1,0 +1,398 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ post.title }} — TripX Blog{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/blog.css') }}">
+{% endblock %}
+
+{% block body %}
+{% set rxnIcons  = {like:'👍',love:'❤️',haha:'😂',wow:'😮',sad:'😢',angry:'😡'} %}
+{% set rxnLabels = {like:'Like',love:'Love',haha:'Haha',wow:'Wow',sad:'Sad',angry:'Angry'} %}
+{% set me = app.user %}
+{% set myId = me is not null ? me.id : null %}
+{% set total = reactionMap.like + reactionMap.love + reactionMap.haha + reactionMap.wow + reactionMap.sad + reactionMap.angry %}
+{% set isOwner = myId is not null and myId == post.userId %}
+
+<div class="blog-page">
+<div class="show-wrap">
+
+  <a href="{{ path('blog') }}" class="show-back">← Back to Feed</a>
+
+  <div class="show-card">
+    {# Hero image #}
+    {% if post.imageUrl %}
+      {% set firstImg = post.imageUrl|split(',')|first|trim %}
+      {% if firstImg %}
+        <img src="{{ firstImg }}" class="show-hero-img" alt="{{ post.title }}"
+             onerror="this.style.display='none'">
+      {% endif %}
+    {% endif %}
+
+    <div class="show-body-wrap">
+
+      {# Meta row #}
+      <div class="show-meta">
+        {% set aName = authors[post.userId] ?? 'User #' ~ post.userId %}
+        <div class="pc-avatar" style="width:38px;height:38px;font-size:15px;">{{ aName|first|upper }}</div>
+        <div>
+          <div class="pc-name">{{ aName }}</div>
+          <div class="pc-date">{% if post.createdAt %}{{ post.createdAt|date('d M Y · H:i') }}{% endif %}</div>
+        </div>
+        <span class="pc-badge b-{{ post.type }}" style="margin-left:auto;">{{ post.type }}</span>
+        {% if not post.isConfirmed %}
+          <span class="pc-badge" style="background:rgba(245,158,11,0.15);color:#fcd34d;border:1px solid rgba(245,158,11,0.25);">⏳ Pending</span>
+        {% endif %}
+      </div>
+
+      {# Title #}
+      <h1 class="show-title">{{ post.title }}</h1>
+
+      {# Body #}
+      <div class="show-content">{{ post.body }}</div>
+
+      {# Additional images grid #}
+      {% if post.imageUrl %}
+        {% set imgUrls = post.imageUrl|split(',') %}
+        {% if imgUrls|length > 1 %}
+          <div class="show-image-grid cols-{{ imgUrls|length > 2 ? 3 : 2 }}" style="margin-top:20px;">
+            {% for img in imgUrls %}
+              {% if img|trim %}
+                <img src="{{ img|trim }}" alt="{{ post.title }}" onerror="this.style.display='none'">
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endif %}
+
+      {# Reaction tally #}
+      {% if total > 0 %}
+        <div class="rxn-tally" style="margin-top:20px;">
+          {% for rtype, emoji in rxnIcons %}
+            {% if reactionMap[rtype] is defined and reactionMap[rtype] > 0 %}
+              <span>{{ emoji }} {{ reactionMap[rtype] }}</span>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {# Actions #}
+      <div class="show-actions-section">
+        <div class="pc-actions" style="border:none;padding:0;margin:0;">
+          {# Reaction #}
+          <div class="rxn-wrap" id="rxnwrap-{{ post.id }}">
+            <button type="button"
+                    class="rxn-btn {% if userReaction %}reacted-{{ userReaction }}{% endif %}"
+                    id="rxnbtn-{{ post.id }}"
+                    onclick="quickReact({{ post.id }}, '{{ userReaction ?: '' }}', 'post')">
+              <span id="rxnicon-{{ post.id }}">
+                {% if userReaction and rxnIcons[userReaction] is defined %}{{ rxnIcons[userReaction] }}{% else %}👍{% endif %}
+              </span>
+              <span id="rxnlbl-{{ post.id }}">
+                {% if userReaction and rxnLabels[userReaction] is defined %}{{ rxnLabels[userReaction] }}{% else %}Like{% endif %}
+              </span>
+              {% if total > 0 %}
+                <span class="rxn-count" id="rxntotal-{{ post.id }}">{{ total }}</span>
+              {% else %}
+                <span class="rxn-count" id="rxntotal-{{ post.id }}" style="display:none">0</span>
+              {% endif %}
+            </button>
+            <div class="rxn-picker">
+              {% for rtype, emoji in rxnIcons %}
+                <button type="button"
+                        class="emoji-btn {% if userReaction == rtype %}active-emoji{% endif %}"
+                        id="rxnopt-{{ post.id }}-{{ rtype }}"
+                        onclick="sendReaction({{ post.id }}, '{{ rtype }}', 'post')">
+                  <span class="e">{{ emoji }}</span>
+                  <span class="el">{{ rxnLabels[rtype] }}</span>
+                </button>
+              {% endfor %}
+            </div>
+          </div>
+
+          <button type="button" class="act-btn"
+                  onclick="sharePost('{{ post.title|e('js') }}', window.location.href)">
+            🔗 Share
+          </button>
+
+          {% if isOwner %}
+            <a href="{{ path('post_edit', {id: post.id}) }}" class="act-btn">✏️ Edit</a>
+            <form method="post" action="{{ path('post_delete', {id: post.id}) }}" class="inline-form"
+                  onsubmit="return confirm('Delete this post?')">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete_post_' ~ post.id) }}">
+              <button type="submit" class="act-btn" style="color:var(--danger)">🗑 Delete</button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+
+      {# Comments Section #}
+      <div class="show-comments-section">
+        <h2 class="show-comments-title">💬 Comments ({{ post.comments|length }})</h2>
+
+        {% set comments    = post.comments|default([]) %}
+        {% set topComments = comments|filter(c => c.parentCommentId is null or c.parentCommentId == 0) %}
+        {% set allReplies  = comments|filter(c => c.parentCommentId is not null and c.parentCommentId != 0) %}
+
+        {% for comment in topComments %}
+          {% set cn = authors[comment.userId] ?? 'User #' ~ comment.userId %}
+          {% set commentReplies = allReplies|filter(r => r.parentCommentId == comment.id) %}
+
+          <div class="crow" id="comment-{{ comment.id }}">
+            <div class="cav">{{ cn|first|upper }}</div>
+            <div class="cbubble">
+              <div class="cn">{{ cn }}</div>
+              <div class="cb" id="cbody-{{ comment.id }}">{{ comment.body }}</div>
+
+              <div class="edit-form" id="edit-{{ comment.id }}">
+                <form method="post" action="{{ path('comment_edit', {id: comment.id}) }}" class="edit-inline-form">
+                  <input type="hidden" name="_token" value="{{ csrf_token('edit_comment_' ~ comment.id) }}">
+                  <textarea name="body" rows="1"
+                            oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'">{{ comment.body }}</textarea>
+                  <button type="submit" class="edit-send">Save</button>
+                  <button type="button" class="edit-cancel" onclick="toggleEditForm('edit-{{ comment.id }}')">✕</button>
+                </form>
+              </div>
+
+              <div class="comment-actions">
+                <div class="c-rxn-wrap">
+                  <button type="button" class="ca-btn" id="crxnbtn-{{ comment.id }}"
+                          onclick="quickReact({{ comment.id }}, '', 'comment')">👍 Like</button>
+                  <div class="c-rxn-picker">
+                    {% for rtype, emoji in rxnIcons %}
+                      <button type="button" class="c-emoji-btn"
+                              onclick="sendReaction({{ comment.id }}, '{{ rtype }}', 'comment')"
+                              title="{{ rxnLabels[rtype] }}">{{ emoji }}</button>
+                    {% endfor %}
+                  </div>
+                </div>
+                <span class="c-rxn-tally" id="crxntally-{{ comment.id }}"></span>
+                <span class="ca-sep">·</span>
+                <button type="button" class="ca-btn" onclick="toggleReplyForm('reply-{{ comment.id }}')">💬 Reply</button>
+                <span class="ca-sep">·</span>
+                <span class="comment-time">{% if comment.createdAt %}{{ comment.createdAt|date('d M · H:i') }}{% endif %}</span>
+                {% if me is not null and myId == comment.userId %}
+                  <span class="ca-sep">·</span>
+                  <button type="button" class="ca-btn" onclick="toggleEditForm('edit-{{ comment.id }}')">✏️ Edit</button>
+                {% endif %}
+                {% if me is not null and (myId == comment.userId or myId == post.userId) %}
+                  <span class="ca-sep">·</span>
+                  <form method="post" action="{{ path('comment_delete', {id: comment.id}) }}" class="inline-form"
+                        onsubmit="return confirm('Delete this comment?')">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_' ~ comment.id) }}">
+                    <button type="submit" class="ca-btn danger">🗑 Delete</button>
+                  </form>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="reply-form" id="reply-{{ comment.id }}">
+            <form method="post" action="{{ path('comment_create', {id: post.id}) }}">
+              <input type="hidden" name="parent_comment_id" value="{{ comment.id }}">
+              <div class="reply-form-inner">
+                <textarea name="body" rows="1"
+                          placeholder="Reply to {{ cn|split(' ')|first }}…"
+                          oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+                <button type="submit" class="reply-send">Reply</button>
+                <button type="button" class="reply-cancel" onclick="toggleReplyForm('reply-{{ comment.id }}')">✕</button>
+              </div>
+            </form>
+          </div>
+
+          {% if commentReplies|length > 0 %}
+            <button type="button" class="replies-toggle" onclick="toggleReplies('replies-{{ comment.id }}', this)">
+              <span>▸</span> {{ commentReplies|length }} {{ commentReplies|length == 1 ? 'reply' : 'replies' }}
+            </button>
+            <div class="replies-wrap" id="replies-{{ comment.id }}" style="display:none">
+              {% for reply in commentReplies %}
+                {% set rn = authors[reply.userId] ?? 'User #' ~ reply.userId %}
+                <div class="crow crow-reply" id="comment-{{ reply.id }}">
+                  <div class="cav cav-small">{{ rn|first|upper }}</div>
+                  <div class="cbubble">
+                    <div class="cn">{{ rn }}</div>
+                    <div class="cb">{{ reply.body }}</div>
+                    <div class="comment-actions">
+                      <span class="comment-time">{% if reply.createdAt %}{{ reply.createdAt|date('d M · H:i') }}{% endif %}</span>
+                      {% if me is not null and (myId == reply.userId or myId == post.userId) %}
+                        <span class="ca-sep">·</span>
+                        <form method="post" action="{{ path('comment_delete', {id: reply.id}) }}" class="inline-form"
+                              onsubmit="return confirm('Delete this reply?')">
+                          <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_' ~ reply.id) }}">
+                          <button type="submit" class="ca-btn danger">🗑</button>
+                        </form>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% else %}
+          <p class="no-comments">No comments yet — be the first! 🌍</p>
+        {% endfor %}
+
+        {# New comment (AJAX) #}
+        {% if me is not null %}
+          <form onsubmit="event.preventDefault(); submitCommentAjax(this, {{ post.id }});" style="margin-top:8px;">
+            <div class="cform-row">
+              <textarea name="body" rows="1" placeholder="Write a comment…"
+                        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+              <button type="submit" class="csend">Post</button>
+            </div>
+            <div class="cform-error"></div>
+          </form>
+        {% else %}
+          <p class="no-comments">
+            <a href="{{ path('app_login') }}" style="color:var(--accent);font-weight:700;">Log in</a> to leave a comment.
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const RXN_ICONS  = {like:'👍',love:'❤️',haha:'😂',wow:'😮',sad:'😢',angry:'😡'};
+const RXN_LABELS = {like:'Like',love:'Love',haha:'Haha',wow:'Wow',sad:'Sad',angry:'Angry'};
+
+async function sendReaction(targetId, type, targetType) {
+  const url = targetType === 'post'
+    ? `/post/${targetId}/react/${type}`
+    : `/comment/${targetId}/react/${type}`;
+  try {
+    const res  = await fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (targetType === 'post') updatePostReaction(targetId, data.userReaction, data.counts);
+    else updateCommentReaction(targetId, data.userReaction, data.counts);
+  } catch(e) {}
+}
+
+function quickReact(targetId, currentReaction, targetType) {
+  sendReaction(targetId, currentReaction || 'like', targetType);
+}
+
+function updatePostReaction(pid, userReaction, counts) {
+  const btn    = document.getElementById(`rxnbtn-${pid}`);
+  const iconEl = document.getElementById(`rxnicon-${pid}`);
+  const lblEl  = document.getElementById(`rxnlbl-${pid}`);
+  const totEl  = document.getElementById(`rxntotal-${pid}`);
+  if (!btn) return;
+  btn.className = btn.className.replace(/reacted-\w+/g,'').trim();
+  if (userReaction) {
+    btn.classList.add(`reacted-${userReaction}`);
+    iconEl.textContent = RXN_ICONS[userReaction] || '👍';
+    lblEl.textContent  = RXN_LABELS[userReaction] || 'Like';
+  } else {
+    iconEl.textContent = '👍';
+    lblEl.textContent  = 'Like';
+  }
+  Object.keys(RXN_ICONS).forEach(t => {
+    const o = document.getElementById(`rxnopt-${pid}-${t}`);
+    if (o) o.classList.toggle('active-emoji', t === userReaction);
+  });
+  const total = Object.values(counts).reduce((a,b) => a+b, 0);
+  if (totEl) { totEl.style.display = total > 0 ? '' : 'none'; totEl.textContent = total; }
+}
+
+function updateCommentReaction(cid, userReaction, counts) {
+  const btn   = document.getElementById(`crxnbtn-${cid}`);
+  const tally = document.getElementById(`crxntally-${cid}`);
+  if (!btn) return;
+  if (userReaction) { btn.classList.add('c-reacted'); btn.innerHTML = `${RXN_ICONS[userReaction]} ${RXN_LABELS[userReaction]}`; }
+  else { btn.classList.remove('c-reacted'); btn.innerHTML = '👍 Like'; }
+  if (tally) {
+    const total = Object.values(counts).reduce((a,b) => a+b, 0);
+    tally.innerHTML = total > 0
+      ? Object.entries(counts).filter(([,n]) => n>0).map(([t,n]) => `${RXN_ICONS[t]}${n}`).join(' ')
+      : '';
+  }
+}
+
+async function sharePost(title, url) {
+  if (navigator.share) { try { await navigator.share({title, url}); return; } catch(e){return;} }
+  try { await navigator.clipboard.writeText(url); showToast('🔗 Link copied!'); }
+  catch(e) { prompt('Copy link:', url); }
+}
+
+function showToast(msg) {
+  let t = document.querySelector('.blog-toast');
+  if (!t) { t = document.createElement('div'); t.className='blog-toast'; document.body.appendChild(t); }
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function submitCommentAjax(form, postId) {
+  const textarea = form.querySelector('textarea[name="body"]');
+  const errEl    = form.querySelector('.cform-error');
+  const body     = textarea.value.trim();
+  if (errEl) errEl.textContent = '';
+  if (body.length < 2) { if (errEl) errEl.textContent = 'Comment must be at least 2 characters.'; return; }
+
+  const fd = new FormData(form);
+  fetch(`/comment/create-ajax/${postId}`, { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { if (errEl) errEl.textContent = data.error; return; }
+      const c     = data.comment;
+      const html  = `<div class="crow" id="comment-${c.id}">
+        <div class="cav">${c.author.charAt(0).toUpperCase()}</div>
+        <div class="cbubble">
+          <div class="cn">${escHtml(c.author)}</div>
+          <div class="cb">${escHtml(c.body)}</div>
+          <div class="comment-actions"><span class="comment-time">${c.createdAt}</span></div>
+        </div></div>`;
+      const section  = document.querySelector('.show-comments-section');
+      const formEl   = section.querySelector('form');
+      const noEl     = section.querySelector('.no-comments');
+      if (noEl) noEl.remove();
+      const d = document.createElement('div');
+      d.innerHTML = html;
+      section.insertBefore(d.firstElementChild, formEl);
+
+      const title = section.querySelector('.show-comments-title');
+      if (title) {
+        const m = title.textContent.match(/\((\d+)\)/);
+        const n = m ? parseInt(m[1]) + 1 : 1;
+        title.textContent = `💬 Comments (${n})`;
+      }
+      textarea.value = '';
+      textarea.style.height = 'auto';
+      showToast('💬 Comment posted!');
+    })
+    .catch(() => { if (errEl) errEl.textContent = 'Failed to post comment.'; });
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toggleEditForm(id) {
+  const f = document.getElementById(id);
+  if (!f) return;
+  f.classList.toggle('open');
+  if (f.classList.contains('open')) { const ta = f.querySelector('textarea'); if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length,ta.value.length); } }
+}
+
+function toggleReplyForm(id) {
+  const f = document.getElementById(id);
+  if (!f) return;
+  f.classList.toggle('open');
+  if (f.classList.contains('open')) f.querySelector('textarea')?.focus();
+}
+
+function toggleReplies(id, btn) {
+  const w = document.getElementById(id);
+  if (!w) return;
+  const open = w.style.display !== 'none';
+  w.style.display = open ? 'none' : 'flex';
+  w.style.flexDirection = 'column';
+  w.style.gap = '10px';
+  const arrow = btn.querySelector('span');
+  if (arrow) arrow.textContent = open ? '▸' : '▾';
+}
+</script>
+{% endblock %}

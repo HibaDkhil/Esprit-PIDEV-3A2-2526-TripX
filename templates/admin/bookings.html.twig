@@ -47,9 +47,25 @@
     </div>
   </div>
 
+  <div class="reveal" style="display:grid; grid-template-columns: 1fr 1fr; gap:24px; margin-bottom:24px;">
+    <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius-lg); padding:20px; box-shadow:var(--shadow-sm);">
+      <h3 style="font-family:var(--font-display); font-size:16px; margin-bottom:16px; color:var(--text-main);">Bookings by Destination</h3>
+      <div style="height:250px; position:relative;">
+        {{ render_chart(destChart) }}
+      </div>
+    </div>
+    <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius-lg); padding:20px; box-shadow:var(--shadow-sm);">
+      <h3 style="font-family:var(--font-display); font-size:16px; margin-bottom:16px; color:var(--text-main);">Revenue by Status</h3>
+      <div style="height:250px; position:relative;">
+        {{ render_chart(revChart) }}
+      </div>
+    </div>
+  </div>
+
   <div class="search-wrap reveal">
-    <form method="get" action="{{ path('admin_bookings') }}" style="display:flex; width:100%; gap:12px;">
+    <form method="get" action="{{ path('admin_bookings_des_index') }}" style="display:flex; width:100%; gap:12px;">
       <input type="text" name="q" value="{{ currentQuery }}" class="input-search" placeholder="Search by reference, email, status...">
+      <input type="hidden" name="limit" value="{{ currentLimit }}">
       <button type="submit" class="btn btn-secondary">Search</button>
     </form>
   </div>
@@ -58,17 +74,17 @@
     <table class="dest-table">
       <thead>
         <tr>
-          <th>Reference</th>
-          <th>User Email</th>
+          <th style="cursor:pointer;" onclick="sortData('bookingReference')">Reference ↕</th>
+          <th style="cursor:pointer;" onclick="sortData('userEmail')">User Email ↕</th>
           <th>Destination</th>
-          <th>Dates</th>
-          <th>Guests</th>
-          <th>Amount</th>
-          <th>Status</th>
+          <th style="cursor:pointer;" onclick="sortData('startAt')">Dates ↕</th>
+          <th style="cursor:pointer;" onclick="sortData('numGuests')">Guests ↕</th>
+          <th style="cursor:pointer;" onclick="sortData('totalAmount')">Amount ↕</th>
+          <th style="cursor:pointer;" onclick="sortData('status')">Status ↕</th>
           <th style="text-align:right">Actions</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="bookingsTableBody">
         {% for item in items %}
         <tr>
           <td style="font-family:var(--font-mono); font-size:12px;">{{ item.bookingReference }}</td>
@@ -88,12 +104,13 @@
           <td style="text-align:right">
             <div style="display:flex; gap:8px; justify-content:flex-end">
               {% if item.status == 'pending' %}
-                <a href="{{ path('admin_booking_confirm', {id: item.bookingId}) }}" class="btn btn-sm" style="background:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.3);" onclick="return confirm('Confirm this booking?')">✅ Confirm</a>
-                <a href="{{ path('admin_booking_reject', {id: item.bookingId}) }}" class="btn btn-sm" style="background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.3);" onclick="return confirm('Reject this booking?')">❌ Reject</a>
+                <a href="{{ path('admin_bookings_des_confirm', {id: item.bookingId}) }}" class="btn btn-sm" style="background:#10b981; color:#fff; border:none;" onclick="return confirm('Confirm this booking?')">✅ Confirm</a>
+                <a href="{{ path('admin_bookings_des_reject', {id: item.bookingId}) }}" class="btn btn-sm" style="background:#f59e0b; color:#fff; border:none;" onclick="return confirm('Reject this booking?')">❌ Reject</a>
               {% else %}
                 <span class="text-muted" style="font-size:12px; font-style:italic;">{{ item.status|capitalize }}</span>
               {% endif %}
-              <a href="{{ path('admin_booking_delete', {id: item.bookingId}) }}" class="btn btn-primary btn-sm" onclick="return confirm('Delete this booking?')">Delete</a>
+              <a href="{{ path('admin_bookings_des_invoice_pdf', {id: item.bookingId}) }}" class="btn btn-sm" style="background:#6366f1; color:#fff; border:none; border-radius: var(--border-radius-sm);" title="Download Invoice">📄 PDF</a>
+              <a href="{{ path('admin_bookings_des_delete', {id: item.bookingId}) }}" class="btn btn-sm" style="background:#ef4444; color:#fff; border:none; border-radius: var(--border-radius-sm);" onclick="return confirm('Delete this booking permanently?')">🗑️ Delete</a>
             </div>
           </td>
         </tr>
@@ -105,5 +122,128 @@
       </tbody>
     </table>
   </div>
+
+  {# ── Pagination Controls ── #}
+  {% if items.pageCount|default(0) > 1 or currentLimit is defined %}
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:12px;">
+    {# Items per page selector #}
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span style="font-size:13px; color:var(--text-muted); font-family:var(--font-mono);">Show</span>
+      {% for size in [5, 10, 25, 50] %}
+        <a href="{{ path('admin_bookings_des_index', {q: currentQuery, limit: size, page: 1}) }}"
+           class="btn btn-sm {{ currentLimit == size ? 'btn-primary' : 'btn-secondary' }}"
+           style="min-width:40px; text-align:center; font-size:12px;">{{ size }}</a>
+      {% endfor %}
+      <span style="font-size:13px; color:var(--text-muted); font-family:var(--font-mono);">per page</span>
+    </div>
+
+    {# Page navigation #}
+    {% if items.pageCount|default(0) > 1 %}
+    <div style="display:flex; align-items:center; gap:8px;">
+      {% if items.currentPageNumber > 1 %}
+        <a href="{{ path('admin_bookings_des_index', {page: items.currentPageNumber - 1, q: currentQuery, limit: currentLimit}) }}" class="btn btn-secondary btn-sm">← Prev</a>
+      {% endif %}
+
+      {% set startPage = max(1, items.currentPageNumber - 2) %}
+      {% set endPage = min(items.pageCount, items.currentPageNumber + 2) %}
+      {% for p in startPage..endPage %}
+        <a href="{{ path('admin_bookings_des_index', {page: p, q: currentQuery, limit: currentLimit}) }}"
+           class="btn btn-sm {{ p == items.currentPageNumber ? 'btn-primary' : 'btn-secondary' }}"
+           style="min-width:36px; text-align:center;">{{ p }}</a>
+      {% endfor %}
+
+      {% if items.currentPageNumber < items.pageCount %}
+        <a href="{{ path('admin_bookings_des_index', {page: items.currentPageNumber + 1, q: currentQuery, limit: currentLimit}) }}" class="btn btn-secondary btn-sm">Next →</a>
+      {% endif %}
+
+      <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono); margin-left:8px;">
+        Page {{ items.currentPageNumber }} of {{ items.pageCount }}
+      </span>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
 </div>
+
+<script>
+let currentSort = 'bookingReference';
+let currentOrder = 'ASC';
+
+function getBadgeClass(status) {
+    if (status === 'pending') return 'badge-gold';
+    if (status === 'confirmed') return 'badge-teal';
+    if (status === 'cancelled') return 'badge-coral';
+    return 'badge-indigo';
+}
+
+function getActions(item) {
+    let html = '<div style="display:flex; gap:8px; justify-content:flex-end">';
+    if (item.status === 'pending') {
+        html += `<a href="${item.url_confirm}" class="btn btn-sm" style="background:#10b981; color:#fff; border:none;" onclick="return confirm('Confirm this booking?')">✅ Confirm</a>`;
+        html += `<a href="${item.url_reject}" class="btn btn-sm" style="background:#f59e0b; color:#fff; border:none;" onclick="return confirm('Reject this booking?')">❌ Reject</a>`;
+    } else {
+        const capitalized = item.status.charAt(0).toUpperCase() + item.status.slice(1);
+        html += `<span class="text-muted" style="font-size:12px; font-style:italic;">${capitalized}</span>`;
+    }
+    const pdfUrl = item.url_delete.replace('/delete', '/invoice'); // quick hack since we didn't pass url_invoice from controller
+    html += `<a href="${pdfUrl}" class="btn btn-sm" style="background:#6366f1; color:#fff; border:none; border-radius: var(--border-radius-sm);" title="Download Invoice">📄 PDF</a>`;
+    html += `<a href="${item.url_delete}" class="btn btn-sm" style="background:#ef4444; color:#fff; border:none; border-radius: var(--border-radius-sm);" onclick="return confirm('Delete this booking permanently?')">🗑️ Delete</a>`;
+    html += '</div>';
+    return html;
+}
+
+function sortData(col) {
+    if (currentSort === col) {
+        currentOrder = currentOrder === 'ASC' ? 'DESC' : 'ASC';
+    } else {
+        currentSort = col;
+        currentOrder = 'ASC';
+    }
+    
+    // Grab the current search query
+    const searchInput = document.querySelector('input[name="q"]');
+    const q = searchInput ? searchInput.value : '';
+    
+    fetch(`{{ path('admin_bookings_des_api_sort') }}?sort=${currentSort}&order=${currentOrder}&q=${encodeURIComponent(q)}`)
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('bookingsTableBody');
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:40px; color:var(--text-muted)">No bookings found.</td></tr>`;
+                return;
+            }
+            
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                  <td style="font-family:var(--font-mono); font-size:12px;">${item.reference || ''}</td>
+                  <td>${item.userEmail || '—'}</td>
+                  <td style="font-weight:600">${item.destName || '—'}</td>
+                  <td style="font-size:13px;">${item.startAt} ${item.endAt ? '→ ' + item.endAt : ''}</td>
+                  <td style="text-align:center">${item.numGuests || 1}</td>
+                  <td style="color:var(--accent-primary); font-weight:600">€${parseFloat(item.totalPrice).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                  <td><span class="badge ${getBadgeClass(item.status)}">${item.status.charAt(0).toUpperCase() + item.status.slice(1)}</span></td>
+                  <td style="text-align:right">${getActions(item)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+}
+</script>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('canvas[data-controller="symfony--ux-chartjs--chart"]').forEach(function(canvas) {
+        if (canvas.hasAttribute('data-symfony--ux-chartjs--chart-view-value')) {
+            const viewData = JSON.parse(canvas.getAttribute('data-symfony--ux-chartjs--chart-view-value'));
+            new Chart(canvas, viewData);
+        }
+    });
+});
+</script>
 {% endblock %}

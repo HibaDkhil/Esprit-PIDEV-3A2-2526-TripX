@@ -1,0 +1,695 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}TripX Community — Blog{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/blog.css') }}">
+{% endblock %}
+
+{% block body %}
+{% set typeFilter    = typeFilter    is defined ? typeFilter    : '' %}
+{% set search        = search        is defined ? search        : '' %}
+{% set authorMap     = authorMap     is defined ? authorMap     : {} %}
+{% set avatarMap     = avatarMap     is defined ? avatarMap     : {} %}
+{% set savedPostIds  = savedPostIds  is defined ? savedPostIds  : [] %}
+{% set currentUserId = currentUserId is defined ? currentUserId : null %}
+{% set reactionSummary = reactionSummary is defined ? reactionSummary : {} %}
+{% set feed          = feed          is defined ? feed : [] %}
+{% set userReactions = userReactions is defined ? userReactions : {} %}
+{% set followingIds  = followingIds  is defined ? followingIds  : [] %}
+{% set myFollowers   = myFollowers   is defined ? myFollowers   : 0 %}
+{% set myFollowing   = myFollowing   is defined ? myFollowing   : 0 %}
+{% set myPostsCount  = myPostsCount  is defined ? myPostsCount  : 0 %}
+{% set me = app.user %}
+
+<div class="blog-page">
+<div class="tg-shell">
+
+  {# ══════════════════════════ LEFT SIDEBAR ══════════════════════════ #}
+  <aside class="tg-left">
+
+    {# Profile Card #}
+    <div class="profile-card">
+      <div class="profile-banner"></div>
+      <div class="profile-body">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar">
+            {% if me %}{{ me.firstName|first|upper }}{% else %}?{% endif %}
+          </div>
+        </div>
+        {% if me %}
+          <div class="profile-name">{{ me.firstName }} {{ me.lastName }}</div>
+          <div class="profile-handle">@user{{ me.userId }}</div>
+        {% else %}
+          <div class="profile-name">Traveller</div>
+          <div class="profile-handle">@guest</div>
+        {% endif %}
+        <div class="profile-stats">
+          <div class="pstat">
+            <span class="pstat-num" id="my-posts-count">{{ myPostsCount }}</span>
+            <span class="pstat-lbl">Posts</span>
+          </div>
+          <div class="pstat">
+            <span class="pstat-num" id="my-followers-count">{{ myFollowers }}</span>
+            <span class="pstat-lbl">Followers</span>
+          </div>
+          <div class="pstat">
+            <span class="pstat-num" id="my-following-count">{{ myFollowing }}</span>
+            <span class="pstat-lbl">Following</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Navigation #}
+    <nav class="sidebar-nav">
+      <a href="{{ path('blog') }}?type=story" class="snav-item {% if typeFilter == 'story' %}active{% endif %}"
+         data-filter-type="story" onclick="return feedFilter(event,'story')">
+        <span class="snav-icon">🔭</span> Explore
+      </a>
+      <a href="#" class="snav-item {% if typeFilter == '' %}active{% endif %}"
+         data-filter-type="" onclick="return feedFilter(event,'')">
+        <span class="snav-icon">🏠</span> Feed
+      </a>
+      <a href="#" class="snav-item {% if typeFilter == 'travel_story' %}active{% endif %}"
+         data-filter-type="travel_story" onclick="return feedFilter(event,'travel_story')">
+        <span class="snav-icon">🧳</span> Travel Stories
+      </a>
+      <a href="{{ path('blog_saved') }}" class="snav-item">
+        <span class="snav-icon">🔖</span> Saved Posts
+      </a>
+      <div class="snav-create">
+        <a href="{{ path('post_create') }}" class="btn-create-post">
+          <span>✍️</span> Create Post
+        </a>
+      </div>
+    </nav>
+  </aside>
+
+  {# ══════════════════════════ CENTER FEED ═══════════════════════════ #}
+  <main class="tg-center">
+
+    {# Search Bar #}
+    <div class="feed-topbar">
+      <div class="search-wrap">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+        </svg>
+        <input type="text" id="feed-search" value="{{ search }}" placeholder="Search posts, stories…" autocomplete="off">
+      </div>
+      <button type="button" class="search-btn" id="feed-search-btn">Search</button>
+    </div>
+
+    {# Type Filters #}
+    <div class="type-pills" id="type-pills">
+      <a href="#" class="tpill {% if typeFilter == '' %}active{% endif %}"
+         data-type="" onclick="return feedFilter(event,'')">All</a>
+      {% for t in ['inquiry','story','review','advice','other'] %}
+        <a href="#" class="tpill {% if typeFilter == t %}active{% endif %}"
+           data-type="{{ t }}" onclick="return feedFilter(event,'{{ t }}')">{{ t|capitalize }}</a>
+      {% endfor %}
+      <a href="#" class="tpill {% if typeFilter == 'travel_story' %}active{% endif %}"
+         data-type="travel_story" onclick="return feedFilter(event,'travel_story')">🧳 Stories</a>
+    </div>
+
+    {# Stories Row #}
+    <div class="stories-card">
+      <div class="stories-head">
+        <h3>Stories</h3>
+        <a href="{{ path('travel_story_index') }}" class="watch-all">View all →</a>
+      </div>
+      <div class="stories-row">
+        {% if me %}
+        <a href="{{ path('travel_story_new') }}" class="story-bbl" style="text-decoration:none;">
+          <div class="story-ring add-ring"><div class="story-inner add-in">＋</div></div>
+          <span class="story-lbl">Add</span>
+        </a>
+        {% endif %}
+        {% for ts in topStories|default([]) %}
+          {% set uid = ts.userId %}
+          {% set aName = authorMap[uid] ?? 'User #' ~ uid %}
+          <a href="{{ path('travel_story_show', {id: ts.id}) }}" class="story-bbl" title="{{ ts.title }}" style="text-decoration:none;">
+            <div class="story-ring{% if loop.index0 < 3 %} unseen{% endif %}">
+              <div class="story-inner" style="background-color: #f1f5f9; color: var(--primary-color);">
+                {% if ts.coverImageUrl %}
+                  <img src="{{ ts.coverImageUrl }}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display='none'; this.parentElement.innerText='{{ aName|first|upper }}'">
+                {% else %}
+                  {{ aName|first|upper }}
+                {% endif %}
+              </div>
+            </div>
+            <span class="story-lbl">{{ aName|split(' ')|first }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    {# Feed #}
+    <div class="feed-spinner" id="feed-spinner">
+      <div class="spinner-ring"></div>
+      <div>Loading…</div>
+    </div>
+    <div id="feed-container">
+      {% include 'front/blog/_feed_items.html.twig' with {
+        feed: feed,
+        authorMap: authorMap,
+        avatarMap: avatarMap,
+        reactionSummary: reactionSummary,
+        userReactions: userReactions,
+        savedPostIds: savedPostIds,
+        followingIds: followingIds,
+        currentUserId: currentUserId,
+      } %}
+    </div>
+  </main>
+
+  {# ══════════════════════════ RIGHT SIDEBAR ══════════════════════════ #}
+  <aside class="tg-right">
+
+    {# Followers Section #}
+    {% if currentUserId is not null and followersList|default([])|length > 0 %}
+    <div class="rcard">
+      <h4>Your Followers</h4>
+      <div class="sug-list" style="max-height: 250px; overflow-y: auto; padding-right: 4px; margin-bottom: 8px;">
+      {% set sugGrads = [
+        'linear-gradient(135deg,#2563eb,#0ea5e9)',
+        'linear-gradient(135deg,#10b981,#3b82f6)',
+        'linear-gradient(135deg,#f59e0b,#ef4444)',
+        'linear-gradient(135deg,#a855f7,#ec4899)',
+        'linear-gradient(135deg,#06b6d4,#6366f1)'
+      ] %}
+      {% for u in followersList|default([]) %}
+        {% set uid = u.userId %}
+        {% set sName = (u.firstName ~ ' ' ~ u.lastName)|trim %}
+        {% if sName == '' %}{% set sName = 'User #' ~ uid %}{% endif %}
+        {% set isFollowing = uid in followingIds %}
+        <div class="sug-row" id="follower-{{ uid }}" style="margin-bottom:12px;">
+          <div class="sug-av" style="background:{{ sugGrads[loop.index0 % 5] }};">
+            {{ sName|first|upper }}
+          </div>
+          <div class="sug-info">
+            <div class="sug-name">{{ sName }}</div>
+            <div class="sug-handle">@user{{ uid }}</div>
+          </div>
+          <button class="flw-btn {% if isFollowing %}following{% endif %}"
+                  data-uid="{{ uid }}"
+                  data-token="{{ csrf_token('follow_' ~ uid) }}"
+                  onclick="toggleFollow(this)">
+            {{ isFollowing ? 'Following' : 'Follow Back' }}
+          </button>
+        </div>
+      {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {# Suggestions Section #}
+    <div class="rcard">
+      <h4>Suggestions for you</h4>
+      <div class="sug-list" style="max-height: 250px; overflow-y: auto; padding-right: 4px;">
+      {% set sugGrads = [
+        'linear-gradient(135deg,#2563eb,#0ea5e9)',
+        'linear-gradient(135deg,#10b981,#3b82f6)',
+        'linear-gradient(135deg,#f59e0b,#ef4444)',
+        'linear-gradient(135deg,#a855f7,#ec4899)',
+        'linear-gradient(135deg,#06b6d4,#6366f1)'
+      ] %}
+      {% for u in suggestedUsers|default([]) %}
+        {% set uid = u.userId %}
+        {% set sName = (u.firstName ~ ' ' ~ u.lastName)|trim %}
+        {% if sName == '' %}{% set sName = 'User #' ~ uid %}{% endif %}
+        {% set isFollowing = uid in followingIds %}
+        <div class="sug-row" id="sug-{{ uid }}" style="margin-bottom:12px;">
+          <div class="sug-av" style="background:{{ sugGrads[loop.index0 % 5] }};">
+            {{ sName|first|upper }}
+          </div>
+          <div class="sug-info">
+            <div class="sug-name">{{ sName }}</div>
+            <div class="sug-handle">@user{{ uid }}</div>
+          </div>
+          {% if currentUserId is not null %}
+            <button class="flw-btn {% if isFollowing %}following{% endif %}"
+                    data-uid="{{ uid }}"
+                    data-token="{{ csrf_token('follow_' ~ uid) }}"
+                    onclick="toggleFollow(this)">
+              {{ isFollowing ? 'Following' : 'Follow' }}
+            </button>
+          {% else %}
+            <a href="{{ path('app_login') }}" class="flw-btn">Follow</a>
+          {% endif %}
+        </div>
+      {% else %}
+        <p class="placeholder-text">No new users available to follow!</p>
+      {% endfor %}
+      </div>
+    </div>
+
+    {# Quick Create & Archive #}
+    <div class="rcard">
+      <h4>✨ Share & Archive</h4>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <a href="{{ path('post_create') }}" class="btn-create-post" style="font-size:13px;">
+          ✍️ New Post
+        </a>
+        <a href="{{ path('travel_story_new') }}" class="btn-create-post" style="background:linear-gradient(135deg,#f59e0b,#ef4444);font-size:13px;">
+          🧳 Add Travel Story
+        </a>
+        <a href="{{ path('travel_story_index') }}" class="btn-create-post" style="background:linear-gradient(135deg,#64748b,#475569);font-size:13px;">
+          📚 My Story Archive
+        </a>
+      </div>
+    </div>
+  </aside>
+
+</div>
+</div>
+
+<script>
+/* ────────────────────────────────────────────────────────────
+   State
+   ──────────────────────────────────────────────────────────── */
+let _currentType   = '{{ typeFilter|e('js') }}';
+let _currentSearch = '{{ search|e('js') }}';
+let _ajaxCtrl      = null;
+
+/* ────────────────────────────────────────────────────────────
+   Feed: Filter + Load
+   ──────────────────────────────────────────────────────────── */
+function feedFilter(e, type) {
+  if (e) e.preventDefault();
+  _currentType = type;
+  loadFeed();
+  document.querySelectorAll('#type-pills .tpill').forEach(el =>
+    el.classList.toggle('active', el.dataset.type === type)
+  );
+  document.querySelectorAll('.sidebar-nav .snav-item[data-filter-type]').forEach(el =>
+    el.classList.toggle('active', el.dataset.filterType === type)
+  );
+  return false;
+}
+
+function loadFeed() {
+  if (_ajaxCtrl) _ajaxCtrl.abort();
+  _ajaxCtrl = new AbortController();
+
+  const params = new URLSearchParams();
+  if (_currentSearch) params.set('q', _currentSearch);
+  if (_currentType)   params.set('type', _currentType);
+
+  const container = document.getElementById('feed-container');
+  const spinner   = document.getElementById('feed-spinner');
+  container.classList.add('loading');
+  spinner.classList.add('visible');
+
+  const newUrl = '{{ path('blog') }}' + (params.toString() ? '?' + params : '');
+  history.replaceState(null, '', newUrl);
+
+  fetch('{{ path('blog_filter') }}?' + params.toString(), {
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    signal: _ajaxCtrl.signal,
+  })
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(html => {
+      container.innerHTML = html;
+      container.classList.remove('loading');
+      spinner.classList.remove('visible');
+      hydrateUserNames();
+      staggerFeedCards();
+    })
+    .catch(err => {
+      if (err.name === 'AbortError') return;
+      container.classList.remove('loading');
+      spinner.classList.remove('visible');
+    });
+}
+
+document.getElementById('feed-search-btn').addEventListener('click', () => {
+  _currentSearch = document.getElementById('feed-search').value.trim();
+  loadFeed();
+});
+
+document.getElementById('feed-search').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    _currentSearch = e.target.value.trim();
+    loadFeed();
+  }
+});
+
+/* ────────────────────────────────────────────────────────────
+   Stagger animation
+   ──────────────────────────────────────────────────────────── */
+function staggerFeedCards() {
+  document.querySelectorAll('.post-card').forEach((card, i) => {
+    card.style.animationDelay = (i * 0.08) + 's';
+  });
+}
+
+/* ────────────────────────────────────────────────────────────
+   Reactions
+   ──────────────────────────────────────────────────────────── */
+const RXN_ICONS  = {like:'👍',love:'❤️',haha:'😂',wow:'😮',sad:'😢',angry:'😡'};
+const RXN_LABELS = {like:'Like',love:'Love',haha:'Haha',wow:'Wow',sad:'Sad',angry:'Angry'};
+
+async function sendReaction(targetId, type, targetType) {
+  const url = targetType === 'post'
+    ? `/post/${targetId}/react/${type}`
+    : `/comment/${targetId}/react/${type}`;
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (targetType === 'post') updatePostReaction(targetId, data.userReaction, data.counts);
+    else if (targetType === 'travel_story') updatePostReaction(targetId, data.userReaction, data.counts, 'ts-');
+    else updateCommentReaction(targetId, data.userReaction, data.counts);
+  } catch(e) { console.error('Reaction error:', e); }
+}
+
+function quickReact(targetId, currentReaction, targetType) {
+  sendReaction(targetId, currentReaction || 'like', targetType);
+}
+
+function updatePostReaction(pid, userReaction, counts, prefix = '') {
+  const btn     = document.getElementById(`${prefix}rxnbtn-${pid}`);
+  const iconEl  = document.getElementById(`${prefix}rxnicon-${pid}`);
+  const lblEl   = document.getElementById(`${prefix}rxnlbl-${pid}`);
+  const totalEl = document.getElementById(`${prefix}rxntotal-${pid}`);
+  if (!btn) return;
+
+  btn.className = btn.className.replace(/reacted-\w+/g, '').trim();
+  if (userReaction) {
+    btn.classList.add(`reacted-${userReaction}`);
+    iconEl.textContent = RXN_ICONS[userReaction] || '👍';
+    lblEl.textContent  = RXN_LABELS[userReaction] || 'Like';
+    btn.dataset.reaction = userReaction;
+    iconEl.classList.add('like-burst');
+    setTimeout(() => iconEl.classList.remove('like-burst'), 400);
+  } else {
+    iconEl.textContent   = '👍';
+    lblEl.textContent    = 'Like';
+    btn.dataset.reaction = '';
+  }
+
+  Object.keys(RXN_ICONS).forEach(t => {
+    const opt = document.getElementById(`${prefix}rxnopt-${pid}-${t}`);
+    if (opt) opt.classList.toggle('active-emoji', t === userReaction);
+  });
+
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  if (totalEl) {
+    if (total > 0) { totalEl.textContent = total; totalEl.style.display = ''; }
+    else { totalEl.style.display = 'none'; }
+  }
+
+  const tally = btn.closest('article')?.querySelector('.rxn-tally');
+  if (tally) {
+    tally.innerHTML = '';
+    Object.entries(counts).forEach(([t, n]) => {
+      if (n > 0) {
+        const s = document.createElement('span');
+        s.textContent = `${RXN_ICONS[t]} ${n}`;
+        tally.appendChild(s);
+      }
+    });
+  }
+}
+
+function updateCommentReaction(cid, userReaction, counts) {
+  const btn   = document.getElementById(`crxnbtn-${cid}`);
+  const tally = document.getElementById(`crxntally-${cid}`);
+  if (!btn) return;
+  if (userReaction) {
+    btn.classList.add('c-reacted');
+    btn.innerHTML = `${RXN_ICONS[userReaction]} ${RXN_LABELS[userReaction]}`;
+  } else {
+    btn.classList.remove('c-reacted');
+    btn.innerHTML = '👍 Like';
+  }
+  if (tally) {
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    tally.innerHTML = total > 0
+      ? Object.entries(counts).filter(([,n]) => n > 0).map(([t, n]) => `${RXN_ICONS[t]}${n}`).join(' ')
+      : '';
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   Follow
+   ──────────────────────────────────────────────────────────── */
+async function toggleFollow(btn) {
+  const uid   = btn.dataset.uid;
+  const token = btn.dataset.token;
+  btn.disabled = true;
+
+  const body = new URLSearchParams({ _token: token });
+  try {
+    const res  = await fetch(`/follow/${uid}`, { method: 'POST', body });
+    const data = await res.json();
+    if (data.following) {
+      btn.textContent = 'Following';
+      btn.classList.add('following');
+      showToast('✅ Now following!');
+      const fc = document.getElementById('my-following-count');
+      if (fc) fc.textContent = parseInt(fc.textContent) + 1;
+    } else {
+      btn.textContent = 'Follow';
+      btn.classList.remove('following');
+      showToast('Unfollowed.');
+      const fc = document.getElementById('my-following-count');
+      if (fc) fc.textContent = Math.max(0, parseInt(fc.textContent) - 1);
+    }
+  } catch(e) { console.error(e); }
+  finally { btn.disabled = false; }
+}
+
+/* ────────────────────────────────────────────────────────────
+   Share
+   ──────────────────────────────────────────────────────────── */
+async function sharePost(title, url) {
+  if (navigator.share) {
+    try { await navigator.share({ title, url }); return; } catch(e) { return; }
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    showToast('🔗 Link copied!');
+  } catch(e) { prompt('Copy this link:', url); }
+}
+
+/* ────────────────────────────────────────────────────────────
+   Toast
+   ──────────────────────────────────────────────────────────── */
+function showToast(msg) {
+  let t = document.querySelector('.blog-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.className = 'blog-toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ────────────────────────────────────────────────────────────
+   AJAX Comments
+   ──────────────────────────────────────────────────────────── */
+function submitCommentAjax(form, postId) {
+  const textarea  = form.querySelector('textarea[name="body"]');
+  const errEl     = form.querySelector('.cform-error');
+  const body      = textarea.value.trim();
+
+  if (errEl) errEl.textContent = '';
+
+  if (body.length < 2) {
+    if (errEl) errEl.textContent = 'Comment must be at least 2 characters.';
+    textarea.focus();
+    return;
+  }
+
+  const fd = new FormData(form);
+  fetch(`/comment/create-ajax/${postId}`, { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) {
+        if (errEl) errEl.textContent = data.error;
+        return;
+      }
+      const c = data.comment;
+      const html = buildCommentHTML(c);
+      const cboxInner = document.querySelector(`#c${postId} .cbox-inner`);
+      if (cboxInner) {
+        const noComments = cboxInner.querySelector('.no-comments');
+        if (noComments) noComments.remove();
+        const formEl = cboxInner.querySelector('form');
+        cboxInner.insertBefore(createEl(html), formEl);
+      }
+      textarea.value = '';
+      textarea.style.height = 'auto';
+      showToast('💬 Comment added!');
+      // update comment count on vcbtn
+      const vcBtn = document.querySelector(`[onclick*="'c${postId}'"]`);
+      if (vcBtn && vcBtn.classList.contains('vcbtn')) {
+        const m = vcBtn.textContent.match(/\((\d+)\)/);
+        const n = m ? parseInt(m[1]) + 1 : 1;
+        vcBtn.textContent = `View comments (${n})`;
+      }
+    })
+    .catch(() => { if (errEl) errEl.textContent = 'Failed to post comment.'; });
+}
+
+function submitCommentAjaxTS(form, tsId) {
+  const textarea  = form.querySelector('textarea[name="body"]');
+  const errEl     = form.querySelector('.cform-error');
+  const body      = textarea.value.trim();
+
+  if (errEl) errEl.textContent = '';
+  if (body.length < 2) {
+    if (errEl) errEl.textContent = 'Comment must be at least 2 characters.';
+    textarea.focus();
+    return;
+  }
+
+  const fd = new FormData(form);
+  fetch(`/comment/create-story-ajax/${tsId}`, { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) {
+        if (errEl) errEl.textContent = data.error;
+        return;
+      }
+      const c = data.comment;
+      const html = buildCommentHTML(c);
+      const cboxInner = document.querySelector(`#tsc${tsId} .cbox-inner`);
+      if (cboxInner) {
+        const noComments = cboxInner.querySelector('.no-comments');
+        if (noComments) noComments.remove();
+        const formEl = cboxInner.querySelector('form');
+        cboxInner.insertBefore(createEl(html), formEl);
+      }
+      textarea.value = '';
+      textarea.style.height = 'auto';
+      showToast('💬 Comment added!');
+      const vcBtn = document.querySelector(`[onclick*="'tsc${tsId}'"]`);
+      if (vcBtn && vcBtn.classList.contains('vcbtn')) {
+        const m = vcBtn.textContent.match(/\((\d+)\)/);
+        const n = m ? parseInt(m[1]) + 1 : 1;
+        vcBtn.textContent = `View comments (${n})`;
+      }
+    })
+    .catch(() => { if (errEl) errEl.textContent = 'Failed to post comment.'; });
+}
+
+function buildCommentHTML(c) {
+  const initial = c.author.charAt(0).toUpperCase();
+  return `<div class="crow" id="comment-${c.id}">
+    <div class="cav">${initial}</div>
+    <div class="cbubble">
+      <div class="cn">${escHtml(c.author)}</div>
+      <div class="cb" id="cbody-${c.id}">${escHtml(c.body)}</div>
+      <div class="comment-actions">
+        <span class="comment-time">${c.createdAt}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function createEl(html) {
+  const d = document.createElement('div');
+  d.innerHTML = html;
+  return d.firstElementChild;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ────────────────────────────────────────────────────────────
+   UI Toggles
+   ──────────────────────────────────────────────────────────── */
+function toggleC(id, btn) {
+  const box = document.getElementById(id);
+  if (!box) return;
+  const isOpen = box.classList.toggle('open');
+  const card = btn.closest('article');
+  if (card) {
+    card.querySelectorAll('.vcbtn').forEach(b => {
+      const m = b.textContent.match(/\((\d+)\)/);
+      const n = m ? m[1] : 0;
+      b.textContent = isOpen ? `Hide comments (${n})` : `View comments (${n})`;
+    });
+  }
+}
+
+function toggleEditForm(id) {
+  const form = document.getElementById(id);
+  if (!form) return;
+  form.classList.toggle('open');
+  if (form.classList.contains('open')) {
+    const ta = form.querySelector('textarea');
+    if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+  }
+}
+
+function toggleReplyForm(id) {
+  const form = document.getElementById(id);
+  if (!form) return;
+  form.classList.toggle('open');
+  if (form.classList.contains('open')) form.querySelector('textarea')?.focus();
+}
+
+function toggleReplies(id, btn) {
+  const wrap = document.getElementById(id);
+  if (!wrap) return;
+  const isOpen = wrap.style.display !== 'none';
+  wrap.style.display = isOpen ? 'none' : 'flex';
+  wrap.style.flexDirection = 'column';
+  wrap.style.gap = '10px';
+  const arrow = btn.querySelector('span');
+  if (arrow) arrow.textContent = isOpen ? '▸' : '▾';
+}
+
+/* ────────────────────────────────────────────────────────────
+   Hydrate user names after AJAX reload
+   ──────────────────────────────────────────────────────────── */
+function hydrateUserNames() {
+  const els = document.querySelectorAll('[data-uname],[data-uavatar]');
+  const ids = [...new Set([...els].map(el => el.dataset.uname || el.dataset.uavatar).filter(Boolean))];
+  if (!ids.length) return;
+  fetch('/blog/user-names?ids=' + ids.join(','))
+    .then(r => r.ok ? r.json() : {})
+    .then(names => {
+      document.querySelectorAll('[data-uname]').forEach(el => {
+        const n = names[el.dataset.uname]; if (n) el.textContent = n;
+      });
+      document.querySelectorAll('[data-uavatar]').forEach(el => {
+        const n = names[el.dataset.uavatar];
+        if (n) el.textContent = n.charAt(0).toUpperCase();
+      });
+    }).catch(() => {});
+}
+
+/* ────────────────────────────────────────────────────────────
+   Init
+   ──────────────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  staggerFeedCards();
+  hydrateUserNames();
+
+  // Auto-open commented post from hash
+  const hash = window.location.hash;
+  if (hash && hash.startsWith('#c')) {
+    const box = document.getElementById(hash.slice(1));
+    if (box && box.classList.contains('cbox')) {
+      box.classList.add('open');
+      setTimeout(() => box.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+    }
+  }
+});
+</script>
+{% endblock %}

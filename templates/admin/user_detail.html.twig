@@ -1,0 +1,207 @@
+{% extends 'admin/admin_base.html.twig' %}
+{% block title %}User Details — TripX Admin{% endblock %}
+
+{% block page_styles %}
+  .glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    padding: 30px;
+    color: var(--text-main);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .glass-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  .glass-header .avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00a6ed, #007bb5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(0,166,237,0.4);
+  }
+  .info-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+  }
+  .info-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .info-value {
+    font-size: 16px;
+    font-weight: 500;
+  }
+  .badge-status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    display: inline-block;
+  }
+  .status-active { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+  .status-banned { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+  .status-pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
+{% endblock %}
+
+{% block content %}
+<div class="reveal">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1 class="display-md" style="margin: 0;">User <span class="text-coral">Details</span></h1>
+        <a href="{{ path('admin_users') }}" class="btn btn-secondary" style="display: flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Back to List
+        </a>
+    </div>
+    
+    <div class="grid-2 stagger">
+        <div class="glass-card">
+            <div class="glass-header">
+                <div class="avatar" style="background: {{ user.gender == 'Female' ? 'linear-gradient(135deg, #ff4d6d, #d43654)' : 'linear-gradient(135deg, #00a6ed, #007bb5)' }}">
+                    {{ (user.firstName|slice(0, 1) ~ user.lastName|slice(0, 1))|upper }}
+                </div>
+                <div>
+                    <h3 style="margin: 0; font-size: 24px; font-weight: 700;">{{ user.firstName }} {{ user.lastName }}</h3>
+                    <div style="margin-top: 8px;">
+                        {% set status_class = user.status == 'active' ? 'status-active' : (user.status == 'banned' ? 'status-banned' : 'status-pending') %}
+                        <span class="badge-status {{ status_class }}">{{ user.status|replace({'_': ' '}) }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <h4 style="margin-top: 0; margin-bottom: 20px; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">Personal Information</h4>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="info-group" style="grid-column: 1 / -1;">
+                    <span class="info-label">Email Address</span>
+                    <span class="info-value" style="color: #00a6ed;">{{ user.email }}</span>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">Gender</span>
+                    <span class="info-value">{{ user.gender|default('N/A') }}</span>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">Birth Year</span>
+                    <span class="info-value">{{ user.birthYear|default('N/A') }}</span>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">Role</span>
+                    <span class="info-value" style="text-transform: capitalize;">{{ user.role }}</span>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">Joined</span>
+                    <span class="info-value">{{ user.createdAt ? user.createdAt|date('M d, Y') : 'N/A' }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="glass-card" style="position: relative; overflow: hidden;">
+            <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(0, 166, 237, 0.1); border-radius: 50%; filter: blur(30px);"></div>
+            <div style="position: absolute; bottom: -50px; left: -50px; width: 150px; height: 150px; background: rgba(255, 77, 109, 0.1); border-radius: 50%; filter: blur(30px);"></div>
+            
+            <h4 style="margin-top: 0; margin-bottom: 25px; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; position: relative;">Travel Preferences</h4>
+            
+            <div style="position: relative;">
+                {% if preferences %}
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="info-group" style="grid-column: 1 / -1;">
+                            <span class="info-label">Nightly Budget</span>
+                            <span class="info-value" style="font-size: 20px; color: #10b981;">
+                                {% if preferences.budgetMinPerNight and preferences.budgetMaxPerNight %}
+                                    ${{ preferences.budgetMinPerNight }} - ${{ preferences.budgetMaxPerNight }}
+                                {% else %}
+                                    Not specified
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Travel Pace</span>
+                            <span class="info-value">
+                                <span class="badge" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">{{ preferences.travelPace|default('Not set') }}</span>
+                            </span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Group Type</span>
+                            <span class="info-value">
+                                <span class="badge" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">{{ preferences.groupType|default('Not set') }}</span>
+                            </span>
+                        </div>
+                        
+                        {# Helper to clean JSON string arrays visually #}
+                        {% set parseJson = {'[': '', ']': '', '"': '', ',': ', '} %}
+                        
+                        <div class="info-group" style="grid-column: 1 / -1;">
+                            <span class="info-label">Top Priorities</span>
+                            <span class="info-value">{{ preferences.priorities|replace(parseJson)|default('None specified') }}</span>
+                        </div>
+                        
+                        <div class="info-group">
+                            <span class="info-label">Preferred Climate</span>
+                            <span class="info-value">{{ preferences.preferredClimate|replace(parseJson)|default('Any') }}</span>
+                        </div>
+
+                        <div class="info-group">
+                            <span class="info-label">Location</span>
+                            <span class="info-value">{{ preferences.locationPreferences|replace(parseJson)|default('Any') }}</span>
+                        </div>
+
+                        <div class="info-group" style="grid-column: 1 / -1;">
+                            <span class="info-label">Accommodation Types</span>
+                            <span class="info-value">{{ preferences.accommodationTypes|replace(parseJson)|default('Any') }}</span>
+                        </div>
+
+                        <div class="info-group" style="grid-column: 1 / -1;">
+                            <span class="info-label">Style Preferences</span>
+                            <span class="info-value">{{ preferences.stylePreferences|replace(parseJson)|default('Not specified') }}</span>
+                        </div>
+
+                        <div class="info-group" style="grid-column: 1 / -1;">
+                            <span class="info-label">Dietary Restrictions</span>
+                            <span class="info-value">{{ preferences.dietaryRestrictions|replace(parseJson)|default('None') }}</span>
+                        </div>
+
+                        <div class="info-group" style="grid-column: 1 / -1;">
+                            <span class="info-label">Accessibility Needs</span>
+                            <span class="info-value">
+                                {% if preferences.accessibilityNeeds %}
+                                    <span class="badge" style="background: rgba(0,200,150,0.1); color:#00c896; border: 1px solid rgba(0,200,150,0.3);">Required</span>
+                                {% else %}
+                                    <span style="color:var(--text-muted)">None reported</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                {% else %}
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center;">
+                        <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;">🧳</div>
+                        <h3 style="margin-bottom: 8px;">No preferences set yet</h3>
+                        <p style="color: var(--text-muted); font-size: 14px;">This user hasn't filled out their travel DNA profile.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

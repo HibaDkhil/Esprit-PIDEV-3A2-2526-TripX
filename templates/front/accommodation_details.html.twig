@@ -1,0 +1,2099 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ accommodation.name }} — TripX{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --accent: #a78bfa;
+  --accent2: #38bdf8;
+  --gold: #fbbf24;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Hero ── */
+.hero-section {
+  position: relative;
+  height: 50vh;
+  min-height: 400px;
+  background: linear-gradient(135deg, #1e3a5f, #0a6587);
+  overflow: hidden;
+}
+.hero-image { width: 100%; height: 100%; object-fit: cover; }
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7));
+  z-index: 2;
+}
+.hero-content {
+  position: absolute; bottom: 40px; left: 0; right: 0;
+  padding: 0 40px; color: white; z-index: 3;
+}
+.hero-content h1 {
+  font-size: 48px; font-weight: 800;
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 16px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+.hero-meta { display: flex; gap: 24px; flex-wrap: wrap; font-size: 14px; opacity: 0.9; }
+
+/* ── Layout ── */
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 32px;
+  max-width: 1400px;
+  margin: 40px auto;
+  padding: 0 24px;
+}
+.details-main    { display: flex; flex-direction: column; gap: 40px; }
+.details-sidebar { position: sticky; top: 100px; display: flex; flex-direction: column; gap: 24px; }
+
+/* ── Section Cards ── */
+.section-card {
+  background: linear-gradient(to right, rgb(20, 30, 48), rgb(36, 59, 85));
+  border: 1px solid rgba(167,139,250,0.15);
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: rgba(0,0,0,0.7) 5px 10px 50px, rgba(0,0,0,0.4) -5px 0px 80px;
+  transition: all 0.3s ease-in-out;
+  color: #e2e8f0;
+}
+.section-card:hover {
+  box-shadow: rgba(0,0,0,0.9) 5px 10px 50px, rgba(0,0,0,0.7) -5px 0px 120px;
+}
+.section-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(167,139,250,0.15);
+  display: flex; align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+}
+.section-header h2 {
+  font-size: 20px; font-weight: 700;
+  font-family: 'Playfair Display', serif;
+  color: #fff;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-content { padding: 24px; }
+
+/* ── Amenities ── */
+.amenities-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.amenity-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(167,139,250,0.2);
+  border-radius: 12px; font-size: 13px; color: #cbd5e1;
+}
+
+/* ── Rooms ── */
+.rooms-grid { display: grid; gap: 16px; }
+.room-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(167,139,250,0.2);
+  border-radius: 16px; padding: 16px;
+  transition: var(--transition);
+}
+.room-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  background: rgba(167,139,250,0.08);
+}
+.room-header   { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.room-name     { font-size: 18px; font-weight: 700; color: #fff; }
+.room-price    { font-size: 20px; font-weight: 800; color: var(--accent); }
+.room-price small { font-size: 12px; font-weight: normal; color: #94a3b8; }
+.room-details  { display: flex; gap: 16px; margin-bottom: 12px; font-size: 13px; color: #94a3b8; }
+.room-amenities{ display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.room-amenity  { padding: 4px 10px; background: rgba(167,139,250,0.15); border-radius: 20px; font-size: 11px; color: #c4b5fd; }
+
+/* ── Empty state ── */
+.empty-state { text-align: center; padding: 40px; color: #64748b; }
+.empty-state .icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+
+/* ── Nearby ── */
+.nearby-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.nearby-card {
+  display: flex; gap: 12px; padding: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(167,139,250,0.15);
+  border-radius: 12px; transition: var(--transition);
+}
+.nearby-card:hover { background: rgba(167,139,250,0.1); transform: translateY(-2px); }
+.nearby-icon   { font-size: 32px; }
+.nearby-info h4{ font-size: 14px; font-weight: 600; margin-bottom: 4px; color: #e2e8f0; }
+.nearby-info p { font-size: 12px; color: #94a3b8; }
+
+/* ── Gallery ── */
+.gallery-stack-wrapper {
+  display: flex; flex-wrap: wrap; gap: 0; padding: 20px 0 10px;
+}
+.gallery-card {
+  display: flex; height: 220px; width: 160px;
+  border-radius: 10px; box-shadow: -1rem 0 3rem rgba(0,0,0,0.6);
+  margin-left: -60px; transition: 0.4s ease-out;
+  position: relative; left: 0; overflow: hidden; cursor: pointer; flex-shrink: 0;
+}
+.gallery-card:first-child { margin-left: 0; }
+.gallery-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.4s ease-out; }
+.gallery-card:hover { transform: translateY(-20px); box-shadow: 0 20px 40px rgba(167,139,250,0.3); z-index: 10; }
+.gallery-card:hover ~ .gallery-card { position: relative; left: 50px; transition: 0.4s ease-out; }
+.gallery-card .gallery-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+  opacity: 0; transition: 0.3s ease-out;
+}
+.gallery-card:hover .gallery-overlay { opacity: 1; }
+.gallery-card .gallery-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 4px; }
+.gallery-card .gallery-bar-empty { background: rgba(255,255,255,0.1); width: 100%; height: 100%; }
+.gallery-card .gallery-bar-fill {
+  position: absolute; top: 0; left: 0;
+  width: 0; height: 100%;
+  background: linear-gradient(90deg, #6831cfab, #a777ff 100%);
+  transition: 0.4s ease-out;
+}
+.gallery-card:hover .gallery-bar-fill { width: 100%; }
+
+/* ── Reviews ── */
+.reviews-summary {
+  text-align: center; padding: 20px;
+  background: linear-gradient(135deg, rgba(167,139,250,0.1), rgba(56,189,248,0.1));
+  border-radius: 20px; margin-bottom: 24px;
+}
+.average-rating { font-size: 48px; font-weight: 800; color: var(--gold); }
+.stars  { color: var(--gold); font-size: 20px; letter-spacing: 2px; }
+.reviews-list { display: flex; flex-direction: column; gap: 20px; max-height: 400px; overflow-y: auto; }
+.review-item   { padding: 16px; border-bottom: 1px solid rgba(167,139,250,0.15); }
+.review-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.review-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; }
+.review-author { font-weight: 600; color: #fff; }
+.review-rating { color: var(--gold); font-size: 12px; }
+.review-text   { font-size: 14px; line-height: 1.5; color: #94a3b8; }
+
+/* ── Weather ── */
+.weather-card {
+  display: flex; flex-direction: column;
+  width: 100%; border-radius: 15px;
+  background: linear-gradient(to right, rgb(20, 30, 48), rgb(36, 59, 85));
+  overflow: hidden;
+  box-shadow: rgba(0,0,0,0.7) 5px 10px 50px, rgba(0,0,0,0.4) -5px 0px 80px;
+  cursor: pointer; transition: all 0.3s ease-in-out; color: white;
+}
+.weather-card:hover { box-shadow: rgba(0,0,0,0.9) 5px 10px 50px, rgba(0,0,0,0.7) -5px 0px 120px; }
+.info-section {
+  position: relative; display: flex; align-items: center;
+  justify-content: space-between; width: 100%;
+  padding: 20px 0; min-height: 180px;
+}
+.left-side  { display: flex; flex-direction: column; justify-content: space-around; height: 100%; z-index: 1; padding-left: 18px; gap: 8px; }
+.right-side { display: flex; flex-direction: column; align-items: flex-end; justify-content: space-around; height: 100%; padding-right: 18px; z-index: 1; gap: 8px; }
+.right-side > div { display: flex; flex-direction: column; align-items: flex-end; }
+.weather      { display: flex; align-items: center; gap: 8px; }
+.temperature  { font-size: 42px; font-weight: 600; line-height: 1; }
+.range        { font-size: 14px; opacity: 0.8; }
+.hour         { font-size: 20px; font-weight: 500; line-height: 1.2; }
+.date         { font-size: 13px; opacity: 0.8; }
+.city         { font-weight: 600; font-size: 14px; }
+.background-design { position: absolute; height: 100%; width: 100%; background-color: #3b1f6e; overflow: hidden; border-radius: 15px; }
+.circle { background-color: #6831cf; }
+.circle:nth-child(1) { position: absolute; top: -80%; right: -50%; width: 300px; height: 300px; opacity: 0.3; border-radius: 50%; }
+.circle:nth-child(2) { position: absolute; top: -70%; right: -30%; width: 210px; height: 210px; opacity: 0.3; border-radius: 50%; }
+.circle:nth-child(3) { position: absolute; top: -35%; right:  -8%; width: 100px; height: 100px; opacity: 0.7; border-radius: 50%; }
+.days-section { display: flex; align-items: center; justify-content: space-between; width: 100%; background: rgba(0,0,0,0.3); gap: 1px; }
+.days-section button { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70px; width: 100%; background: rgba(255,255,255,0.05); border: none; cursor: pointer; transition: 100ms ease; gap: 5px; color: white; }
+.days-section button:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); }
+.days-section .day { font-size: 12px; font-weight: 500; }
+.days-section .forecast-temp { font-size: 14px; font-weight: 600; }
+.forecast-icon { width: 24px; height: 24px; }
+
+/* ── Booking Panel ── */
+.booking-panel {
+  background: linear-gradient(to right, rgb(20, 30, 48), rgb(36, 59, 85));
+  border: 1px solid rgba(167,139,250,0.2);
+  border-radius: 15px; padding: 24px;
+  box-shadow: rgba(0,0,0,0.7) 5px 10px 50px;
+  color: #e2e8f0; transition: all 0.3s ease-in-out;
+}
+.booking-panel:hover { box-shadow: rgba(0,0,0,0.9) 5px 10px 50px, rgba(0,0,0,0.5) -5px 0px 80px; }
+.booking-price { font-size: 28px; font-weight: 800; color: var(--accent); margin-bottom: 20px; }
+.booking-price small { font-size: 14px; font-weight: normal; color: #94a3b8; }
+.date-input {
+  width: 100%; padding: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(167,139,250,0.2);
+  border-radius: 12px; margin-bottom: 12px; color: #e2e8f0;
+}
+.date-input option { background: #1a2035; }
+.book-btn {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, #4a2f7c, #8a4ff8);
+  border: none; border-radius: 50px;
+  color: white; font-weight: 700; font-size: 16px;
+  cursor: pointer; transition: 0.4s ease-out; margin-top: 16px;
+}
+.book-btn:hover {
+  background: linear-gradient(135deg, #8a4ff8, #38bdf8);
+  box-shadow: 0px 0px 20px rgba(157,71,255,0.5), 0px 5px 5px -1px rgba(163,58,233,0.25), inset 4px 4px 8px rgba(219,175,255,0.5), inset -4px -4px 8px rgba(137,19,216,0.35);
+  transform: translateY(-2px);
+}
+
+/* ── Mini Map ── */
+.mini-map { height: 200px; border-radius: 12px; overflow: hidden; }
+
+/* ── Itinerary ── */
+.itinerary-content { font-family: monospace; line-height: 1.6; white-space: pre-wrap; font-size: 14px; color: #94a3b8; }
+.generate-itinerary {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #4a2f7c, #8a4ff8);
+  border: none; border-radius: 50px;
+  color: white; font-weight: 600; cursor: pointer; transition: 0.4s ease-out;
+}
+.generate-itinerary:hover { box-shadow: 0px 0px 20px rgba(157,71,255,0.5), inset 4px 4px 8px rgba(219,175,255,0.5), inset -4px -4px 8px rgba(137,19,216,0.35); }
+select#itinerary-days, select#nearby-category {
+  padding: 8px 12px; border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(167,139,250,0.2);
+  color: #e2e8f0; margin-right: 8px;
+}
+select#itinerary-days option, select#nearby-category option { background: #1a2035; }
+
+/* ── Skeleton ── */
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(167,139,250,0.08) 50%, rgba(255,255,255,0.04) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 12px;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ── Image Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+  z-index: 2000; display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden; transition: all 0.3s ease; cursor: pointer;
+}
+.modal-overlay.open { opacity: 1; visibility: visible; }
+.modal-content { max-width: 90vw; max-height: 90vh; cursor: default; }
+.modal-content img { max-width: 100%; max-height: 90vh; border-radius: 12px; }
+
+/* ═══════════════════════════════════════════
+   BOOKING DRAWER
+═══════════════════════════════════════════ */
+.drawer-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(0px);
+  z-index: 3000;
+  pointer-events: none;
+  transition: background 0.5s ease, backdrop-filter 0.5s ease;
+}
+.drawer-backdrop.open {
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  pointer-events: all;
+}
+.booking-drawer {
+  position: fixed;
+  top: 0; right: 0;
+  width: 520px;
+  height: 100vh;
+  z-index: 3001;
+  background: linear-gradient(160deg, #0d1b2e 0%, #14243e 40%, #1a1a3e 100%);
+  border-left: 1px solid rgba(167, 139, 250, 0.2);
+  box-shadow: -20px 0 80px rgba(0,0,0,0.8), -2px 0 30px rgba(167,139,250,0.05);
+  transform: translateX(100%);
+  transition: transform 0.55s cubic-bezier(0.32, 0.72, 0, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'DM Sans', sans-serif;
+  color: #e2e8f0;
+}
+.booking-drawer.open { transform: translateX(0); }
+.drawer-close {
+  position: absolute; top: 18px; right: 20px; z-index: 10;
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 50%;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s;
+  backdrop-filter: blur(10px);
+}
+.drawer-close:hover {
+  background: rgba(239,68,68,0.2);
+  border-color: rgba(239,68,68,0.4);
+  color: #fca5a5;
+  transform: rotate(90deg);
+}
+.drawer-progress {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 64px 28px 16px;
+  position: relative;
+  z-index: 5;
+  flex-shrink: 0;
+}
+.progress-step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
+.progress-dot {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 2px solid rgba(167,139,250,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #64748b;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative; z-index: 2;
+}
+.progress-dot.active {
+  background: linear-gradient(135deg, #4a2f7c, #8a4ff8);
+  border-color: #a78bfa; color: white;
+  box-shadow: 0 0 20px rgba(138,79,248,0.5);
+}
+.progress-dot.done {
+  background: linear-gradient(135deg, #065f46, #059669);
+  border-color: #10b981; color: white;
+  box-shadow: 0 0 12px rgba(16,185,129,0.4);
+}
+.progress-label {
+  font-size: 10px; font-weight: 600;
+  color: #475569; letter-spacing: 0.5px; text-transform: uppercase;
+  transition: color 0.3s;
+}
+.progress-step.active .progress-label { color: #a78bfa; }
+.progress-step.done .progress-label   { color: #10b981; }
+.progress-line {
+  flex: 1; height: 2px;
+  background: rgba(167,139,250,0.12);
+  position: relative; margin-bottom: 22px;
+  max-width: 60px;
+}
+.progress-line-fill {
+  position: absolute; top: 0; left: 0;
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #4a2f7c, #8a4ff8);
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.drawer-steps { flex: 1; overflow: hidden; position: relative; min-height: 0; }
+.drawer-step {
+  position: absolute; inset: 0;
+  overflow-y: auto;
+  padding: 24px 28px 28px;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: transform 0.45s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(167,139,250,0.3) transparent;
+}
+.drawer-step::-webkit-scrollbar { width: 4px; }
+.drawer-step::-webkit-scrollbar-track { background: transparent; }
+.drawer-step::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.3); border-radius: 2px; }
+.drawer-step.active  { transform: translateX(0); opacity: 1; }
+.drawer-step.exiting { transform: translateX(-40px); opacity: 0; }
+
+/* ── Step 0: Room Preview ── */
+.room-carousel {
+  position: relative; height: 240px; border-radius: 16px;
+  overflow: hidden; margin-bottom: 24px;
+  background: rgba(255,255,255,0.04);
+}
+.carousel-slides { display: flex; height: 100%; transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); }
+.carousel-slide { min-width: 100%; height: 100%; object-fit: cover; flex-shrink: 0; }
+.carousel-slide-placeholder {
+  min-width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 80px;
+  background: linear-gradient(135deg, rgba(74,47,124,0.3), rgba(56,189,248,0.1));
+}
+.carousel-btn {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 36px; height: 36px;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50%; color: white; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; transition: all 0.2s; z-index: 5;
+}
+.carousel-btn:hover { background: rgba(138,79,248,0.6); border-color: rgba(167,139,250,0.5); }
+.carousel-btn.prev { left: 12px; }
+.carousel-btn.next { right: 12px; }
+.carousel-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 5; }
+.carousel-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255,255,255,0.4); transition: all 0.3s; cursor: pointer;
+}
+.carousel-dot.active { width: 20px; border-radius: 3px; background: #a78bfa; }
+.room-preview-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.room-preview-name  { font-size: 22px; font-weight: 700; color: #fff; font-family: 'Playfair Display', serif; }
+.room-preview-badge {
+  padding: 4px 12px;
+  background: rgba(167,139,250,0.15);
+  border: 1px solid rgba(167,139,250,0.3);
+  border-radius: 20px; font-size: 11px; font-weight: 600;
+  color: #c4b5fd; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+}
+.room-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+.room-stat {
+  padding: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(167,139,250,0.12);
+  border-radius: 12px; text-align: center;
+}
+.room-stat-icon  { font-size: 20px; margin-bottom: 4px; }
+.room-stat-value { font-size: 15px; font-weight: 700; color: #fff; }
+.room-stat-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+.preview-price-tag { display: flex; align-items: baseline; gap: 6px; margin-bottom: 20px; }
+.preview-price-amount { font-size: 36px; font-weight: 800; color: #a78bfa; }
+.preview-price-per    { font-size: 14px; color: #64748b; }
+.drawer-amenities { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.drawer-amenity {
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(167,139,250,0.15);
+  border-radius: 20px; font-size: 12px; color: #94a3b8;
+}
+
+/* ── Step 1: Stay Details ── */
+.stay-section-title {
+  font-size: 12px; font-weight: 700;
+  color: #64748b; text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 10px; margin-top: 20px;
+}
+.stay-section-title:first-child { margin-top: 0; }
+.date-range-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px; }
+.date-field { display: flex; flex-direction: column; gap: 6px; }
+.date-field label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+.drawer-input {
+  width: 100%; padding: 12px 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(167,139,250,0.15);
+  border-radius: 12px;
+  color: #e2e8f0; font-size: 14px;
+  transition: all 0.2s; outline: none;
+  font-family: 'DM Sans', sans-serif;
+  box-sizing: border-box;
+}
+.drawer-input:focus {
+  border-color: rgba(167,139,250,0.6);
+  background: rgba(167,139,250,0.08);
+  box-shadow: 0 0 0 3px rgba(167,139,250,0.1);
+}
+.drawer-input option { background: #1a2035; }
+.nights-pill {
+  text-align: center; padding: 8px;
+  background: linear-gradient(135deg, rgba(74,47,124,0.3), rgba(56,189,248,0.1));
+  border: 1px solid rgba(167,139,250,0.2);
+  border-radius: 30px; margin: 12px 0;
+  font-size: 13px; font-weight: 600; color: #a78bfa;
+  transition: all 0.3s;
+}
+.guest-stepper {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(167,139,250,0.15);
+  border-radius: 12px; margin-bottom: 12px;
+}
+.stepper-label { display: flex; flex-direction: column; gap: 2px; }
+.stepper-label span:first-child { font-size: 14px; font-weight: 600; color: #e2e8f0; }
+.stepper-label span:last-child  { font-size: 11px; color: #64748b; }
+.stepper-controls { display: flex; align-items: center; gap: 12px; }
+.stepper-btn {
+  width: 32px; height: 32px;
+  background: rgba(167,139,250,0.12);
+  border: 1px solid rgba(167,139,250,0.25);
+  border-radius: 8px; color: #a78bfa;
+  cursor: pointer; font-size: 18px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; line-height: 1;
+}
+.stepper-btn:hover:not(:disabled) {
+  background: rgba(167,139,250,0.25);
+  border-color: rgba(167,139,250,0.5);
+  transform: scale(1.1);
+}
+.stepper-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.stepper-count { font-size: 18px; font-weight: 700; color: #fff; min-width: 20px; text-align: center; }
+.price-breakdown {
+  background: linear-gradient(135deg, rgba(74,47,124,0.2), rgba(56,189,248,0.08));
+  border: 1px solid rgba(167,139,250,0.2);
+  border-radius: 16px; padding: 16px; margin-top: 20px;
+}
+.price-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 14px; color: #94a3b8; }
+.price-row.total {
+  border-top: 1px solid rgba(167,139,250,0.2);
+  margin-top: 8px; padding-top: 14px;
+  font-size: 18px; font-weight: 800; color: #fff;
+}
+.price-row.total span:last-child { color: #a78bfa; }
+
+/* ══════════════════════════════════════════════════════
+   STEP 2: PAYMENT WALLET
+══════════════════════════════════════════════════════ */
+.booking-recap {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(167,139,250,0.15);
+  border-radius: 14px; padding: 14px; margin-bottom: 20px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.recap-label  { font-size: 11px; color: #64748b; margin-bottom: 2px; }
+.recap-value  { font-size: 13px; font-weight: 600; color: #e2e8f0; }
+.recap-price  { font-size: 22px; font-weight: 800; color: #a78bfa; }
+.wallet-section-label {
+  font-size: 11px; font-weight: 700;
+  color: #64748b; text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 14px;
+}
+.pay-wallet-outer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.pay-wallet {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  height: 220px;
+  cursor: pointer;
+  perspective: 1000px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  transition: transform 0.4s ease;
+}
+.pay-wallet-back {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  max-width: 380px;
+  height: 185px;
+  background: #1e2a1e;
+  border-radius: 22px 22px 55px 55px;
+  z-index: 5;
+  box-shadow:
+    inset 0 25px 35px rgba(0,0,0,0.5),
+    inset 0 5px 15px rgba(0,0,0,0.6);
+}
+@keyframes pwSlideIn {
+  0%   { transform: translateY(-90px); opacity: 0; }
+  100% { transform: translateY(0);     opacity: 1; }
+}
+.pay-card {
+  position: absolute;
+  width: calc(100% - 20px);
+  max-width: 360px;
+  height: 130px;
+  left: 10px;
+  border-radius: 16px;
+  padding: 16px 18px;
+  color: white;
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.25),
+    0 -4px 15px rgba(0,0,0,0.15);
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: pwSlideIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+}
+.pay-card::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.pay-card-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+.pay-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.pay-chip {
+  width: 28px;
+  height: 21px;
+  background: rgba(255,255,255,0.18);
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.pay-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.pay-card-label {
+  font-size: 8px;
+  opacity: 0.65;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+  display: block;
+  letter-spacing: 0.5px;
+}
+.pay-card-value { font-size: 10px; font-weight: 600; }
+.pay-card-num-wrap { text-align: right; }
+.pay-card-stars { font-size: 14px; letter-spacing: 3px; opacity: 0.8; }
+.pay-network-badge { font-size: 11px; font-weight: 800; letter-spacing: 0.5px; opacity: 0.9; }
+.pay-visa {
+  background: linear-gradient(135deg, #1a3a6f 0%, #1565c0 70%, #0d47a1 100%);
+  bottom: 88px; z-index: 10; animation-delay: 0.08s;
+}
+.pay-mc {
+  background: linear-gradient(135deg, #6a0000 0%, #b71c1c 55%, #c62828 100%);
+  bottom: 60px; z-index: 20; animation-delay: 0.18s;
+}
+.pay-amex {
+  background: linear-gradient(135deg, #1b3a20 0%, #2e7d32 55%, #388e3c 100%);
+  bottom: 32px; z-index: 30; animation-delay: 0.28s;
+}
+.pay-pocket {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  max-width: 380px;
+  height: 155px;
+  z-index: 40;
+  filter: drop-shadow(0 12px 22px rgba(10,20,10,0.55));
+}
+.pay-pocket-content {
+  position: absolute;
+  top: 38px;
+  width: 100%;
+  text-align: center;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.pay-balance-stars {
+  color: #5a7a53; font-size: 20px; letter-spacing: 4px;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.pay-balance-real {
+  color: #8dc880; font-size: 19px; font-weight: 700;
+  opacity: 0; position: absolute; top: 0; left: 50%;
+  transform: translate(-50%, 8px);
+  transition: opacity 0.3s, transform 0.3s;
+  white-space: nowrap;
+}
+.pay-eye-wrap {
+  margin-top: 6px; height: 18px; width: 18px;
+  position: relative; opacity: 0.3; transition: opacity 0.3s;
+}
+.pay-eye {
+  position: absolute; top: 0; left: 0;
+  stroke: #4ade80; transition: opacity 0.3s, transform 0.3s;
+}
+.pay-wallet:hover { transform: translateY(-4px); }
+.pay-wallet:hover .pay-eye-wrap { opacity: 1; }
+.pay-wallet:hover .pay-visa  { transform: translateY(-72px) rotate(-3.5deg); }
+.pay-wallet:hover .pay-mc   { transform: translateY(-44px) rotate(2deg); }
+.pay-wallet:hover .pay-amex { transform: translateY(-10px); }
+.pay-card:hover { z-index: 100 !important; }
+.pay-wallet:hover .pay-visa:hover  { transform: translateY(-62px) scale(1.04) rotate(0deg); }
+.pay-wallet:hover .pay-mc:hover    { transform: translateY(-70px) scale(1.04) rotate(0deg); }
+.pay-wallet:hover .pay-amex:hover  { transform: translateY(-62px) scale(1.04) rotate(0deg); }
+.pay-wallet:hover .pay-balance-stars { opacity: 0; transform: translateY(-4px); }
+.pay-wallet:hover .pay-balance-real  { opacity: 1; transform: translate(-50%, 0); }
+.pay-wallet:hover .pay-eye-slash { opacity: 0; transform: scale(0.5); }
+.pay-wallet:hover .pay-eye-open  { opacity: 1; transform: scale(1.1); }
+.pay-card.selected { outline: none; z-index: 200 !important; }
+.pay-card.selected::after {
+  content: '✓'; position: absolute; top: 8px; right: 8px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; line-height: 20px; text-align: center;
+  backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.3);
+}
+.pay-visa.selected  { box-shadow: 0 0 0 2px #5b9bd5, 0 8px 30px rgba(21,101,192,0.5); }
+.pay-mc.selected    { box-shadow: 0 0 0 2px #e57373, 0 8px 30px rgba(198,40,40,0.5); }
+.pay-amex.selected  { box-shadow: 0 0 0 2px #81c784, 0 8px 30px rgba(56,142,60,0.5); }
+.pay-wallet-hint {
+  font-size: 11px; color: #4a5568; margin-top: 10px;
+  font-style: italic; text-align: center; transition: color 0.3s;
+}
+.pay-wallet-hint.selected-hint { color: #a78bfa; font-style: normal; font-weight: 600; }
+.pay-format-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px;
+  background: rgba(167,139,250,0.1);
+  border: 1px solid rgba(167,139,250,0.2);
+  border-radius: 20px; font-size: 11px; font-weight: 600; color: #a78bfa;
+  margin-bottom: 14px; transition: all 0.3s;
+}
+.pay-format-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.payment-field { margin-bottom: 14px; }
+.payment-field label {
+  display: block; font-size: 11px; font-weight: 700;
+  color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+}
+.payment-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.secure-badge {
+  display: flex; align-items: center; gap: 8px; justify-content: center;
+  padding: 10px 16px;
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.2);
+  border-radius: 30px; margin: 16px 0;
+  font-size: 12px; font-weight: 600; color: #34d399;
+}
+.demo-notice { text-align: center; font-size: 11px; color: #475569; margin-top: 8px; line-height: 1.5; }
+
+/* ── Step 3: Confirmation ── */
+.confirmation-wrapper {
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center; padding: 20px 0;
+}
+.confirm-checkmark {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: linear-gradient(135deg, #065f46, #10b981);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px; margin-bottom: 20px;
+  animation: pulse-success 2s ease-in-out infinite;
+}
+@keyframes pulse-success {
+  0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+  50%      { box-shadow: 0 0 0 20px rgba(16,185,129,0); }
+}
+@keyframes pop-in {
+  0%   { transform: scale(0.5); opacity: 0; }
+  70%  { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.confirm-checkmark.animate {
+  animation: pop-in 0.6s cubic-bezier(0.175,0.885,0.32,1.275) forwards, pulse-success 2s 0.6s ease-in-out infinite;
+}
+.confirm-title {
+  font-size: 28px; font-weight: 800; color: #fff;
+  font-family: 'Playfair Display', serif; margin-bottom: 8px;
+}
+.confirm-subtitle { font-size: 14px; color: #64748b; margin-bottom: 24px; }
+.booking-reference {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, rgba(74,47,124,0.3), rgba(56,189,248,0.1));
+  border: 1px solid rgba(167,139,250,0.3);
+  border-radius: 30px; margin-bottom: 24px;
+  font-family: monospace; font-size: 18px; font-weight: 700;
+  color: #a78bfa; letter-spacing: 2px;
+}
+.confirm-summary {
+  width: 100%; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(167,139,250,0.12);
+  border-radius: 16px; overflow: hidden;
+}
+.confirm-row {
+  display: flex; justify-content: space-between;
+  padding: 12px 16px; border-bottom: 1px solid rgba(167,139,250,0.08); font-size: 14px;
+}
+.confirm-row:last-child { border-bottom: none; }
+.confirm-row span:first-child { color: #64748b; }
+.confirm-row span:last-child  { color: #e2e8f0; font-weight: 600; }
+
+/* ── Drawer Footer ── */
+.drawer-footer {
+  padding: 16px 28px 24px;
+  border-top: 1px solid rgba(167,139,250,0.1);
+  background: rgba(0,0,0,0.2);
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
+}
+.drawer-cta {
+  width: 100%; padding: 15px;
+  background: linear-gradient(135deg, #4a2f7c, #8a4ff8);
+  border: none; border-radius: 14px;
+  color: white; font-weight: 700; font-size: 15px;
+  cursor: pointer; transition: all 0.35s ease-out;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: 'DM Sans', sans-serif; letter-spacing: 0.3px;
+}
+.drawer-cta:hover:not(:disabled) {
+  background: linear-gradient(135deg, #8a4ff8, #38bdf8);
+  box-shadow: 0 8px 30px rgba(138,79,248,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+  transform: translateY(-2px);
+}
+.drawer-cta:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.drawer-cta.loading  { pointer-events: none; }
+.drawer-cta .spinner {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
+  animation: spin 0.8s linear infinite; display: none;
+}
+.drawer-cta.loading .spinner   { display: block; }
+.drawer-cta.loading .cta-label { display: none; }
+.drawer-back {
+  display: flex; align-items: center; gap: 6px;
+  background: none; border: none; color: #64748b;
+  cursor: pointer; font-size: 13px; font-weight: 500;
+  padding: 8px 0; margin-bottom: 10px;
+  transition: color 0.2s; font-family: 'DM Sans', sans-serif;
+}
+.drawer-back:hover { color: #a78bfa; }
+.drawer-back svg { width: 16px; height: 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#confetti-canvas {
+  position: fixed; inset: 0; pointer-events: none;
+  z-index: 3500; opacity: 0; transition: opacity 0.5s;
+}
+#confetti-canvas.active { opacity: 1; }
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .details-grid { grid-template-columns: 1fr; }
+  .details-sidebar { position: static; }
+  .hero-content h1 { font-size: 32px; }
+}
+@media (max-width: 768px) {
+  .hero-section { height: 40vh; min-height: 300px; }
+  .hero-content { padding: 0 20px; bottom: 20px; }
+  .hero-content h1 { font-size: 24px; }
+  .details-grid { padding: 0 16px; margin: 24px auto; }
+  .section-header { flex-direction: column; align-items: flex-start; }
+  .nearby-grid { grid-template-columns: 1fr; }
+  .gallery-card { width: 120px; height: 160px; margin-left: -40px; }
+  .booking-drawer { width: 100vw; border-left: none; border-top: 1px solid rgba(167,139,250,0.2); }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# ── Hero ── #}
+<div class="hero-section">
+  {% if accommodation.imagePath %}
+    <img class="hero-image" src="/{{ accommodation.imagePath }}" alt="{{ accommodation.name }}">
+  {% else %}
+    <div class="hero-image" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a2035,#243b55);font-size:64px;">🏨</div>
+  {% endif %}
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1>{{ accommodation.name }}</h1>
+    <div class="hero-meta">
+      <span>📍 {{ accommodation.city }}{% if accommodation.country %}, {{ accommodation.country }}{% endif %}</span>
+      <span>⭐ {{ accommodation.stars }} stars</span>
+      {% if accommodation.rating %}<span>🌟 {{ accommodation.rating }}/5 guest rating</span>{% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="details-grid">
+  <div class="details-main">
+
+    {# About #}
+    <div class="section-card">
+      <div class="section-header"><h2>📋 About This Property</h2></div>
+      <div class="section-content">
+        <p style="line-height:1.6;margin-bottom:20px;color:#cbd5e1;">{{ accommodation.description ?: 'No description available.' }}</p>
+        {% if accommodation.accommodationAmenities %}
+          <h3 style="font-size:14px;margin-bottom:12px;color:#e2e8f0;">Amenities</h3>
+          <div class="amenities-grid">
+            {% for amenity in accommodation.accommodationAmenities|split(',') %}
+              <div class="amenity-item"><span>{{ amenity|trim }}</span></div>
+            {% endfor %}
+          </div>
+        {% endif %}
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:20px;color:#94a3b8;">
+          {% if accommodation.phone %}<div>📞 {{ accommodation.phone }}</div>{% endif %}
+          {% if accommodation.email %}<div>✉️ {{ accommodation.email }}</div>{% endif %}
+          <div>🏨 {{ accommodation.type ?: 'Not specified' }}</div>
+          <div>⭐ {{ accommodation.stars }}/5 stars</div>
+          {% if accommodation.rating %}<div>🌟 {{ accommodation.rating }}/5 guest rating</div>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    {# Rooms #}
+    <div class="section-card">
+      <div class="section-header"><h2>🛏️ Available Rooms</h2></div>
+      <div class="section-content">
+        <div class="rooms-grid" id="rooms-container">
+          <div class="skeleton" style="height:100px;"></div>
+        </div>
+      </div>
+    </div>
+
+    {# Nearby #}
+    <div class="section-card">
+      <div class="section-header">
+        <h2>🏙️ What's Nearby</h2>
+        <select id="nearby-category">
+          <option value="restaurants">🍽️ Restaurants</option>
+          <option value="attractions">🏛️ Attractions</option>
+          <option value="shopping">🛍️ Shopping</option>
+          <option value="transport">🚇 Transport</option>
+        </select>
+      </div>
+      <div class="section-content">
+        <div id="nearby-container"><div class="skeleton" style="height:100px;"></div></div>
+      </div>
+    </div>
+
+    {# Gallery #}
+    <div class="section-card">
+      <div class="section-header"><h2>📸 {{ accommodation.city }} Gallery</h2></div>
+      <div class="section-content">
+        <div id="gallery-container"><div class="skeleton" style="height:220px;"></div></div>
+      </div>
+    </div>
+
+    {# Reviews #}
+    <div class="section-card">
+      <div class="section-header"><h2>⭐ Guest Reviews</h2></div>
+      <div class="section-content">
+        <div id="reviews-container"><div class="skeleton" style="height:150px;"></div></div>
+      </div>
+    </div>
+
+    {# Itinerary — FIX: onclick directly on the button #}
+    <div class="section-card">
+      <div class="section-header">
+        <h2>🤖 AI-Powered Itinerary</h2>
+        <div>
+          <select id="itinerary-days">
+            <option value="3">3 Days</option>
+            <option value="5">5 Days</option>
+            <option value="7">7 Days</option>
+          </select>
+          <button id="generate-itinerary-btn" class="generate-itinerary" onclick="generateItinerary()">Generate</button>
+        </div>
+      </div>
+      <div class="section-content">
+        <div id="itinerary-container" class="itinerary-content">
+          <p style="color:#64748b;text-align:center;">Click "Generate" to create your personalized itinerary</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="details-sidebar">
+    {# Weather #}
+    <div id="weather-container">
+      <div class="skeleton" style="height:280px;border-radius:15px;"></div>
+    </div>
+
+    {# Booking panel #}
+    <div class="booking-panel">
+      <div class="booking-price">From <span id="min-price">---</span><small>/night</small></div>
+      <input type="date" id="checkin-date"  class="date-input">
+      <input type="date" id="checkout-date" class="date-input">
+      <select id="guest-count" class="date-input">
+        <option value="1">1 Guest</option>
+        <option value="2">2 Guests</option>
+        <option value="3">3 Guests</option>
+        <option value="4">4 Guests</option>
+      </select>
+      <button class="book-btn" onclick="showToast('Browse available rooms below ↓', 'info')">💰 View Rooms</button>
+    </div>
+
+    {# Map #}
+    <div class="section-card">
+      <div class="section-header"><h2>📍 Location</h2></div>
+      <div class="section-content" style="padding:0;">
+        <div id="mini-map" class="mini-map"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ══════════════════════════════════════════
+   BOOKING DRAWER
+══════════════════════════════════════════ #}
+<div class="drawer-backdrop" id="drawer-backdrop"></div>
+<canvas id="confetti-canvas"></canvas>
+
+<div class="booking-drawer" id="booking-drawer">
+
+  <button class="drawer-close" id="drawer-close-btn" onclick="closeDrawer()">✕</button>
+
+  {# Progress bar #}
+  <div class="drawer-progress">
+    <div class="progress-step active" id="prog-0">
+      <div class="progress-dot active" id="dot-0">1</div>
+      <div class="progress-label">Room</div>
+    </div>
+    <div class="progress-line"><div class="progress-line-fill" id="line-0"></div></div>
+    <div class="progress-step" id="prog-1">
+      <div class="progress-dot" id="dot-1">2</div>
+      <div class="progress-label">Your Stay</div>
+    </div>
+    <div class="progress-line"><div class="progress-line-fill" id="line-1"></div></div>
+    <div class="progress-step" id="prog-2">
+      <div class="progress-dot" id="dot-2">3</div>
+      <div class="progress-label">Payment</div>
+    </div>
+    <div class="progress-line"><div class="progress-line-fill" id="line-2"></div></div>
+    <div class="progress-step" id="prog-3">
+      <div class="progress-dot" id="dot-3">✓</div>
+      <div class="progress-label">Confirmed</div>
+    </div>
+  </div>
+
+  <div class="drawer-steps">
+
+    {# ── STEP 0: Room Preview ── #}
+    <div class="drawer-step active" id="step-0">
+      <div class="room-carousel">
+        <div class="carousel-slides" id="carousel-slides">
+          <div class="carousel-slide-placeholder">🏨</div>
+        </div>
+        <button class="carousel-btn prev" onclick="carouselPrev()">‹</button>
+        <button class="carousel-btn next" onclick="carouselNext()">›</button>
+        <div class="carousel-dots" id="carousel-dots"></div>
+      </div>
+      <div class="room-preview-header">
+        <div class="room-preview-name" id="preview-name">Room Name</div>
+        <div class="room-preview-badge" id="preview-type">Standard</div>
+      </div>
+      <div class="room-stats">
+        <div class="room-stat">
+          <div class="room-stat-icon">👥</div>
+          <div class="room-stat-value" id="preview-capacity">—</div>
+          <div class="room-stat-label">Guests</div>
+        </div>
+        <div class="room-stat">
+          <div class="room-stat-icon">📐</div>
+          <div class="room-stat-value" id="preview-size">—</div>
+          <div class="room-stat-label">m² Size</div>
+        </div>
+        <div class="room-stat">
+          <div class="room-stat-icon">🛏️</div>
+          <div class="room-stat-value" id="preview-beds">1</div>
+          <div class="room-stat-label">Bed(s)</div>
+        </div>
+      </div>
+      <div class="preview-price-tag">
+        <div class="preview-price-amount" id="preview-price">€—</div>
+        <div class="preview-price-per">per night</div>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Included Amenities</div>
+      <div class="drawer-amenities" id="preview-amenities"></div>
+    </div>
+
+    {# ── STEP 1: Stay Details ── #}
+    <div class="drawer-step" id="step-1">
+      <button class="drawer-back" onclick="goToStep(0)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to room
+      </button>
+      <div class="stay-section-title">Check-in & Check-out</div>
+      <div class="date-range-grid">
+        <div class="date-field">
+          <label>Check-in</label>
+          <input type="date" id="d-checkin" class="drawer-input" onchange="recalcPrice()">
+        </div>
+        <div class="date-field">
+          <label>Check-out</label>
+          <input type="date" id="d-checkout" class="drawer-input" onchange="recalcPrice()">
+        </div>
+      </div>
+      <div class="nights-pill" id="nights-pill">Select dates to see duration</div>
+      <div class="stay-section-title">Guests</div>
+      <div class="guest-stepper">
+        <div class="stepper-label">
+          <span>Number of Guests</span>
+          <span id="guest-capacity-hint">Max — guests</span>
+        </div>
+        <div class="stepper-controls">
+          <button class="stepper-btn" id="guest-minus" onclick="adjustGuests(-1)">−</button>
+          <span class="stepper-count" id="guest-count-display">1</span>
+          <button class="stepper-btn" id="guest-plus"  onclick="adjustGuests(1)">+</button>
+        </div>
+      </div>
+      <div class="stay-section-title">Estimated Arrival Time</div>
+      <select id="d-arrival" class="drawer-input" style="margin-bottom:12px;">
+        <option value="">I'll let you know later</option>
+        <option value="10:00">10:00 AM</option>
+        <option value="12:00">12:00 PM</option>
+        <option value="14:00">2:00 PM</option>
+        <option value="15:00">3:00 PM</option>
+        <option value="16:00">4:00 PM</option>
+        <option value="18:00">6:00 PM</option>
+        <option value="20:00">8:00 PM</option>
+        <option value="22:00">10:00 PM</option>
+        <option value="00:00">After midnight</option>
+      </select>
+      <div class="stay-section-title">Phone Number</div>
+<input type="tel" id="d-phone" class="drawer-input"
+       placeholder="+1 234 567 8900"
+       maxlength="16"
+       oninput="sanitizePhone(this)"
+       style="margin-bottom:12px;">
+<div class="stay-section-title">Special Requests <span style="color:#475569;font-weight:400;text-transform:none;">(optional)</span></div>
+<textarea id="d-requests" class="drawer-input" rows="3"
+  placeholder="Early check-in, high floor, quiet room..."
+  style="resize:none;line-height:1.5;"></textarea>
+      <div class="price-breakdown" id="price-breakdown">
+        <div class="price-row">
+          <span id="price-row-label">€— × — nights</span>
+          <span id="price-row-sub">€—</span>
+        </div>
+        <div class="price-row">
+          <span>Taxes &amp; fees (10%)</span>
+          <span id="price-row-tax">€—</span>
+        </div>
+        <div class="price-row total">
+          <span>Total</span>
+          <span id="price-row-total">€—</span>
+        </div>
+      </div>
+    </div>
+
+    {# ── STEP 2: PAYMENT ── #}
+    <div class="drawer-step" id="step-2">
+      <button class="drawer-back" onclick="goToStep(1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to stay details
+      </button>
+
+      <div class="booking-recap">
+        <div>
+          <div class="recap-label">Room</div>
+          <div class="recap-value" id="recap-room">—</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="recap-label">Nights</div>
+          <div class="recap-value" id="recap-nights">—</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="recap-label">Total</div>
+          <div class="recap-price" id="recap-total">€—</div>
+        </div>
+      </div>
+
+      <div class="wallet-section-label">Choose your card</div>
+
+      <div class="pay-wallet-outer">
+        <div class="pay-wallet" id="pay-wallet">
+
+          <div class="pay-wallet-back"></div>
+
+          <div class="pay-card pay-visa" id="pw-visa" onclick="selectPayCard('visa')">
+            <div class="pay-card-inner">
+              <div class="pay-card-top">
+                <span>Visa</span>
+                <div class="pay-chip"></div>
+              </div>
+              <div class="pay-card-bottom">
+                <div>
+                  <span class="pay-card-label">Holder</span>
+                  <span class="pay-card-value" id="pw-visa-name">YOUR NAME</span>
+                </div>
+                <div class="pay-card-num-wrap">
+                  <span class="pay-card-stars">**** 4242</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pay-card pay-mc" id="pw-mc" onclick="selectPayCard('mc')">
+            <div class="pay-card-inner">
+              <div class="pay-card-top">
+                <span>Mastercard</span>
+                <div class="pay-chip"></div>
+              </div>
+              <div class="pay-card-bottom">
+                <div>
+                  <span class="pay-card-label">Holder</span>
+                  <span class="pay-card-value" id="pw-mc-name">YOUR NAME</span>
+                </div>
+                <div class="pay-card-num-wrap">
+                  <span class="pay-card-stars">**** 5500</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pay-card pay-amex" id="pw-amex" onclick="selectPayCard('amex')">
+            <div class="pay-card-inner">
+              <div class="pay-card-top">
+                <span>Amex</span>
+                <div class="pay-chip"></div>
+              </div>
+              <div class="pay-card-bottom">
+                <div>
+                  <span class="pay-card-label">Holder</span>
+                  <span class="pay-card-value" id="pw-amex-name">YOUR NAME</span>
+                </div>
+                <div class="pay-card-num-wrap">
+                  <span class="pay-card-stars">**** 3714</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pay-pocket">
+            <svg class="pay-pocket-svg" viewBox="0 0 380 155" fill="none" style="width:100%;height:100%;">
+              <path d="M 0 20 C 0 10, 5 10, 10 10 C 20 10, 25 25, 40 25 L 340 25 C 355 25, 360 10, 370 10 C 375 10, 380 10, 380 20 L 380 115 C 380 150, 360 155, 340 155 L 40 155 C 20 155, 0 150, 0 115 Z" fill="#1e2a1e"></path>
+              <path d="M 8 22 C 8 16, 12 16, 15 16 C 23 16, 27 29, 40 29 L 340 29 C 353 29, 357 16, 365 16 C 368 16, 372 16, 372 22 L 372 115 C 372 148, 355 149, 340 149 L 40 149 C 25 149, 8 149, 8 115 Z" stroke="#2e4a2e" stroke-width="1.5" stroke-dasharray="6 4"></path>
+            </svg>
+            <div class="pay-pocket-content">
+              <div style="position:relative;height:22px;width:100%;">
+                <div class="pay-balance-stars" id="pay-bal-stars">******</div>
+                <div class="pay-balance-real"  id="pay-bal-real">€—</div>
+              </div>
+              <div style="color:#4a6a44;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Total Due</div>
+              <div class="pay-eye-wrap">
+                <svg class="pay-eye pay-eye-slash" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <line x1="3" y1="3" x2="21" y2="21"></line>
+                </svg>
+                <svg class="pay-eye pay-eye-open" style="opacity:0;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="pay-wallet-hint" id="pay-wallet-hint">Hover to fan cards · click one to select</div>
+      </div>
+
+      <div class="pay-format-pill" id="pay-format-pill" style="display:none;">
+        <span class="dot"></span>
+        <span id="pay-format-text">16 digits · XXXX XXXX XXXX XXXX</span>
+      </div>
+
+      <div class="payment-field">
+        <label>Card Number</label>
+        <input type="text" id="card-number" class="drawer-input"
+          placeholder="Select a card type above first"
+          maxlength="19" oninput="formatCardNumber(this)" autocomplete="cc-number">
+      </div>
+      <div class="payment-field">
+        <label>Cardholder Name</label>
+        <input type="text" id="card-holder" class="drawer-input"
+          placeholder="FIRST LAST" oninput="syncCardHolderToWallet()"
+          autocomplete="cc-name" style="text-transform:uppercase;">
+      </div>
+      <div class="payment-row">
+        <div class="payment-field">
+          <label>Expiry Date</label>
+          <input type="text" id="card-expiry" class="drawer-input"
+            placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)" autocomplete="cc-exp">
+        </div>
+        <div class="payment-field">
+          <label>CVV</label>
+          <input type="text" id="card-cvv" class="drawer-input"
+            placeholder="•••" maxlength="4"
+            oninput="this.value=this.value.replace(/\D/g,'')" autocomplete="cc-csc">
+        </div>
+      </div>
+
+      <div class="secure-badge">🔒 Secured by TripX Payments &nbsp;·&nbsp; 256-bit SSL</div>
+      <div class="demo-notice">
+        🎓 University project demo — no actual charge will be made.<br>Use any card number to complete your booking.
+      </div>
+    </div>
+
+    {# ── STEP 3: Confirmation ── #}
+    <div class="drawer-step" id="step-3">
+      <div class="confirmation-wrapper">
+        <div class="confirm-checkmark" id="confirm-checkmark">✓</div>
+        <div class="confirm-title">Booking Confirmed!</div>
+        <div class="confirm-subtitle">Your stay has been successfully reserved.</div>
+        <div class="booking-reference" id="booking-ref">TRX-2026-XXXXXXXX</div>
+        <div class="confirm-summary">
+          <div class="confirm-row"><span>Room</span><span id="conf-room">—</span></div>
+          <div class="confirm-row"><span>Check-in</span><span id="conf-checkin">—</span></div>
+          <div class="confirm-row"><span>Check-out</span><span id="conf-checkout">—</span></div>
+          <div class="confirm-row"><span>Guests</span><span id="conf-guests">—</span></div>
+          <div class="confirm-row"><span>Total Paid</span><span id="conf-total" style="color:#a78bfa;">—</span></div>
+          <div class="confirm-row"><span>Status</span><span style="color:#10b981;">✓ PENDING APPROVAL</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="drawer-footer" id="drawer-footer">
+    <button class="drawer-cta" id="drawer-cta-btn" onclick="drawerCTAClick()">
+      <span class="cta-label" id="cta-label">Reserve This Room →</span>
+      <div class="spinner"></div>
+    </button>
+  </div>
+
+</div>
+
+{# Image modal #}
+<div class="modal-overlay" id="image-modal" onclick="closeModal()">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <img id="modal-image" src="" alt="">
+  </div>
+</div>
+
+{# Toast #}
+<div id="toast" style="position:fixed;bottom:24px;right:24px;z-index:9999;padding:13px 18px;border-radius:12px;font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px;transform:translateY(70px);opacity:0;transition:all .3s;box-shadow:0 8px 24px rgba(0,0,0,.4);background:#10b981;color:#fff;"></div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const accommodationId = {{ accommodation.id }};
+const CURRENT_USER_NAME = {{ userName|json_encode|raw }};
+
+let map             = null;
+let galleryImages   = [];
+let roomsMap        = {};
+let currentRoom     = null;
+let currentStep     = 0;
+let carouselIndex   = 0;
+let guestCount      = 1;
+let bookingResult   = null;
+let carouselInterval= null;
+let selectedNetwork = null;
+
+// ── Toast ──────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = type === 'error' ? '#ef4444' : type === 'info' ? '#3b82f6' : '#10b981';
+  t.style.transform = 'translateY(0)'; t.style.opacity = '1';
+  setTimeout(() => { t.style.transform = 'translateY(70px)'; t.style.opacity = '0'; }, 3000);
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function openModal(url) {
+  document.getElementById('modal-image').src = url;
+  document.getElementById('image-modal').classList.add('open');
+}
+function closeModal() { document.getElementById('image-modal').classList.remove('open'); }
+
+// ══════════════════════════════════════════════════════════
+// ITINERARY
+// ══════════════════════════════════════════════════════════
+async function generateItinerary() {
+  const btn       = document.getElementById('generate-itinerary-btn');
+  const container = document.getElementById('itinerary-container');
+  const days      = document.getElementById('itinerary-days').value;
+
+  if (btn) {
+    btn.disabled    = true;
+    btn.textContent = '⏳ Generating...';
+  }
+
+  container.innerHTML = '<div class="skeleton" style="height:200px;border-radius:12px;"></div>';
+
+  try {
+    const res  = await fetch(`/api/itinerary/${accommodationId}`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ days: parseInt(days) })
+    });
+    const data = await res.json();
+    if (data.itinerary) {
+      container.textContent = data.itinerary;
+    } else {
+      container.innerHTML = '<p style="color:#ef4444;text-align:center;">Failed to generate itinerary. Please try again.</p>';
+    }
+  } catch (e) {
+    container.innerHTML = '<p style="color:#ef4444;text-align:center;">Network error. Please try again.</p>';
+  } finally {
+    if (btn) {
+      btn.disabled    = false;
+      btn.textContent = 'Generate';
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// PAYMENT WALLET
+// ══════════════════════════════════════════════════════════
+const NETWORK_CONFIG = {
+  visa: {
+    id: 'pw-visa', label: 'Visa', maxLength: 19,
+    format: '16 digits · XXXX XXXX XXXX XXXX', cvvLen: 3,
+    placeholder: '4242 4242 4242 4242', cvvPlaceholder: '•••',
+    startDigit: '4', pillColor: '#5b9bd5',
+  },
+  mc: {
+    id: 'pw-mc', label: 'Mastercard', maxLength: 19,
+    format: '16 digits · XXXX XXXX XXXX XXXX', cvvLen: 3,
+    placeholder: '5500 0000 0000 0004', cvvPlaceholder: '•••',
+    startDigit: '5', pillColor: '#e57373',
+  },
+  amex: {
+    id: 'pw-amex', label: 'American Express', maxLength: 17,
+    format: '15 digits · XXXX XXXXXX XXXXX', cvvLen: 4,
+    placeholder: '3714 496353 98431', cvvPlaceholder: '••••',
+    startDigit: '3', pillColor: '#81c784',
+  },
+};
+
+function selectPayCard(network) {
+  selectedNetwork = network;
+  const cfg = NETWORK_CONFIG[network];
+  ['visa','mc','amex'].forEach(n => document.getElementById('pw-' + n).classList.remove('selected'));
+  document.getElementById('pw-' + network).classList.add('selected');
+  const hint = document.getElementById('pay-wallet-hint');
+  hint.textContent = cfg.label + ' selected ✓';
+  hint.className = 'pay-wallet-hint selected-hint';
+  const pill     = document.getElementById('pay-format-pill');
+  const pillText = document.getElementById('pay-format-text');
+  pill.style.display = 'inline-flex';
+  pill.style.borderColor = cfg.pillColor + '44';
+  pill.style.color = cfg.pillColor;
+  pill.querySelector('.dot').style.background = cfg.pillColor;
+  pillText.textContent = cfg.format;
+  const holderEl = document.getElementById('card-holder');
+  if (holderEl && (!holderEl.value || holderEl.value === holderEl._lastAutoFill)) {
+    holderEl.value = CURRENT_USER_NAME;
+    holderEl._lastAutoFill = CURRENT_USER_NAME;
+    syncCardHolderToWallet();
+  }
+  const numEl = document.getElementById('card-number');
+  if (numEl) {
+    numEl.maxLength = cfg.maxLength;
+    numEl.placeholder = cfg.placeholder;
+    const currentDigit = numEl.value.replace(/\s/g,'')[0];
+    if (currentDigit && currentDigit !== cfg.startDigit) numEl.value = '';
+  }
+  const cvvEl = document.getElementById('card-cvv');
+  if (cvvEl) { cvvEl.maxLength = cfg.cvvLen; cvvEl.placeholder = cfg.cvvPlaceholder; }
+}
+
+function syncCardHolderToWallet() {
+  const name = (document.getElementById('card-holder').value || '').toUpperCase() || 'YOUR NAME';
+  ['visa','mc','amex'].forEach(n => {
+    const el = document.getElementById('pw-' + n + '-name');
+    if (el) el.textContent = name.substring(0, 18);
+  });
+}
+
+function updateWalletTotal(totalStr) {
+  const el = document.getElementById('pay-bal-real');
+  if (el) el.textContent = totalStr;
+}
+
+function populatePaymentStep() {
+  const name = CURRENT_USER_NAME || 'YOUR NAME';
+  ['visa','mc','amex'].forEach(n => {
+    const el = document.getElementById('pw-' + n + '-name');
+    if (el) el.textContent = name.substring(0, 18);
+  });
+  const holderEl = document.getElementById('card-holder');
+  if (holderEl) { holderEl.value = name; holderEl._lastAutoFill = name; }
+  selectedNetwork = null;
+  ['visa','mc','amex'].forEach(n => document.getElementById('pw-' + n).classList.remove('selected'));
+  const hint = document.getElementById('pay-wallet-hint');
+  hint.textContent = 'Hover to fan cards · click one to select';
+  hint.className = 'pay-wallet-hint';
+  const pill = document.getElementById('pay-format-pill');
+  if (pill) pill.style.display = 'none';
+  const numEl = document.getElementById('card-number');
+  if (numEl) { numEl.value = ''; numEl.placeholder = 'Select a card type above first'; }
+  const expEl = document.getElementById('card-expiry');
+  if (expEl) { expEl.value = ''; expEl.style.borderColor = ''; expEl.style.borderWidth = ''; }
+  const cvvEl = document.getElementById('card-cvv');
+  if (cvvEl) cvvEl.value = '';
+}
+
+// ══════════════════════════════════════════════════════════
+// CAROUSEL
+// ══════════════════════════════════════════════════════════
+function updateCarouselWithImages(images) {
+  const slidesEl = document.getElementById('carousel-slides');
+  const dotsEl   = document.getElementById('carousel-dots');
+  if (!slidesEl) return;
+  if (!images || images.length === 0) {
+    slidesEl.innerHTML = '<div class="carousel-slide-placeholder">🏨</div>';
+    if (dotsEl) dotsEl.innerHTML = '';
+    return;
+  }
+  const imgSrc = (path) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    return '/' + path.replace(/^\/+/, '');
+  };
+  slidesEl.innerHTML = images.map(img =>
+    `<img class="carousel-slide" src="${imgSrc(img.filePath)}" alt="${currentRoom?.room_name || 'Room'}" loading="lazy" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\\'carousel-slide-placeholder\\'>🏨</div>'">`
+  ).join('');
+  if (dotsEl) {
+    dotsEl.innerHTML = images.map((_, i) =>
+      `<div class="carousel-dot ${i === 0 ? 'active' : ''}" onclick="carouselGoTo(${i})"></div>`
+    ).join('');
+  }
+  carouselIndex = 0;
+  updateCarousel();
+}
+
+function updateCarousel() {
+  const slides = document.getElementById('carousel-slides');
+  const dots   = document.querySelectorAll('.carousel-dot');
+  const count  = slides.children.length;
+  if (count === 0) return;
+  slides.style.transform = `translateX(-${carouselIndex * 100}%)`;
+  dots.forEach((d, i) => d.classList.toggle('active', i === carouselIndex));
+}
+
+function carouselNext() {
+  const count = document.getElementById('carousel-slides').children.length;
+  if (!count) return;
+  carouselIndex = (carouselIndex + 1) % count;
+  updateCarousel();
+}
+function carouselPrev() {
+  const count = document.getElementById('carousel-slides').children.length;
+  if (!count) return;
+  carouselIndex = (carouselIndex - 1 + count) % count;
+  updateCarousel();
+}
+function carouselGoTo(i) {
+  const count = document.getElementById('carousel-slides').children.length;
+  if (!count) return;
+  carouselIndex = Math.min(Math.max(0, i), count - 1);
+  updateCarousel();
+}
+
+function startCarouselAutoSlide() {
+  if (carouselInterval) clearInterval(carouselInterval);
+  carouselInterval = setInterval(() => {
+    if (currentStep === 0 &&
+        document.getElementById('booking-drawer').classList.contains('open') &&
+        currentRoom?.images?.length > 1) {
+      carouselNext();
+    }
+  }, 4000);
+}
+function stopCarouselAutoSlide() {
+  if (carouselInterval) { clearInterval(carouselInterval); carouselInterval = null; }
+}
+
+async function loadRoomImages(roomId) {
+  if (currentRoom?.images?.length > 0) {
+    updateCarouselWithImages(currentRoom.images);
+    return;
+  }
+  try {
+    const data = await fetch(`/api/room/images/${roomId}`).then(r => r.json());
+    currentRoom.images = data.images || [];
+    updateCarouselWithImages(currentRoom.images);
+  } catch {
+    currentRoom.images = [];
+    updateCarouselWithImages([]);
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// DRAWER CORE
+// ══════════════════════════════════════════════════════════
+function openBookingDrawer(roomId) {
+  currentRoom = roomsMap[roomId];
+  if (!currentRoom) return;
+  guestCount    = 1;
+  carouselIndex = 0;
+  goToStep(0);
+  populateStep0();
+  loadRoomImages(roomId);
+  setDefaultDates();
+  startCarouselAutoSlide();
+  document.getElementById('booking-drawer').classList.add('open');
+  document.getElementById('drawer-backdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDrawer() {
+  if (currentStep === 3) { _closeDrawer(); return; }
+  if (currentStep > 0 && !confirm('Close booking? Your progress will be lost.')) return;
+  _closeDrawer();
+}
+function _closeDrawer() {
+  document.getElementById('booking-drawer').classList.remove('open');
+  document.getElementById('drawer-backdrop').classList.remove('open');
+  document.body.style.overflow = '';
+  stopCarouselAutoSlide();
+}
+
+document.getElementById('drawer-backdrop').addEventListener('click', () => {
+  if (currentStep === 0 || currentStep === 3) _closeDrawer();
+  else showToast('Complete or cancel the booking first', 'info');
+});
+
+function goToStep(step) {
+  const oldEl = document.getElementById('step-' + currentStep);
+  if (oldEl) {
+    oldEl.classList.remove('active');
+    oldEl.classList.add('exiting');
+    setTimeout(() => oldEl.classList.remove('exiting'), 450);
+  }
+  currentStep = step;
+  const newEl = document.getElementById('step-' + step);
+  if (newEl) { newEl.classList.add('active'); newEl.scrollTop = 0; }
+  updateProgress();
+  updateCTA();
+  if (step === 2) {
+    populatePaymentStep();
+    const recapTotal = document.getElementById('recap-total');
+    if (recapTotal) updateWalletTotal(recapTotal.textContent);
+  }
+}
+
+function updateProgress() {
+  for (let i = 0; i <= 3; i++) {
+    const dot  = document.getElementById('dot-'  + i);
+    const prog = document.getElementById('prog-' + i);
+    if (dot)  dot.classList.remove('active','done');
+    if (prog) prog.classList.remove('active','done');
+    if (i < currentStep) {
+      if (dot)  dot.classList.add('done');
+      if (prog) prog.classList.add('done');
+    } else if (i === currentStep) {
+      if (dot)  dot.classList.add('active');
+      if (prog) prog.classList.add('active');
+    }
+  }
+  for (let i = 0; i <= 2; i++) {
+    const line = document.getElementById('line-' + i);
+    if (line) line.style.width = i < currentStep ? '100%' : '0%';
+  }
+}
+
+function updateCTA() {
+  const btn    = document.getElementById('drawer-cta-btn');
+  const label  = document.getElementById('cta-label');
+  const footer = document.getElementById('drawer-footer');
+  if (btn) { btn.disabled = false; btn.classList.remove('loading'); btn.onclick = drawerCTAClick; }
+  if (footer) footer.style.display = '';
+  const labels = ['Reserve This Room →', 'Continue to Payment →', '🔐 Complete Booking', '✓ Close — All Done!'];
+  if (label) label.textContent = labels[currentStep] || '';
+  if (currentStep === 3 && btn) btn.onclick = _closeDrawer;
+}
+
+function drawerCTAClick() {
+  if      (currentStep === 0) { goToStep(1); }
+  else if (currentStep === 1) { if (!validateStay()) return; populatePaymentRecap(); goToStep(2); }
+  else if (currentStep === 2) { submitBooking(); }
+  else if (currentStep === 3) { _closeDrawer(); }
+}
+
+// ══════════════════════════════════════════════════════════
+// STEP 0 — Room Preview
+// ══════════════════════════════════════════════════════════
+function populateStep0() {
+  const r = currentRoom;
+  if (!r) return;
+  document.getElementById('preview-name').textContent     = r.room_name || 'Standard Room';
+  document.getElementById('preview-type').textContent     = r.room_type || 'Standard';
+  document.getElementById('preview-capacity').textContent = r.capacity  || '—';
+  document.getElementById('preview-size').textContent     = r.size      || '—';
+  document.getElementById('preview-beds').textContent     = Math.ceil((r.capacity || 2) / 2);
+  document.getElementById('preview-price').textContent    = '€' + r.price_per_night;
+  document.getElementById('guest-capacity-hint').textContent = 'Max ' + (r.capacity || 4) + ' guests';
+  const amenWrap = document.getElementById('preview-amenities');
+  const icons = { wifi:'📶','air conditioning':'❄️',breakfast:'🍳',gym:'💪',spa:'🧖',pool:'🏊',parking:'🅿️',tv:'📺',minibar:'🍸',safe:'🔒',balcony:'🌅',sea:'🌊' };
+  amenWrap.innerHTML = (r.amenities || 'WiFi, Air Conditioning').split(',').map(a => {
+    const key  = a.trim().toLowerCase();
+    const icon = Object.keys(icons).find(k => key.includes(k));
+    return `<div class="drawer-amenity">${icon ? icons[icon] + ' ' : ''}${escapeHtml(a.trim())}</div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// STEP 1 — Stay Details
+// ══════════════════════════════════════════════════════════
+function setDefaultDates() {
+  const today    = new Date();
+  const checkin  = new Date(today); checkin.setDate(today.getDate() + 1);
+  const checkout = new Date(today); checkout.setDate(today.getDate() + 4);
+  const ci = document.getElementById('d-checkin');
+  const co = document.getElementById('d-checkout');
+  if (ci) { ci.value = checkin.toISOString().split('T')[0]; ci.min = today.toISOString().split('T')[0]; }
+  if (co)   co.value = checkout.toISOString().split('T')[0];
+  guestCount = 1;
+  const gd = document.getElementById('guest-count-display');
+  if (gd) gd.textContent = 1;
+  updateGuestButtons();
+  recalcPrice();
+}
+
+function adjustGuests(delta) {
+  const max = currentRoom ? (currentRoom.capacity || 4) : 4;
+  guestCount = Math.min(Math.max(1, guestCount + delta), max);
+  const gd = document.getElementById('guest-count-display');
+  if (gd) gd.textContent = guestCount;
+  updateGuestButtons();
+}
+function updateGuestButtons() {
+  const max   = currentRoom ? (currentRoom.capacity || 4) : 4;
+  const minus = document.getElementById('guest-minus');
+  const plus  = document.getElementById('guest-plus');
+  if (minus) minus.disabled = (guestCount <= 1);
+  if (plus)  plus.disabled  = (guestCount >= max);
+}
+
+function getNights() {
+  const ci = document.getElementById('d-checkin');
+  const co = document.getElementById('d-checkout');
+  if (!ci || !co) return 0;
+  const a = new Date(ci.value), b = new Date(co.value);
+  if (isNaN(a) || isNaN(b)) return 0;
+  const diff = Math.round((b - a) / 86400000);
+  return diff > 0 ? diff : 0;
+}
+
+function recalcPrice() {
+  const nights = getNights();
+  const price  = currentRoom ? currentRoom.price_per_night : 0;
+  const ci     = document.getElementById('d-checkin');
+  const co     = document.getElementById('d-checkout');
+  if (ci && co && ci.value) co.min = ci.value;
+  const pill   = document.getElementById('nights-pill');
+  const setRow = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  if (nights <= 0) {
+    if (pill) pill.textContent = 'Select valid dates';
+    setRow('price-row-label','—'); setRow('price-row-sub','€—'); setRow('price-row-tax','€—'); setRow('price-row-total','€—');
+    return;
+  }
+  const sub   = price * nights;
+  const tax   = Math.round(sub * 0.10 * 100) / 100;
+  const total = Math.round((sub + tax) * 100) / 100;
+  if (pill) pill.textContent = `🌙 ${nights} night${nights !== 1 ? 's' : ''}`;
+  setRow('price-row-label', `€${price} × ${nights} night${nights !== 1 ? 's' : ''}`);
+  setRow('price-row-sub',   `€${sub.toFixed(2)}`);
+  setRow('price-row-tax',   `€${tax.toFixed(2)}`);
+  setRow('price-row-total', `€${total.toFixed(2)}`);
+}
+
+function validateStay() {
+  const nights = getNights();
+  if (nights <= 0) { showToast('Please select valid check-in and check-out dates', 'error'); return false; }
+  if (nights > 90) { showToast('Maximum stay is 90 nights', 'error'); return false; }
+  const phone = document.getElementById('d-phone').value.trim();
+  if (!phone) { showToast('Please enter a phone number', 'error'); return false; }
+  const cleanPhone = phone.replace(/[\s\-\(\)\+]/g, '');
+  if (!/^[0-9]{8,15}$/.test(cleanPhone)) { showToast('Phone number must contain 8–15 digits', 'error'); markError('d-phone'); return false; }
+  return true;
+}
+
+// ══════════════════════════════════════════════════════════
+// STEP 2 — Payment recap
+// ══════════════════════════════════════════════════════════
+function populatePaymentRecap() {
+  const nights = getNights();
+  const price  = currentRoom ? currentRoom.price_per_night : 0;
+  const sub    = price * nights;
+  const tax    = Math.round(sub * 0.10 * 100) / 100;
+  const total  = Math.round((sub + tax) * 100) / 100;
+  const set    = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('recap-room',   currentRoom.room_name || 'Room');
+  set('recap-nights', nights + 'n');
+  set('recap-total',  '€' + total.toFixed(2));
+}
+
+// ── Phone sanitizer ────────────────────────────────────────
+function sanitizePhone(input) {
+  let val = input.value.replace(/[^\d\s\+\-\(\)]/g, '');
+  const digits = val.replace(/\D/g, '');
+  if (digits.length > 15) val = val.slice(0, -1);
+  input.value = val;
+}
+
+// ── Card number formatter ──────────────────────────────────
+function formatCardNumber(input) {
+  const isAmex = selectedNetwork === 'amex';
+  let raw = input.value.replace(/\D/g, '');
+  if (isAmex) {
+    raw = raw.substring(0, 15);
+    let parts = [];
+    if (raw.length > 0)  parts.push(raw.substring(0, 4));
+    if (raw.length > 4)  parts.push(raw.substring(4, 10));
+    if (raw.length > 10) parts.push(raw.substring(10, 15));
+    input.value = parts.join(' ');
+  } else {
+    raw = raw.substring(0, 16);
+    input.value = raw.replace(/(.{4})/g, '$1 ').trim();
+  }
+}
+
+// ── Expiry formatter + live validator ─────────────────────
+function formatExpiry(input) {
+  let val = input.value.replace(/\D/g, '').substring(0, 4);
+  if (val.length >= 2) {
+    let month = parseInt(val.substring(0, 2), 10);
+    if (month < 1)  month = 1;
+    if (month > 12) month = 12;
+    val = String(month).padStart(2, '0') + '/' + val.substring(2);
+  }
+  input.value = val;
+
+  if (val.length === 5) {
+    const month = parseInt(val.substring(0, 2), 10);
+    const year  = parseInt('20' + val.substring(3), 10);
+    const now   = new Date();
+    const el    = document.getElementById('card-expiry');
+    if (year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth() + 1)) {
+      el.style.borderColor = '#ef4444';
+      el.style.borderWidth = '2px';
+      el.title = 'This card has expired';
+    } else {
+      el.style.borderColor = '';
+      el.style.borderWidth = '';
+      el.title = '';
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// BOOKING SUBMISSION
+// ══════════════════════════════════════════════════════════
+async function submitBooking() {
+  const btn = document.getElementById('drawer-cta-btn');
+  document.querySelectorAll('.drawer-input').forEach(el => { el.style.borderColor = ''; el.style.borderWidth = ''; });
+
+  if (!selectedNetwork) { showToast('❌ Please select a card type from your wallet', 'error'); return; }
+
+  const cfg    = NETWORK_CONFIG[selectedNetwork];
+  const rawNum = document.getElementById('card-number').value.replace(/\s/g,'');
+  const minLen = selectedNetwork === 'amex' ? 15 : 13;
+  if (rawNum.length < minLen) { showToast(`❌ Enter a valid ${cfg.label} card number`, 'error'); markError('card-number'); return; }
+
+  const expiry = document.getElementById('card-expiry').value;
+  if (!expiry || expiry.length < 5) {
+    showToast('❌ Enter a valid expiry date (MM/YY)', 'error');
+    markError('card-expiry');
+    return;
+  }
+  const expMonth = parseInt(expiry.substring(0, 2), 10);
+  const expYear  = parseInt('20' + expiry.substring(3), 10);
+  const now      = new Date();
+  if (expMonth < 1 || expMonth > 12) {
+    showToast('❌ Expiry month must be between 01 and 12', 'error');
+    markError('card-expiry');
+    return;
+  }
+  if (expYear < now.getFullYear() || (expYear === now.getFullYear() && expMonth < now.getMonth() + 1)) {
+    showToast('❌ This card has expired', 'error');
+    markError('card-expiry');
+    return;
+  }
+
+  const cvv = document.getElementById('card-cvv').value;
+  if (!cvv || cvv.length < cfg.cvvLen) { showToast(`❌ Enter your ${cfg.cvvLen}-digit CVV`, 'error'); markError('card-cvv'); return; }
+
+  const holder = document.getElementById('card-holder').value.trim();
+  if (!holder) { showToast('❌ Enter the cardholder name', 'error'); markError('card-holder'); return; }
+
+  if (btn) { btn.classList.add('loading'); btn.disabled = true; }
+
+  try {
+    const payload = {
+      room_id:           currentRoom.id,
+      check_in:          document.getElementById('d-checkin').value,
+      check_out:         document.getElementById('d-checkout').value,
+      guests:            guestCount,
+      phone:             document.getElementById('d-phone').value.trim(),
+      special_requests:  document.getElementById('d-requests').value.trim(),
+      estimated_arrival: document.getElementById('d-arrival').value
+    };
+    const res  = await fetch('/api/book', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      if (data.field) {
+        const el = getFieldElement(data.field);
+        if (el) { markError(el.id); el.scrollIntoView({ behavior:'smooth', block:'center' }); }
+        showToast('❌ ' + data.error, 'error');
+      } else if (data.errors) {
+        Object.entries(data.errors).forEach(([field]) => {
+          const el = getFieldElement(field);
+          if (el) { markError(el.id); setTimeout(() => clearError(el.id), 3000); }
+        });
+        showToast('❌ Validation failed. Please check your details.', 'error');
+      } else {
+        showToast('❌ ' + (data.error || 'Booking failed. Please try again.'), 'error');
+      }
+      return;
+    }
+    bookingResult = data;
+    populateConfirmation(data);
+    goToStep(3);
+    launchConfetti();
+  } catch (err) {
+    showToast('❌ Network error. Please try again.', 'error');
+  } finally {
+    if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
+  }
+}
+
+function markError(id) {
+  const el = document.getElementById(id);
+  if (el) { el.style.borderColor = '#ef4444'; el.style.borderWidth = '2px'; }
+}
+function clearError(id) {
+  const el = document.getElementById(id);
+  if (el) { el.style.borderColor = ''; el.style.borderWidth = ''; }
+}
+
+function getFieldElement(fieldName) {
+  const mapping = {
+    'check_in': 'd-checkin', 'check_out': 'd-checkout',
+    'phone': 'd-phone', 'phone_number': 'd-phone',
+    'estimated_arrival': 'd-arrival', 'special_requests': 'd-requests',
+    'dates': 'd-checkin', 'nights': 'd-checkin',
+  };
+  const id = mapping[fieldName];
+  return id ? document.getElementById(id) : null;
+}
+
+function populateConfirmation(data) {
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('booking-ref',   data.reference || 'TRX-' + Date.now());
+  set('conf-room',     currentRoom.room_name || 'Room');
+  set('conf-checkin',  formatDate(document.getElementById('d-checkin').value));
+  set('conf-checkout', formatDate(document.getElementById('d-checkout').value));
+  set('conf-guests',   guestCount + (guestCount === 1 ? ' Guest' : ' Guests'));
+  set('conf-total',    '€' + (data.total || 0).toFixed(2));
+  setTimeout(() => {
+    const chk = document.getElementById('confirm-checkmark');
+    if (chk) chk.classList.add('animate');
+  }, 100);
+}
+
+function formatDate(str) {
+  if (!str) return '—';
+  return new Date(str).toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+}
+
+// ══════════════════════════════════════════════════════════
+// CONFETTI
+// ══════════════════════════════════════════════════════════
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  if (!canvas) return;
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  canvas.classList.add('active');
+  const ctx = canvas.getContext('2d');
+  const particles = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width, y: -20,
+    w: Math.random() * 10 + 5, h: Math.random() * 6 + 3,
+    r: Math.random() * Math.PI * 2, dr: (Math.random() - 0.5) * 0.2,
+    vx: (Math.random() - 0.5) * 4, vy: Math.random() * 3 + 2,
+    color: ['#a78bfa','#38bdf8','#fbbf24','#10b981','#f472b6','#fb923c'][Math.floor(Math.random()*6)],
+    alpha: 1
+  }));
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    for (const p of particles) {
+      p.x += p.vx; p.y += p.vy; p.r += p.dr; p.vy += 0.05; p.alpha -= 0.008;
+      if (p.alpha > 0 && p.y < canvas.height) alive = true;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.alpha);
+      ctx.translate(p.x, p.y); ctx.rotate(p.r);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    }
+    frame++;
+    if (alive && frame < 300) requestAnimationFrame(draw);
+    else { canvas.classList.remove('active'); ctx.clearRect(0,0,canvas.width,canvas.height); }
+  }
+  requestAnimationFrame(draw);
+}
+
+// ══════════════════════════════════════════════════════════
+// ROOMS LOADER
+// ══════════════════════════════════════════════════════════
+async function loadRooms() {
+  try {
+    const data = await fetch(`/api/accommodation/rooms/${accommodationId}`).then(r => r.json());
+    const container = document.getElementById('rooms-container');
+    if (data.rooms && data.rooms.length > 0) {
+      let minPrice = Infinity;
+      data.rooms.forEach(r => { roomsMap[r.id] = r; if (r.price_per_night < minPrice) minPrice = r.price_per_night; });
+      container.innerHTML = data.rooms.map(room => `
+        <div class="room-card">
+          <div class="room-header">
+            <span class="room-name">${escapeHtml(room.room_name || 'Standard Room')}</span>
+            <span class="room-price">€${room.price_per_night}<small>/night</small></span>
+          </div>
+          <div class="room-details">
+            <span>👥 Capacity: ${room.capacity || 2} guests</span>
+            <span>📏 Size: ${room.size || 'N/A'} m²</span>
+          </div>
+          <div class="room-amenities">
+            ${(room.amenities || 'WiFi, Air Conditioning').split(',').map(a => `<span class="room-amenity">${escapeHtml(a.trim())}</span>`).join('')}
+          </div>
+          <button class="book-btn" style="padding:10px;" onclick="openBookingDrawer(${room.id})">
+            🛏️ Book This Room
+          </button>
+        </div>`).join('');
+      document.getElementById('min-price').textContent = `€${minPrice}`;
+    } else {
+      container.innerHTML = '<div class="empty-state"><div class="icon">🛏️</div><p>No rooms available.</p></div>';
+    }
+  } catch(e) {
+    document.getElementById('rooms-container').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Unable to load rooms.</p></div>';
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  loadRooms();
+  loadWeather();
+  loadNearby();
+  loadGallery();
+  loadReviews();
+  initMiniMap();
+
+  const nearbyCategory = document.getElementById('nearby-category');
+  if (nearbyCategory) nearbyCategory.addEventListener('change', loadNearby);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('booking-drawer').classList.contains('open')) {
+      closeDrawer();
+    }
+  });
+});
+
+// ── Expose globals ─────────────────────────────────────────
+window.showToast              = showToast;
+window.openModal              = openModal;
+window.closeModal             = closeModal;
+window.openBookingDrawer      = openBookingDrawer;
+window.closeDrawer            = closeDrawer;
+window.carouselPrev           = carouselPrev;
+window.carouselNext           = carouselNext;
+window.carouselGoTo           = carouselGoTo;
+window.selectPayCard          = selectPayCard;
+window.syncCardHolderToWallet = syncCardHolderToWallet;
+window.generateItinerary      = generateItinerary;
+window.sanitizePhone          = sanitizePhone;
+</script>
+{% endblock %}

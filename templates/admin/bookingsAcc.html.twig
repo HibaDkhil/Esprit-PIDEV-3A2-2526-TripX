@@ -1,0 +1,1760 @@
+{% extends 'admin/admin_base.html.twig' %}
+
+{% block title %}Bookings — TripX Admin{% endblock %}
+
+{% block breadcrumbs %}
+  <a href="{{ path('admin_accommodations_index') }}" class="crumb">Accommodations</a>
+  <span class="sep">›</span>
+  <span class="crumb active">Bookings</span>
+{% endblock %}
+
+{% block page_styles %}
+  /* ── CSS Variables with Pastel Theme Support ── */
+  :root {
+    --pastel-lavender: #e9e4ff;
+    --pastel-mint: #e0f7f0;
+    --pastel-peach: #ffe5e0;
+    --pastel-sky: #e0f2fe;
+    --pastel-rose: #ffe4f0;
+    --pastel-sunset: #fff0e0;
+    --pastel-lilac: #f0e4ff;
+    --glow-primary: rgba(127, 119, 221, 0.4);
+    --glow-success: rgba(16, 185, 129, 0.3);
+    --glow-warning: rgba(245, 158, 11, 0.3);
+    --glow-danger: rgba(239, 68, 68, 0.3);
+    --gradient-card: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(248,250,252,0.9) 100%);
+    --gradient-header: linear-gradient(135deg, var(--pastel-lavender) 0%, var(--pastel-sky) 100%);
+    --gradient-accent: linear-gradient(135deg, #7F77DD 0%, #A78BFA 100%);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --gradient-card: linear-gradient(135deg, rgba(30, 34, 48, 0.95) 0%, rgba(25, 28, 42, 0.98) 100%);
+      --gradient-header: linear-gradient(135deg, rgba(79, 70, 186, 0.2) 0%, rgba(139, 92, 246, 0.15) 100%);
+    }
+  }
+
+  body { position: relative; }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at 0% 0%, var(--pastel-lavender) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, var(--pastel-mint) 0%, transparent 50%);
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: -1;
+    transition: opacity 0.3s ease;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body::before {
+      opacity: 0.08;
+      background: radial-gradient(circle at 0% 0%, #4f46ba 0%, transparent 50%),
+                  radial-gradient(circle at 100% 100%, #0891b2 0%, transparent 50%);
+    }
+  }
+
+/* ── Google Calendar Banner (Modern Pastel + Luminous) ── */
+.gcal-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+.gcal-banner.connected {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(167, 139, 250, 0.2) 100%);
+  background-color: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.15);
+  backdrop-filter: blur(8px);
+}
+
+.gcal-banner.disconnected {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(251, 191, 36, 0.18) 100%);
+  background-color: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.12);
+  backdrop-filter: blur(8px);
+}
+
+.gcal-banner:hover {
+  transform: translateY(-2px) scale(1.01);
+}
+
+.gcal-banner.connected:hover {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.35) 0%, rgba(167, 139, 250, 0.3) 100%);
+  background-color: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.7);
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.35), 0 0 25px rgba(139, 92, 246, 0.25);
+}
+
+.gcal-banner.disconnected:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.32) 0%, rgba(251, 191, 36, 0.28) 100%);
+  background-color: rgba(245, 158, 11, 0.18);
+  border-color: rgba(245, 158, 11, 0.65);
+  box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3), 0 0 20px rgba(245, 158, 11, 0.2);
+}
+
+.gcal-banner::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.gcal-banner:hover::before {
+  left: 100%;
+}
+
+.gcal-banner::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 30% 50%, rgba(139, 92, 246, 0.15), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.gcal-banner.connected:hover::after {
+  opacity: 1;
+}
+
+.gcal-banner.disconnected::after {
+  background: radial-gradient(circle at 30% 50%, rgba(245, 158, 11, 0.15), transparent 70%);
+}
+
+.gcal-banner.disconnected:hover::after {
+  opacity: 1;
+}
+
+.gcal-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  z-index: 3;
+}
+
+.gcal-banner-icon {
+  font-size: 24px;
+  line-height: 1;
+  transition: transform 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+.gcal-banner:hover .gcal-banner-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.gcal-banner-title {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 3px;
+  color: var(--text-primary, #1f2937);
+  letter-spacing: -0.2px;
+}
+
+@media (prefers-color-scheme: light) {
+  .gcal-banner-title {
+    color: #111827;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .gcal-banner-title {
+    color: #f3f4f6;
+  }
+}
+
+.gcal-banner.connected .gcal-banner-title {
+  color: #f3f4f6;
+}
+
+.gcal-banner.disconnected .gcal-banner-title {
+  color: #f3f4f6;
+}
+
+.gcal-banner-sub {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.75);
+  transition: opacity 0.3s ease;
+  font-weight: 500;
+  letter-spacing: -0.1px;
+}
+
+.gcal-banner.disconnected .gcal-banner-sub {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.gcal-banner:hover .gcal-banner-sub {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.gcal-btn {
+  padding: 8px 20px;
+  border-radius: 40px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  font-family: inherit;
+  letter-spacing: 0.2px;
+  z-index: 3;
+}
+
+.gcal-btn-connect {
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+  font-weight: 600;
+}
+
+.gcal-btn-connect::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.gcal-btn-connect:hover::before {
+  left: 100%;
+}
+
+.gcal-btn-connect:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.45);
+  background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+}
+
+.gcal-btn-connect:active {
+  transform: translateY(0);
+}
+
+.gcal-btn-disconnect {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #f3f4f6;
+  font-weight: 500;
+}
+
+.gcal-btn-disconnect:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #f87171;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25);
+}
+
+.gcal-banner {
+  transform-style: preserve-3d;
+}
+
+.gcal-banner:hover {
+  transform: rotateX(2deg) rotateY(2deg) translateY(-2px);
+}
+
+.gcal-banner-title,
+.gcal-banner-sub,
+.gcal-btn {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+@media (max-width: 640px) {
+  .gcal-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 18px;
+  }
+  
+  .gcal-banner-left {
+    width: 100%;
+  }
+  
+  .gcal-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px;
+  }
+}
+
+.gcal-banner.connected {
+  box-shadow: inset 0 0 20px rgba(139, 92, 246, 0.1), 0 4px 15px rgba(139, 92, 246, 0.15);
+}
+
+.gcal-banner.disconnected {
+  box-shadow: inset 0 0 20px rgba(245, 158, 11, 0.08), 0 4px 15px rgba(245, 158, 11, 0.12);
+}
+
+  /* ── KPI Cards ── */
+  .kpi-bar {
+    display: grid;
+    grid-template-columns: repeat(6,1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .kpi-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(127, 119, 221, 0.2);
+    border-radius: 20px;
+    padding: 20px 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--gradient-accent);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .kpi-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(127, 119, 221, 0.4);
+    box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(127, 119, 221, 0.1);
+  }
+
+  .kpi-card:hover::before { transform: scaleX(1); }
+
+  .kpi-card.active-filter {
+    border-color: #7F77DD;
+    background: linear-gradient(135deg, rgba(127, 119, 221, 0.08) 0%, rgba(127, 119, 221, 0.02) 100%);
+    box-shadow: 0 0 0 2px rgba(127, 119, 221, 0.2), 0 8px 20px -8px rgba(127, 119, 221, 0.3);
+  }
+
+  .kpi-val {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 8px;
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+  }
+
+  .kpi-card:nth-child(2) .kpi-val { background: linear-gradient(135deg, #f59e0b, #fbbf24); -webkit-background-clip: text; background-clip: text; }
+  .kpi-card:nth-child(3) .kpi-val { background: linear-gradient(135deg, #10b981, #34d399); -webkit-background-clip: text; background-clip: text; }
+  .kpi-card:nth-child(4) .kpi-val { background: linear-gradient(135deg, #6b7280, #9ca3af); -webkit-background-clip: text; background-clip: text; }
+  .kpi-card:nth-child(5) .kpi-val { background: linear-gradient(135deg, #ef4444, #f87171); -webkit-background-clip: text; background-clip: text; }
+
+  .kpi-lbl {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+
+  /* ── Toolbar ── */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    padding: 8px 0;
+  }
+
+  .search-wrap { position: relative; flex: 1; min-width: 240px; }
+
+  .search-wrap input {
+    width: 100%;
+    padding: 11px 14px 11px 40px;
+    background: var(--bg-card);
+    border: 1px solid rgba(127, 119, 221, 0.2);
+    border-radius: 14px;
+    color: inherit;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .search-wrap input:focus {
+    outline: none;
+    border-color: #7F77DD;
+    box-shadow: 0 0 0 3px rgba(127, 119, 221, 0.1);
+  }
+
+  .search-wrap .si {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 14px;
+    pointer-events: none;
+    transition: color 0.2s ease;
+  }
+
+  .fsel, .date-input {
+    padding: 10px 14px;
+    background: var(--bg-card);
+    border: 1px solid rgba(127, 119, 221, 0.2);
+    border-radius: 14px;
+    color: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .fsel:focus, .date-input:focus {
+    outline: none;
+    border-color: #7F77DD;
+    box-shadow: 0 0 0 3px rgba(127, 119, 221, 0.1);
+  }
+
+  /* Export button — pill style */
+  .export-btn {
+    display:flex; align-items:center; gap:8px; padding:10px 22px;
+    background-image:linear-gradient(135deg,#a5f3f0 0%,#5eead4 40%,#38bdf8 100%);
+    box-shadow:0 12px 24px -6px rgba(56,189,248,.4);
+    color:#0c4a6e; border:none; border-radius:50px;
+    font-size:13px; font-weight:700; cursor:pointer;
+    font-family:"Dosis",sans-serif;
+    transition:transform .3s ease, box-shadow .3s ease, opacity .2s;
+    white-space:nowrap;
+  }
+  .export-btn:hover { transform:translateY(3px); box-shadow:none; }
+  .export-btn:active { opacity:.5; }
+
+  /* Export dropdown styles */
+  .export-dropdown {
+    position: relative;
+  }
+  .export-dropdown:hover #export-menu {
+    display: block !important;
+  }
+  #export-menu {
+    backdrop-filter: blur(10px);
+    color: var(--text-primary);
+  }
+  #export-menu button {
+    color: var(--text-primary);
+  }
+  #export-menu button:hover {
+    background: var(--bg-surface) !important;
+  }
+
+  /* ── Table ── */
+  .bookings-table-wrap {
+    background: var(--bg-card);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(127, 119, 221, 0.15);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .bookings-table-wrap:hover {
+    border-color: rgba(127, 119, 221, 0.3);
+    box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.2);
+  }
+
+  .bookings-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+  .bookings-table th {
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    background: rgba(127, 119, 221, 0.03);
+    border-bottom: 1px solid rgba(127, 119, 221, 0.15);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    font-weight: 600;
+  }
+
+  .bookings-table th:hover { color: #7F77DD; background: rgba(127, 119, 221, 0.06); }
+  .bookings-table th .sort-icon { margin-left: 6px; opacity: 0.4; transition: opacity 0.2s ease; }
+  .bookings-table th.sorted .sort-icon { opacity: 1; color: #7F77DD; }
+
+  .bookings-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(127, 119, 221, 0.08);
+    vertical-align: middle;
+    transition: all 0.2s ease;
+  }
+
+  .bookings-table tr:last-child td { border-bottom: none; }
+  .bookings-table tr:hover td { background: rgba(127, 119, 221, 0.04); }
+  .booking-id { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); font-weight: 500; }
+
+  /* Status badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 24px;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .badge-pending   { background: linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(245,158,11,0.05) 100%); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+  .badge-confirmed { background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0.05) 100%); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+  .badge-cancelled { background: linear-gradient(135deg, rgba(107,114,128,0.12) 0%, rgba(107,114,128,0.05) 100%); color: #6b7280; border: 1px solid rgba(107,114,128,0.3); }
+  .badge-rejected  { background: linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(239,68,68,0.05) 100%); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+
+  /* Calendar sync badges */
+  .cal-badge { font-size: 10px; padding: 3px 8px; border-radius: 12px; font-weight: 600; transition: all 0.2s ease; }
+  .cal-synced  { background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0.05) 100%); color: #10b981; }
+  .cal-failed  { background: linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(239,68,68,0.05) 100%); color: #ef4444; }
+  .cal-pending { background: linear-gradient(135deg, rgba(107,114,128,0.12) 0%, rgba(107,114,128,0.05) 100%); color: #6b7280; }
+
+  /* Action buttons */
+  .action-btns { display: flex; gap: 6px; }
+
+  .ab {
+    padding: 6px 12px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    backdrop-filter: blur(10px);
+  }
+
+  .ab:hover { transform: translateY(-2px); filter: brightness(1.05); }
+  .ab-view    { background: linear-gradient(135deg, rgba(0,166,237,0.1) 0%, rgba(0,166,237,0.05) 100%); color: var(--accent-primary); border: 1px solid rgba(0,166,237,0.2); }
+  .ab-confirm { background: linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(16,185,129,0.05) 100%); color: #10b981; border: 1px solid rgba(16,185,129,0.2); }
+  .ab-reject  { background: linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(239,68,68,0.05) 100%); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
+  .ab-cancel  { background: linear-gradient(135deg, rgba(107,114,128,0.1) 0%, rgba(107,114,128,0.05) 100%); color: #6b7280; border: 1px solid rgba(107,114,128,0.2); }
+
+  .nights-badge {
+    background: linear-gradient(135deg, rgba(127,119,221,0.1) 0%, rgba(127,119,221,0.05) 100%);
+    border: 1px solid rgba(127,119,221,0.2);
+    border-radius: 12px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+  }
+
+  .results-info {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px;
+  }
+
+  /* ── Modals ── */
+  .bmodal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    z-index: 2000; opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+
+  .bmodal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .bmodal {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border-radius: 28px;
+    width: 720px; max-width: 100%; max-height: 90vh;
+    overflow: hidden; display: flex; flex-direction: column;
+    border: 1px solid rgba(127,119,221,0.3);
+    transform: scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 24px 48px -12px rgba(0,0,0,0.3);
+  }
+
+  .bmodal-overlay.open .bmodal { transform: scale(1); }
+
+  .bmodal-header {
+    padding: 24px 28px;
+    border-bottom: 1px solid rgba(127,119,221,0.15);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(127,119,221,0.05) 0%, rgba(127,119,221,0) 100%);
+  }
+
+  .bmodal-body { flex: 1; overflow-y: auto; padding: 28px; }
+  .bmodal-body::-webkit-scrollbar { width: 6px; }
+  .bmodal-body::-webkit-scrollbar-thumb { background: rgba(127,119,221,0.3); border-radius: 3px; }
+
+  .bmodal-footer {
+    padding: 20px 28px;
+    border-top: 1px solid rgba(127,119,221,0.15);
+    display: flex; gap: 12px; flex-shrink: 0;
+  }
+
+  .bm-section { margin-bottom: 28px; }
+  .bm-section h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 14px; font-weight: 700; }
+  .bm-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+  .bm-item {
+    background: linear-gradient(135deg, rgba(127,119,221,0.05) 0%, rgba(127,119,221,0.02) 100%);
+    border-radius: 14px; padding: 12px 16px;
+    border: 1px solid rgba(127,119,221,0.1);
+    transition: all 0.2s ease;
+  }
+
+  .bm-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .bm-val { font-size: 14px; font-weight: 600; word-break: break-all; color: var(--text-primary); }
+
+  /* ── Reason Modal ── */
+  .reason-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    z-index: 3000; opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .reason-overlay.open { opacity: 1; pointer-events: all; }
+
+  .reason-box {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border-radius: 24px; padding: 32px;
+    width: 460px; max-width: 90vw;
+    border: 1px solid rgba(127,119,221,0.3);
+    transform: scale(0.9);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 20px 40px -12px rgba(0,0,0,0.3);
+  }
+
+  .reason-overlay.open .reason-box { transform: scale(1); }
+
+  .reason-textarea {
+    width: 100%; padding: 12px 16px;
+    background: rgba(127,119,221,0.05);
+    border: 1px solid rgba(127,119,221,0.2);
+    border-radius: 14px; color: inherit;
+    font-size: 13px; resize: vertical; min-height: 100px;
+    margin: 16px 0 20px; transition: all 0.2s ease;
+  }
+
+  .reason-textarea:focus {
+    outline: none;
+    border-color: #7F77DD;
+    box-shadow: 0 0 0 3px rgba(127,119,221,0.1);
+  }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+    padding: 14px 22px; border-radius: 16px;
+    font-size: 14px; font-weight: 500;
+    display: flex; align-items: center; gap: 10px;
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    backdrop-filter: blur(12px);
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; }
+  .toast.error   { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: #fff; }
+  .toast.info    { background: linear-gradient(135deg, #7F77DD 0%, #A78BFA 100%); color: #fff; }
+
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+#ml-panel { font-family: "Inter", sans-serif; }
+
+#ml-panel .kpi-card {
+  position: relative;
+  background: #0f172a !important;
+  border: 1px solid rgba(127,119,221,0.2) !important;
+  border-radius: 18px !important;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1) !important;
+}
+
+#ml-panel .kpi-card::before {
+  content: '';
+  position: absolute; inset: 0; border-radius: 18px;
+  background: linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(168,85,247,0.1) 50%, rgba(236,72,153,0.08) 100%);
+  opacity: 0.6; transition: opacity 0.3s; pointer-events: none;
+}
+
+#ml-panel .kpi-card:hover {
+  transform: translateY(-4px) scale(1.02) !important;
+  border-color: rgba(99,102,241,0.4) !important;
+  box-shadow: 0 0 0 1px rgba(99,102,241,0.3),
+              0 20px 40px -12px rgba(99,102,241,0.25),
+              0 0 60px -20px rgba(168,85,247,0.2) !important;
+}
+
+#ml-panel .kpi-card:hover::before { opacity: 1; }
+
+#ml-panel .kpi-lbl {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.1em; color: rgba(255,255,255,0.5) !important;
+}
+
+#ml-panel .kpi-val { color: inherit !important; -webkit-background-clip: unset !important; background-clip: unset !important; }
+
+.bookings-table-wrap#ml-reg-card,
+.bookings-table-wrap#ml-el-card {
+  background: #0f172a !important;
+  border: 1px solid rgba(127,119,221,0.2) !important;
+  border-radius: 18px !important;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1) !important;
+}
+
+.bookings-table-wrap#ml-reg-card:hover,
+.bookings-table-wrap#ml-el-card:hover {
+  transform: translateY(-3px) !important;
+  border-color: rgba(127,119,221,0.4) !important;
+  box-shadow: 0 0 0 1px rgba(99,102,241,0.25),
+              0 16px 32px -12px rgba(99,102,241,0.2) !important;
+}
+
+.ml-metric-lbl { color: rgba(255,255,255,0.45) !important; }
+.ml-metric-val { color: #fff !important; }
+.ml-narrative  { border-left: 3px solid rgba(127,119,221,0.5) !important; background: rgba(127,119,221,0.06) !important; color: rgba(255,255,255,0.5) !important; }
+
+  .el-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(127,119,221,0.1); }
+  .el-row:last-child { border-bottom: none; }
+  .el-label { min-width: 80px; font-size: 11px; color: var(--text-muted); font-weight: 500; }
+  .el-bar-wrap { flex: 1; background: rgba(127,119,221,0.1); border-radius: 8px; height: 8px; overflow: hidden; }
+  .el-bar { height: 100%; border-radius: 8px; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+  .el-pct { min-width: 40px; text-align: right; font-size: 11px; font-weight: 700; }
+
+  .empty-state { text-align: center; padding: 80px; color: var(--text-muted); font-size: 14px; }
+{% endblock %}
+
+{% block content %}
+
+{# ── Google Calendar Status Banner ── #}
+<div id="gcal-banner" style="margin-bottom:18px;"></div>
+
+{# ── ML Insights Panel ── #}
+<div id="ml-panel" style="margin-bottom:28px;">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-family:var(--font-display);font-size:16px;font-weight:700;">🤖 ML Insights</span>
+      <span id="ml-status-badge" style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(107,114,128,.15);color:#6b7280;border:1px solid rgba(107,114,128,.3);">
+        ⏳ Loading…
+      </span>
+    </div>
+    <button onclick="loadMlInsights()" id="ml-refresh-btn"
+      style="display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:9px;font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer;">
+      ↻ Refresh
+    </button>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px;" id="ml-kpi-row">
+    <div class="kpi-card" style="cursor:default;">
+      <div id="ml-occ-val" class="kpi-val" style="color:#10b981;font-size:22px;">—</div>
+      <div class="kpi-lbl">📊 Forecast Occupancy</div>
+      <div style="background:var(--border-color);border-radius:6px;height:5px;margin-top:8px;overflow:hidden;">
+        <div id="ml-occ-bar" style="height:100%;border-radius:6px;background:#10b981;width:0%;transition:width .8s ease;"></div>
+      </div>
+      <div id="ml-occ-sub" style="font-size:11px;color:var(--text-muted);margin-top:4px;">Next 30 days projection</div>
+    </div>
+    <div class="kpi-card" style="cursor:default;">
+      <div id="ml-adj-val" class="kpi-val" style="color:#7F77DD;font-size:22px;">—</div>
+      <div class="kpi-lbl">💡 Suggested Price Adjust</div>
+      <div id="ml-adj-sub" style="margin-top:6px;font-size:11px;color:var(--text-muted);">Based on ridge regression</div>
+      <div id="ml-adj-tag" style="margin-top:6px;"></div>
+    </div>
+    <div class="kpi-card" style="cursor:default;">
+      <div id="ml-conf-val" class="kpi-val" style="color:#f59e0b;font-size:22px;">—</div>
+      <div class="kpi-lbl">🎯 Model Confidence</div>
+      <div style="background:var(--border-color);border-radius:6px;height:5px;margin-top:8px;overflow:hidden;">
+        <div id="ml-conf-bar" style="height:100%;border-radius:6px;background:#f59e0b;width:0%;transition:width .8s ease;"></div>
+      </div>
+      <div id="ml-conf-sub" style="font-size:11px;color:var(--text-muted);margin-top:4px;"></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;" id="ml-detail-row">
+    <div class="bookings-table-wrap" id="ml-reg-card">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:13px;font-weight:700;">📈 Ridge Regression Model</span>
+        <span id="ml-reg-badge" style="font-size:11px;padding:3px 9px;border-radius:20px;background:rgba(107,114,128,.1);color:#6b7280;">—</span>
+      </div>
+      <div style="padding:14px 16px;" id="ml-reg-body">
+        <div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;">⏳ Loading model…</div>
+      </div>
+    </div>
+    <div class="bookings-table-wrap" id="ml-el-card">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:13px;font-weight:700;">📉 Demand Elasticity</span>
+        <span id="ml-el-badge" style="font-size:11px;padding:3px 9px;border-radius:20px;background:rgba(245,158,11,.12);color:#f59e0b;">—</span>
+      </div>
+      <div style="padding:14px 16px;" id="ml-el-body">
+        <div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;">⏳ Loading model…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ── KPI Bar ── #}
+<div class="kpi-bar" id="kpi-bar">
+  <div class="kpi-card" onclick="filterByStatus('')" id="kpi-all">
+    <div class="kpi-val" style="background: linear-gradient(135deg, var(--accent-primary), #A78BFA); -webkit-background-clip: text; background-clip: text; color: transparent;">{{ total }}</div>
+    <div class="kpi-lbl">Total</div>
+  </div>
+  <div class="kpi-card" onclick="filterByStatus('PENDING')" id="kpi-pending">
+    <div class="kpi-val" style="background: linear-gradient(135deg, #f59e0b, #fbbf24); -webkit-background-clip: text; background-clip: text; color: transparent;">{{ pending }}</div>
+    <div class="kpi-lbl">⏳ Pending</div>
+  </div>
+  <div class="kpi-card" onclick="filterByStatus('CONFIRMED')" id="kpi-confirmed">
+    <div class="kpi-val" style="background: linear-gradient(135deg, #10b981, #34d399); -webkit-background-clip: text; background-clip: text; color: transparent;">{{ confirmed }}</div>
+    <div class="kpi-lbl">✅ Confirmed</div>
+  </div>
+  <div class="kpi-card" onclick="filterByStatus('CANCELLED')" id="kpi-cancelled">
+    <div class="kpi-val" style="background: linear-gradient(135deg, #6b7280, #9ca3af); -webkit-background-clip: text; background-clip: text; color: transparent;">{{ cancelled }}</div>
+    <div class="kpi-lbl">🚫 Cancelled</div>
+  </div>
+  <div class="kpi-card" onclick="filterByStatus('REJECTED')" id="kpi-rejected">
+    <div class="kpi-val" style="background: linear-gradient(135deg, #ef4444, #f87171); -webkit-background-clip: text; background-clip: text; color: transparent;">{{ rejected }}</div>
+    <div class="kpi-lbl">❌ Rejected</div>
+  </div>
+  <div class="kpi-card" style="cursor:default;">
+    <div class="kpi-val" style="background: linear-gradient(135deg, #10b981, #34d399); -webkit-background-clip: text; background-clip: text; color: transparent; font-size: 24px;">€{{ revenue|number_format(0) }}</div>
+    <div class="kpi-lbl">💰 Revenue</div>
+  </div>
+</div>
+
+{# ── Toolbar ── #}
+<div class="toolbar">
+  <div class="search-wrap">
+    <span class="si">🔍</span>
+    <input type="text" id="search-box" placeholder="Search by guest phone, accommodation, room…" autocomplete="off" value="{{ filters.search }}">
+  </div>
+  <select id="filter-status" class="fsel">
+    <option value="">All Status</option>
+    <option value="PENDING"   {% if filters.status == 'PENDING'   %}selected{% endif %}>⏳ Pending</option>
+    <option value="CONFIRMED" {% if filters.status == 'CONFIRMED' %}selected{% endif %}>✅ Confirmed</option>
+    <option value="CANCELLED" {% if filters.status == 'CANCELLED' %}selected{% endif %}>🚫 Cancelled</option>
+    <option value="REJECTED"  {% if filters.status == 'REJECTED'  %}selected{% endif %}>❌ Rejected</option>
+  </select>
+  <select id="filter-acc" class="fsel">
+    <option value="">All Accommodations</option>
+    {% for acc in accommodations %}
+    <option value="{{ acc.id }}" {% if filters.accFilter == acc.id ~ '' %}selected{% endif %}>{{ acc.name }}</option>
+    {% endfor %}
+  </select>
+  <input type="date" id="filter-from" class="date-input" value="{{ filters.dateFrom }}" title="Check-in from">
+  <input type="date" id="filter-to"   class="date-input" value="{{ filters.dateTo }}"   title="Check-out to">
+
+  {# ── Export Dropdown ── #}
+<div class="export-dropdown" style="position:relative;">
+    <button class="export-btn" onclick="toggleExportMenu()" style="display:flex;align-items:center;gap:8px;">
+        📥 Export <span style="font-size:10px;">▼</span>
+    </button>
+    <div id="export-menu" style="display:none;position:absolute;top:100%;right:0;margin-top:8px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,0.2);z-index:100;min-width:200px;overflow:hidden;">
+        <button onclick="exportReport('dashboard')" style="display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;border:none;background:none;cursor:pointer;font-size:13px;transition:background 0.2s;">
+            📊 Management Dashboard (HTML/PDF)
+        </button>
+        <button onclick="exportReport('excel')" style="display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;border:none;background:none;cursor:pointer;font-size:13px;transition:background 0.2s;">
+            📈 Data Analysis (Excel)
+        </button>
+    </div>
+</div>
+
+<div class="results-info">
+  <span id="results-count">{{ bookings|length }} booking{{ bookings|length != 1 ? 's' : '' }}</span>
+  <span id="sort-info" style="font-size:12px;color:var(--text-muted)">Sorted by newest first</span>
+</div>
+
+{# ── Table ── #}
+<div class="bookings-table-wrap">
+  <table class="bookings-table">
+    <thead>
+      <tr>
+        <th onclick="sortTable('id')">ID <span class="sort-icon">↕</span></th>
+        <th onclick="sortTable('accName')">Accommodation <span class="sort-icon">↕</span></th>
+        <th onclick="sortTable('roomName')">Room <span class="sort-icon">↕</span></th>
+        <th onclick="sortTable('checkIn')">Check-in <span class="sort-icon">↕</span></th>
+        <th onclick="sortTable('checkOut')">Check-out <span class="sort-icon">↕</span></th>
+        <th onclick="sortTable('nights')">Nights <span class="sort-icon">↕</span></th>
+        <th onclick="sortTable('totalPrice')">Total <span class="sort-icon">↕</span></th>
+        <th onclick="sortTable('status')">Status <span class="sort-icon">↕</span></th>
+        <th>Calendar</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="bookings-tbody">
+      {% if bookings is empty %}
+      <tr><td colspan="10" class="empty-state">📅 No bookings found</td></tr>
+      {% else %}
+        {% for b in bookings %}
+        {% set nights = b.checkIn and b.checkOut ? ((b.checkOut.timestamp - b.checkIn.timestamp) / 86400)|round : 0 %}
+        <tr data-id="{{ b.id }}" data-status="{{ b.status }}">
+          <td><span class="booking-id">#{{ b.id }}</span></td>
+          <td>
+            <div style="font-weight:600;font-size:13px">{{ b.room.accommodation.name ?? '—' }}</div>
+            <div style="font-size:11px;color:var(--text-muted)">{{ b.room.accommodation.city ?? '' }}</div>
+          </td>
+          <td>
+            <div style="font-weight:500">{{ b.room.roomName ?? '—' }}</div>
+            <div style="font-size:11px;color:var(--text-muted)">{{ b.room.roomType ?? '' }}</div>
+          </td>
+          <td>{{ b.checkIn ? b.checkIn|date('d M Y') : '—' }}</td>
+          <td>{{ b.checkOut ? b.checkOut|date('d M Y') : '—' }}</td>
+          <td><span class="nights-badge">{{ nights }}n</span></td>
+          <td style="font-weight:700;color:var(--accent-primary)">€{{ b.totalPrice|number_format(2) }}</td>
+          <td>
+            <span class="badge badge-{{ b.status|lower }}">
+              {% if b.status == 'PENDING' %}⏳{% elseif b.status == 'CONFIRMED' %}✅{% elseif b.status == 'CANCELLED' %}🚫{% else %}❌{% endif %}
+              {{ b.status|capitalize }}
+            </span>
+          </td>
+          <td>
+            <span class="cal-badge cal-{{ b.calendarSyncStatus|lower|replace({'_': '-', 'not-synced': 'pending'}) }}">
+              {% if b.calendarSyncStatus == 'SYNCED' %}🗓 Synced
+              {% elseif b.calendarSyncStatus == 'FAILED' %}⚠ Failed
+              {% else %}— Not synced{% endif %}
+            </span>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="ab ab-view" onclick="viewBooking({{ b.id }})">👁</button>
+              {% if b.status == 'PENDING' %}
+              <button class="ab ab-confirm" onclick="confirmBooking({{ b.id }})">✅</button>
+              <button class="ab ab-reject"  onclick="openReasonModal({{ b.id }}, 'reject')">❌</button>
+              {% endif %}
+              {% if b.status in ['PENDING', 'CONFIRMED'] %}
+              <button class="ab ab-cancel" onclick="openReasonModal({{ b.id }}, 'cancel')">🚫</button>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+{# ── View Booking Modal ── #}
+<div class="bmodal-overlay" id="bmodal-overlay" onclick="if(event.target===this)closeBModal()">
+  <div class="bmodal">
+    <div class="bmodal-header">
+      <div>
+        <div style="font-family:var(--font-display);font-size:18px;font-weight:700">📅 Booking Details</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px" id="bm-id-label"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span id="bm-status-badge"></span>
+        <button class="ab ab-view" style="width:34px;height:34px;padding:0;border-radius:8px;display:flex;align-items:center;justify-content:center;" onclick="closeBModal()">✕</button>
+      </div>
+    </div>
+    <div class="bmodal-body" id="bmodal-body">
+      <div style="text-align:center;padding:40px;color:var(--text-muted)">Loading…</div>
+    </div>
+    <div class="bmodal-footer" id="bmodal-footer"></div>
+  </div>
+</div>
+
+{# ── Reason Modal ── #}
+<div class="reason-overlay" id="reason-overlay">
+  <div class="reason-box">
+    <h3 style="font-family:var(--font-display);margin-bottom:4px" id="reason-title">Reason</h3>
+    <p style="font-size:13px;color:var(--text-muted)" id="reason-desc">Please provide a reason.</p>
+    <textarea class="reason-textarea" id="reason-input" placeholder="Enter reason…"></textarea>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button style="padding:9px 20px;background:var(--bg-surface);border:1px solid var(--border-color);border-radius:9px;cursor:pointer;font-size:13px;" onclick="closeReasonModal()">Cancel</button>
+      <button id="reason-confirm-btn" style="padding:9px 20px;border:none;border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;color:#fff;" onclick="submitReason()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+const AJAX_H      = { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' };
+const SEARCH_URL  = '{{ path('admin_accommodations_bookings_search') }}';
+const STATS_URL   = '{{ path('admin_accommodations_bookings_stats') }}';
+const ML_URL      = '{{ path('admin_accommodations_bookings_ml_insights') }}';
+const GCAL_STATUS = '{{ path('admin_google_acc_status') }}';
+const GCAL_AUTH   = '{{ path('admin_google_acc_authorize') }}';
+const GCAL_REVOKE = '{{ path('admin_google_acc_revoke') }}';
+const VIEW_URL    = (id) => `/admin/accommodations/bookings/${id}`;
+const CONFIRM_URL = (id) => `/admin/accommodations/bookings/${id}/confirm`;
+const REJECT_URL  = (id) => `/admin/accommodations/bookings/${id}/reject`;
+const CANCEL_URL  = (id) => `/admin/accommodations/bookings/${id}/cancel`;
+
+// ── Google Calendar banner ────────────────────────────────
+async function loadGCalBanner() {
+  try {
+    const res  = await fetch(GCAL_STATUS, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    const data = await res.json();
+    const banner = document.getElementById('gcal-banner');
+
+    if (data.connected) {
+      banner.innerHTML = `
+        <div class="gcal-banner connected">
+          <div class="gcal-banner-left">
+            <span class="gcal-banner-icon">🗓</span>
+            <div>
+              <div class="gcal-banner-title" style="color:#10b981;">Google Calendar connected</div>
+              <div class="gcal-banner-sub">Confirmed bookings sync automatically · Cancelled/rejected bookings are removed</div>
+            </div>
+          </div>
+          <form method="POST" action="${GCAL_REVOKE}" onsubmit="return confirm('Disconnect Google Calendar?')">
+            <button type="submit" class="gcal-btn gcal-btn-disconnect">🔌 Disconnect</button>
+          </form>
+        </div>`;
+    } else {
+      banner.innerHTML = `
+        <div class="gcal-banner disconnected">
+          <div class="gcal-banner-left">
+            <span class="gcal-banner-icon">⚠️</span>
+            <div>
+              <div class="gcal-banner-title" style="color:#f59e0b;">Google Calendar not connected</div>
+              <div class="gcal-banner-sub">Connect once — all future confirmed bookings will sync automatically</div>
+            </div>
+          </div>
+          <a href="${GCAL_AUTH}" class="gcal-btn gcal-btn-connect">🔗 Connect Google Calendar</a>
+        </div>`;
+    }
+  } catch(e) {
+    console.warn('Could not load Google Calendar status', e);
+  }
+}
+
+// ── Search & Filter ───────────────────────────────────────
+let sortCol = 'id';
+let sortDir = 'desc';
+
+let searchTimer = null;
+['search-box','filter-status','filter-acc','filter-from','filter-to'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const evt = el.tagName === 'INPUT' && el.type === 'text' ? 'input' : 'change';
+  el.addEventListener(evt, () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(doSearch, 300);
+  });
+});
+
+async function doSearch() {
+  const q      = document.getElementById('search-box').value;
+  const status = document.getElementById('filter-status').value;
+  const acc    = document.getElementById('filter-acc').value;
+  const from   = document.getElementById('filter-from').value;
+  const to     = document.getElementById('filter-to').value;
+  const url = `${SEARCH_URL}?q=${encodeURIComponent(q)}&status=${encodeURIComponent(status)}&accommodation=${encodeURIComponent(acc)}&dateFrom=${encodeURIComponent(from)}&dateTo=${encodeURIComponent(to)}`;
+  try {
+    const res  = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    const data = await res.json();
+    document.getElementById('results-count').textContent = `${data.count} booking${data.count !== 1 ? 's' : ''}`;
+    renderTable(data.bookings);
+  } catch(e) { console.error(e); }
+}
+
+function filterByStatus(status) {
+  document.getElementById('filter-status').value = status;
+  document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active-filter'));
+  const map = {'':'kpi-all','PENDING':'kpi-pending','CONFIRMED':'kpi-confirmed','CANCELLED':'kpi-cancelled','REJECTED':'kpi-rejected'};
+  if (map[status]) document.getElementById(map[status])?.classList.add('active-filter');
+  doSearch();
+}
+
+function renderTable(bookings) {
+  const tb = document.getElementById('bookings-tbody');
+  if (!bookings.length) {
+    tb.innerHTML = `<tr><td colspan="10" class="empty-state">📅 No bookings found</td></tr>`;
+    return;
+  }
+  tb.innerHTML = bookings.map(b => {
+    const nights = b.checkIn && b.checkOut ? Math.round((new Date(b.checkOut) - new Date(b.checkIn)) / 86400000) : 0;
+    const statusClass = b.status?.toLowerCase() || '';
+    const statusIcon  = {PENDING:'⏳',CONFIRMED:'✅',CANCELLED:'🚫',REJECTED:'❌'}[b.status] || '';
+    const calClass = b.calendarStatus === 'SYNCED' ? 'cal-synced' : b.calendarStatus === 'FAILED' ? 'cal-failed' : 'cal-pending';
+    const calLabel = b.calendarStatus === 'SYNCED' ? '🗓 Synced' : b.calendarStatus === 'FAILED' ? '⚠ Failed' : '— Not synced';
+    return `<tr data-id="${b.id}" data-status="${b.status}">
+      <td><span class="booking-id">#${b.id}</span></td>
+      <td><div style="font-weight:600;font-size:13px">${esc(b.accName||'—')}</div><div style="font-size:11px;color:var(--text-muted)">${esc(b.accCity||'')}</div></td>
+      <td><div style="font-weight:500">${esc(b.roomName||'—')}</div><div style="font-size:11px;color:var(--text-muted)">${esc(b.roomType||'')}</div></td>
+      <td>${b.checkIn ? fmtDate(b.checkIn) : '—'}</td>
+      <td>${b.checkOut ? fmtDate(b.checkOut) : '—'}</td>
+      <td><span class="nights-badge">${nights}n</span></td>
+      <td style="font-weight:700;color:var(--accent-primary)">€${parseFloat(b.totalPrice||0).toFixed(2)}</td>
+      <td><span class="badge badge-${statusClass}">${statusIcon} ${capitalize(b.status)}</span></td>
+      <td><span class="cal-badge ${calClass}">${calLabel}</span></td>
+      <td>
+        <div class="action-btns">
+          <button class="ab ab-view" onclick="viewBooking(${b.id})">👁</button>
+          ${b.status==='PENDING' ? `<button class="ab ab-confirm" onclick="confirmBooking(${b.id})">✅</button><button class="ab ab-reject" onclick="openReasonModal(${b.id},'reject')">❌</button>` : ''}
+          ${['PENDING','CONFIRMED'].includes(b.status) ? `<button class="ab ab-cancel" onclick="openReasonModal(${b.id},'cancel')">🚫</button>` : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function sortTable(col) {
+  if (sortCol === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  else { sortCol = col; sortDir = 'asc'; }
+  document.querySelectorAll('.bookings-table th').forEach(th => th.classList.remove('sorted'));
+  const headers = ['id','accName','roomName','checkIn','checkOut','nights','totalPrice','status'];
+  const idx = headers.indexOf(col);
+  if (idx >= 0) document.querySelectorAll('.bookings-table th')[idx]?.classList.add('sorted');
+  document.getElementById('sort-info').textContent = `Sorted by ${col} (${sortDir})`;
+  const rows = Array.from(document.querySelectorAll('#bookings-tbody tr[data-id]'));
+  rows.sort((a, b) => {
+    const ai = a.querySelectorAll('td')[headers.indexOf(col)]?.textContent.trim() || '';
+    const bi = b.querySelectorAll('td')[headers.indexOf(col)]?.textContent.trim() || '';
+    return sortDir === 'asc' ? ai.localeCompare(bi, undefined, {numeric:true}) : bi.localeCompare(ai, undefined, {numeric:true});
+  });
+  const tb = document.getElementById('bookings-tbody');
+  rows.forEach(r => tb.appendChild(r));
+}
+
+async function viewBooking(id) {
+  document.getElementById('bmodal-overlay').classList.add('open');
+  document.getElementById('bmodal-body').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">⏳ Loading…</div>';
+  document.getElementById('bmodal-footer').innerHTML = '';
+  try {
+    const res = await fetch(VIEW_URL(id), { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    const b   = await res.json();
+    document.getElementById('bm-id-label').textContent = `Booking #${b.id} • Created ${b.createdAt}`;
+    const statusIcon = {PENDING:'⏳',CONFIRMED:'✅',CANCELLED:'🚫',REJECTED:'❌'}[b.status]||'';
+    document.getElementById('bm-status-badge').innerHTML = `<span class="badge badge-${b.status?.toLowerCase()}">${statusIcon} ${capitalize(b.status)}</span>`;
+    const nights = b.checkIn && b.checkOut ? Math.round((new Date(b.checkOut) - new Date(b.checkIn)) / 86400000) : 0;
+    document.getElementById('bmodal-body').innerHTML = `
+      <div class="bm-section"><h4>🏨 Accommodation & Room</h4><div class="bm-grid">
+        ${bi('Accommodation', b.accName)} ${bi('Location', [b.accCity, b.accCountry].filter(Boolean).join(', '))}
+        ${bi('Type', b.accType)} ${bi('Stars', b.accStars ? '★'.repeat(b.accStars) : '—')}
+        ${bi('Room', b.roomName)} ${bi('Room Type', b.roomType)}
+        ${bi('Capacity', b.roomCapacity ? b.roomCapacity + ' person(s)' : '—')}
+        ${bi('Room Price', b.roomPrice ? '€' + parseFloat(b.roomPrice).toFixed(2) + '/night' : '—')}
+      </div></div>
+      <div class="bm-section"><h4>📅 Booking Details</h4><div class="bm-grid">
+        ${bi('Check-in', b.checkIn ? fmtDate(b.checkIn) : '—')} ${bi('Check-out', b.checkOut ? fmtDate(b.checkOut) : '—')}
+        ${bi('Duration', nights + ' night(s)')} ${bi('Guests', b.numberOfGuests)}
+        ${bi('Total Price', '€' + parseFloat(b.totalPrice||0).toFixed(2))} ${bi('Phone', b.phoneNumber || '—')}
+        ${bi('Est. Arrival', b.estimatedArrivalTime || '—')} ${bi('User ID', '#' + b.userId)}
+      </div></div>
+      ${b.specialRequests ? `<div class="bm-section"><h4>💬 Special Requests</h4><div style="background:var(--bg-surface);border-radius:9px;padding:12px 14px;font-size:13px;line-height:1.6">${esc(b.specialRequests)}</div></div>` : ''}
+      ${b.cancelReason    ? `<div class="bm-section"><h4>🚫 Cancel Reason</h4><div style="background:rgba(107,114,128,.1);border-radius:9px;padding:12px 14px;font-size:13px;color:#6b7280">${esc(b.cancelReason)}</div></div>` : ''}
+      ${b.rejectionReason ? `<div class="bm-section"><h4>❌ Rejection Reason</h4><div style="background:rgba(239,68,68,.1);border-radius:9px;padding:12px 14px;font-size:13px;color:#ef4444">${esc(b.rejectionReason)}</div></div>` : ''}
+      <div class="bm-section"><h4>🗓 Calendar Sync</h4><div class="bm-grid">
+        ${bi('Sync Status', b.calendarStatus)} ${bi('Synced At', b.calendarSyncedAt || '—')}
+        ${b.calendarLastError ? bi('Last Error', b.calendarLastError) : ''}
+        ${b.googleCalendarEventId ? bi('Event ID', b.googleCalendarEventId) : ''}
+      </div></div>`;
+    let footer = `<button style="padding:10px 18px;background:var(--bg-surface);border:1px solid var(--border-color);border-radius:10px;cursor:pointer;font-size:13px;" onclick="closeBModal()">Close</button>`;
+    if (b.status === 'PENDING') {
+      footer = `<button class="ab ab-confirm" style="flex:1;padding:11px;font-size:13px;" onclick="closeBModal();confirmBooking(${b.id})">✅ Confirm</button>
+        <button class="ab ab-reject" style="flex:1;padding:11px;font-size:13px;" onclick="closeBModal();openReasonModal(${b.id},'reject')">❌ Reject</button>
+        <button class="ab ab-cancel" style="flex:1;padding:11px;font-size:13px;" onclick="closeBModal();openReasonModal(${b.id},'cancel')">🚫 Cancel</button>` + footer;
+    } else if (b.status === 'CONFIRMED') {
+      footer = `<button class="ab ab-cancel" style="flex:1;padding:11px;font-size:13px;" onclick="closeBModal();openReasonModal(${b.id},'cancel')">🚫 Cancel</button>` + footer;
+    }
+    document.getElementById('bmodal-footer').innerHTML = footer;
+  } catch(e) {
+    document.getElementById('bmodal-body').innerHTML = `<div style="text-align:center;padding:40px;color:#ef4444">Failed to load booking</div>`;
+  }
+}
+
+function closeBModal() { document.getElementById('bmodal-overlay').classList.remove('open'); }
+function bi(label, val) {
+  return `<div class="bm-item"><div class="bm-label">${label}</div><div class="bm-val">${val || '—'}</div></div>`;
+}
+
+async function confirmBooking(id) {
+  try {
+    const res  = await fetch(CONFIRM_URL(id), { method:'POST', headers: AJAX_H });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      updateRowStatus(id, 'CONFIRMED', data.calendarStatus);
+      refreshStats();
+      loadGCalBanner();
+    } else showToast(data.error, 'error');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+let reasonAction = null;
+let reasonId     = null;
+
+function openReasonModal(id, action) {
+  reasonId = id; reasonAction = action;
+  const isReject = action === 'reject';
+  document.getElementById('reason-title').textContent     = isReject ? '❌ Reject Booking' : '🚫 Cancel Booking';
+  document.getElementById('reason-desc').textContent      = isReject ? 'Please provide a reason for rejecting this booking.' : 'Please provide a reason for cancelling this booking.';
+  document.getElementById('reason-confirm-btn').style.background = isReject ? '#ef4444' : '#6b7280';
+  document.getElementById('reason-confirm-btn').textContent      = isReject ? 'Reject' : 'Cancel Booking';
+  document.getElementById('reason-input').value           = '';
+  document.getElementById('reason-overlay').classList.add('open');
+}
+
+function closeReasonModal() {
+  document.getElementById('reason-overlay').classList.remove('open');
+  reasonId = null; reasonAction = null;
+}
+
+async function submitReason() {
+  const reason = document.getElementById('reason-input').value.trim();
+  const url    = reasonAction === 'reject' ? REJECT_URL(reasonId) : CANCEL_URL(reasonId);
+  try {
+    const res  = await fetch(url, { method:'POST', headers: AJAX_H, body: JSON.stringify({ reason }) });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      updateRowStatus(reasonId, data.status);
+      closeReasonModal();
+      refreshStats();
+    } else showToast(data.error, 'error');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+function updateRowStatus(id, newStatus, calendarStatus) {
+  const row = document.querySelector(`#bookings-tbody tr[data-id="${id}"]`);
+  if (!row) return;
+  row.dataset.status = newStatus;
+  const statusCell = row.querySelectorAll('td')[7];
+  const icons = {PENDING:'⏳',CONFIRMED:'✅',CANCELLED:'🚫',REJECTED:'❌'};
+  if (statusCell) statusCell.innerHTML = `<span class="badge badge-${newStatus.toLowerCase()}">${icons[newStatus]} ${capitalize(newStatus)}</span>`;
+
+  if (calendarStatus) {
+    const calCell  = row.querySelectorAll('td')[8];
+    const calClass = calendarStatus === 'SYNCED' ? 'cal-synced' : calendarStatus === 'FAILED' ? 'cal-failed' : 'cal-pending';
+    const calLabel = calendarStatus === 'SYNCED' ? '🗓 Synced' : calendarStatus === 'FAILED' ? '⚠ Failed' : '— Not synced';
+    if (calCell) calCell.innerHTML = `<span class="cal-badge ${calClass}">${calLabel}</span>`;
+  }
+
+  const actionCell = row.querySelectorAll('td')[9];
+  if (actionCell) {
+    let btns = `<button class="ab ab-view" onclick="viewBooking(${id})">👁</button>`;
+    if (newStatus === 'PENDING') btns += `<button class="ab ab-confirm" onclick="confirmBooking(${id})">✅</button><button class="ab ab-reject" onclick="openReasonModal(${id},'reject')">❌</button>`;
+    if (['PENDING','CONFIRMED'].includes(newStatus)) btns += `<button class="ab ab-cancel" onclick="openReasonModal(${id},'cancel')">🚫</button>`;
+    actionCell.innerHTML = `<div class="action-btns">${btns}</div>`;
+  }
+}
+
+async function refreshStats() {
+  try {
+    const res = await fetch(STATS_URL, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    const d   = await res.json();
+    document.getElementById('kpi-total').textContent         = d.total;
+    document.getElementById('kpi-pending-val').textContent   = d.pending;
+    document.getElementById('kpi-confirmed-val').textContent = d.confirmed;
+    document.getElementById('kpi-cancelled-val').textContent = d.cancelled;
+    document.getElementById('kpi-rejected-val').textContent  = d.rejected;
+    document.getElementById('kpi-revenue').textContent       = '€' + parseInt(d.revenue).toLocaleString();
+  } catch(e) {}
+}
+
+// ── Advanced CSV Export ────────────────────────────────────
+let exportMenuOpen = false;
+
+function toggleExportMenu() {
+  const menu = document.getElementById('export-menu');
+  exportMenuOpen = !exportMenuOpen;
+  menu.style.display = exportMenuOpen ? 'block' : 'none';
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.export-dropdown')) {
+    const menu = document.getElementById('export-menu');
+    if (menu) { menu.style.display = 'none'; }
+    exportMenuOpen = false;
+  }
+});
+
+async function exportCSV(type = 'standard') {
+  showToast('Generating ' + type + ' report...', 'info');
+
+  const q      = document.getElementById('search-box').value;
+  const status = document.getElementById('filter-status').value;
+  const acc    = document.getElementById('filter-acc').value;
+  const from   = document.getElementById('filter-from').value;
+  const to     = document.getElementById('filter-to').value;
+
+  const url = `${SEARCH_URL}?q=${encodeURIComponent(q)}&status=${encodeURIComponent(status)}&accommodation=${encodeURIComponent(acc)}&dateFrom=${encodeURIComponent(from)}&dateTo=${encodeURIComponent(to)}`;
+
+  try {
+    const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    const data = await res.json();
+    const bookings = data.bookings;
+
+    let csvContent = '';
+
+    if (type === 'standard') {
+      csvContent = generateStandardCSV(bookings);
+    } else if (type === 'advanced') {
+      csvContent = generateAdvancedCSV(bookings);
+    } else if (type === 'accommodation') {
+      csvContent = generateAccommodationCSV(bookings);
+    } else if (type === 'monthly') {
+      csvContent = generateMonthlyCSV(bookings);
+    }
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url_file = URL.createObjectURL(blob);
+    link.href = url_file;
+    link.setAttribute('download', `bookings_${type}_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url_file);
+
+    showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} report exported!`, 'success');
+  } catch(e) {
+    showToast('Export failed: ' + e.message, 'error');
+  }
+}
+
+function generateStandardCSV(bookings) {
+  const headers = ['ID', 'Created', 'Accommodation', 'Room', 'Check-in', 'Check-out', 'Nights', 'Guests', 'Total', 'Status', 'Phone', 'Special Requests'];
+  const rows = [headers];
+
+  bookings.forEach(b => {
+    const nights = b.checkIn && b.checkOut ? Math.round((new Date(b.checkOut) - new Date(b.checkIn)) / 86400000) : 0;
+    rows.push([
+      b.id,
+      b.createdAt || '',
+      `"${(b.accName || '').replace(/"/g, '""')}"`,
+      `"${(b.roomName || '').replace(/"/g, '""')}"`,
+      b.checkIn || '',
+      b.checkOut || '',
+      nights,
+      b.numberOfGuests || 1,
+      b.totalPrice || 0,
+      b.status || '',
+      b.phoneNumber || '',
+      `"${(b.specialRequests || '').replace(/"/g, '""')}"`
+    ]);
+  });
+
+  return rows.map(row => row.join(',')).join('\n');
+}
+
+function generateAdvancedCSV(bookings) {
+  const lines = [];
+
+  lines.push('================================================================================');
+  lines.push('TRIPX ADVANCED BOOKINGS REPORT');
+  lines.push('================================================================================');
+  lines.push(`Generated:,${new Date().toLocaleString()}`);
+  lines.push(`Total Bookings:,${bookings.length}`);
+
+  const totalRevenue = bookings.reduce((sum, b) => sum + (b.status === 'CONFIRMED' ? parseFloat(b.totalPrice || 0) : 0), 0);
+  lines.push(`Total Revenue:,€${totalRevenue.toFixed(2)}`);
+  lines.push(`Average Booking:,€${(totalRevenue / Math.max(1, bookings.length)).toFixed(2)}`);
+  lines.push('================================================================================');
+  lines.push('');
+
+  lines.push('📊 KPI DASHBOARD');
+  lines.push('================================================================================');
+  lines.push('KPI,Value,Target,Status');
+
+  const confirmedCount = bookings.filter(b => b.status === 'CONFIRMED').length;
+  const pendingCount   = bookings.filter(b => b.status === 'PENDING').length;
+  const cancelledCount = bookings.filter(b => b.status === 'CANCELLED').length;
+  const rejectedCount  = bookings.filter(b => b.status === 'REJECTED').length;
+
+  lines.push(`Total Revenue,€${totalRevenue.toFixed(2)},€${(totalRevenue * 1.1).toFixed(2)},${totalRevenue > 50000 ? '✅ Exceeded' : '🟡 On Track'}`);
+  lines.push(`Avg Booking Value,€${(totalRevenue / Math.max(1, bookings.length)).toFixed(2)},€180.00,${(totalRevenue / Math.max(1, bookings.length)) > 180 ? '✅ Good' : '⚠️ Below'}`);
+  lines.push(`Confirmed Rate,${((confirmedCount / Math.max(1, bookings.length)) * 100).toFixed(1)}%,70%,${((confirmedCount / Math.max(1, bookings.length)) * 100) > 70 ? '✅ Excellent' : '⚠️ Low'}`);
+  lines.push(`Cancellation Rate,${((cancelledCount / Math.max(1, bookings.length)) * 100).toFixed(1)}%,<8%,${((cancelledCount / Math.max(1, bookings.length)) * 100) < 8 ? '✅ Good' : '⚠️ High'}`);
+  lines.push('================================================================================');
+  lines.push('');
+
+  lines.push('📈 STATUS BREAKDOWN');
+  lines.push('================================================================================');
+  lines.push('Status,Count,Percentage,Visual');
+
+  const statuses = [
+    { name: 'CONFIRMED', count: confirmedCount, color: '🟢' },
+    { name: 'PENDING',   count: pendingCount,   color: '🟡' },
+    { name: 'CANCELLED', count: cancelledCount, color: '🔴' },
+    { name: 'REJECTED',  count: rejectedCount,  color: '⚫' }
+  ];
+
+  statuses.forEach(s => {
+    const pct = (s.count / Math.max(1, bookings.length)) * 100;
+    const bar = '█'.repeat(Math.floor(pct / 2)) + '░'.repeat(50 - Math.floor(pct / 2));
+    lines.push(`${s.name},${s.count},${pct.toFixed(1)}%,${s.color} ${bar}`);
+  });
+  lines.push('================================================================================');
+  lines.push('');
+
+  lines.push('🏨 ACCOMMODATION PERFORMANCE RANKING');
+  lines.push('================================================================================');
+  lines.push('Rank,Accommodation,Bookings,Revenue,Avg Price');
+
+  const accMap = new Map();
+  bookings.forEach(b => {
+    const name = b.accName || 'Unknown';
+    if (!accMap.has(name)) accMap.set(name, { bookings: 0, revenue: 0 });
+    const stats = accMap.get(name);
+    stats.bookings++;
+    if (b.status === 'CONFIRMED') stats.revenue += parseFloat(b.totalPrice || 0);
+  });
+
+  const sortedAcc = Array.from(accMap.entries()).sort((a, b) => b[1].revenue - a[1].revenue);
+  let rank = 1;
+  for (const [name, stats] of sortedAcc) {
+    const avgPrice = stats.bookings > 0 ? stats.revenue / stats.bookings : 0;
+    lines.push(`${rank},"${name.replace(/"/g, '""')}",${stats.bookings},€${stats.revenue.toFixed(2)},€${avgPrice.toFixed(2)}`);
+    rank++;
+  }
+  lines.push('================================================================================');
+  lines.push('');
+
+  lines.push('🛏️ ROOM TYPE PERFORMANCE');
+  lines.push('================================================================================');
+  lines.push('Room Type,Bookings,Revenue,Avg Price');
+
+  const roomMap = new Map();
+  bookings.forEach(b => {
+    const type = b.roomType || 'Standard';
+    if (!roomMap.has(type)) roomMap.set(type, { bookings: 0, revenue: 0 });
+    const stats = roomMap.get(type);
+    stats.bookings++;
+    if (b.status === 'CONFIRMED') stats.revenue += parseFloat(b.totalPrice || 0);
+  });
+
+  for (const [type, stats] of roomMap.entries()) {
+    const avgPrice = stats.bookings > 0 ? stats.revenue / stats.bookings : 0;
+    lines.push(`"${type.replace(/"/g, '""')}",${stats.bookings},€${stats.revenue.toFixed(2)},€${avgPrice.toFixed(2)}`);
+  }
+  lines.push('================================================================================');
+  lines.push('');
+
+  lines.push('📅 MONTHLY REVENUE TRENDS');
+  lines.push('================================================================================');
+  lines.push('Month,Bookings,Revenue,Avg Price');
+
+  const monthlyMap = new Map();
+  bookings.forEach(b => {
+    if (b.createdAt) {
+      const month = b.createdAt.substring(0, 7);
+      if (!monthlyMap.has(month)) monthlyMap.set(month, { bookings: 0, revenue: 0 });
+      const stats = monthlyMap.get(month);
+      stats.bookings++;
+      if (b.status === 'CONFIRMED') stats.revenue += parseFloat(b.totalPrice || 0);
+    }
+  });
+
+  const sortedMonths = Array.from(monthlyMap.keys()).sort();
+  for (const month of sortedMonths) {
+    const stats = monthlyMap.get(month);
+    const avgPrice = stats.bookings > 0 ? stats.revenue / stats.bookings : 0;
+    lines.push(`${month},${stats.bookings},€${stats.revenue.toFixed(2)},€${avgPrice.toFixed(2)}`);
+  }
+  lines.push('================================================================================');
+  lines.push('');
+
+  lines.push('🤖 AI-POWERED INSIGHTS');
+  lines.push('================================================================================');
+
+  const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const dayCount = [0,0,0,0,0,0,0];
+  let totalNights = 0;
+  let totalGuests = 0;
+
+  bookings.forEach(b => {
+    if (b.checkIn) {
+      const day = new Date(b.checkIn).getDay();
+      dayCount[day]++;
+    }
+    if (b.checkIn && b.checkOut) {
+      const nights = Math.round((new Date(b.checkOut) - new Date(b.checkIn)) / 86400000);
+      totalNights += nights;
+    }
+    totalGuests += b.numberOfGuests || 1;
+  });
+
+  const bestDayIndex = dayCount.indexOf(Math.max(...dayCount));
+  const bestDay  = weekdays[bestDayIndex];
+  const avgStay  = bookings.length > 0 ? (totalNights / bookings.length).toFixed(1) : 0;
+  const avgGuests = bookings.length > 0 ? (totalGuests / bookings.length).toFixed(1) : 0;
+
+  lines.push(`Best Performing Day,${bestDay},Consider weekend pricing strategy`);
+  lines.push(`Average Stay Duration,${avgStay} nights,Promote extended stay discounts`);
+  lines.push(`Average Guests per Booking,${avgGuests},Family packages could boost revenue`);
+  lines.push(`Total Confirmed Bookings,${confirmedCount},${confirmedCount > 100 ? 'Strong performance' : 'Need more marketing'}`);
+  lines.push('================================================================================');
+  lines.push('');
+
+  lines.push('📋 DETAILED BOOKINGS DATA');
+  lines.push('================================================================================');
+  lines.push('ID,Created,Accommodation,Room,Check-in,Check-out,Nights,Guests,Total,Status,Phone');
+
+  bookings.forEach(b => {
+    const nights = b.checkIn && b.checkOut ? Math.round((new Date(b.checkOut) - new Date(b.checkIn)) / 86400000) : 0;
+    lines.push(`${b.id},${b.createdAt || ''},"${(b.accName || '').replace(/"/g, '""')}","${(b.roomName || '').replace(/"/g, '""')}",${b.checkIn || ''},${b.checkOut || ''},${nights},${b.numberOfGuests || 1},${b.totalPrice || 0},${b.status || ''},${b.phoneNumber || ''}`);
+  });
+
+  lines.push('================================================================================');
+  lines.push('');
+  lines.push(`Report generated on ${new Date().toLocaleString()} by TripX Admin System`);
+
+  return lines.join('\n');
+}
+
+function generateAccommodationCSV(bookings) {
+  const lines = [];
+
+  lines.push('🏨 ACCOMMODATION PERFORMANCE REPORT');
+  lines.push('================================================================================');
+  lines.push(`Generated:,${new Date().toLocaleString()}`);
+  lines.push('================================================================================');
+  lines.push('');
+  lines.push('Accommodation,Total Bookings,Confirmed Bookings,Total Revenue,Avg Price,Top Room Type');
+
+  const accMap = new Map();
+  bookings.forEach(b => {
+    const name = b.accName || 'Unknown';
+    if (!accMap.has(name)) accMap.set(name, { total: 0, confirmed: 0, revenue: 0, rooms: new Map() });
+    const stats = accMap.get(name);
+    stats.total++;
+    if (b.status === 'CONFIRMED') {
+      stats.confirmed++;
+      stats.revenue += parseFloat(b.totalPrice || 0);
+    }
+    const roomType = b.roomType || 'Standard';
+    stats.rooms.set(roomType, (stats.rooms.get(roomType) || 0) + 1);
+  });
+
+  for (const [name, stats] of accMap.entries()) {
+    const avgPrice = stats.confirmed > 0 ? stats.revenue / stats.confirmed : 0;
+    let topRoom = '';
+    let maxCount = 0;
+    for (const [room, count] of stats.rooms) {
+      if (count > maxCount) { maxCount = count; topRoom = room; }
+    }
+    lines.push(`"${name.replace(/"/g, '""')}",${stats.total},${stats.confirmed},€${stats.revenue.toFixed(2)},€${avgPrice.toFixed(2)},"${topRoom}"`);
+  }
+
+  return lines.join('\n');
+}
+
+function generateMonthlyCSV(bookings) {
+  const lines = [];
+
+  lines.push('📅 MONTHLY BOOKINGS SUMMARY');
+  lines.push('================================================================================');
+  lines.push(`Generated:,${new Date().toLocaleString()}`);
+  lines.push('================================================================================');
+  lines.push('');
+  lines.push('Year-Month,Total Bookings,Confirmed,Revenue,Avg Price');
+
+  const monthlyMap = new Map();
+  bookings.forEach(b => {
+    if (b.createdAt) {
+      const month = b.createdAt.substring(0, 7);
+      if (!monthlyMap.has(month)) monthlyMap.set(month, { total: 0, confirmed: 0, revenue: 0 });
+      const stats = monthlyMap.get(month);
+      stats.total++;
+      if (b.status === 'CONFIRMED') {
+        stats.confirmed++;
+        stats.revenue += parseFloat(b.totalPrice || 0);
+      }
+    }
+  });
+
+  const sortedMonths = Array.from(monthlyMap.keys()).sort();
+  for (const month of sortedMonths) {
+    const stats = monthlyMap.get(month);
+    const avgPrice = stats.confirmed > 0 ? stats.revenue / stats.confirmed : 0;
+    lines.push(`${month},${stats.total},${stats.confirmed},€${stats.revenue.toFixed(2)},€${avgPrice.toFixed(2)}`);
+  }
+
+  return lines.join('\n');
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : ''; }
+function fmtDate(d) { return new Date(d).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }); }
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = (type==='success'?'✅ ':type==='error'?'❌ ':'ℹ️ ') + msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeBModal(); closeReasonModal(); }
+});
+
+// ── ML Insights ───────────────────────────────────────────
+async function loadMlInsights() {
+  setMlStatus('loading');
+  try {
+    const res  = await fetch(ML_URL, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    const json = await res.json();
+    if (!json.success) { setMlStatus('error', json.error); return; }
+    renderMlInsights(json.data);
+  } catch (e) { setMlStatus('error', e.message); }
+}
+
+function renderMlInsights(d) {
+  const reg = d.regression;
+  const el  = d.elasticity;
+  const trained = reg.modelTrained;
+  document.getElementById('ml-status-badge').innerHTML = trained
+    ? '<span style="width:7px;height:7px;border-radius:50%;background:#10b981;display:inline-block;"></span> Model active'
+    : '⚠ Insufficient data';
+  document.getElementById('ml-status-badge').style.cssText +=
+    trained ? ';background:rgba(16,185,129,.12);color:#10b981;border-color:rgba(16,185,129,.3);'
+            : ';background:rgba(245,158,11,.12);color:#f59e0b;border-color:rgba(245,158,11,.3);';
+
+  const occ = d.forecastOccupancyPct;
+  document.getElementById('ml-occ-val').textContent = occ.toFixed(1) + '%';
+  document.getElementById('ml-occ-bar').style.width = occ + '%';
+
+  const adj = d.suggestedPriceAdjustmentPct;
+  document.getElementById('ml-adj-val').textContent = (adj >= 0 ? '+' : '') + adj.toFixed(1) + '%';
+  document.getElementById('ml-adj-val').style.color = adj > 1 ? '#10b981' : adj < -1 ? '#ef4444' : '#6b7280';
+  const adjDir = adj > 1 ? 'Increase prices' : adj < -1 ? 'Decrease prices' : 'Hold prices';
+  const adjCol = adj > 1 ? 'rgba(16,185,129,.12);color:#10b981;border-color:rgba(16,185,129,.3)'
+               : adj < -1 ? 'rgba(239,68,68,.12);color:#ef4444;border-color:rgba(239,68,68,.3)'
+               : 'rgba(107,114,128,.12);color:#6b7280;border-color:rgba(107,114,128,.3)';
+  document.getElementById('ml-adj-tag').innerHTML = `<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid;background:${adjCol}">${adjDir}</span>`;
+  if (reg.modelTrained) document.getElementById('ml-adj-sub').textContent = `Current avg €${reg.currentAvgNightly} → predicted €${reg.predictedAvgNightly}`;
+
+  const conf = d.modelConfidencePct;
+  document.getElementById('ml-conf-val').textContent = conf.toFixed(1) + '%';
+  document.getElementById('ml-conf-bar').style.width = conf + '%';
+  document.getElementById('ml-conf-bar').style.background = conf >= 70 ? '#10b981' : conf >= 45 ? '#f59e0b' : '#ef4444';
+  document.getElementById('ml-conf-val').style.color      = conf >= 70 ? '#10b981' : conf >= 45 ? '#f59e0b' : '#ef4444';
+  document.getElementById('ml-conf-sub').textContent = reg.modelTrained ? `${reg.sampleSize} confirmed booking samples` : 'Need more confirmed bookings';
+
+  document.getElementById('ml-reg-badge').textContent = reg.modelTrained ? `R² ${reg.r2}` : 'Not trained';
+  if (reg.modelTrained) document.getElementById('ml-reg-badge').style.cssText += ';background:rgba(16,185,129,.12);color:#10b981;';
+  document.getElementById('ml-reg-body').innerHTML = reg.modelTrained ? `
+    ${mlMetric('R² Score', `<span style="color:#10b981;font-weight:700;">${reg.r2}</span>`)}
+    ${mlMetric('RMSE', `€${reg.rmse} / night`)}
+    ${mlMetric('Training samples', reg.sampleSize + ' bookings')}
+    ${mlMetric('Ridge λ', '0.12')}
+    ${mlMetric('Current avg nightly', `€${reg.currentAvgNightly}`)}
+    ${mlMetric('Predicted avg nightly', `<span style="color:#7F77DD;font-weight:700;">€${reg.predictedAvgNightly}</span>`)}
+    <div class="ml-narrative">${escHtml(reg.narrative)}</div>`
+  : `<div style="padding:16px;font-size:13px;color:var(--text-muted);">${escHtml(reg.narrative)}</div>`;
+
+  document.getElementById('ml-el-badge').textContent = el.modelTrained ? `β = ${el.beta}` : 'Not trained';
+  if (el.modelTrained) {
+    const barColor = (pct) => pct >= 70 ? '#10b981' : pct >= 40 ? '#f59e0b' : '#ef4444';
+    const barsHtml = el.buckets.map(b => `
+      <div class="el-row">
+        <span class="el-label">${escHtml(b.label)}</span>
+        <div class="el-bar-wrap"><div class="el-bar" style="width:${b.occupancyPct}%;background:${barColor(b.occupancyPct)};"></div></div>
+        <span class="el-pct" style="color:${barColor(b.occupancyPct)};">${b.occupancyPct}%</span>
+      </div>`).join('');
+    document.getElementById('ml-el-body').innerHTML = `
+      ${mlMetric('Elasticity coefficient β', `<span style="color:#f59e0b;font-weight:700;">${el.beta}</span>`)}
+      ${mlMetric('Interpretation', el.interpretation)}
+      ${mlMetric('+5% price → occupancy', `<span style="color:${el.deltaOccAt5pct < 0 ? '#ef4444' : '#10b981'};font-weight:700;">${el.deltaOccAt5pct >= 0 ? '+' : ''}${el.deltaOccAt5pct}%</span>`)}
+      ${mlMetric('+10% price → occupancy', `<span style="color:${el.deltaOccAt10pct < 0 ? '#ef4444' : '#10b981'};font-weight:700;">${el.deltaOccAt10pct >= 0 ? '+' : ''}${el.deltaOccAt10pct}%</span>`)}
+      ${mlMetric('−5% price → occupancy', `<span style="color:#10b981;font-weight:700;">${el.deltaOccAtMinus5 >= 0 ? '+' : ''}${el.deltaOccAtMinus5}%</span>`)}
+      <div style="margin-top:10px;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Price → relative demand curve</div>
+      ${barsHtml}
+      <div class="ml-narrative">${escHtml(el.narrative)}</div>`;
+  } else {
+    document.getElementById('ml-el-body').innerHTML = `<div style="padding:16px;font-size:13px;color:var(--text-muted);">${escHtml(el.narrative)}</div>`;
+  }
+  setMlStatus('done');
+}
+
+function mlMetric(label, valHtml) {
+  return `<div class="ml-metric"><span class="ml-metric-lbl">${label}</span><span class="ml-metric-val">${valHtml}</span></div>`;
+}
+
+function setMlStatus(state, msg) {
+  const btn = document.getElementById('ml-refresh-btn');
+  if (state === 'loading') { btn.textContent = '⏳ Loading…'; btn.disabled = true; }
+  else if (state === 'error') {
+    btn.textContent = '↻ Refresh'; btn.disabled = false;
+    document.getElementById('ml-status-badge').textContent = '❌ Error';
+    document.getElementById('ml-status-badge').style.cssText += ';background:rgba(239,68,68,.12);color:#ef4444;border-color:rgba(239,68,68,.3);';
+    showToast('ML Insights error: ' + (msg || 'unknown'), 'error');
+  } else { btn.textContent = '↻ Refresh'; btn.disabled = false; }
+}
+async function exportReport(type) {
+    const q      = document.getElementById('search-box').value;
+    const status = document.getElementById('filter-status').value;
+    const acc    = document.getElementById('filter-acc').value;
+    const from   = document.getElementById('filter-from').value;
+    const to     = document.getElementById('filter-to').value;
+    
+    let url = '';
+    if (type === 'dashboard') {
+        url = `/admin/accommodations/bookings/export/dashboard?q=${encodeURIComponent(q)}&status=${encodeURIComponent(status)}&accommodation=${encodeURIComponent(acc)}&dateFrom=${encodeURIComponent(from)}&dateTo=${encodeURIComponent(to)}`;
+        window.open(url, '_blank');
+    } else if (type === 'excel') {
+        url = `/admin/accommodations/bookings/export/excel?q=${encodeURIComponent(q)}&status=${encodeURIComponent(status)}&accommodation=${encodeURIComponent(acc)}&dateFrom=${encodeURIComponent(from)}&dateTo=${encodeURIComponent(to)}`;
+        window.location.href = url;
+    }
+    
+    document.getElementById('export-menu').style.display = 'none';
+    exportMenuOpen = false;
+}
+
+// ── Boot ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadGCalBanner();
+  loadMlInsights();
+});
+</script>
+{% endblock %}

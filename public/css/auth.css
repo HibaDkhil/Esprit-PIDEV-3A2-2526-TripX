@@ -295,6 +295,28 @@ canvas#particles-canvas {
   color: var(--white);
   width: 52%;
   /* Match image width for seamless background */
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+/* Custom scrollbar for signup panel */
+.panel-signup::-webkit-scrollbar {
+  width: 5px;
+}
+
+.panel-signup::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.panel-signup::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.panel-signup::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .panel-signup .form-title,
@@ -450,12 +472,38 @@ canvas#particles-canvas {
   border-bottom-color: #ff4d4d !important;
 }
 
-.form-control.error label span {
+.form-control.error .field-icon {
   color: #ff4d4d !important;
 }
 
-.form-control.error .field-icon {
+/* Symfony specific form errors under the input */
+.form-control ul,
+.form-control.error ul,
+.panel-signup .form-control ul {
+  list-style: none !important;
+  list-style-type: none !important;
+  padding: 0 !important;
+  margin: 4px 0 0 0 !important;
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  width: 100% !important;
+  pointer-events: none !important;
+}
+
+.form-control ul li,
+.form-control.error ul li,
+.panel-signup .form-control ul li {
   color: #ff4d4d !important;
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+  font-weight: 500 !important;
+  margin: 0 !important;
+}
+
+/* Tighter spacing for signup panel so all fields fit */
+.panel-signup .form-control {
+  margin: 15px auto 25px;
 }
 
 .panel-signup .form-control input {
@@ -464,14 +512,18 @@ canvas#particles-canvas {
 }
 
 .form-control input:focus,
-.form-control input:valid {
+.form-control input:valid,
+.form-control input:not(:placeholder-shown),
+.form-control input.has-value {
   outline: 0;
   border-bottom-color: #3b82f6 !important;
   /* A clearer vibrant blue */
 }
 
 .panel-signup .form-control input:focus,
-.panel-signup .form-control input:valid {
+.panel-signup .form-control input:valid,
+.panel-signup .form-control input:not(:placeholder-shown),
+.panel-signup .form-control input.has-value {
   border-bottom-color: #fff !important;
 }
 
@@ -495,7 +547,9 @@ canvas#particles-canvas {
 }
 
 .form-control input:focus+label span,
-.form-control input:valid+label span {
+.form-control input:valid+label span,
+.form-control input:not(:placeholder-shown)+label span,
+.form-control input.has-value+label span {
   color: var(--navy);
   transform: translateY(-28px);
   font-weight: 700;
@@ -503,7 +557,9 @@ canvas#particles-canvas {
 }
 
 .panel-signup .form-control input:focus+label span,
-.panel-signup .form-control input:valid+label span {
+.panel-signup .form-control input:valid+label span,
+.panel-signup .form-control input:not(:placeholder-shown)+label span,
+.panel-signup .form-control input.has-value+label span {
   color: #fff;
 }
 

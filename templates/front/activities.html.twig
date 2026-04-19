@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Montserrat:wght@100..900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets.php?f=css/main.css">
   <link rel="stylesheet" href="/assets.php?f=css/animations.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
     .page-top { padding-top: calc(var(--nav-height) + 60px); padding-bottom: 40px; }
     /* Activity card */
@@ -66,6 +67,36 @@
       color: var(--text-muted);
       opacity: 0.3;
       position: relative; z-index: 1;
+    }
+    #activity-map {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: var(--border-radius-xl);
+      z-index: 2;
+    }
+    .leaflet-popup-content-wrapper {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+    }
+    .leaflet-popup-tip {
+      background: var(--bg-card);
+    }
+    .custom-marker {
+      width: 12px;
+      height: 12px;
+      background: var(--accent-primary);
+      border: 2px solid white;
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent-primary);
+    }
+    .custom-marker.teal {
+      background: #00f5d4;
+      box-shadow: 0 0 10px #00f5d4;
     }
   </style>
 </head>
@@ -139,16 +170,8 @@
     <div class="section-label reveal"><span>Activity Map</span></div>
     <h2 class="display-md reveal" style="margin-bottom:24px">Activities <span class="text-teal">Worldwide</span></h2>
     <div class="map-view reveal">
-      <div class="map-grid"></div>
-      <!-- Map pins -->
-      <div class="map-pin" style="top:35%;left:48%;" title="Eiffel Tower Tour"></div>
-      <div class="map-pin teal" style="top:60%;left:75%;" title="Bali Surf Lesson"></div>
-      <div class="map-pin" style="top:45%;left:22%;" title="NYC Food Tour"></div>
-      <div class="map-pin teal" style="top:55%;left:58%;" title="Serengeti Safari"></div>
-      <div class="map-pin" style="top:28%;left:68%;" title="Kyoto Temple Walk"></div>
-      <div class="map-pin teal" style="top:70%;left:35%;" title="Amazon Canopy Tour"></div>
-      <div class="map-pin" style="top:42%;left:82%;" title="Great Wall Hike"></div>
-      <div class="map-label">World Activity Map</div>
+      <div id="activity-map"></div>
+      <div class="map-label" style="z-index: 0;">World Activity Map</div>
     </div>
   </div>
 </section>
@@ -161,9 +184,9 @@
     <h2 class="display-md reveal" style="margin-bottom:24px">Discover <span class="text-coral">Your Next Adventure</span></h2>
     <div class="grid-4 stagger" style="margin-bottom:60px">
       {% for act in activities %}
-      <a href="{{ path('activity_detail', {id: act.activityId}) }}" class="activity-card" style="text-decoration:none; color:inherit; display:block;">
-        <div class="act-icon-wrap" style="background:linear-gradient(135deg,rgba(255,183,3,0.12),rgba(255,183,3,0.05))">
-           ✨
+      <div class="activity-card">
+        <div class="act-icon-wrap" style="background:linear-gradient(135deg,#1a3a5c,#2d6a4f); overflow:hidden; position:relative;">
+           <img src="https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=600&q=80" style="width:100%; height:100%; object-fit:cover; opacity:0.8; transition:transform 0.5s;" alt="{{ act.name }}" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
         </div>
         <div class="act-body">
           <div class="act-title">{{ act.name }}</div>
@@ -174,20 +197,60 @@
           </div>
           <div class="act-footer">
             <div class="act-price">€{{ act.price }}</div>
-            <div style="display:flex; gap:8px; align-items:center;" onclick="event.stopPropagation();">
-               {% if act.destinationId and act.destinationId != '0' %}
-               <a href="{{ path('destination_detail', {id: act.destinationId}) }}" class="btn-31" onclick="event.stopPropagation();">
+            <div style="display:flex; gap:8px; align-items:center;">
+               <button class="btn btn-secondary btn-sm ripple-btn" style="padding:6px 10px; font-size:12px;">Recommend</button>
+               <a href="{{ path('activity_detail', {id: act.activityId}) }}" class="btn-31">
                   <span class="text-container">
-                    <span class="text">Book</span>
+                    <span class="text">Details</span>
                   </span>
                </a>
-               {% endif %}
             </div>
           </div>
         </div>
-      </a>
+
+      </div>
       {% endfor %}
     </div>
+
+    {# ── Pagination Controls ── #}
+    {% if activities.pageCount|default(0) > 1 or currentLimit is defined %}
+    <div style="display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:48px;">
+      {# Items per page selector #}
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono); letter-spacing:0.05em; text-transform:uppercase;">Show</span>
+        {% for size in [8, 16, 32, 64] %}
+          <a href="{{ path('activities', {limit: size, page: 1}) }}"
+             class="btn btn-sm {{ currentLimit == size ? 'btn-primary' : 'btn-secondary' }} ripple-btn"
+             style="min-width:42px; text-align:center; font-size:12px; border-radius:50px;">{{ size }}</a>
+        {% endfor %}
+        <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono); letter-spacing:0.05em; text-transform:uppercase;">per page</span>
+      </div>
+
+      {# Page navigation #}
+      {% if activities.pageCount|default(0) > 1 %}
+      <div style="display:flex; align-items:center; gap:8px;">
+        {% if activities.currentPageNumber > 1 %}
+          <a href="{{ path('activities', {page: activities.currentPageNumber - 1, limit: currentLimit}) }}" class="btn btn-secondary ripple-btn" style="border-radius:50px; padding:10px 20px; font-size:13px;">← Previous</a>
+        {% endif %}
+
+        {% set startPage = max(1, activities.currentPageNumber - 2) %}
+        {% set endPage = min(activities.pageCount, activities.currentPageNumber + 2) %}
+        {% for p in startPage..endPage %}
+          <a href="{{ path('activities', {page: p, limit: currentLimit}) }}"
+             class="btn {{ p == activities.currentPageNumber ? 'btn-primary' : 'btn-secondary' }} ripple-btn"
+             style="min-width:42px; text-align:center; border-radius:50px; padding:10px 16px; font-size:13px;">{{ p }}</a>
+        {% endfor %}
+
+        {% if activities.currentPageNumber < activities.pageCount %}
+          <a href="{{ path('activities', {page: activities.currentPageNumber + 1, limit: currentLimit}) }}" class="btn btn-secondary ripple-btn" style="border-radius:50px; padding:10px 20px; font-size:13px;">Next →</a>
+        {% endif %}
+      </div>
+      <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono);">
+        Page {{ activities.currentPageNumber }} of {{ activities.pageCount }}
+      </span>
+      {% endif %}
+    </div>
+    {% endif %}
 
   </div>
 </section>
@@ -217,11 +280,104 @@
   </div>
 </div>
 <script src="/assets.php?f=js/main.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Data Injection from Twig
+    const activityData = [
+        {% for act in allActivities %}
+          {% set dest = act.destination %}
+          {% if dest and dest.latitude and dest.longitude %}
+            {
+                id: "{{ act.activityId|escape('js') }}",
+                name: "{{ act.name|escape('js') }}",
+                category: "{{ act.category|escape('js') }}",
+                price: "{{ act.price|escape('js') }}",
+                lat: {{ dest.latitude|default(0) }},
+                lng: {{ dest.longitude|default(0) }},
+                destination: "{{ dest.name|escape('js') }}",
+                country: "{{ dest.country|escape('js') }}"
+            },
+          {% endif %}
+        {% endfor %}
+    ];
+
+    // Initialize map
+    const map = L.map('activity-map', {
+        scrollWheelZoom: false,
+        zoomControl: false
+    }).setView([20, 0], 2);
+
+    // Add Zoom control to bottom right
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    // Dynamic tiles based on theme
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const tileUrl = isDark 
+        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+        : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+
+    L.tileLayer(tileUrl, {
+        attribution: '&copy; CartoDB'
+    }).addTo(map);
+
+    // Render markers from the injected activityData
+    if (activityData.length > 0) {
+        const markers = [];
+        activityData.forEach(act => {
+            const markerIcon = L.divIcon({
+                className: 'marker-container',
+                html: `<div class="custom-marker ${act.category?.toLowerCase().includes('thrill') ? 'teal' : ''}"></div>`,
+                iconSize: [12, 12],
+                iconAnchor: [6, 6]
+            });
+
+            const marker = L.marker([act.lat, act.lng], { icon: markerIcon })
+                .bindPopup(`
+                    <div style="font-family: 'Montserrat', sans-serif; min-width:150px;">
+                        <strong style="color: var(--accent-primary); display:block; margin-bottom:4px; font-size:14px;">${act.name}</strong>
+                        <div style="font-size: 11px; margin-bottom:2px; color: var(--text-muted);">📍 ${act.destination}, ${act.country}</div>
+                        <div style="font-size: 11px; margin-bottom:8px; color: var(--text-muted);">🏷️ ${act.category}</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:700; color: var(--accent-primary); font-size:14px;">€${act.price}</span>
+                            <a href="/activities/${act.id}" style="color: var(--accent-primary); font-size:10px; text-decoration:none; text-transform:uppercase; font-weight:700; border:1px solid var(--accent-primary); padding:2px 6px; border-radius:4px;">Details</a>
+                        </div>
+                    </div>
+                `)
+                .addTo(map);
+            
+            markers.push([act.lat, act.lng]);
+        });
+
+        // Adjust map view to fit markers
+        const bounds = L.latLngBounds(markers);
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
+    } else {
+        console.warn('TripX: No activity coordinates found for the map.');
+    }
+
+    // Update map theme when theme toggles
+    const themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            setTimeout(() => {
+                const newTheme = document.documentElement.getAttribute('data-theme');
+                const newTileUrl = newTheme === 'dark' 
+                    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+                    : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+                
+                map.eachLayer((layer) => {
+                    if (layer instanceof L.TileLayer) {
+                        map.removeLayer(layer);
+                    }
+                });
+                L.tileLayer(newTileUrl, {
+                    attribution: '&copy; CartoDB'
+                }).addTo(map);
+            }, 100);
+        });
+    }
+});
+</script>
 </body>
 </html>
-
-
-
-
-
-

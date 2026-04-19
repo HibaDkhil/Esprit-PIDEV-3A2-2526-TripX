@@ -1,7 +1,5 @@
-/vendor/
-/node_modules/
-.env
-
+###> symfony/framework-bundle ###
+/.env
 /.env.dev
 /.env.local
 /.env.local.php
@@ -17,20 +15,20 @@
 /.phpunit.result.cache
 ###< phpunit/phpunit ###
 
-Composer
+# Composer
 /composer.phar
 
-IDE
+# IDE
 /.idea/
 /.vscode/
 *.swp
 *.swo
 
-OS
+# OS
 .DS_Store
 Thumbs.db
 
-Node (if using Webpack Encore)
+# Node (if using Webpack Encore)
 /node_modules/
 /public/build/
 npm-debug.log

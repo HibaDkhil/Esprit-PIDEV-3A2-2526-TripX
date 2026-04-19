@@ -1,16 +1,484 @@
 {% extends 'admin/admin_base.html.twig' %}
-{% block title %}Transport — TripX Admin{% endblock %}
+{% block title %}Transport Dashboard — TripX Admin{% endblock %}
 
 {% block breadcrumbs %}
-  <span class="crumb active">Transport</span>
+  <span class="crumb"><a href="{{ path('admin_dashboard') }}">Admin</a></span>
+  <span class="crumb-separator">/</span>
+  <span class="crumb active">
+    {% if tab == 'transport' %}Transports
+    {% elseif tab == 'schedule' %}Schedules
+    {% elseif tab == 'booking' %}Bookings
+    {% endif %}
+  </span>
+{% endblock %}
+
+{% block page_styles %}
+<style>
+  /* KPI Cards */
+  .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px; margin-bottom:30px; }
+  .kpi-card {
+    height: 140px; border-radius: 20px; padding: 1.5rem; display: flex; flex-direction: column; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+  .kpi-card-total { background: linear-gradient(135deg, #eef5ff 0%, #f8f0ff 100%); border: 1px solid rgba(126, 200, 247, 0.5); box-shadow: 0 6px 14px rgba(126, 200, 247, 0.12); }
+  .kpi-card-active { background: linear-gradient(135deg, #e8fff6 0%, #e0f7ff 100%); border: 1px solid rgba(94, 224, 181, 0.5); box-shadow: 0 6px 14px rgba(94, 224, 181, 0.12); }
+  .kpi-card-inactive { background: linear-gradient(135deg, #faf5ff 0%, #f5f0ff 100%); border: 1px solid rgba(196, 181, 253, 0.5); box-shadow: 0 6px 14px rgba(196, 181, 253, 0.12); }
+  .kpi-top { display: flex; align-items: center; gap: 12px; position: relative; z-index: 3; }
+  .kpi-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; background: rgba(255, 255, 255, 0.8); }
+  .kpi-val { font-size: 2.2rem; font-weight: 800; line-height: 1; margin-top: auto; position: relative; z-index: 3; color:#1a2c3e; }
+  .kpi-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #4a5568; }
+
+  /* Navigation Tabs */
+  .module-tabs { display:flex; gap:16px; border-bottom:1px solid var(--border-color); margin-bottom:24px; }
+  .module-tab { padding:14px 20px; color:var(--text-muted); font-weight:600; font-size:14px; border-bottom:2px solid transparent; text-decoration:none; transition:all 0.2s; }
+  .module-tab.active { color:var(--accent-primary); border-bottom-color:var(--accent-primary); }
+  .module-tab:hover:not(.active) { color:var(--text-primary); border-bottom-color:var(--border-color); }
+
+  /* Toolbar */
+  .toolbar { display:flex; align-items:center; gap:12px; margin-bottom:24px; flex-wrap:wrap; }
+  .btn-add {
+    display:flex; align-items:center; gap:8px; padding:10px 26px;
+    background-image:linear-gradient(135deg,#c4b5fd 0%,#a78bfa 50%,#8b5cf6 100%);
+    box-shadow:0 16px 30px -6px rgba(139,92,246,.5);
+    color:#fff; border:none; border-radius:50px; font-size:14px; font-weight:700; cursor:pointer; text-decoration:none;
+  }
+  .btn-add:hover { transform:translateY(-2px); }
+
+  /* Tables */
+  .data-table-wrap { background:var(--bg-card); border:1px solid var(--border-color); border-radius:14px; overflow:hidden; }
+  .data-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .data-table th { padding:13px 16px; text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--text-muted); background:var(--bg-surface); border-bottom:1px solid var(--border-color); }
+  .data-table td { padding:13px 16px; border-bottom:1px solid var(--border-color); vertical-align:middle; color:var(--text-primary); }
+  .data-table tr:hover td { background:rgba(0,166,237,.03); }
+  
+  /* Buttons */
+  .tbl-btn { padding:7px 14px; border-radius:50px; text-decoration:none; display:inline-block; font-size:11px; font-weight:700; color:#fff; }
+  .btn-view { background: linear-gradient(135deg,#a5f3f0 0%,#5eead4 40%,#38bdf8 100%); }
+  .btn-edit { background: linear-gradient(135deg,#fef9c3 0%,#fde68a 45%,#fcd34d 100%); color:#92610a; }
+  .btn-del { background: linear-gradient(135deg,#fce7f3 0%,#fbcfe8 40%,#f9a8d4 100%); color:#9d174d; }
+
+  /* Badges */
+  .badge { padding:4px 10px; border-radius:20px; font-size:11px; font-weight:600; display:inline-block; }
+  .badge-active { background:rgba(16,185,129,.2); color:#10b981; }
+  .badge-inactive { background:rgba(239,68,68,.2); color:#ef4444; }
+  .badge-neutral { background:rgba(107,114,128,.2); color:#6b7280; }
+  .badge-pending { background:rgba(245,158,11,.2); color:#d97706; }
+
+  /* Forms */
+  .form-section { background:var(--bg-card); border:1px solid var(--border-color); border-radius:18px; padding:30px; margin-bottom:40px; }
+  .form-header { margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; }
+  .form-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+  .form-group { display:flex; flex-direction:column; gap:8px; }
+  .form-group.full { grid-column:span 2; }
+  .form-label { font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; }
+  .form-input { padding:12px 16px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:10px; color:var(--text-primary); font-size:14px; transition:border-color 0.2s; }
+  .form-input:focus { border-color:var(--accent-primary); outline:none; }
+  .error-msg { color:#ef4444; font-size:11px; font-weight:600; margin-top:4px; }
+  .form-actions { margin-top:30px; display:flex; gap:12px; }
+</style>
 {% endblock %}
 
 {% block content %}
-<div style="display:flex; align-items:center; justify-content:center; min-height:60vh;">
-  <div style="text-align:center; color:var(--text-muted); padding:40px; border:1px dashed var(--border-color); border-radius:var(--border-radius-md);">
-    <h2 style="font-family:var(--font-display); margin-bottom:16px;">Module Space Prepared</h2>
-    <p>This blank page has been set up securely for the rest of your group to implement the functionality.</p>
-    <a href="{{ path('admin_dashboard') }}" class="btn btn-primary" style="margin-top:24px; text-decoration:none; display:inline-block;">Return to Dashboard</a>
+<div class="page-top">
+
+  {# Flashes #}
+  <div style="margin-bottom: 20px;">
+    {% for msg in app.flashes('success') %}<div style="padding:12px 16px; background:#d1fae5; color:#065f46; border-radius:8px; margin-bottom:10px;">✅ {{ msg }}</div>{% endfor %}
+    {% for msg in app.flashes('error') %}<div style="padding:12px 16px; background:#fee2e2; color:#991b1b; border-radius:8px; margin-bottom:10px;">❌ {{ msg }}</div>{% endfor %}
   </div>
+
+  {# KPI Cards #}
+  <div class="kpi-grid reveal">
+    <div class="kpi-card kpi-card-total">
+      <div class="kpi-top">
+        <div class="kpi-icon">✈</div>
+        <div class="kpi-label">Total Transports</div>
+      </div>
+      <div class="kpi-val">{{ stats.totalTransports }}</div>
+    </div>
+    <div class="kpi-card kpi-card-active reveal-delay-1">
+      <div class="kpi-top">
+        <div class="kpi-icon">✅</div>
+        <div class="kpi-label">Active Transports</div>
+      </div>
+      <div class="kpi-val">{{ stats.activeTransports }}</div>
+    </div>
+    <div class="kpi-card kpi-card-inactive reveal-delay-2">
+      <div class="kpi-top">
+        <div class="kpi-icon">🗓</div>
+        <div class="kpi-label">Total Schedules</div>
+      </div>
+      <div class="kpi-val">{{ stats.totalSchedules }}</div>
+    </div>
+    <div class="kpi-card kpi-card-total reveal-delay-3" style="background:linear-gradient(135deg, #e6fffa 0%, #ebf8ff 100%);">
+      <div class="kpi-top">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-label">Revenue</div>
+      </div>
+      <div class="kpi-val">€{{ stats.revenue|number_format(0) }}</div>
+    </div>
+  </div>
+
+  {# Tabs #}
+  <div class="module-tabs reveal reveal-delay-2">
+    <a href="{{ path('admin_transport_list') }}" class="module-tab {{ tab == 'transport' ? 'active' : '' }}">Transports</a>
+    <a href="{{ path('admin_schedule_list') }}" class="module-tab {{ tab == 'schedule' ? 'active' : '' }}">Schedules</a>
+    <a href="{{ path('admin_booking_list') }}" class="module-tab {{ tab == 'booking' ? 'active' : '' }}">Bookings</a>
+  </div>
+
+  {# TAB CONTENT: TRANSPORTS #}
+  {% if tab == 'transport' %}
+    <div class="toolbar reveal reveal-delay-2">
+      <a href="{{ path('admin_transport_add') }}" class="btn-add">+ Add Transport</a>
+    </div>
+
+    {% if formAction is defined and tab == 'transport' %}
+      <div class="form-section reveal">
+        <div class="form-header">
+          <h2 class="display-sm">{{ formAction|capitalize }} Transport</h2>
+          <a href="{{ path('admin_transport_list') }}" class="btn btn-secondary btn-sm">Cancel</a>
+        </div>
+        <form method="POST" action="{{ formAction == 'add' ? path('admin_transport_add') : path('admin_transport_edit', {id: transport.transportId}) }}" enctype="multipart/form-data">
+          <input type="hidden" name="_token" value="{{ csrf_token('transport_form') }}">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Transport Type</label>
+              <select name="transportType" class="form-input">
+                <option value="FLIGHT" {{ (formData.transportType|default(transport.transportType|default(''))) == 'FLIGHT' ? 'selected' : '' }}>Flight</option>
+                <option value="VEHICLE" {{ (formData.transportType|default(transport.transportType|default(''))) == 'VEHICLE' ? 'selected' : '' }}>Vehicle (Train, Bus, Car, Boat)</option>
+              </select>
+              {% if errors.transportType is defined %}<div class="error-msg">{{ errors.transportType|first }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Provider Name</label>
+              <input type="text" name="providerName" value="{{ formData.providerName|default(transport.providerName|default('')) }}" class="form-input" placeholder="e.g. Air France, Hertz">
+              {% if errors.providerName is defined %}<div class="error-msg">{{ errors.providerName|first }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Vehicle Model</label>
+              <input type="text" name="vehicleModel" value="{{ formData.vehicleModel|default(transport.vehicleModel|default('')) }}" class="form-input" placeholder="e.g. Boeing 747, Tesla Model 3">
+              {% if errors.vehicleModel is defined %}<div class="error-msg">{{ errors.vehicleModel|first }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Base Price (€)</label>
+              <input type="number" step="0.01" name="basePrice" value="{{ formData.basePrice|default(transport.basePrice|default('')) }}" class="form-input">
+              {% if errors.basePrice is defined %}<div class="error-msg">{{ errors.basePrice|first }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Total Capacity (Seats)</label>
+              <input type="number" name="capacity" value="{{ formData.capacity|default(transport.capacity|default('')) }}" class="form-input">
+              {% if errors.capacity is defined %}<div class="error-msg">{{ errors.capacity|first }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Available Units (Fleet Size)</label>
+              <input type="number" name="availableUnits" value="{{ formData.availableUnits|default(transport.availableUnits|default('')) }}" class="form-input">
+              {% if errors.availableUnits is defined %}<div class="error-msg">{{ errors.availableUnits|first }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sustainability Rating (0-5)</label>
+              <input type="number" step="0.1" name="sustainabilityRating" value="{{ formData.sustainabilityRating|default(transport.sustainabilityRating|default('5.0')) }}" class="form-input">
+              {% if errors.sustainabilityRating is defined %}<div class="error-msg">{{ errors.sustainabilityRating|first }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Transport Image</label>
+              <input type="file" name="imageFile" class="form-input">
+              {% if transport.imageUrl is defined and transport.imageUrl %}
+                <div style="font-size:11px; margin-top:5px; color:var(--text-muted);">Current: {{ transport.imageUrl }}</div>
+              {% endif %}
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Amenities (JSON array or comma separated)</label>
+              <textarea name="amenities" class="form-input" rows="3">{{ formData.amenities|default(transport.amenities|default('')) }}</textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Transport</button>
+            <a href="{{ path('admin_transport_list') }}" class="btn btn-secondary">Discard</a>
+          </div>
+        </form>
+      </div>
+    {% endif %}
+
+    <div class="data-table-wrap reveal reveal-delay-3">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Provider / Model</th>
+            <th>Type</th>
+            <th>Capacity</th>
+            <th>Base Price</th>
+            <th>Eco Rating</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in transports %}
+          <tr>
+            <td>#{{ t.transportId }}</td>
+            <td><strong>{{ t.providerName }}</strong><br><span style="color:var(--text-muted);font-size:11px;">{{ t.vehicleModel }}</span></td>
+            <td>
+              <span class="badge badge-neutral" style="background:#e0f2fe; color:#0369a1;">{{ t.transportType }}</span>
+            </td>
+            <td>{{ t.capacity }} seats<br><span style="color:var(--text-muted);font-size:11px;">{{ t.availableUnits }} units</span></td>
+            <td>€{{ t.basePrice|number_format(2) }}</td>
+            <td>🌿 {{ t.sustainabilityRating|number_format(1) }}</td>
+            <td>
+              {% if t.isActive %}
+                <span class="badge badge-active">Active</span>
+              {% else %}
+                <span class="badge badge-inactive">Inactive</span>
+              {% endif %}
+            </td>
+            <td>
+              <div style="display:flex;gap:6px;">
+                <a href="{{ path('admin_transport_edit', {id: t.transportId}) }}" class="tbl-btn btn-edit">Edit</a>
+                <form method="POST" action="{{ path('admin_transport_delete', {id: t.transportId}) }}" onsubmit="return confirm('Delete this transport?');" style="margin:0;">
+                  <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ t.transportId) }}">
+                  <button type="submit" class="tbl-btn btn-del">Del</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="8" style="text-align:center; padding:40px; color:var(--text-muted);">No transports found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  {# TAB CONTENT: SCHEDULES #}
+  {% elseif tab == 'schedule' %}
+    <div class="toolbar reveal reveal-delay-2">
+      <a href="{{ path('admin_schedule_add') }}" class="btn-add" style="background-image:linear-gradient(135deg,#38bdf8 0%,#0284c7 100%); box-shadow:0 16px 30px -6px rgba(2,132,199,.4);">+ Add Schedule</a>
+    </div>
+
+    {% if formAction is defined and tab == 'schedule' %}
+      <div class="form-section reveal">
+        <div class="form-header">
+          <h2 class="display-sm">{{ formAction|capitalize }} Schedule</h2>
+          <a href="{{ path('admin_schedule_list') }}" class="btn btn-secondary btn-sm">Cancel</a>
+        </div>
+        <form method="POST" action="{{ formAction == 'add' ? path('admin_schedule_add') : path('admin_schedule_edit', {id: schedule.scheduleId}) }}">
+          <input type="hidden" name="_token" value="{{ csrf_token('schedule_form') }}">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Select Transport</label>
+              <select name="transportId" class="form-input">
+                {% for tr in transports %}
+                  <option value="{{ tr.transportId }}" {{ (formData.transportId|default(schedule.transportId|default(''))) == tr.transportId ? 'selected' : '' }}>
+                    #{{ tr.transportId }} - {{ tr.providerName }} ({{ tr.vehicleModel }})
+                  </option>
+                {% endfor %}
+              </select>
+              {% if errors.transportId is defined %}<div class="error-msg">{{ errors.transportId|first }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Travel Class</label>
+              <select name="travelClass" class="form-input">
+                <option value="Economy" {{ (formData.travelClass|default(schedule.travelClass|default(''))) == 'Economy' ? 'selected' : '' }}>Economy</option>
+                <option value="Business" {{ (formData.travelClass|default(schedule.travelClass|default(''))) == 'Business' ? 'selected' : '' }}>Business</option>
+                <option value="First" {{ (formData.travelClass|default(schedule.travelClass|default(''))) == 'First' ? 'selected' : '' }}>First</option>
+                <option value="Standard" {{ (formData.travelClass|default(schedule.travelClass|default(''))) == 'Standard' ? 'selected' : '' }}>Standard</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Departure Destination</label>
+              <select name="departureDestinationId" class="form-input">
+                {% for dest in destinations %}
+                  <option value="{{ dest.destinationId }}" {{ (formData.departureDestinationId|default(schedule.departureDestinationId|default(''))) == dest.destinationId ? 'selected' : '' }}>
+                    {{ dest.name }}, {{ dest.country }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Arrival Destination</label>
+              <select name="arrivalDestinationId" class="form-input">
+                {% for dest in destinations %}
+                  <option value="{{ dest.destinationId }}" {{ (formData.arrivalDestinationId|default(schedule.arrivalDestinationId|default(''))) == dest.destinationId ? 'selected' : '' }}>
+                    {{ dest.name }}, {{ dest.country }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Departure Datetime</label>
+              <input type="datetime-local" name="departureDatetime" value="{{ formData.departureDatetime|default(schedule.departureDatetime ? schedule.departureDatetime|date('Y-m-d\\TH:i') : '') }}" class="form-input">
+              {% if errors.departureDatetime is defined %}<div class="error-msg">{{ errors.departureDatetime|first }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Arrival Datetime</label>
+              <input type="datetime-local" name="arrivalDatetime" value="{{ formData.arrivalDatetime|default(schedule.arrivalDatetime ? schedule.arrivalDatetime|date('Y-m-d\\TH:i') : '') }}" class="form-input">
+              {% if errors.arrivalDatetime is defined %}<div class="error-msg">{{ errors.arrivalDatetime|first }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Rental Start Date (Cars only)</label>
+              <input type="date" name="rentalStart" value="{{ formData.rentalStart|default(schedule.rentalStart ? schedule.rentalStart|date('Y-m-d') : '') }}" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Rental End Date (Cars only)</label>
+              <input type="date" name="rentalEnd" value="{{ formData.rentalEnd|default(schedule.rentalEnd ? schedule.rentalEnd|date('Y-m-d') : '') }}" class="form-input">
+              {% if errors.rentalEnd is defined %}<div class="error-msg">{{ errors.rentalEnd|first }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+              <label class="form-label">Price Multiplier</label>
+              <input type="number" step="0.01" name="priceMultiplier" value="{{ formData.priceMultiplier|default(schedule.priceMultiplier|default('1.00')) }}" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select name="status" class="form-input">
+                <option value="ON_TIME" {{ (formData.status|default(schedule.status|default(''))) == 'ON_TIME' ? 'selected' : '' }}>On Time</option>
+                <option value="DELAYED" {{ (formData.status|default(schedule.status|default(''))) == 'DELAYED' ? 'selected' : '' }}>Delayed</option>
+                <option value="CANCELLED" {{ (formData.status|default(schedule.status|default(''))) == 'CANCELLED' ? 'selected' : '' }}>Cancelled</option>
+                <option value="COMPLETED" {{ (formData.status|default(schedule.status|default(''))) == 'COMPLETED' ? 'selected' : '' }}>Completed</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">AI Demand Score (0.0 - 1.0)</label>
+              <input type="number" step="0.01" name="aiDemandScore" value="{{ formData.aiDemandScore|default(schedule.aiDemandScore|default('0.00')) }}" class="form-input">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Schedule</button>
+            <a href="{{ path('admin_schedule_list') }}" class="btn btn-secondary">Discard</a>
+          </div>
+        </form>
+      </div>
+    {% endif %}
+
+    <div class="data-table-wrap reveal reveal-delay-3">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Transport ID</th>
+            <th>Destinations (Dep → Arr)</th>
+            <th>Times (Dep → Arr)</th>
+            <th>Dates (Start → End)</th>
+            <th>Price Multiplier</th>
+            <th>Class</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in schedules %}
+          <tr>
+            <td>#{{ s.scheduleId }}</td>
+            <td>#{{ s.transportId }}</td>
+            <td>
+              <span style="color:var(--text-muted); font-size:11px;">Dep:</span> {{ s.departureDestinationId ?? '-' }}<br>
+              <span style="color:var(--text-muted); font-size:11px;">Arr:</span> {{ s.arrivalDestinationId ?? '-' }}
+            </td>
+            <td>
+              {{ s.departureDatetime ? s.departureDatetime|date('d/m/Y H:i') : '-' }} <br>
+              {{ s.arrivalDatetime ? s.arrivalDatetime|date('d/m/Y H:i') : '-' }}
+            </td>
+            <td>
+              {{ s.rentalStart ? s.rentalStart|date('d/m/Y') : '-' }} <br>
+              {{ s.rentalEnd ? s.rentalEnd|date('d/m/Y') : '-' }}
+            </td>
+            <td>x{{ s.priceMultiplier|number_format(2) }}</td>
+            <td>{{ s.travelClass ?? '-' }}</td>
+            <td>
+              {% if s.status == 'ON_TIME' or s.status == 'COMPLETED' %}
+                <span class="badge badge-active">{{ s.status }}</span>
+              {% elseif s.status == 'CANCELLED' %}
+                <span class="badge badge-inactive">{{ s.status }}</span>
+              {% else %}
+                <span class="badge badge-pending">{{ s.status }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <div style="display:flex;gap:6px;">
+                <a href="{{ path('admin_schedule_edit', {id: s.scheduleId}) }}" class="tbl-btn btn-edit">Edit</a>
+                <form method="POST" action="{{ path('admin_schedule_delete', {id: s.scheduleId}) }}" onsubmit="return confirm('Delete this schedule?');" style="margin:0;">
+                  <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ s.scheduleId) }}">
+                  <button type="submit" class="tbl-btn btn-del">Del</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="9" style="text-align:center; padding:40px; color:var(--text-muted);">No schedules found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  {# TAB CONTENT: BOOKINGS #}
+  {% elseif tab == 'booking' %}
+    <div class="toolbar reveal reveal-delay-2">
+      <a href="{{ path('admin_booking_export_csv') }}" class="btn-add" style="background-image:linear-gradient(135deg,#6ee7b7 0%,#10b981 100%); box-shadow:0 16px 30px -6px rgba(16,185,129,.4);">⬇ Export CSV</a>
+    </div>
+    <div class="data-table-wrap reveal reveal-delay-3">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Schedule</th>
+            <th>Type</th>
+            <th>Price</th>
+            <th>Booking Status</th>
+            <th>Payment</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in bookings %}
+          <tr>
+            <td>#{{ b.bookingId }}</td>
+            <td>Sc. #{{ b.scheduleId }}<br><span style="color:var(--text-muted);font-size:11px;">U: {{ b.userId }}</span></td>
+            <td>
+              <span class="badge badge-neutral" style="background:#f1f5f9; color:#475569;">
+                {{ b.adultsCount }}A / {{ b.childrenCount }}C
+              </span>
+            </td>
+            <td>€{{ b.totalPrice|number_format(2) }}</td>
+            <td>
+              {% if b.bookingStatus == 'CONFIRMED' %}
+                <span class="badge badge-active">{{ b.bookingStatus }}</span>
+              {% elseif b.bookingStatus == 'CANCELLED' %}
+                <span class="badge badge-inactive">{{ b.bookingStatus }}</span>
+              {% else %}
+                <span class="badge badge-pending">{{ b.bookingStatus }}</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if b.paymentStatus == 'PAID' or b.paymentStatus == 'COMPLETED' %}
+                <span style="color:#10b981; font-weight:700;">{{ b.paymentStatus }}</span>
+              {% else %}
+                <span style="color:#ef4444; font-weight:700;">{{ b.paymentStatus }}</span>
+              {% endif %}
+            </td>
+            <td>{{ b.bookingDate ? b.bookingDate|date('d/m/Y H:i') : '-' }}</td>
+            <td>
+              <div style="display:flex;gap:6px;">
+                <a href="{{ path('admin_booking_receipt_pdf', {id: b.bookingId}) }}" class="tbl-btn btn-view" target="_blank">PDF</a>
+                {% if b.bookingStatus == 'PENDING' %}
+                <form method="POST" action="{{ path('admin_booking_confirm', {id: b.bookingId}) }}" onsubmit="return confirm('Confirm booking?');" style="margin:0;">
+                  <button type="submit" class="tbl-btn btn-edit" style="background:#10b981; color:#fff;">Confirm</button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="8" style="text-align:center; padding:40px; color:var(--text-muted);">No bookings found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  {% endif %}
+
 </div>
 {% endblock %}

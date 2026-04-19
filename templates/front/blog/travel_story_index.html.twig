@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+{% block title %}Travel Stories — TripX{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/blog.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="blog-page">
+<div class="saved-wrap" style="max-width:1100px;">
+
+  <span class="cp-eyebrow">🧳 Explore</span>
+  <h1 class="cp-title" style="font-size:34px;">Travel <span>Stories</span></h1>
+  <p class="cp-subtitle">Real adventures from real travellers — be inspired.</p>
+
+  <div style="display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap;align-items:center;">
+    <a href="{{ path('travel_story_new') }}" class="btn-create-post" style="text-decoration:none;display:inline-flex;padding:10px 22px;font-size:13px;">
+      🧳 Share Your Story
+    </a>
+    <a href="{{ path('blog') }}" class="cp-back">← Back to Feed</a>
+  </div>
+
+  {% if stories is empty %}
+    <div class="empty-state">
+      <span class="ei">🌍</span>
+      <h3>No stories yet</h3>
+      <p>Be the first to <a href="{{ path('travel_story_new') }}" class="tpill-link">share your adventure!</a></p>
+    </div>
+  {% else %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;">
+      {% for story in stories %}
+        <div class="saved-card" style="animation-delay:{{ loop.index0 * 0.07 }}s;">
+          {% if story.coverImageUrl %}
+            <img src="{{ story.coverImageUrl }}" class="saved-card-img"
+                 alt="{{ story.title }}" onerror="this.style.display='none'">
+          {% else %}
+            <div style="height:10px;background:linear-gradient(135deg,#f59e0b,#ef4444);"></div>
+          {% endif %}
+          <div class="saved-card-body">
+            <span class="pc-badge b-travel_story" style="margin-bottom:10px;display:inline-block;">🧳 Story</span>
+            {% if story.destination %}
+              <div style="font-size:12px;color:var(--warning);font-weight:700;margin-bottom:6px;">📍 {{ story.destination }}</div>
+            {% endif %}
+            <a href="{{ path('travel_story_show', {id: story.id}) }}" class="saved-card-title">{{ story.title }}</a>
+            {% if story.summary %}
+              <div class="pc-body" style="padding:0;margin-top:6px;font-size:13px;">
+                {{ story.summary|length > 120 ? story.summary|slice(0,120) ~ '…' : story.summary }}
+              </div>
+            {% endif %}
+            <div class="ts-meta" style="padding:0;margin-top:10px;">
+              {% if story.overallRating %}
+                <span class="ts-tag">⭐ {{ story.overallRating }}/5</span>
+              {% endif %}
+              {% if story.travelType %}
+                <span class="ts-tag">{{ story.travelType|capitalize }}</span>
+              {% endif %}
+              {% if story.travelStyle %}
+                <span class="ts-tag">{{ story.travelStyle|capitalize }}</span>
+              {% endif %}
+            </div>
+            <div style="margin-top:12px;">
+              <a href="{{ path('travel_story_show', {id: story.id}) }}" class="pc-read" style="padding:0;">Read story →</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+</div>
+</div>
+{% endblock %}

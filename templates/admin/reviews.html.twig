@@ -1,0 +1,125 @@
+{% extends 'admin/admin_base.html.twig' %}
+{% block title %}Manage Reviews — TripX Admin{% endblock %}
+
+{% block page_styles %}
+  .dest-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--border-radius-lg); overflow: hidden; }
+  .dest-table th { background: rgba(0,166,237,0.05); text-align: left; padding: 16px 20px; font-family: var(--font-display); font-size: 14px; }
+  .dest-table td { padding: 16px 20px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
+  .dest-table tr:last-child td { border-bottom: none; }
+  .btn-delete { color: #ef4444; }
+  .btn-delete:hover { border-color: #ef4444; background: rgba(239,68,68,0.1); }
+  .review-stars { display: flex; gap: 2px; }
+  .star-filled { color: #F59E0B; }
+  .star-empty  { color: var(--border-color); }
+  .review-comment-cell {
+    max-width: 300px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    color: var(--text-secondary);
+  }
+  .rating-bar-track {
+    width: 100%; height: 6px; background: var(--border-color);
+    border-radius: 3px; overflow: hidden;
+  }
+  .rating-bar-fill {
+    height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-cyan));
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+  }
+{% endblock %}
+
+{% block breadcrumbs %}
+  <a href="{{ path('admin_dashboard') }}" class="crumb">Dashboard</a>
+  <span class="sep">›</span>
+  <span class="crumb active">Reviews</span>
+{% endblock %}
+
+{% block content %}
+<div class="reveal">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;">
+    <div>
+      <h1 class="display-sm" style="margin-bottom:4px">Reviews</h1>
+      <p class="text-muted" style="font-size:14px">View and moderate traveler reviews across all destinations.</p>
+    </div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-tab-bar reveal" style="display:flex; gap:16px; margin-bottom:24px; padding:12px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius-lg); box-shadow:var(--shadow-sm);">
+    <div style="flex:1; padding:12px 20px; border-right:1px solid var(--border-color);">
+      <div class="text-muted" style="font-size:12px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px; font-family:var(--font-mono);">Total Reviews</div>
+      <div style="font-family:var(--font-display); font-size:28px; font-weight:700; color:var(--accent-primary);">{{ stats.total }}</div>
+    </div>
+    <div style="flex:1; padding:12px 20px; border-right:1px solid var(--border-color);">
+      <div class="text-muted" style="font-size:12px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px; font-family:var(--font-mono);">Average Rating</div>
+      <div style="font-family:var(--font-display); font-size:28px; font-weight:700; color:#F59E0B;">⭐ {{ stats.average }}</div>
+    </div>
+    <div style="flex:2; padding:12px 20px;">
+      <div class="text-muted" style="font-size:12px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px; font-family:var(--font-mono);">Rating Distribution</div>
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        {% for star in [5,4,3,2,1] %}
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:12px; font-family:var(--font-mono); width:36px; color:var(--text-muted);">{{ star }} ★</span>
+            <div class="rating-bar-track" style="flex:1;">
+              <div class="rating-bar-fill" style="width: {{ stats.total > 0 ? (stats.distribution[star] / stats.total * 100) : 0 }}%"></div>
+            </div>
+            <span style="font-size:12px; font-family:var(--font-mono); width:24px; text-align:right; color:var(--text-muted);">{{ stats.distribution[star] }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews Table -->
+  <div class="card reveal" style="padding:0; overflow:hidden;">
+    <table class="dest-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>User</th>
+          <th>Destination</th>
+          <th>Rating</th>
+          <th>Comment</th>
+          <th>Date</th>
+          <th style="text-align:right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for review in reviews %}
+        <tr>
+          <td style="font-family:var(--font-mono); font-size:12px; color:var(--text-muted);">#{{ review.reviewId }}</td>
+          <td>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg, var(--accent-primary), var(--accent-indigo)); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#fff; flex-shrink:0;">
+                {{ userNames[review.userId]|first|upper }}
+              </div>
+              <span style="font-weight:500;">{{ userNames[review.userId] }}</span>
+            </div>
+          </td>
+          <td style="font-weight:600">{{ destNames[review.destinationId]|default('Unknown') }}</td>
+          <td>
+            <div class="review-stars">
+              {% for i in 1..5 %}
+                <span class="{% if i <= review.rating %}star-filled{% else %}star-empty{% endif %}">★</span>
+              {% endfor %}
+            </div>
+          </td>
+          <td class="review-comment-cell" title="{{ review.comment }}">{{ review.comment|length > 60 ? review.comment|slice(0, 60) ~ '…' : review.comment }}</td>
+          <td style="font-size:13px; color:var(--text-muted);">{{ review.createdAt|date('M d, Y') }}</td>
+          <td style="text-align:right">
+            <a href="{{ path('admin_reviews_delete', {id: review.reviewId}) }}"
+               class="btn btn-sm"
+               style="background:#ef4444; color:#fff; border:none; border-radius:var(--border-radius-sm);"
+               onclick="return confirm('Delete this review? The destination average rating will be recalculated.')">
+              🗑️ Delete
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" style="text-align:center; padding:40px; color:var(--text-muted)">No reviews found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

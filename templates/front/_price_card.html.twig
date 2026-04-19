@@ -1,0 +1,46 @@
+<div class="pp-card activity-card pp-card--3d"
+     data-activity-id="{{ card.activity_id }}"
+     data-current-price="{{ card.current_price }}"
+     data-predicted-price="{{ card.predicted_price }}">
+  <div class="pp-card-top">
+    <div>
+      <h3>{{ card.activity_name }}</h3>
+      <div class="pp-card-meta">{{ card.destination_name }} · {{ card.country }}</div>
+    </div>
+    {% set b = card.badge %}
+    <span class="pp-badge pp-badge--{{ b }}">
+      {% if b == 'rising' %}↑ Rising{% elseif b == 'dropping' %}↓ Dropping{% else %}⌁ Track{% endif %}
+    </span>
+  </div>
+
+  <div class="pp-card-callout pp-card-callout--{{ b }}">
+    {% if b == 'rising' %}
+      <span class="pp-callout-line pp-callout-line--rise">Fare is climbing</span>
+      <span class="pp-card-callout__pct">Outlook <span class="pp-pct pp-pct--up">+{{ card.percent_change|abs|number_format(1) }}%</span> vs today — lock this rate while it lasts</span>
+    {% elseif b == 'dropping' %}
+      <span class="pp-callout-line pp-callout-line--drop">Better window ahead</span>
+      <span class="pp-card-callout__pct">Outlook <span class="pp-pct pp-pct--down">{{ card.percent_change|number_format(1) }}%</span> — use the bell below to get notified</span>
+    {% else %}
+      <span class="pp-callout-line pp-callout-line--watch">Hold and watch</span>
+      <span class="pp-card-callout__pct">Mostly flat (<span class="pp-pct">{{ card.percent_change > 0 ? '+' : '' }}{{ card.percent_change|number_format(1) }}%</span>) — add an alert if it moves</span>
+    {% endif %}
+  </div>
+
+  <dl class="pp-prices">
+    <div><dt>Now</dt><dd>${{ card.current_price|number_format(0, '.', ',') }}</dd></div>
+    <div><dt>~{{ card.days }}d outlook</dt><dd>${{ card.predicted_price|number_format(0, '.', ',') }}</dd></div>
+  </dl>
+  {% set reco_text = card.recommendation ~ ' · ' ~ (card.percent_change > 0 ? '+' : '') ~ card.percent_change ~ '%' %}
+  {% include 'front/_price_sparkline_block.html.twig' with {
+    points: card.sparkline,
+    up: b == 'rising' ? '1' : '0',
+    flat: b == 'track' ? '1' : '0',
+    reco_text: reco_text
+  } %}
+  <div class="pp-card-actions">
+    <div class="pp-card-actions__row">
+      <a href="{{ path('activities') }}" class="pp-btn pp-btn--ghost">Details</a>
+      <a href="{{ card.book_url }}" class="pp-btn-book-plain">Book</a>
+    </div>
+  </div>
+</div>

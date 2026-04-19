@@ -162,11 +162,7 @@
           <div style="color: #ef4444; font-size: 13px; margin-top: 4px;">{{ form_errors(form.notes) }}</div>
         </div>
 
-        <div class="price-preview" id="pricePreview">
-          <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px;">Estimated Total</div>
-          <div style="font-family:var(--font-display); font-size:42px; color:var(--accent-primary); line-height:1;" id="totalPrice">€{{ (destination.estimatedBudget ?? 100)|number_format(0) }}</div>
-          <div style="font-size:12px; color:var(--text-muted); margin-top:8px;" id="priceBreakdown">€{{ (destination.estimatedBudget ?? 100)|number_format(0) }} × 1 guest</div>
-        </div>
+
 
         <div style="display:flex; gap:12px; margin-top:32px;">
           <button type="submit" class="btn btn-primary ripple-btn" style="flex:1; font-size:16px; padding:14px;">✈️ Confirm Booking</button>
@@ -192,26 +188,11 @@ document.addEventListener('DOMContentLoaded', function() {
   const startAt = document.getElementById('startAt');
   const endAt = document.getElementById('endAt');
   const numGuests = document.getElementById('numGuests');
-  const totalPrice = document.getElementById('totalPrice');
-  const breakdown = document.getElementById('priceBreakdown');
   const form = document.getElementById('bookingForm');
-
-  function updatePrice() {
-    const budget = parseFloat(budgetInput.value) || 0;
-    const guests = Math.max(1, parseInt(numGuests.value) || 1);
-    const total = budget * guests;
-    totalPrice.textContent = '€' + total.toLocaleString('en', {minimumFractionDigits: 0});
-    breakdown.textContent = '€' + budget + ' × ' + guests + ' guest' + (guests > 1 ? 's' : '');
-  }
-
-  budgetInput.addEventListener('input', updatePrice);
-  numGuests.addEventListener('input', updatePrice);
   startAt.addEventListener('change', function() {
     endAt.min = this.value;
     if (endAt.value && endAt.value <= this.value) endAt.value = '';
-    updatePrice();
   });
-  endAt.addEventListener('change', updatePrice);
 
   // Client-side validation
   form.addEventListener('submit', function(e) {
@@ -264,7 +245,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!valid) e.preventDefault();
   });
 
-  updatePrice();
 });
 </script>
 <script src="/assets.php?f=js/main.js"></script>

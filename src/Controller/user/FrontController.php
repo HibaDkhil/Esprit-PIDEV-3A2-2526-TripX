@@ -3,28 +3,32 @@
 namespace App\Controller\user;
 
 use App\service\UserProfileService;
-use App\service\BookingService;
+use App\service\PricePredictionService;
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use App\Form\BookingFrontType;
+use Knp\Component\Pager\PaginatorInterface;
 
 class FrontController extends AbstractController
 {
     private $profileService;
     private $destinationService;
     private $activityService;
-    private $bookingService;
+    private PricePredictionService $pricePredictionService;
 
-    public function __construct(UserProfileService $profileService, \App\service\DestinationService $destinationService, \App\service\ActivityService $activityService, BookingService $bookingService)
-    {
+    public function __construct(
+        UserProfileService $profileService,
+        \App\service\DestinationService $destinationService,
+        \App\service\ActivityService $activityService,
+        PricePredictionService $pricePredictionService,
+    ) {
         $this->profileService = $profileService;
         $this->destinationService = $destinationService;
         $this->activityService = $activityService;
-        $this->bookingService = $bookingService;
+        $this->pricePredictionService = $pricePredictionService;
     }
 
     #[Route('/home', name: 'index')]
@@ -33,93 +37,63 @@ class FrontController extends AbstractController
         if (!$this->getUser()) {
             return $this->redirectToRoute('app_login');
         }
-        return $this->render('front/index.html.twig');
-    }
+        $user = $this->getUser();
+        $uid = $user instanceof User ? $user->getUserId() : null;
 
-    #[Route('/destinations', name: 'destinations')]
-    public function destinations(): Response
-    {
-        $destinations = $this->destinationService->getAll();
-        return $this->render('front/destinations.html.twig', [
-            'destinations' => $destinations
+        return $this->render('front/index.html.twig', [
+            'price_prediction_cards' => $this->pricePredictionService->buildHomeCarouselCards($uid),
         ]);
     }
 
-    #[Route('/destination/{id}', name: 'destination_detail')]
-    public function destinationDetail(string $id): Response
+    #[Route('/destinations', name: 'destinations')]
+    public function destinations(Request $request, PaginatorInterface $paginator): Response
     {
-        $destination = $this->destinationService->find($id);
-        if (!$destination) {
-            $this->addFlash('error', 'Destination not found.');
-            return $this->redirectToRoute('destinations');
-        }
-
-        // Get activities for this destination
-        $allActivities = $this->activityService->getAll();
-        $destActivities = array_filter($allActivities, function($a) use ($id) {
-            return $a->getDestinationId() == $id;
-        });
-
-        return $this->render('front/destination-detail.html.twig', [
-            'destination' => $destination,
-            'activities' => $destActivities
+        $limit = $request->query->getInt('limit', 6);
+        $pagination = $paginator->paginate(
+            $this->destinationService->getAllQuery(),
+            $request->query->getInt('page', 1),
+            $limit
+        );
+        return $this->render('front/destinations.html.twig', [
+            'destinations' => $pagination,
+            'currentLimit' => $limit,
         ]);
     }
 
     #[Route('/activities', name: 'activities')]
-    public function activities(): Response
+    public function activities(Request $request, PaginatorInterface $paginator): Response
     {
-        $activities = $this->activityService->getAll();
+        $limit = $request->query->getInt('limit', 8);
+        // Fetch all activities for the map markers (independent query)
+        $allActivities = $this->activityService->getAllQuery()->getResult();
 
-        // Build destination names map for each activity
-        $destNames = [];
-        foreach ($activities as $act) {
-            $did = $act->getDestinationId();
-            if ($did && !isset($destNames[$did])) {
-                $d = $this->destinationService->find($did);
-                $destNames[$did] = $d ? $d->getName() : 'Unknown';
-            }
-        }
+        $pagination = $paginator->paginate(
+            $this->activityService->getAllQuery(),
+            $request->query->getInt('page', 1),
+            $limit
+        );
 
         return $this->render('front/activities.html.twig', [
-            'activities' => $activities,
-            'destNames' => $destNames
+            'activities' => $pagination,
+            'allActivities' => $allActivities,
+            'currentLimit' => $limit,
         ]);
     }
 
-    #[Route('/activity/{id}', name: 'activity_detail')]
-    public function activityDetail(int $id): Response
-    {
-        $activity = $this->activityService->find($id);
-        if (!$activity) {
-            $this->addFlash('error', 'Activity not found.');
-            return $this->redirectToRoute('activities');
-        }
+    /*
+     * Accommodations listing + AJAX search are handled by FrontAccommodationController
+     * (same path/name) — do not duplicate that route here.
+     * @see \App\Controller\user\FrontAccommodationController::index
+     */
 
-        $destName = 'Unknown';
-        $destination = null;
-        if ($activity->getDestinationId()) {
-            $destination = $this->destinationService->find($activity->getDestinationId());
-            if ($destination) $destName = $destination->getName();
-        }
-
-        return $this->render('front/activity_detail.html.twig', [
-            'activity' => $activity,
-            'destination' => $destination,
-            'destName' => $destName
-        ]);
-    }
-
-    #[Route('/accommodations', name: 'accommodations')]
-    public function accommodations(): Response
-    {
-        return $this->render('front/accommodations.html.twig');
-    }
-
+    /**
+     * Nav link "Transport" — forwards to the full transport module (schedules, bookings, API).
+     * Static mockup page: templates/front/transport.html.twig (reference design only).
+     */
     #[Route('/transport', name: 'transport')]
     public function transport(): Response
     {
-        return $this->render('front/transport.html.twig');
+        return $this->redirectToRoute('user_transport_index', [], Response::HTTP_FOUND);
     }
 
     #[Route('/offers', name: 'offers')]
@@ -128,11 +102,7 @@ class FrontController extends AbstractController
         return $this->render('front/offers.html.twig');
     }
 
-    #[Route('/blog', name: 'blog')]
-    public function blog(): Response
-    {
-        return $this->render('front/blog.html.twig');
-    }
+    
 
     #[Route('/users', name: 'users')]
     public function users(): Response
@@ -174,6 +144,44 @@ class FrontController extends AbstractController
         return new JsonResponse(['success' => false], 400);
     }
 
+    /**
+     * API: returns activities with destination coordinates for the Leaflet map.
+     */
+    #[Route('/api/activities/map-data', name: 'api_activities_map_data', methods: ['GET'])]
+    public function activitiesMapData(): JsonResponse
+    {
+        try {
+            // Using a simple check to ensure we only get activities with destinations that have coordinates
+            $activities = $this->activityService->getAll();
+            $data = [];
+            foreach ($activities as $act) {
+                try {
+                    $dest = $act->getDestination();
+                    if (!$dest || $dest->getLatitude() === null || $dest->getLongitude() === null) {
+                        continue;
+                    }
+                    $data[] = [
+                        'id'           => $act->getActivityId(),
+                        'name'         => $act->getName(),
+                        'category'     => $act->getCategory(),
+                        'price'        => $act->getPrice(),
+                        'duration'     => $act->getDurationMinutes(),
+                        'destination'  => $dest->getName(),
+                        'country'      => $dest->getCountry(),
+                        'lat'          => (float) $dest->getLatitude(),
+                        'lng'          => (float) $dest->getLongitude(),
+                    ];
+                } catch (\Exception $e) {
+                    // Skip broken records
+                    continue;
+                }
+            }
+            return new JsonResponse($data);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Internal Server Error'], 500);
+        }
+    }
+
     #[Route('/search', name: 'search')]
     public function search(Request $request): Response
     {
@@ -181,105 +189,5 @@ class FrontController extends AbstractController
         return $this->render('front/search_results.html.twig', [
             'query' => $query
         ]);
-    }
-
-    // ═══════════════════ BOOKINGS ═══════════════════
-
-    #[Route('/booking/{destinationId}', name: 'booking_form')]
-    public function bookingForm(string $destinationId, Request $request): Response
-    {
-        $user = $this->getUser();
-        if (!$user instanceof User) {
-            return $this->redirectToRoute('app_login');
-        }
-
-        $destination = $this->destinationService->find($destinationId);
-        if (!$destination) {
-            $this->addFlash('error', 'Destination not found.');
-            return $this->redirectToRoute('destinations');
-        }
-
-        $booking = new \App\Entity\Booking();
-        $booking->setUserId($user->getUserId());
-        $booking->setDestinationId($destinationId);
-        $booking->setUserEmail($user->getEmail());
-        $booking->setCurrency('USD');
-
-        $form = $this->createForm(BookingFrontType::class, $booking);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            // Calculate total: estimatedBudget * numGuests * days
-            $start = $booking->getStartAt();
-            $end = $booking->getEndAt();
-            $days = max(1, $start->diff($end)->days);
-            
-            $userBudget = $request->request->get('userBudget');
-            if ($userBudget !== null && (float) $userBudget > 0) {
-                $budgetPerPerson = (float) $userBudget;
-            } else {
-                $estimatedBudget = $destination->getEstimatedBudget();
-                $budgetPerPerson = $estimatedBudget !== null ? (float) $estimatedBudget : 100.0;
-            }
-            
-            $totalAmount = $budgetPerPerson * $booking->getNumGuests();
-
-            $booking->setTotalAmount(number_format($totalAmount, 2, '.', ''));
-
-            $this->bookingService->save($booking);
-            $this->addFlash('success', 'Booking confirmed! Reference: ' . $booking->getBookingReference());
-            return $this->redirectToRoute('my_bookings');
-        }
-
-        return $this->render('front/booking_form.html.twig', [
-            'destination' => $destination,
-            'form' => $form->createView()
-        ]);
-    }
-
-    #[Route('/my-bookings', name: 'my_bookings')]
-    public function myBookings(): Response
-    {
-        $user = $this->getUser();
-        if (!$user instanceof User) {
-            return $this->redirectToRoute('app_login');
-        }
-
-        $bookings = $this->bookingService->getByUser($user->getUserId());
-
-        // Fetch destination names
-        $destNames = [];
-        foreach ($bookings as $b) {
-            $did = $b->getDestinationId();
-            if ($did && !isset($destNames[$did])) {
-                $d = $this->destinationService->find($did);
-                $destNames[$did] = $d ? $d->getName() : 'Unknown';
-            }
-        }
-
-        return $this->render('front/my_bookings.html.twig', [
-            'bookings' => $bookings,
-            'destNames' => $destNames
-        ]);
-    }
-
-    #[Route('/my-bookings/cancel/{id}', name: 'booking_cancel')]
-    public function cancelBooking(int $id): Response
-    {
-        $user = $this->getUser();
-        if (!$user instanceof User) {
-            return $this->redirectToRoute('app_login');
-        }
-
-        $booking = $this->bookingService->find($id);
-        if ($booking && $booking->getUserId() === $user->getUserId() && $booking->getStatus() === 'pending') {
-            $booking->setStatus('cancelled');
-            $this->bookingService->save($booking);
-            $this->addFlash('success', 'Booking cancelled.');
-        } else {
-            $this->addFlash('error', 'Cannot cancel this booking.');
-        }
-
-        return $this->redirectToRoute('my_bookings');
     }
 }

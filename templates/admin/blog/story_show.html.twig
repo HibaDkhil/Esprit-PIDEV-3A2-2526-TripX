@@ -1,0 +1,221 @@
+{% extends 'admin/admin_base.html.twig' %}
+
+{% block title %}Story #{{ story.id }} — TripX Admin{% endblock %}
+
+{% block breadcrumbs %}
+  <a href="{{ path('admin_blog') }}" class="crumb">Blog</a>
+  <span class="sep">›</span>
+  <span class="crumb active">Story #{{ story.id }}</span>
+{% endblock %}
+
+{% block content %}
+<style>
+  .as-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    animation: fadeUp .4s ease both;
+  }
+  .as-header {
+    padding: 24px 30px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .as-header-title h1 {
+    font-size: 20px;
+    font-weight: 800;
+    margin: 0;
+    color: var(--text-primary);
+  }
+  .as-body { padding: 30px; }
+  .as-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+  }
+  .as-meta-item label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .as-meta-item span { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  
+  .as-section-title {
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-muted);
+    margin: 24px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .as-section-title:first-child { margin-top: 0; }
+
+  .as-content-box {
+    padding: 18px;
+    background: rgba(0,0,0,0.02);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    line-height: 1.6;
+    color: var(--text-primary);
+    font-size: 14px;
+  }
+
+  /* Gallery */
+  .as-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .as-gallery-item {
+    aspect-ratio: 16/10;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+  }
+  .as-gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* Lists */
+  .as-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .as-pill {
+    padding: 6px 12px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 50px;
+    font-size: 13px;
+    color: var(--text-primary);
+  }
+
+  .btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all .2s;
+    border: 1px solid transparent;
+  }
+  .btn-del { background: rgba(239,68,68,0.1); color: #fca5a5; border-color: rgba(239,68,68,0.2); }
+  .btn-del:hover { background: rgba(239,68,68,0.2); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+</style>
+
+<div class="as-card">
+  <div class="as-header">
+    <div class="as-header-title">
+      <h1>Travel Story Details</h1>
+    </div>
+    <div>
+      <form method="post" action="{{ path('admin_story_delete', {id: story.id}) }}" 
+            onsubmit="return confirm('Delete this travel story?')" class="inline-form">
+        <input type="hidden" name="_token" value="{{ csrf_token('admin_story_delete_' ~ story.id) }}">
+        <button type="submit" class="btn-action btn-del">🗑 Delete Story</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="as-body">
+    <div class="as-meta-grid">
+      <div class="as-meta-item">
+        <label>Destination</label>
+        <span>📍 {{ story.destination ?? '—' }}</span>
+      </div>
+      <div class="as-meta-item">
+        <label>Author</label>
+        <span>{{ authorName }}</span>
+      </div>
+      <div class="as-meta-item">
+        <label>Type / Style</label>
+        <span>{{ story.travelType|capitalize }} · {{ story.travelStyle|capitalize }}</span>
+      </div>
+      <div class="as-meta-item">
+        <label>Budget</label>
+        <span style="color:var(--success)">{{ story.currency }} {{ story.totalBudget|number_format(2) }}</span>
+      </div>
+      <div class="as-meta-item">
+        <label>Rating</label>
+        <span style="color:#fcd34d">{% if story.overallRating %}{% for i in 1..story.overallRating %}⭐{% endfor %}{% else %}—{% endif %}</span>
+      </div>
+    </div>
+
+    <div class="as-section-title">✨ Story Title</div>
+    <h2 style="font-size:26px; font-weight:900; margin:0 0 20px; color:var(--text-primary);">{{ story.title }}</h2>
+
+    <div class="as-section-title">📝 Summary</div>
+    <div class="as-content-box">{{ story.summary ?: 'No summary provided.' }}</div>
+
+    {% if story.tips %}
+      <div class="as-section-title">💡 Practical Tips</div>
+      <div class="as-content-box" style="border-left: 4px solid var(--accent-primary)">{{ story.tips }}</div>
+    {% endif %}
+
+    <div class="as-section-title">📸 Gallery</div>
+    <div class="as-gallery">
+      {% if story.imageUrlsJson is not empty %}
+        {% for img in story.imageUrlsJson %}
+          <div class="as-gallery-item">
+            <img src="{{ img }}" alt="Story Image" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
+          </div>
+        {% endfor %}
+      {% else %}
+        <div style="grid-column:1/-1; padding:20px; text-align:center; color:var(--text-muted); font-size:13px; border:1px dashed var(--border-color); border-radius:12px;">No images uploaded.</div>
+      {% endif %}
+    </div>
+
+    <div class="as-section-title">📍 Recommendation Details</div>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
+      <div>
+        <label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:8px;">Must Visit</label>
+        <div class="as-list">
+          {% for item in story.mustVisitJson|default([]) %}
+            <span class="as-pill">📌 {{ item }}</span>
+          {% else %}
+             <span style="color:var(--text-muted); font-size:13px;">None</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div>
+        <label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:8px;">Must Do</label>
+        <div class="as-list">
+          {% for item in story.mustDoJson|default([]) %}
+            <span class="as-pill">✔️ {{ item }}</span>
+          {% else %}
+             <span style="color:var(--text-muted); font-size:13px;">None</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div>
+        <label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:8px;">Must Try (Food)</label>
+        <div class="as-list">
+          {% for item in story.mustTryJson|default([]) %}
+            <span class="as-pill">🍜 {{ item }}</span>
+          {% else %}
+             <span style="color:var(--text-muted); font-size:13px;">None</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+{% endblock %}

@@ -1,353 +1,2231 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="light">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Find your perfect stay — luxury resorts, boutique hotels, hidden gems. AI-curated accommodations worldwide.">
-  <title>Accommodations — TripX</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Montserrat:wght@100..900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets.php?f=css/main.css">
-  <link rel="stylesheet" href="/assets.php?f=css/animations.css">
-  <style>
-    .page-top { padding-top: calc(var(--nav-height) + 60px); padding-bottom: 40px; }
-    .view-toggle { display: flex; gap: 4px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 4px; }
-    .view-btn { padding: 8px 16px; border-radius: 10px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); cursor: none; transition: all var(--transition-fast); }
-    .view-btn.active { background: var(--accent-primary); color: #fff; }
+{% extends 'base.html.twig' %}
 
-    /* Accommodation card */
-    .stay-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-lg);
-      overflow: hidden;
-      transition: all var(--transition-smooth);
-    }
-    .stay-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
-    .stay-img {
-      height: 220px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 72px;
-      position: relative;
-      overflow: hidden;
-    }
-    .stay-img-badge { position: absolute; top: 14px; left: 14px; }
-    .stay-img-fav {
-      position: absolute; top: 14px; right: 14px;
-      width: 36px; height: 36px;
-      background: var(--bg-glass);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px; cursor: none;
-      transition: transform var(--transition-fast);
-    }
-    .stay-img-fav:hover { transform: scale(1.15); }
-    .stay-body { padding: 20px; }
-    .stay-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
-    .stay-loc { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em; margin-bottom: 10px; }
-    .stay-rating { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; }
-    .stars { color: var(--accent-gold); font-size: 14px; }
-    .ai-score { font-family: var(--font-mono); font-size: 10px; color: var(--accent-teal); }
-    .stay-ai-summary { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px; border-left: 2px solid var(--accent-teal); padding-left: 10px; font-style: italic; }
-    .stay-footer { display: flex; justify-content: space-between; align-items: center; }
-    .stay-price { font-family: var(--font-display); font-size: 26px; color: var(--accent-primary); line-height: 1; }
-    .stay-price-sub { font-size: 0.75rem; color: var(--text-muted); }
-    .stay-amenities { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
-    .amenity { font-size: 16px; }
+{% block title %}Accommodations — TripX{% endblock %}
 
-    /* Swipe view */
-    .mood-board { display: flex; justify-content: center; padding: 40px 0; }
+{% block stylesheets %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Montserrat:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+/* ── Reset & Layout Shell ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* Hidden Gems */
-    .gem-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-lg);
-      padding: 24px;
-      display: flex; gap: 20px;
-      transition: all var(--transition-smooth);
-    }
-    .gem-card:hover { border-color: var(--accent-gold); box-shadow: var(--shadow-md); }
-    .gem-icon { font-size: 48px; flex-shrink: 0; }
-  </style>
-</head>
-<body>
-    <div id="cursor-dot"></div><div id="cursor-halo"></div>
+:root {
+  --card-radius: 20px;
+  --filter-radius: 14px;
+  --filter-bg: rgba(255,255,255,0.04);
+  --filter-border: rgba(255,255,255,0.10);
+  --accent: #a78bfa;
+  --accent2: #38bdf8;
+  --gold: #fbbf24;
+  --green: #34d399;
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --drawer-width: 380px;
+  --toolbar-height: 64px;
+  --drawers-top: var(--toolbar-height);
+
+  --ic-violet:   #c4b5fd;
+  --ic-violet-2: #ede9fe;
+  --ic-sky:      #7dd3fc;
+  --ic-sky-2:    #e0f2fe;
+  --ic-amber:    #fcd34d;
+  --ic-amber-2:  #fef9c3;
+  --ic-emerald:  #6ee7b7;
+  --ic-emerald-2:#d1fae5;
+  --ic-rose:     #fda4af;
+  --ic-rose-2:   #ffe4e6;
+  --ic-slate:    #cbd5e1;
+  --ic-slate-2:  #f1f5f9;
+}
+
+[data-theme="dark"] {
+  --filter-bg: rgba(0,0,0,0.03);
+  --filter-border: rgba(0,0,0,0.09);
+
+  --ic-violet:   #ddd6fe;
+  --ic-violet-2: #ede9fe;
+  --ic-sky:      #bae6fd;
+  --ic-sky-2:    #e0f2fe;
+  --ic-amber:    #fde68a;
+  --ic-amber-2:  #fef9c3;
+  --ic-emerald:  #a7f3d0;
+  --ic-emerald-2:#d1fae5;
+  --ic-rose:     #fecdd3;
+  --ic-rose-2:   #ffe4e6;
+  --ic-slate:    #e2e8f0;
+  --ic-slate-2:  #f8fafc;
+}
+
+.ic { display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.ic svg { display:block; }
+.ic-16 svg { width:16px; height:16px; }
+.ic-18 svg { width:18px; height:18px; }
+.ic-20 svg { width:20px; height:20px; }
+.ic-24 svg { width:24px; height:24px; }
+.ic-28 svg { width:28px; height:28px; }
+.ic-32 svg { width:32px; height:32px; }
+.ic-48 svg { width:48px; height:48px; }
+
+main { padding: 0 !important; margin: 0 !important; display: flex; flex-direction: column; }
+
+/* ══════════════════════════════════════════════════════════
+   HERO HEADER — Cinematic full-bleed photo
+══════════════════════════════════════════════════════════ */
+.hero-header {
+  position: relative;
+  height: 520px;
+  overflow: hidden;
+  background: #060c14;
+}
+
+/* The actual photo — place yours at /images/hero-bg.jpg */
+.hero-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 35%;
+  filter: brightness(0.72) saturate(0.85);
+  transform: scale(1.05);
+  transition: transform 10s ease;
+}
+
+.hero-header:hover .hero-bg-img {
+  transform: scale(1.0);
+}
+
+/* Dark gradient overlay — heavy at bottom, fades to sides */
+.hero-header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.18) 0%,
+      rgba(0,0,0,0.05) 25%,
+      rgba(0,0,0,0.45) 65%,
+      rgba(0,0,0,0.90) 88%,
+      rgba(0,0,0,1.00) 100%
+    ),
+    linear-gradient(
+      to right,
+      rgba(0,0,0,0.35) 0%,
+      transparent 35%,
+      transparent 65%,
+      rgba(0,0,0,0.25) 100%
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hero-content {
+  position: absolute;
+  bottom: 88px;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  padding: 0 52px;
+}
+
+.hero-eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-eyebrow-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(44px, 6vw, 76px);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.0;
+  letter-spacing: -0.025em;
+  text-shadow: 0 4px 24px rgba(0,0,0,0.35);
+  margin-bottom: 18px;
+  display: block;
+}
+
+.hero-title-accent {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255,255,255,0.6);
+}
+
+.hero-subtitle {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.65);
+  max-width: 400px;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+/* Stats row at bottom of hero */
+.hero-stats {
+  position: absolute;
+  bottom: 88px;
+  right: 52px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.hero-stat {
+  text-align: right;
+}
+
+.hero-stat-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+.hero-stat-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-top: 3px;
+}
+
+.hero-stat-divider {
+  width: 40px;
+  height: 1px;
+  background: rgba(255,255,255,0.15);
+  margin-left: auto;
+}
+
+/* ══════════════════════════════════════════════════════════
+   TOOLBAR — glass dark, overlaps hero bottom
+══════════════════════════════════════════════════════════ */
+.acc-toolbar {
+  padding: 0 24px;
+  background: rgba(8, 12, 20, 0.82);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--toolbar-height);
+  /* Pull toolbar up to overlap hero's bottom fade */
+  margin-top: calc(-1 * var(--toolbar-height));
+}
+
+.toggle-filters-btn, .toggle-map-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 18px;
+  background: linear-gradient(135deg, rgba(167,139,250,0.1), rgba(56,189,248,0.1));
+  border: 1px solid rgba(167,139,250,0.35);
+  border-radius: 50px;
+  color: var(--accent);
+  font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggle-filters-btn:hover, .toggle-map-btn:hover {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-color: transparent;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(167,139,250,0.3);
+}
+
+.toggle-filters-btn.active, .toggle-map-btn.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-color: transparent;
+  color: #fff;
+}
+
+.topbar-search {
+  position: relative; flex: 1;
+  min-width: 220px; max-width: 320px;
+}
+
+.topbar-search input {
+  width: 100%;
+  padding: 8px 16px 8px 38px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 50px;
+  color: #fff;
+  font-size: 13px; font-family: inherit;
+  transition: var(--transition);
+}
+
+.topbar-search input::placeholder { color: rgba(255,255,255,0.35); }
+
+.topbar-search input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: rgba(167,139,250,0.08);
+  box-shadow: 0 0 0 3px rgba(167,139,250,0.12);
+}
+
+.topbar-search .search-icon {
+  position: absolute; left: 10px; top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex; align-items: center;
+}
+
+.date-group {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 50px;
+  padding: 4px 12px;
+}
+
+.date-group input[type="date"] {
+  background: transparent; border: none;
+  color: rgba(255,255,255,0.75);
+  font-size: 12px;
+  font-family: var(--font-mono, monospace);
+  cursor: pointer; outline: none; width: 110px;
+}
+
+.date-sep { font-size: 11px; color: rgba(255,255,255,0.3); }
+
+.topbar-sort {
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 50px;
+  color: rgba(255,255,255,0.75);
+  font-size: 12px; font-family: inherit;
+  cursor: pointer; outline: none;
+  transition: var(--transition);
+}
+
+.topbar-sort:focus { border-color: var(--accent); }
+
+.results-pill {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px; color: rgba(255,255,255,0.35);
+  padding: 6px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 50px; white-space: nowrap;
+}
+
+/* ── Page Container ── */
+.page-container {
+  display: flex; position: relative;
+  min-height: calc(100vh - var(--toolbar-height));
+}
+
+.main-content {
+  flex: 1;
+  transition: margin 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-left: 0; margin-right: 0;
+  width: 100%; overflow-x: hidden;
+}
+
+.main-content.filters-open { margin-left: var(--drawer-width); }
+.main-content.map-open     { margin-right: var(--drawer-width); }
+
+.acc-cards-area {
+  overflow-y: auto; padding: 24px;
+  height: calc(100vh - var(--drawers-top));
+}
+
+.acc-cards-area::-webkit-scrollbar { width: 4px; }
+.acc-cards-area::-webkit-scrollbar-thumb { background: var(--filter-border); border-radius: 4px; }
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+/* ── Drawers ── */
+.filters-drawer {
+  position: fixed; left: calc(-1 * var(--drawer-width));
+  top: var(--drawers-top);
+  width: var(--drawer-width);
+  height: calc(100vh - var(--drawers-top));
+  background: var(--bg-card);
+  border-right: 1px solid var(--border-color);
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 90; display: flex; flex-direction: column;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+}
+
+.filters-drawer.open { left: 0; }
+
+.map-drawer {
+  position: fixed; right: calc(-1 * var(--drawer-width));
+  top: var(--drawers-top);
+  width: var(--drawer-width);
+  height: calc(100vh - var(--drawers-top));
+  background: var(--bg-card);
+  border-left: 1px solid var(--border-color);
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 90; display: flex; flex-direction: column;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.05);
+}
+
+.map-drawer.open { right: 0; }
+
+.drawer-header {
+  padding: 16px 20px; border-bottom: 1px solid var(--border-color);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-shrink: 0; background: var(--bg-card);
+  position: sticky; top: 0; z-index: 10;
+}
+
+.drawer-title {
+  font-weight: 700; font-size: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.drawer-close-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--filter-bg); border: 1px solid var(--filter-border);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.drawer-close-btn:hover {
+  background: var(--accent); border-color: var(--accent);
+  transform: scale(1.05);
+}
+
+.drawer-close-btn:hover svg path { stroke: #fff; }
+
+.drawer-content { flex: 1; overflow-y: auto; padding: 20px; }
+.drawer-content::-webkit-scrollbar { width: 4px; }
+.drawer-content::-webkit-scrollbar-thumb { background: var(--filter-border); border-radius: 4px; }
+
+.map-container { width: 100%; height: 100%; position: relative; }
+#acc-map { width: 100%; height: 100%; }
+
+.map-reload-btn {
+  position: absolute; top: 12px; right: 12px; z-index: 1000;
+  padding: 6px 12px;
+  background: var(--bg-card); border: 1px solid var(--border-color);
+  border-radius: 50px; font-size: 11px; font-weight: 600;
+  cursor: pointer; color: var(--text-muted);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* Drawer Edge Buttons */
+.drawer-open-btn {
+  position: fixed; left: 0;
+  top: calc(var(--drawers-top) + (100vh - var(--drawers-top)) / 2);
+  transform: translateY(-50%);
+  width: 32px; height: 64px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none; border-radius: 0 16px 16px 0;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s ease; z-index: 95;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  opacity: 0; pointer-events: none;
+}
+
+.drawer-open-btn.visible { opacity: 1; pointer-events: auto; }
+.drawer-open-btn:hover { width: 38px; background: linear-gradient(135deg, var(--accent2), var(--accent)); }
+
+.map-open-btn {
+  position: fixed; right: 0;
+  top: calc(var(--drawers-top) + (100vh - var(--drawers-top)) / 2);
+  transform: translateY(-50%);
+  width: 32px; height: 64px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none; border-radius: 16px 0 0 16px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s ease; z-index: 95;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+  opacity: 0; pointer-events: none;
+}
+
+.map-open-btn.visible { opacity: 1; pointer-events: auto; }
+.map-open-btn:hover { width: 38px; background: linear-gradient(135deg, var(--accent2), var(--accent)); }
+
+/* Compare Bar */
+.compare-container {
+  position: fixed; bottom: 30px; left: 50%;
+  transform: translateX(-50%); z-index: 1000;
+  display: flex; gap: 12px;
+  background: var(--bg-card); padding: 12px 24px;
+  border-radius: 60px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  border: 1px solid var(--accent);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  align-items: center;
+}
+
+.compare-container.hidden { display: none; }
+
+.compare-btn {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none; padding: 10px 24px; border-radius: 50px;
+  color: white; font-weight: 700; font-size: 14px;
+  cursor: pointer; transition: all 0.3s ease;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.compare-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(167,139,250,0.4);
+}
+
+.compare-count {
+  background: rgba(255,255,255,0.2);
+  padding: 2px 8px; border-radius: 20px;
+  font-size: 12px; font-weight: 600;
+}
+
+.clear-selection {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  padding: 10px 20px; border-radius: 50px;
+  color: #ef4444; font-weight: 600; font-size: 14px;
+  cursor: pointer; transition: all 0.3s ease;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.clear-selection:hover { background: rgba(239,68,68,0.2); transform: translateY(-2px); }
+
+/* Card select checkbox */
+.card-select-checkbox {
+  position: absolute; top: 12px; left: 12px; z-index: 10;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+  border: 2px solid rgba(255,255,255,0.3);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.card-select-checkbox.selected {
+  background: var(--accent); border-color: white;
+}
+
+.card-select-checkbox.selected::after {
+  content: '✓'; color: white; font-size: 14px; font-weight: bold;
+}
+
+.card-select-checkbox:hover { transform: scale(1.05); border-color: var(--accent); }
+
+/* Compare Modal */
+.compare-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+  z-index: 2000; display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden; transition: all 0.3s ease;
+}
+
+.compare-modal-overlay.open { opacity: 1; visibility: visible; }
+
+.compare-modal {
+  background: var(--bg-card); border-radius: 24px;
+  width: 90%; max-width: 1200px; max-height: 90vh;
+  overflow: hidden; display: flex; flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+  border: 1px solid var(--accent);
+  transform: scale(0.95); transition: transform 0.3s ease;
+}
+
+.compare-modal-overlay.open .compare-modal { transform: scale(1); }
+
+.compare-modal-header {
+  padding: 20px 24px; border-bottom: 1px solid var(--border-color);
+  display: flex; justify-content: space-between; align-items: center;
+  background: linear-gradient(135deg, rgba(167,139,250,0.1), rgba(56,189,248,0.1));
+}
+
+.compare-modal-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px; font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  display: flex; align-items: center; gap: 10px;
+}
+
+.close-modal-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--filter-bg); border: 1px solid var(--border-color);
+  cursor: pointer; font-size: 20px; transition: all 0.2s ease;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.close-modal-btn:hover { background: #ef4444; color: white; border-color: #ef4444; }
+
+.compare-modal-body { flex: 1; overflow-y: auto; padding: 24px; }
+
+.loading-container {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 400px;
+}
+
+.loader-wrapper {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  width: 180px; height: 180px;
+  font-family: "Inter", sans-serif; font-size: 1.2em; font-weight: 300;
+  color: white; border-radius: 50%; background-color: transparent; user-select: none;
+}
+
+.loader {
+  position: absolute; top: 0; left: 0;
+  width: 100%; aspect-ratio: 1/1;
+  border-radius: 50%; background-color: transparent;
+  animation: loader-rotate 2s linear infinite; z-index: 0;
+}
+
+@keyframes loader-rotate {
+  0%   { transform: rotate(90deg);  box-shadow: 0 10px 20px 0 #fff inset, 0 20px 30px 0 #ad5fff inset, 0 60px 60px 0 #471eec inset; }
+  50%  { transform: rotate(270deg); box-shadow: 0 10px 20px 0 #fff inset, 0 20px 10px 0 #d60a47 inset, 0 40px 60px 0 #311e80 inset; }
+  100% { transform: rotate(450deg); box-shadow: 0 10px 20px 0 #fff inset, 0 20px 30px 0 #ad5fff inset, 0 60px 60px 0 #471eec inset; }
+}
+
+.loader-letter {
+  display: inline-block; opacity: 0.4;
+  transform: translateY(0); animation: loader-letter-anim 2s infinite;
+  z-index: 1; border-radius: 50ch; border: none;
+}
+
+.loader-letter:nth-child(1)  { animation-delay: 0s;   }
+.loader-letter:nth-child(2)  { animation-delay: 0.1s; }
+.loader-letter:nth-child(3)  { animation-delay: 0.2s; }
+.loader-letter:nth-child(4)  { animation-delay: 0.3s; }
+.loader-letter:nth-child(5)  { animation-delay: 0.4s; }
+.loader-letter:nth-child(6)  { animation-delay: 0.5s; }
+.loader-letter:nth-child(7)  { animation-delay: 0.6s; }
+.loader-letter:nth-child(8)  { animation-delay: 0.7s; }
+.loader-letter:nth-child(9)  { animation-delay: 0.8s; }
+.loader-letter:nth-child(10) { animation-delay: 0.9s; }
+
+@keyframes loader-letter-anim {
+  0%,100% { opacity:0.4; transform:translateY(0); }
+  20% { opacity:1; transform:scale(1.15); }
+  40% { opacity:0.7; transform:translateY(0); }
+}
+
+.comparison-result { animation: fadeIn 0.5s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+.result-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--accent); }
+.result-header h3 { font-size: 20px; font-weight: 700; color: var(--accent2); }
+
+.ranking-card {
+  background: linear-gradient(135deg, rgba(167,139,250,0.1), rgba(56,189,248,0.1));
+  border-radius: 16px; padding: 20px; margin-bottom: 20px;
+  border-left: 4px solid var(--accent);
+}
+
+.ranking-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: var(--accent2); }
+
+.ranking-list { display: flex; flex-direction: column; gap: 12px; }
+
+.ranking-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px;
+  background: var(--bg-card); border-radius: 12px; transition: all 0.2s ease;
+}
+
+.ranking-item:hover { transform: translateX(5px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+.ranking-number {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700;
+}
+
+.ranking-name { flex: 1; font-weight: 600; font-size: 16px; }
+.ranking-score { font-weight: 700; color: var(--accent2); }
+
+.comparison-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+
+.comparison-table th,
+.comparison-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+
+.comparison-table th { background: var(--filter-bg); font-weight: 700; color: var(--accent2); }
+.comparison-table tr:hover td { background: var(--filter-bg); }
+
+.winner-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: white; padding: 2px 8px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; margin-left: 8px;
+}
+
+.ai-insights {
+  background: linear-gradient(135deg, rgba(167,139,250,0.05), rgba(56,189,248,0.05));
+  border-radius: 16px; padding: 20px; margin-top: 24px;
+  border: 1px solid rgba(167,139,250,0.3);
+}
+
+.ai-insights h4 { font-size: 16px; font-weight: 700; margin-bottom: 12px; color: var(--accent); display:flex;align-items:center;gap:8px; }
+.ai-insights p { line-height: 1.6; color: var(--text-muted); }
+
+/* Filter Styles */
+.filter-section {
+  margin-bottom: 24px; padding-bottom: 20px;
+  border-bottom: 1px solid var(--filter-border);
+}
+
+.filter-section:last-child { border-bottom: none; margin-bottom: 0; }
+
+.filter-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--text-muted);
+  margin-bottom: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: space-between; gap:8px;
+}
+
+.filter-label-icon { display:flex;align-items:center;gap:6px; }
+
+.type-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.type-pill {
+  padding: 5px 12px; border-radius: 50px;
+  border: 1px solid var(--filter-border);
+  background: var(--filter-bg);
+  color: var(--text-muted);
+  font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: var(--transition); white-space: nowrap;
+  display: flex; align-items: center; gap: 5px;
+}
+
+.type-pill:hover { border-color: var(--accent); color: var(--accent); }
+.type-pill.active { background: rgba(167,139,250,0.15); border-color: var(--accent); color: var(--accent); }
+
+.price-range-wrap { padding: 4px 2px; }
+
+.price-slider {
+  position: relative; height: 4px;
+  background: var(--filter-border); border-radius: 4px; margin: 20px 0;
+}
+
+.price-slider-track {
+  position: absolute; height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 4px;
+}
+
+.price-thumb {
+  position: absolute; top: 50%; width: 16px; height: 16px;
+  transform: translate(-50%, -50%);
+  background: var(--accent); border: 2px solid var(--bg-card, #fff);
+  border-radius: 50%; cursor: grab;
+  box-shadow: 0 2px 8px rgba(167,139,250,0.4);
+  transition: box-shadow 0.2s; z-index: 2;
+}
+
+.price-thumb:hover { box-shadow: 0 2px 16px rgba(167,139,250,0.6); }
+.price-thumb:active { cursor: grabbing; }
+
+.price-range-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+
+.price-range-inputs input {
+  width: 100%; padding: 6px 8px;
+  background: var(--filter-bg); border: 1px solid var(--filter-border);
+  border-radius: 8px; color: inherit;
+  font-size: 12px; font-family: var(--font-mono, monospace);
+  text-align: center; outline: none; transition: var(--transition);
+}
+
+.price-range-inputs input:focus { border-color: var(--accent); }
+
+.star-filter-row { display: flex; flex-direction: column; gap: 8px; }
+
+.star-check-row {
+  display: flex; align-items: center; gap: 10px; cursor: pointer;
+  padding: 4px 8px; border-radius: 8px; transition: var(--transition);
+}
+
+.star-check-row:hover { background: var(--filter-bg); }
+.star-check-row input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--accent); cursor: pointer; }
+.star-icons { color: var(--gold); font-size: 12px; letter-spacing: 1px; }
+.star-count { font-size: 11px; color: var(--text-muted); margin-left: auto; }
+
+.rating-slider-wrap { display: flex; align-items: center; gap: 10px; }
+
+.rating-slider {
+  flex: 1; -webkit-appearance: none;
+  height: 4px; border-radius: 4px;
+  background: var(--accent); outline: none;
+}
+
+.rating-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px;
+  border-radius: 50%; background: var(--accent2);
+  border: 2px solid var(--bg-card, #fff); cursor: pointer;
+  box-shadow: 0 2px 8px rgba(56,189,248,0.4);
+}
+
+.rating-val {
+  font-family: var(--font-mono, monospace); font-size: 12px;
+  color: var(--accent2); font-weight: 700; min-width: 30px; text-align: right;
+}
+
+option { color: var(--text-primary, #000); background: var(--bg-card, #fff); }
 
 
+.amenity-grid { display: grid; grid-template-columns: 1fr; gap: 6px; max-height: 200px; overflow-y: auto; }
+.amenity-grid::-webkit-scrollbar { width: 3px; }
+.amenity-grid::-webkit-scrollbar-thumb { background: var(--filter-border); border-radius: 3px; }
 
-<nav class="nav">
-  <div class="nav-inner">
-    <a href="{{ path('index') }}" class="nav-logo">Trip<span>X</span></a>
-    <div class="nav-links">
-      <a href="{{ path('index') }}"          class="nav-link">Home</a>
-      <a href="{{ path('destinations') }}"   class="nav-link">Destinations</a>
-      <a href="{{ path('activities') }}"     class="nav-link">Activities</a>
-      <a href="{{ path('accommodations') }}" class="nav-link active">Accommodations</a>
-      <a href="{{ path('transport') }}"      class="nav-link">Transport</a>
-      <a href="{{ path('offers') }}"         class="nav-link">Offers</a>
-      <a href="{{ path('blog') }}" class="nav-link">Blog</a><a href="#" class="nav-link">My Bookings</a>
+.amenity-row {
+  display: flex; align-items: center; gap: 8px; cursor: pointer;
+  padding: 4px 8px; border-radius: 8px; transition: var(--transition); font-size: 12px;
+}
+
+.amenity-row:hover { background: var(--filter-bg); }
+.amenity-row input[type="checkbox"] { accent-color: var(--accent); cursor: pointer; }
+
+.clear-btn {
+  width: 100%; padding: 12px;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 50px; color: #ef4444;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: var(--transition); font-family: inherit;
+  margin-top: 16px; display:flex; align-items:center; justify-content:center; gap:6px;
+}
+
+.clear-btn:hover { background: rgba(239,68,68,0.15); transform: translateY(-1px); }
+
+/* Card Styles */
+.acc-card {
+  background: var(--bg-card); border: 1px solid var(--border-color);
+  border-radius: var(--card-radius); overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer; position: relative;
+}
+
+.acc-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--accent);
+  box-shadow: 0 16px 40px -12px rgba(167,139,250,0.25), 0 0 0 1px rgba(167,139,250,0.1);
+}
+
+.acc-card.highlighted {
+  border-color: var(--accent2);
+  box-shadow: 0 0 0 2px rgba(56,189,248,0.3), 0 16px 40px -12px rgba(56,189,248,0.2);
+}
+
+.card-img {
+  height: 180px; position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #1e3a5f, #0a6587);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.card-img img {
+  width: 100%; height: 100%; object-fit: cover;
+  position: absolute; inset: 0; transition: transform 0.4s ease;
+}
+
+.card-img-fallback { font-size: 48px; }
+
+.acc-card:hover .card-img img { transform: scale(1.05); }
+
+.card-img-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 55%);
+}
+
+.card-type-badge {
+  position: absolute; top: 12px; left: 12px;
+  padding: 4px 10px;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.2); border-radius: 50px;
+  font-size: 10px; font-weight: 700; color: #fff;
+  font-family: var(--font-mono, monospace);
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+
+.card-price-badge {
+  position: absolute; bottom: 12px; right: 12px;
+  padding: 5px 12px;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+  border: 1px solid rgba(167,139,250,0.4);
+  border-radius: 50px; z-index: 2;
+}
+
+.card-price-from  { font-size: 9px; color: rgba(255,255,255,0.7); display: block; }
+.card-price-val   { font-size: 16px; font-weight: 800; color: var(--accent); font-family: var(--font-display, serif); }
+.card-price-night { font-size: 9px; color: rgba(255,255,255,0.6); }
+
+.card-map-btn {
+  position: absolute; top: 12px; right: 12px;
+  width: 30px; height: 30px;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.2); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: var(--transition); z-index: 3;
+}
+
+.card-map-btn:hover { background: rgba(56,189,248,0.4); border-color: var(--accent2); }
+
+.card-body { padding: 14px 16px; }
+.card-name { font-weight: 700; font-size: 15px; margin-bottom: 4px; line-height: 1.3; }
+
+.card-loc {
+  font-family: var(--font-mono, monospace); font-size: 10px;
+  color: var(--text-muted); letter-spacing: 0.06em; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 4px;
+}
+
+.card-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.card-stars { color: var(--gold); font-size: 12px; letter-spacing: 1px; }
+
+.card-rating {
+  font-size: 10px; font-weight: 700; color: var(--green);
+  background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.2);
+  padding: 2px 6px; border-radius: 50px;
+  display: flex; align-items: center; gap: 3px;
+}
+
+.card-rooms { font-size: 10px; color: var(--text-muted); margin-left: auto; font-family: var(--font-mono, monospace); }
+
+.card-amenities { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+
+.amenity-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px;
+  background: var(--filter-bg); border: 1px solid var(--filter-border);
+  border-radius: 5px; font-size: 9px; font-weight: 500;
+  color: var(--text-muted); cursor: default; line-height: 1.2;
+}
+
+.card-footer {
+  display: flex; gap: 8px; padding-top: 10px;
+  border-top: 1px solid var(--filter-border);
+}
+
+.card-btn {
+  flex: 1; padding: 8px 6px; border-radius: 50px; border: none;
+  cursor: pointer; font-size: 11px; font-weight: 700; font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center; text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+}
+
+.card-btn-primary {
+  background-image: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 50%, #8b5cf6 100%);
+  box-shadow: 0 10px 20px -6px rgba(139,92,246,0.45); color: #fff;
+}
+
+.card-btn-primary:hover { transform: translateY(2px); box-shadow: none; }
+
+.card-btn-map {
+  background: rgba(56,189,248,0.1);
+  border: 1px solid rgba(56,189,248,0.25); color: var(--accent2);
+}
+
+.card-btn-map:hover { background: rgba(56,189,248,0.18); }
+
+.state-empty { grid-column: 1/-1; text-align: center; padding: 60px 40px; color: var(--text-muted); }
+.state-empty .ic-empty { font-size: 48px; margin-bottom: 16px; opacity: 0.4; display:flex;align-items:center;justify-content:center; }
+
+.skeleton-card {
+  height: 320px;
+  background: linear-gradient(90deg, var(--filter-bg) 25%, rgba(167,139,250,0.05) 50%, var(--filter-bg) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--card-radius); border: 1px solid var(--filter-border);
+}
+
+@keyframes shimmer { 0% { background-position:200% 0; } 100% { background-position:-200% 0; } }
+
+/* Map Popup */
+.map-popup { min-width: 180px; }
+.map-popup-name  { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+.map-popup-loc   { font-size: 11px; color: #666; margin-bottom: 6px; display:flex;align-items:center;gap:4px; }
+.map-popup-price { font-size: 15px; font-weight: 700; color: #7c3aed; }
+
+.price-marker {
+  background: white; border: 2px solid #7c3aed;
+  border-radius: 50px; padding: 3px 8px;
+  font-size: 11px; font-weight: 700; color: #7c3aed;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  white-space: nowrap; cursor: pointer; transition: all 0.2s;
+}
+
+.price-marker:hover, .price-marker.active {
+  background: #7c3aed; color: white;
+  transform: scale(1.1); z-index: 1000 !important;
+}
+
+/* Toast */
+#toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+  padding: 13px 18px; border-radius: 12px;
+  font-size: 14px; font-weight: 500;
+  display: flex; align-items: center; gap: 8px;
+  transform: translateY(70px); opacity: 0; transition: all .3s;
+  box-shadow: 0 8px 24px rgba(0,0,0,.2); background: #10b981; color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  :root { --drawer-width: 340px; }
+  .hero-header { height: 420px; }
+  .hero-stats { display: none; }
+}
+
+@media (max-width: 768px) {
+  :root { --toolbar-height: auto; }
+  .hero-header { height: 360px; }
+  .hero-content { bottom: 72px; padding: 0 24px; }
+  .hero-stats { display: none; }
+  .acc-toolbar { padding: 10px 16px; flex-wrap: wrap; height: auto; min-height: 56px; }
+  .toggle-filters-btn, .toggle-map-btn { padding: 6px 14px; font-size: 12px; }
+  .topbar-search { max-width: 100%; }
+  .cards-grid { grid-template-columns: 1fr; gap: 16px; }
+  .acc-cards-area { padding: 16px; }
+  .main-content.filters-open { margin-left: 0; }
+  .main-content.map-open { margin-right: 0; }
+  .filters-drawer, .map-drawer { width: 85%; top: 0 !important; height: 100vh !important; }
+  .drawer-open-btn, .map-open-btn { display: none; }
+  .compare-container { padding: 8px 16px; }
+  .compare-btn, .clear-selection { padding: 6px 12px; font-size: 12px; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+<div id="icon-cache" style="display:none;"></div>
+
+{# ── Hero Header — Cinematic photo hero ── #}
+<div class="hero-header">
+  {#
+    Put your photo inside the public/ folder, for example:
+      public/images/hero-bg.jpg
+    Then reference it here as /images/hero-bg.jpg
+  #}
+  <img
+    class="hero-bg-img"
+    src="/images/hero-bg.jpg"
+    alt="Accommodations background"
+  >
+
+  {# Text — bottom left, editorial style #}
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span class="hero-eyebrow-dot"></span>
+      TripX &nbsp;·&nbsp; Accommodations
     </div>
-    <div class="nav-actions">
-      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
-        <span class="toggle-icon icon-sun">☀️</span>
-        <span class="toggle-icon icon-moon">🌙</span>
+    <h1 class="hero-title">
+      Find Your<br>
+      <span class="hero-title-accent">Perfect Stay</span>
+    </h1>
+    <p class="hero-subtitle">
+      Discover hand-picked accommodations from luxury resorts to cozy hideaways
+    </p>
+  </div>
+
+  {# Stats — bottom right, optional (remove if you don't have the data) #}
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num">{{ totalCount }}+</div>
+      <div class="hero-stat-label">Properties</div>
+    </div>
+    <div class="hero-stat-divider"></div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">{{ types|length }}+</div>
+      <div class="hero-stat-label">Types</div>
+    </div>
+  </div>
+</div>
+
+{# ── Toolbar — glass dark, overlapping hero bottom ── #}
+<div class="acc-toolbar" id="acc-toolbar">
+  <button class="toggle-filters-btn" id="toggle-filters-btn">
+    <span class="ic ic-16" id="toolbar-icon-filter"></span>
+    Filters
+  </button>
+  <button class="toggle-map-btn" id="toggle-map-btn">
+    <span class="ic ic-16" id="toolbar-icon-map"></span>
+    Map
+  </button>
+
+  <div class="topbar-search">
+    <span class="search-icon ic ic-16" id="toolbar-icon-search"></span>
+    <input type="text" id="q-input" placeholder="Search by city, country, or name..." autocomplete="off">
+  </div>
+
+  <div class="date-group">
+    <span class="ic ic-16" id="toolbar-icon-calendar"></span>
+    <input type="date" id="checkin-input" title="Check-in">
+    <span class="date-sep">→</span>
+    <input type="date" id="checkout-input" title="Check-out">
+  </div>
+
+  <select id="sort-select" class="topbar-sort">
+    <option value="rating">Top Rated</option>
+    <option value="price_asc">Price: Low to High</option>
+    <option value="price_desc">Price: High to Low</option>
+    <option value="stars">Stars</option>
+    <option value="name">Name A–Z</option>
+  </select>
+
+  <div class="results-pill" id="results-pill">{{ totalCount }} stay{{ totalCount != 1 ? 's' : '' }}</div>
+</div>
+
+{# ── Compare Bar ── #}
+<div class="compare-container hidden" id="compare-container">
+  <span class="ic ic-18" id="compare-icon-chart"></span>
+  <span>Selected: <span id="selected-count">0</span>/3</span>
+  <button class="compare-btn" id="compare-btn" onclick="compareWithAI()">
+    <span class="ic ic-16" id="compare-icon-ai"></span>
+    Compare with AI
+    <span class="compare-count" id="compare-count-badge">0</span>
+  </button>
+  <button class="clear-selection" onclick="clearSelection()">
+    <span class="ic ic-14" id="compare-icon-close"></span>
+    Clear
+  </button>
+</div>
+
+{# ── Compare Modal ── #}
+<div class="compare-modal-overlay" id="compare-modal">
+  <div class="compare-modal">
+    <div class="compare-modal-header">
+      <h2>
+        <span class="ic ic-24" id="modal-icon-ai" style="-webkit-text-fill-color:initial;"></span>
+        AI Comparison &amp; Analysis
+      </h2>
+      <button class="close-modal-btn" onclick="closeCompareModal()">
+        <span class="ic ic-18" id="modal-icon-close"></span>
       </button>
-      <a href="{{ path('users') }}" class="btn-nav-primary ripple-btn">My Profile</a><a href="{{ path('app_logout') }}" class="Btn-logout" style="margin-left: 8px;">
-        <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" /></svg></div>
-        <div class="text">Logout</div>
-      </a>
     </div>
-  </div>
-</nav>
-
-<div class="page-top">
-  <div class="container">
-    <div class="section-label reveal"><span>12,000+ Properties</span></div>
-    <h1 class="display-md reveal" style="margin-bottom:8px">Your Perfect <span class="gradient-text">Home Away</span></h1>
-    <p class="serif-mood text-muted reveal reveal-delay-1">AI doesn't just rate stars — it reads 10,000 reviews so you don't have to.</p>
-    <div style="display:flex;gap:16px;margin-top:32px;flex-wrap:wrap;align-items:center" class="reveal reveal-delay-2">
-      <div class="filter-pills">
-        <button class="filter-pill active">All Stays</button>
-        <button class="filter-pill">🏨 Hotel</button>
-        <button class="filter-pill">🌿 Boutique</button>
-        <button class="filter-pill">🏡 Villa</button>
-        <button class="filter-pill">🏕️ Eco Lodge</button>
-        <button class="filter-pill">💎 Luxury</button>
-      </div>
-      <div class="view-toggle" style="margin-left:auto">
-        <button class="view-btn active">⊞ Grid</button>
-        <button class="view-btn">🗺 Map</button>
-        <button class="view-btn">♠ Swipe</button>
+    <div class="compare-modal-body" id="compare-modal-body">
+      <div class="loading-container">
+        <div class="loader-wrapper">
+          <span class="loader-letter">G</span>
+          <span class="loader-letter">e</span>
+          <span class="loader-letter">n</span>
+          <span class="loader-letter">e</span>
+          <span class="loader-letter">r</span>
+          <span class="loader-letter">a</span>
+          <span class="loader-letter">t</span>
+          <span class="loader-letter">i</span>
+          <span class="loader-letter">n</span>
+          <span class="loader-letter">g</span>
+          <div class="loader"></div>
+        </div>
+        <p style="margin-top:20px;color:var(--text-muted);">AI is analyzing your selected accommodations…</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Grid View -->
-<section class="section-sm">
-  <div class="container">
-    <div class="grid-3 stagger">
-      <!-- Card 1 -->
-      <div class="stay-card">
-        <div class="stay-img" style="background:linear-gradient(135deg,#1a3a5c,#2d6a4f)">
-          🏝️
-          <div class="stay-img-badge"><span class="badge badge-gold">Premium 💎</span></div>
-          <button class="stay-img-fav">♡</button>
+{# ── Page Container ── #}
+<div class="page-container">
+
+  {# Filters Drawer #}
+  <div class="filters-drawer" id="filters-drawer">
+    <div class="drawer-header">
+      <span class="drawer-title">
+        <span class="ic ic-18" id="drawer-icon-filter"></span>
+        Filters
+      </span>
+      <button class="drawer-close-btn" id="close-filters-btn">
+        <span class="ic ic-16" id="drawer-icon-close-filter"></span>
+      </button>
+    </div>
+    <div class="drawer-content">
+
+      <div class="filter-section">
+        <div class="filter-label">
+          <span class="filter-label-icon">
+            <span class="ic ic-14" id="filter-icon-type"></span>
+            Accommodation type
+          </span>
         </div>
-        <div class="stay-body">
-          <div class="stay-name">Soneva Fushi Maldives</div>
-          <div class="stay-loc">🏝️ Baa Atoll, Maldives</div>
-          <div class="stay-rating">
-            <div class="stars">★★★★★</div>
-            <span class="ai-score">AI Score: 9.8/10</span>
+        <div class="type-pills">
+          <div class="type-pill active" data-type="">All Types</div>
+          {% for t in types %}
+            <div class="type-pill" data-type="{{ t|e('html_attr') }}">{{ t }}</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-label">
+          <span class="filter-label-icon">
+            <span class="ic ic-14" id="filter-icon-price"></span>
+            Price per night
+          </span>
+          <span id="price-range-label" style="color:var(--accent);font-weight:700;">€{{ minPrice }}–€{{ maxPrice }}</span>
+        </div>
+        <div class="price-range-wrap">
+          <div class="price-slider" id="price-slider">
+            <div class="price-slider-track" id="price-track"></div>
+            <div class="price-thumb" id="thumb-min"></div>
+            <div class="price-thumb" id="thumb-max"></div>
           </div>
-          <div class="stay-ai-summary">"Unmatched barefoot luxury. Guests consistently praise the overwater villa experience and exceptional marine life access."</div>
-          <div class="stay-amenities">
-            <span class="amenity" title="Private Pool">🏊</span>
-            <span class="amenity" title="Spa">💆</span>
-            <span class="amenity" title="Fine Dining">🍽️</span>
-            <span class="amenity" title="Water Sports">🤿</span>
-            <span class="amenity" title="Eco-Certified">🌿</span>
-          </div>
-          <div class="stay-footer">
-            <div><div class="stay-price">€980</div><div class="stay-price-sub">per night · room only</div></div>
-            <button class="btn btn-primary btn-sm ripple-btn">Book Now</button>
+          <div class="price-range-inputs">
+            <input type="number" id="price-min-input" value="{{ minPrice }}" min="{{ minPrice }}" max="{{ maxPrice }}" placeholder="Min €">
+            <input type="number" id="price-max-input" value="{{ maxPrice }}" min="{{ minPrice }}" max="{{ maxPrice }}" placeholder="Max €">
           </div>
         </div>
       </div>
 
-      <!-- Card 2 -->
-      <div class="stay-card">
-        <div class="stay-img" style="background:linear-gradient(135deg,#7b2d00,#ffd500)">
-          🏰
-          <div class="stay-img-badge"><span class="badge badge-coral">Hidden Gem ✦</span></div>
-          <button class="stay-img-fav">♡</button>
+      <div class="filter-section">
+        <div class="filter-label">
+          <span class="filter-label-icon">
+            <span class="ic ic-14" id="filter-icon-stars"></span>
+            Star rating
+          </span>
         </div>
-        <div class="stay-body">
-          <div class="stay-name">Canaves Oia Suites</div>
-          <div class="stay-loc">🇬🇷 Oia, Santorini</div>
-          <div class="stay-rating">
-            <div class="stars">★★★★★</div>
-            <span class="ai-score">AI Score: 9.5/10</span>
-          </div>
-          <div class="stay-ai-summary">"The caldera-view infinity pool at sunset is literally every photo you've ever seen of Santorini. Worth every cent."</div>
-          <div class="stay-amenities">
-            <span class="amenity">♾️</span><span class="amenity">🌅</span><span class="amenity">🍷</span><span class="amenity">💆</span>
-          </div>
-          <div class="stay-footer">
-            <div><div class="stay-price">€520</div><div class="stay-price-sub">per night · breakfast</div></div>
-            <button class="btn btn-primary btn-sm ripple-btn">Book Now</button>
-          </div>
+        <div class="star-filter-row">
+          {% for s in [5, 4, 3, 2, 1] %}
+            <label class="star-check-row">
+              <input type="checkbox" class="star-cb" value="{{ s }}">
+              <span class="star-icons">
+                {%- for i in 1..5 %}{{ i <= s ? '★' : '☆' }}{% endfor -%}
+              </span>
+              <span class="star-count">{{ s }} star{{ s != 1 ? 's' : '' }}</span>
+            </label>
+          {% endfor %}
         </div>
       </div>
 
-      <!-- Card 3 -->
-      <div class="stay-card">
-        <div class="stay-img" style="background:linear-gradient(135deg,#003049,#d62828)">
-          🌿
-          <div class="stay-img-badge"><span class="badge badge-teal">Eco ♻️</span></div>
-          <button class="stay-img-fav">♡</button>
+      <div class="filter-section">
+        <div class="filter-label">
+          <span class="filter-label-icon">
+            <span class="ic ic-14" id="filter-icon-rating"></span>
+            Minimum guest rating
+          </span>
+          <span class="rating-val" id="rating-val-label">0+</span>
         </div>
-        <div class="stay-body">
-          <div class="stay-name">Mandapa Reserve Ubud</div>
-          <div class="stay-loc">🇮🇩 Ubud, Bali</div>
-          <div class="stay-rating">
-            <div class="stars">★★★★★</div>
-            <span class="ai-score">AI Score: 9.6/10</span>
-          </div>
-          <div class="stay-ai-summary">"A Ritz-Carlton in a jungle valley. The river-sound ambience and rice terrace views make this incomparably special."</div>
-          <div class="stay-amenities">
-            <span class="amenity">🌿</span><span class="amenity">🧘</span><span class="amenity">🏊</span><span class="amenity">🍃</span>
-          </div>
-          <div class="stay-footer">
-            <div><div class="stay-price">€340</div><div class="stay-price-sub">per night · full board</div></div>
-            <button class="btn btn-primary btn-sm ripple-btn">Book Now</button>
-          </div>
+        <div class="rating-slider-wrap">
+          <input type="range" class="rating-slider" id="rating-slider" min="0" max="5" step="0.5" value="0">
         </div>
       </div>
 
-      <!-- Card 4 -->
-      <div class="stay-card">
-        <div class="stay-img" style="background:linear-gradient(135deg,#1b1f4a,#3a0ca3)">
-          🌌
-          <button class="stay-img-fav">♡</button>
+      <div class="filter-section">
+        <div class="filter-label">
+          <span class="filter-label-icon">
+            <span class="ic ic-14" id="filter-icon-amenities"></span>
+            Amenities
+          </span>
         </div>
-        <div class="stay-body">
-          <div class="stay-name">Ion Adventure Hotel</div>
-          <div class="stay-loc">🇮🇸 Selfoss, Iceland</div>
-          <div class="stay-rating">
-            <div class="stars">★★★★☆</div>
-            <span class="ai-score">AI Score: 9.1/10</span>
-          </div>
-          <div class="stay-ai-summary">"Floor-to-ceiling windows designed specifically for Northern Lights viewing from your bed. Architectural masterpiece."</div>
-          <div class="stay-amenities">
-            <span class="amenity">🌌</span><span class="amenity">♨️</span><span class="amenity">🧊</span>
-          </div>
-          <div class="stay-footer">
-            <div><div class="stay-price">€280</div><div class="stay-price-sub">per night</div></div>
-            <button class="btn btn-primary btn-sm ripple-btn">Book Now</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 5 -->
-      <div class="stay-card">
-        <div class="stay-img" style="background:linear-gradient(135deg,#003049,#f77f00)">
-          🏜️
-          <div class="stay-img-badge"><span class="badge badge-gold">AI Pick ✦</span></div>
-          <button class="stay-img-fav">♡</button>
-        </div>
-        <div class="stay-body">
-          <div class="stay-name">Amanjena Resort</div>
-          <div class="stay-loc">🇲🇦 Marrakech, Morocco</div>
-          <div class="stay-rating">
-            <div class="stars">★★★★★</div>
-            <span class="ai-score">AI Score: 9.4/10</span>
-          </div>
-          <div class="stay-ai-summary">"Step into a 12th-century Moroccan palace. The pavilions around the central bassin are architectural perfection."</div>
-          <div class="stay-amenities">
-            <span class="amenity">🎭</span><span class="amenity">🏊</span><span class="amenity">🛎️</span><span class="amenity">🌴</span>
-          </div>
-          <div class="stay-footer">
-            <div><div class="stay-price">€420</div><div class="stay-price-sub">per night · breakfast</div></div>
-            <button class="btn btn-primary btn-sm ripple-btn">Book Now</button>
-          </div>
+        <div class="amenity-grid">
+          {% set amenityList = [
+            'Free WiFi','Pool','Spa','Gym','Parking','Restaurant',
+            'Bar','Air Conditioning','Pet Friendly','Beach Access',
+            'Room Service','Concierge'
+          ] %}
+          {% for amenity in amenityList %}
+            <label class="amenity-row">
+              <input type="checkbox" class="amenity-cb" value="{{ amenity }}">
+              <span class="ic ic-14 amenity-row-icon" data-amenity="{{ amenity }}"></span>
+              <span style="font-size:12px;">{{ amenity }}</span>
+            </label>
+          {% endfor %}
         </div>
       </div>
 
-      <!-- Card 6 -->
-      <div class="stay-card">
-        <div class="stay-img" style="background:linear-gradient(135deg,#0a1628,#1e3c72)">
-          🌸
-          <button class="stay-img-fav">♡</button>
-        </div>
-        <div class="stay-body">
-          <div class="stay-name">Nishiki Ryokan Kyoto</div>
-          <div class="stay-loc">🇯🇵 Gion District, Kyoto</div>
-          <div class="stay-rating">
-            <div class="stars">★★★★★</div>
-            <span class="ai-score">AI Score: 9.7/10</span>
-          </div>
-          <div class="stay-ai-summary">"Authentic Edo-period ryokan. The tatami rooms and kaiseki breakfast are as traditional as Japan gets."</div>
-          <div class="stay-amenities">
-            <span class="amenity">♨️</span><span class="amenity">🎋</span><span class="amenity">🍵</span><span class="amenity">👘</span>
-          </div>
-          <div class="stay-footer">
-            <div><div class="stay-price">€195</div><div class="stay-price-sub">per night · breakfast</div></div>
-            <button class="btn btn-primary btn-sm ripple-btn">Book Now</button>
-          </div>
-        </div>
+      <button class="clear-btn" id="clear-btn" onclick="clearFilters()">
+        <span class="ic ic-14" id="filter-icon-clear"></span>
+        Clear all filters
+      </button>
+    </div>
+  </div>
+
+  {# Filters edge button #}
+  <button class="drawer-open-btn" id="open-filters-btn">
+    <span class="ic ic-18" id="edge-icon-filter"></span>
+  </button>
+
+  {# Map Drawer #}
+  <div class="map-drawer" id="map-drawer">
+    <div class="drawer-header">
+      <span class="drawer-title">
+        <span class="ic ic-18" id="drawer-icon-map"></span>
+        Map View
+      </span>
+      <button class="drawer-close-btn" id="close-map-btn">
+        <span class="ic ic-16" id="drawer-icon-close-map"></span>
+      </button>
+    </div>
+    <div class="drawer-content" style="padding:0;">
+      <div class="map-container">
+        <button class="map-reload-btn" onclick="refreshMapMarkers()">
+          <span class="ic ic-14" id="map-reload-icon"></span>
+          Refresh
+        </button>
+        <div id="acc-map"></div>
       </div>
     </div>
   </div>
-</section>
 
-<!-- Hidden Gems -->
-<section class="section" style="background:var(--bg-secondary)">
-  <div class="container">
-    <div class="section-label reveal"><span>AI Curated</span></div>
-    <h2 class="display-md reveal" style="margin-bottom:8px">Hidden <span class="text-gold">Gems ✦</span></h2>
-    <p class="serif-mood text-muted reveal reveal-delay-1" style="margin-bottom:32px">Under-the-radar places most travellers walk right past.</p>
-    <div style="display:flex;flex-direction:column;gap:16px" class="stagger">
-      <div class="gem-card">
-        <div class="gem-icon">🏡</div>
-        <div style="flex:1">
-          <div style="font-weight:700;margin-bottom:6px">Masseria Torre Coccaro, Puglia</div>
-          <div style="font-size:0.85rem;color:var(--text-muted);line-height:1.65">A 17th-century fortified farmhouse in southern Italy's «heel» — olive groves, spa, and farm-to-table cuisine that Instagram hasn't found yet.</div>
-        </div>
-        <div style="text-align:right;flex-shrink:0">
-          <div class="ai-badge" style="margin-bottom:8px">ARIA Gem Pick</div>
-          <div style="font-family:var(--font-display);font-size:22px;color:var(--accent-primary)">€165/night</div>
-        </div>
-      </div>
-      <div class="gem-card">
-        <div class="gem-icon">🌋</div>
-        <div style="flex:1">
-          <div style="font-weight:700;margin-bottom:6px">Lava Lava Beach Club, Big Island Hawaii</div>
-          <div style="font-size:0.85rem;color:var(--text-muted);line-height:1.65">Oceanfront bungalows steps from black-sand beaches and active lava flows. Raw, spectacular, and deeply peaceful.</div>
-        </div>
-        <div style="text-align:right;flex-shrink:0">
-          <div class="ai-badge" style="margin-bottom:8px">ARIA Gem Pick</div>
-          <div style="font-family:var(--font-display);font-size:22px;color:var(--accent-primary)">€240/night</div>
-        </div>
+  {# Map edge button #}
+  <button class="map-open-btn" id="open-map-btn">
+    <span class="ic ic-18" id="edge-icon-map"></span>
+  </button>
+
+  {# Main Content #}
+  <div class="main-content" id="main-content">
+    <div class="acc-cards-area" id="acc-cards-area">
+      <div class="cards-grid" id="cards-grid">
+        {% if accommodations is empty %}
+          <div class="state-empty">
+            <div class="ic-empty" id="empty-icon"></div>
+            <h3 style="font-family:var(--font-display);margin-bottom:8px;">No accommodations found</h3>
+            <p>Try adjusting your filters.</p>
+          </div>
+        {% else %}
+          {% for a in accommodations %}
+            <div class="acc-card"
+                 data-id="{{ a.id }}"
+                 data-lat="{{ a.latitude ?? '' }}"
+                 data-lng="{{ a.longitude ?? '' }}"
+                 onclick="focusOnMap({{ a.id }})">
+
+              <div class="card-img">
+                {% if a.imagePath %}
+                  <img src="/{{ a.imagePath }}" alt="{{ a.name|e('html_attr') }}" onerror="this.style.display='none'">
+                {% else %}
+                  <span class="card-img-fallback ic ic-48" data-card-fallback="{{ a.id }}"></span>
+                {% endif %}
+                <div class="card-img-overlay"></div>
+                <div class="card-select-checkbox" onclick="event.stopPropagation(); toggleSelection({{ a.id }})"></div>
+                {% if a.type %}
+                  <div class="card-type-badge">{{ a.type }}</div>
+                {% endif %}
+                <div class="card-map-btn"
+                     onclick="event.stopPropagation();flyToMarker({{ a.id }})"
+                     title="Show on map">
+                  <span class="ic ic-14" data-card-map-icon="{{ a.id }}"></span>
+                </div>
+                {% if a.minPrice is not null %}
+                  <div class="card-price-badge">
+                    <span class="card-price-from">from</span>
+                    <span class="card-price-val">€{{ a.minPrice|number_format(0) }}</span>
+                    <span class="card-price-night">/night</span>
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="card-body">
+                <div class="card-name">{{ a.name }}</div>
+                <div class="card-loc">
+                  <span class="ic ic-12" data-card-loc-icon="{{ a.id }}"></span>
+                  {{ a.city }}{% if a.country %}, {{ a.country }}{% endif %}
+                </div>
+                <div class="card-meta">
+                  <span class="card-stars">
+                    {% for i in 1..5 %}{{ i <= a.stars ? '★' : '☆' }}{% endfor %}
+                  </span>
+                  {% if a.rating %}
+                    <span class="card-rating">
+                      <span class="ic ic-10" data-card-rating-icon="{{ a.id }}"></span>
+                      {{ a.rating|number_format(1) }}
+                    </span>
+                  {% endif %}
+                  <span class="card-rooms">
+                    {{ a.availableRooms }} room{{ a.availableRooms != 1 ? 's' : '' }}
+                  </span>
+                </div>
+                {% if a.amenities %}
+                  <div class="card-amenities">
+                    {% set amenitiesList = a.amenities|split(',') %}
+                    {% for amenity in amenitiesList %}
+                      {% set amenityTrimmed = amenity|trim %}
+                      {% if amenityTrimmed %}
+                        <span class="amenity-tag">{{ amenityTrimmed }}</span>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                <div class="card-footer">
+                  <a href="{{ path('accommodation_details', {id: a.id}) }}"
+                     class="card-btn card-btn-primary"
+                     onclick="event.stopPropagation()">
+                    <span class="ic ic-13" data-card-view-icon="{{ a.id }}"></span>
+                    View Details
+                  </a>
+                  <button class="card-btn card-btn-map"
+                          onclick="event.stopPropagation();flyToMarker({{ a.id }})">
+                    <span class="ic ic-13" data-card-mapbtn-icon="{{ a.id }}"></span>
+                    Map
+                  </button>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
       </div>
     </div>
-  </div>
-</section>
-
-<footer class="footer">
-  <div class="container">
-    <div class="footer-bottom">
-      <div class="footer-copy">© 2026 TripX. All rights reserved.</div>
-      <a href="{{ path('index') }}" class="footer-copy" style="color:var(--accent-primary)">← Back to Home</a>
-    </div>
-  </div>
-</footer>
-
-<button class="aria-orb" id="aria-orb" aria-label="Open ARIA">✦</button>
-<div class="aria-panel" id="aria-panel">
-  <div class="aria-header">
-    <div class="aria-avatar">✦</div>
-    <div><span class="aria-name">ARIA</span><span class="aria-status">Accommodation Expert</span></div>
-    <button id="aria-close" style="margin-left:auto;font-size:18px;color:var(--text-muted);cursor:none">✕</button>
-  </div>
-  <div class="aria-messages" id="aria-messages">
-    <div class="aria-msg bot"><div class="aria-bubble">Looking for the perfect stay? Tell me your destination, budget, and vibe — I'll find you something extraordinary! 🏨✨</div></div>
-  </div>
-  <div class="aria-input-row">
-    <input class="aria-input" id="aria-input" type="text" placeholder="Find me a stay...">
-    <button class="aria-send" id="aria-send">➤</button>
   </div>
 </div>
-<script src="/assets.php?f=js/main.js"></script>
-</body>
-</html>
 
+{# Toast #}
+<div id="toast"></div>
 
+{% endblock %}
 
+{% block javascripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════════
+//  ICON SYSTEM — Solar Bold Duotone via Iconify API
+// ══════════════════════════════════════════════════════════════════
+const IC = {
+  buildings:  { n:'buildings-2-bold-duotone',           p:'--ic-violet',  s:'--ic-violet-2'  },
+  star:       { n:'star-bold-duotone',                  p:'--ic-amber',   s:'--ic-amber-2'   },
+  filter:     { n:'filter-bold-duotone',                p:'--ic-violet',  s:'--ic-violet-2'  },
+  map:        { n:'map-bold-duotone',                   p:'--ic-sky',     s:'--ic-sky-2'     },
+  search:     { n:'magnifer-bold-duotone',              p:'--ic-slate',   s:'--ic-slate-2'   },
+  calendar:   { n:'calendar-bold-duotone',              p:'--ic-emerald', s:'--ic-emerald-2' },
+  chart:      { n:'chart-2-bold-duotone',               p:'--ic-violet',  s:'--ic-violet-2'  },
+  ai:         { n:'cpu-bold-duotone',                   p:'--ic-sky',     s:'--ic-sky-2'     },
+  close:      { n:'close-circle-bold-duotone',          p:'--ic-rose',    s:'--ic-rose-2'    },
+  pin:        { n:'map-point-wave-bold-duotone',        p:'--ic-rose',    s:'--ic-rose-2'    },
+  pinSmall:   { n:'map-point-bold-duotone',             p:'--ic-sky',     s:'--ic-sky-2'     },
+  eye:        { n:'eye-bold-duotone',                   p:'--ic-violet',  s:'--ic-violet-2'  },
+  hotel:      { n:'buildings-bold-duotone',             p:'--ic-sky',     s:'--ic-sky-2'     },
+  price:      { n:'tag-price-bold-duotone',             p:'--ic-amber',   s:'--ic-amber-2'   },
+  starSmall:  { n:'star-bold-duotone',                  p:'--ic-amber',   s:'--ic-amber-2'   },
+  reload:     { n:'refresh-bold-duotone',               p:'--ic-slate',   s:'--ic-slate-2'   },
+  type:       { n:'widget-bold-duotone',                p:'--ic-violet',  s:'--ic-violet-2'  },
+  amenities:  { n:'list-bold-duotone',                  p:'--ic-emerald', s:'--ic-emerald-2' },
+  rating:     { n:'like-bold-duotone',                  p:'--ic-rose',    s:'--ic-rose-2'    },
+  wifi:       { n:'wifi-bold-duotone',                  p:'--ic-sky',     s:'--ic-sky-2'     },
+  pool:       { n:'pool-bold-duotone',                  p:'--ic-sky',     s:'--ic-sky-2'     },
+  spa:        { n:'health-bold-duotone',                p:'--ic-rose',    s:'--ic-rose-2'    },
+  gym:        { n:'dumbbell-bold-duotone',              p:'--ic-violet',  s:'--ic-violet-2'  },
+  parking:    { n:'parking-bold-duotone',               p:'--ic-amber',   s:'--ic-amber-2'   },
+  restaurant: { n:'cup-hot-bold-duotone',               p:'--ic-rose',    s:'--ic-rose-2'    },
+  bar:        { n:'bottle-bold-duotone',                p:'--ic-amber',   s:'--ic-amber-2'   },
+  ac:         { n:'wind-bold-duotone',                  p:'--ic-sky',     s:'--ic-sky-2'     },
+  pet:        { n:'dog-bold-duotone',                   p:'--ic-amber',   s:'--ic-amber-2'   },
+  beach:      { n:'sun-2-bold-duotone',                 p:'--ic-amber',   s:'--ic-amber-2'   },
+  roomservice:{ n:'bell-bing-bold-duotone',             p:'--ic-emerald', s:'--ic-emerald-2' },
+  concierge:  { n:'key-minimalistic-bold-duotone',      p:'--ic-violet',  s:'--ic-violet-2'  },
+};
 
+const AMENITY_ICON_MAP = {
+  'Free WiFi':        IC.wifi,
+  'Pool':             IC.pool,
+  'Spa':              IC.spa,
+  'Gym':              IC.gym,
+  'Parking':          IC.parking,
+  'Restaurant':       IC.restaurant,
+  'Bar':              IC.bar,
+  'Air Conditioning': IC.ac,
+  'Pet Friendly':     IC.pet,
+  'Beach Access':     IC.beach,
+  'Room Service':     IC.roomservice,
+  'Concierge':        IC.concierge,
+};
 
+const _iconCache = {};
 
+function getCSSVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+async function fetchSVG(iconName) {
+  if (_iconCache[iconName]) return _iconCache[iconName];
+  try {
+    const r = await fetch(`https://api.iconify.design/solar/${iconName}.svg`);
+    if (!r.ok) return null;
+    const txt = await r.text();
+    _iconCache[iconName] = txt;
+    return txt;
+  } catch(e) { return null; }
+}
+
+function coloriseSVG(svg, primary, secondary) {
+  let s = svg;
+  s = s.replace(/currentColor/g, primary);
+  s = s.replace(/opacity="0\.5"/g, `opacity="1" fill="${secondary}"`);
+  s = s.replace(/opacity="\.5"/g,  `opacity="1" fill="${secondary}"`);
+  return s;
+}
+
+async function renderIcon(el, def) {
+  if (!el || !def) return;
+  const raw = await fetchSVG(def.n);
+  if (!raw) return;
+  const p = getCSSVar(def.p);
+  const s = getCSSVar(def.s);
+  el.innerHTML = coloriseSVG(raw, p, s);
+}
+
+async function renderIcons(map) {
+  await Promise.all(
+    Object.entries(map).map(([id, def]) => renderIcon(document.getElementById(id), def))
+  );
+}
+
+async function renderIconAll(selector, def) {
+  const els = document.querySelectorAll(selector);
+  if (!els.length) return;
+  const raw = await fetchSVG(def.n);
+  if (!raw) return;
+  const p = getCSSVar(def.p);
+  const s = getCSSVar(def.s);
+  const colored = coloriseSVG(raw, p, s);
+  els.forEach(el => { el.innerHTML = colored; });
+}
+
+function inlineSVG(def, size = 14) {
+  const raw = _iconCache[def.n];
+  if (!raw) return '';
+  const p = getCSSVar(def.p);
+  const s = getCSSVar(def.s);
+  let svg = coloriseSVG(raw, p, s);
+  svg = svg.replace('<svg ', `<svg width="${size}" height="${size}" `);
+  return svg;
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  CONSTANTS & STATE
+// ══════════════════════════════════════════════════════════════════
+const SEARCH_URL       = '{{ path('accommodations_search') }}';
+const COMPARE_URL      = '{{ path('accommodations_compare') }}';
+const PRICE_MIN_GLOBAL = {{ minPrice|json_encode|raw }};
+const PRICE_MAX_GLOBAL = {{ maxPrice|json_encode|raw }};
+const initialAccommodations = {{ accommodations|json_encode|raw }};
+
+let currentAccommodations  = initialAccommodations;
+let activeMarkers          = {};
+let map                    = null;
+let searchTimer            = null;
+let priceMinVal            = PRICE_MIN_GLOBAL;
+let priceMaxVal            = PRICE_MAX_GLOBAL;
+let selectedAccommodations = [];
+let filtersOpen            = false;
+let mapOpen                = false;
+
+// ══════════════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+  await Promise.all(Object.values(IC).map(def => fetchSVG(def.n)));
+
+  await renderIcons({
+    'toolbar-icon-filter':      IC.filter,
+    'toolbar-icon-map':         IC.map,
+    'toolbar-icon-search':      IC.search,
+    'toolbar-icon-calendar':    IC.calendar,
+    'compare-icon-chart':       IC.chart,
+    'compare-icon-ai':          IC.ai,
+    'compare-icon-close':       IC.close,
+    'modal-icon-ai':            IC.ai,
+    'modal-icon-close':         IC.close,
+    'drawer-icon-filter':       IC.filter,
+    'drawer-icon-close-filter': IC.close,
+    'drawer-icon-map':          IC.map,
+    'drawer-icon-close-map':    IC.close,
+    'filter-icon-type':         IC.type,
+    'filter-icon-price':        IC.price,
+    'filter-icon-stars':        IC.starSmall,
+    'filter-icon-rating':       IC.rating,
+    'filter-icon-amenities':    IC.amenities,
+    'filter-icon-clear':        IC.close,
+    'edge-icon-filter':         IC.filter,
+    'edge-icon-map':            IC.map,
+    'map-reload-icon':          IC.reload,
+    'empty-icon':               IC.hotel,
+  });
+
+  document.querySelectorAll('[data-card-map-icon]').forEach(el => renderIcon(el, IC.pinSmall));
+  document.querySelectorAll('[data-card-loc-icon]').forEach(el => renderIcon(el, IC.pin));
+  document.querySelectorAll('[data-card-rating-icon]').forEach(el => renderIcon(el, IC.starSmall));
+  document.querySelectorAll('[data-card-view-icon]').forEach(el => renderIcon(el, IC.eye));
+  document.querySelectorAll('[data-card-mapbtn-icon]').forEach(el => renderIcon(el, IC.pinSmall));
+  document.querySelectorAll('[data-card-fallback]').forEach(el => renderIcon(el, IC.hotel));
+
+  document.querySelectorAll('.amenity-row-icon[data-amenity]').forEach(el => {
+    const amenity = el.getAttribute('data-amenity');
+    const def = AMENITY_ICON_MAP[amenity] || IC.amenities;
+    renderIcon(el, def);
+  });
+
+  syncDrawerTop();
+  initMap();
+  initPriceSlider();
+  initFilterListeners();
+  plotMarkers(currentAccommodations);
+  initDrawers();
+  renderSelectedAccommodations();
+});
+
+function syncDrawerTop() {
+  const toolbar = document.getElementById('acc-toolbar');
+  if (!toolbar) return;
+  const bottom = toolbar.getBoundingClientRect().bottom;
+  document.documentElement.style.setProperty('--drawers-top', Math.max(0, bottom) + 'px');
+}
+
+window.addEventListener('scroll', syncDrawerTop, { passive: true });
+window.addEventListener('resize', syncDrawerTop, { passive: true });
+
+function initDrawers() {
+  const filtersDrawer    = document.getElementById('filters-drawer');
+  const mapDrawer        = document.getElementById('map-drawer');
+  const mainContent      = document.getElementById('main-content');
+  const toggleFiltersBtn = document.getElementById('toggle-filters-btn');
+  const toggleMapBtn     = document.getElementById('toggle-map-btn');
+  const openFiltersBtn   = document.getElementById('open-filters-btn');
+  const openMapBtn       = document.getElementById('open-map-btn');
+  const closeFiltersBtn  = document.getElementById('close-filters-btn');
+  const closeMapBtn      = document.getElementById('close-map-btn');
+
+  function openFilters() {
+    filtersDrawer.classList.add('open');
+    mainContent.classList.add('filters-open');
+    toggleFiltersBtn.classList.add('active');
+    filtersOpen = true;
+    openFiltersBtn.classList.remove('visible');
+  }
+
+  function closeFilters() {
+    filtersDrawer.classList.remove('open');
+    mainContent.classList.remove('filters-open');
+    toggleFiltersBtn.classList.remove('active');
+    filtersOpen = false;
+    openFiltersBtn.classList.add('visible');
+  }
+
+  function openMap() {
+    mapDrawer.classList.add('open');
+    mainContent.classList.add('map-open');
+    toggleMapBtn.classList.add('active');
+    mapOpen = true;
+    openMapBtn.classList.remove('visible');
+    setTimeout(() => { if (map) map.invalidateSize(); }, 300);
+  }
+
+  function closeMap() {
+    mapDrawer.classList.remove('open');
+    mainContent.classList.remove('map-open');
+    toggleMapBtn.classList.remove('active');
+    mapOpen = false;
+    openMapBtn.classList.add('visible');
+  }
+
+  toggleFiltersBtn.addEventListener('click', () => filtersOpen ? closeFilters() : openFilters());
+  toggleMapBtn.addEventListener('click',     () => mapOpen     ? closeMap()     : openMap());
+  openFiltersBtn.addEventListener('click',  openFilters);
+  openMapBtn.addEventListener('click',      openMap);
+  closeFiltersBtn.addEventListener('click', closeFilters);
+  closeMapBtn.addEventListener('click',     closeMap);
+  openFiltersBtn.classList.add('visible');
+  openMapBtn.classList.add('visible');
+}
+
+function toggleSelection(accommodationId) {
+  const index    = selectedAccommodations.indexOf(accommodationId);
+  const checkbox = document.querySelector(`.acc-card[data-id="${accommodationId}"] .card-select-checkbox`);
+
+  if (index === -1 && selectedAccommodations.length < 3) {
+    selectedAccommodations.push(accommodationId);
+    if (checkbox) checkbox.classList.add('selected');
+    showToast(`Added to comparison (${selectedAccommodations.length}/3)`, 'success');
+  } else if (index !== -1) {
+    selectedAccommodations.splice(index, 1);
+    if (checkbox) checkbox.classList.remove('selected');
+    showToast('Removed from comparison', 'info');
+  } else {
+    showToast('You can only compare up to 3 accommodations at once!', 'error');
+  }
+  renderSelectedAccommodations();
+}
+
+function renderSelectedAccommodations() {
+  const container  = document.getElementById('compare-container');
+  const countSpan  = document.getElementById('selected-count');
+  const badgeSpan  = document.getElementById('compare-count-badge');
+  const n          = selectedAccommodations.length;
+  if (n > 0) {
+    container.classList.remove('hidden');
+    countSpan.textContent = n;
+    if (badgeSpan) badgeSpan.textContent = n;
+  } else {
+    container.classList.add('hidden');
+  }
+}
+
+function clearSelection() {
+  selectedAccommodations.forEach(id => {
+    const cb = document.querySelector(`.acc-card[data-id="${id}"] .card-select-checkbox`);
+    if (cb) cb.classList.remove('selected');
+  });
+  selectedAccommodations = [];
+  renderSelectedAccommodations();
+  showToast('Selection cleared', 'info');
+}
+
+async function compareWithAI() {
+  if (selectedAccommodations.length < 2) {
+    showToast('Please select at least 2 accommodations to compare!', 'error');
+    return;
+  }
+
+  const modal     = document.getElementById('compare-modal');
+  const modalBody = document.getElementById('compare-modal-body');
+  modal.classList.add('open');
+
+  modalBody.innerHTML = `
+    <div class="loading-container">
+      <div class="loader-wrapper">
+        <span class="loader-letter">G</span><span class="loader-letter">e</span>
+        <span class="loader-letter">n</span><span class="loader-letter">e</span>
+        <span class="loader-letter">r</span><span class="loader-letter">a</span>
+        <span class="loader-letter">t</span><span class="loader-letter">i</span>
+        <span class="loader-letter">n</span><span class="loader-letter">g</span>
+        <div class="loader"></div>
+      </div>
+      <p style="margin-top:20px;color:var(--text-muted);">AI is analyzing your selected accommodations…</p>
+    </div>`;
+
+  try {
+    const response = await fetch(COMPARE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify({ ids: selectedAccommodations })
+    });
+    if (!response.ok) throw new Error('Comparison failed');
+    const data = await response.json();
+    displayComparisonResult(data);
+  } catch (error) {
+    modalBody.innerHTML = `
+      <div class="state-empty">
+        <div class="ic-empty" style="justify-content:center;">${inlineSVG(IC.hotel, 48)}</div>
+        <h3 style="margin-bottom:8px;">Comparison Failed</h3>
+        <p>${error.message || 'Unable to compare accommodations. Please try again.'}</p>
+        <button class="clear-btn" onclick="closeCompareModal()" style="margin-top:20px;width:auto;padding:10px 24px;">Close</button>
+      </div>`;
+  }
+}
+
+function displayComparisonResult(data) {
+  const modalBody = document.getElementById('compare-modal-body');
+
+  let rankingHtml = '';
+  if (data.ranking && data.ranking.length > 0) {
+    rankingHtml = `
+      <div class="ranking-card">
+        <div class="ranking-title">
+          ${inlineSVG(IC.star, 18)}&nbsp;AI Ranking &amp; Recommendations
+        </div>
+        <div class="ranking-list">
+          ${data.ranking.map((item, index) => `
+            <div class="ranking-item">
+              <div class="ranking-number">${index + 1}</div>
+              <div class="ranking-name">${escapeHtml(item.name)}</div>
+              <div class="ranking-score">Score: ${item.score}/10</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  let comparisonHtml = '';
+  if (data.comparison && data.comparison.length > 0) {
+    const allKeys = new Set();
+    data.comparison.forEach(acc => {
+      Object.keys(acc).forEach(key => { if (key !== 'name' && key !== 'id') allKeys.add(key); });
+    });
+    comparisonHtml = `
+      <div class="ranking-card">
+        <div class="ranking-title">
+          ${inlineSVG(IC.chart, 18)}&nbsp;Detailed Comparison
+        </div>
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              ${data.comparison.map(acc => `<th>${escapeHtml(acc.name)}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${Array.from(allKeys).map(key => `
+              <tr>
+                <td><strong>${formatKey(key)}</strong></td>
+                ${data.comparison.map(acc => `
+                  <td>${escapeHtml(acc[key] || '—')}${isWinner(key, acc, data.comparison) ? '<span class="winner-badge">BEST</span>' : ''}</td>
+                `).join('')}
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }
+
+  let insightsHtml = '';
+  if (data.insights) {
+    insightsHtml = `
+      <div class="ai-insights">
+        <h4>${inlineSVG(IC.ai, 16)}&nbsp;AI Insights</h4>
+        <p>${escapeHtml(data.insights)}</p>
+      </div>`;
+  }
+
+  modalBody.innerHTML = `
+    <div class="comparison-result">
+      <div class="result-header">
+        <h3>AI-Powered Accommodation Analysis</h3>
+        <p style="color:var(--text-muted);margin-top:8px;">Based on ${selectedAccommodations.length} selected properties</p>
+      </div>
+      ${rankingHtml}
+      ${comparisonHtml}
+      ${insightsHtml}
+      <div style="text-align:center;margin-top:24px;">
+        <button class="clear-btn" onclick="closeCompareModal()" style="width:auto;padding:10px 32px;">Close</button>
+      </div>
+    </div>`;
+}
+
+function isWinner(key, currentAcc, allAccs) {
+  if (['price','price_per_night','minPrice'].includes(key)) {
+    const min = Math.min(...allAccs.map(a => parseFloat(a[key]) || Infinity));
+    return parseFloat(currentAcc[key]) === min;
+  }
+  if (['rating','stars','score'].includes(key)) {
+    const max = Math.max(...allAccs.map(a => parseFloat(a[key]) || 0));
+    return parseFloat(currentAcc[key]) === max;
+  }
+  return false;
+}
+
+function formatKey(key) {
+  const m = {
+    name:'Name', price:'Price (€)', minPrice:'Min Price (€)',
+    price_per_night:'Price/Night', stars:'Star Rating', rating:'Guest Rating',
+    availableRooms:'Available Rooms', type:'Type', city:'City',
+    country:'Country', amenities:'Amenities'
+  };
+  return m[key] || key.replace(/_/g,' ').replace(/\b\w/g, l => l.toUpperCase());
+}
+
+function closeCompareModal() {
+  document.getElementById('compare-modal').classList.remove('open');
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ── Map ──────────────────────────────────────────────────────────
+function initMap() {
+  map = L.map('acc-map', { zoomControl: false });
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap', maxZoom: 19
+  }).addTo(map);
+  map.setView([25, 20], 2);
+}
+
+function plotMarkers(items) {
+  Object.values(activeMarkers).forEach(m => map.removeLayer(m));
+  activeMarkers = {};
+
+  const valid = items.filter(a => a.latitude && a.longitude);
+  if (!valid.length) return;
+
+  const bounds = [];
+  valid.forEach(a => {
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="price-marker">${a.minPrice ? '€' + a.minPrice : escapeHtml(a.name).slice(0,6)}</div>`,
+      iconAnchor: [30, 15],
+    });
+    const marker = L.marker([a.latitude, a.longitude], { icon })
+      .addTo(map)
+      .bindPopup(buildPopup(a), { maxWidth: 220 });
+
+    marker.on('click', () => {
+      highlightCard(a.id);
+      document.querySelectorAll('.price-marker.active').forEach(e => e.classList.remove('active'));
+      marker.getElement()?.querySelector('.price-marker')?.classList.add('active');
+    });
+
+    activeMarkers[a.id] = marker;
+    bounds.push([a.latitude, a.longitude]);
+  });
+
+  if (bounds.length) map.fitBounds(bounds, { padding: [30,30], maxZoom: 12 });
+}
+
+function buildPopup(a) {
+  const stars = a.stars
+    ? `<div style="color:#fbbf24;font-size:12px;">${'★'.repeat(a.stars)}${'☆'.repeat(5 - a.stars)}</div>` : '';
+  const price = a.minPrice
+    ? `<div class="map-popup-price">€${a.minPrice}<span style="font-size:11px;color:#999;">/night</span></div>` : '';
+  return `<div class="map-popup">
+    <div class="map-popup-name">${escapeHtml(a.name)}</div>
+    <div class="map-popup-loc">
+      ${inlineSVG(IC.pin, 12)}
+      ${escapeHtml(a.city || '')}${a.country ? ', ' + escapeHtml(a.country) : ''}
+    </div>
+    ${stars}${price}
+    <a href="#" onclick="event.stopPropagation(); showToast('Coming soon!', 'info'); return false;"
+       style="display:inline-block;margin-top:8px;padding:5px 12px;background:#7c3aed;color:#fff;
+              border-radius:50px;font-size:11px;font-weight:700;text-decoration:none;">View Rooms →</a>
+  </div>`;
+}
+
+function flyToMarker(id) {
+  const marker = activeMarkers[id];
+  if (marker) {
+    if (!mapOpen) document.getElementById('toggle-map-btn').click();
+    map.flyTo(marker.getLatLng(), 14, { duration: 1.2 });
+    setTimeout(() => marker.openPopup(), 1200);
+  }
+}
+
+function highlightCard(id) {
+  document.querySelectorAll('.acc-card').forEach(c => c.classList.remove('highlighted'));
+  const card = document.querySelector(`.acc-card[data-id="${id}"]`);
+  if (card) {
+    card.classList.add('highlighted');
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+function focusOnMap(id) {
+  const marker = activeMarkers[id];
+  if (!marker || !map) return;
+  if (!mapOpen) document.getElementById('toggle-map-btn').click();
+  setTimeout(() => { map.panTo(marker.getLatLng()); marker.openPopup(); }, 300);
+  document.querySelectorAll('.price-marker.active').forEach(e => e.classList.remove('active'));
+  marker.getElement()?.querySelector('.price-marker')?.classList.add('active');
+}
+
+function refreshMapMarkers() { plotMarkers(currentAccommodations); }
+
+// ── Price Slider ─────────────────────────────────────────────────
+function initPriceSlider() {
+  const slider   = document.getElementById('price-slider');
+  const track    = document.getElementById('price-track');
+  const thumbMin = document.getElementById('thumb-min');
+  const thumbMax = document.getElementById('thumb-max');
+  const inputMin = document.getElementById('price-min-input');
+  const inputMax = document.getElementById('price-max-input');
+  const label    = document.getElementById('price-range-label');
+
+  function updateTrack() {
+    const range = PRICE_MAX_GLOBAL - PRICE_MIN_GLOBAL || 1;
+    const pMin  = (priceMinVal - PRICE_MIN_GLOBAL) / range * 100;
+    const pMax  = (priceMaxVal - PRICE_MIN_GLOBAL) / range * 100;
+    thumbMin.style.left  = pMin + '%';
+    thumbMax.style.left  = pMax + '%';
+    track.style.left     = pMin + '%';
+    track.style.width    = (pMax - pMin) + '%';
+    label.textContent    = `€${priceMinVal}–€${priceMaxVal}`;
+    inputMin.value       = priceMinVal;
+    inputMax.value       = priceMaxVal;
+  }
+
+  function makeDraggable(thumb, isMin) {
+    let dragging = false;
+    function applyDrag(clientX) {
+      const rect  = slider.getBoundingClientRect();
+      const pct   = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+      const range = PRICE_MAX_GLOBAL - PRICE_MIN_GLOBAL || 1;
+      const val   = Math.round(PRICE_MIN_GLOBAL + pct * range);
+      if (isMin) priceMinVal = Math.min(val, priceMaxVal - 1);
+      else       priceMaxVal = Math.max(val, priceMinVal + 1);
+      updateTrack();
+    }
+    thumb.addEventListener('mousedown', e => { dragging = true; e.preventDefault(); });
+    document.addEventListener('mousemove', e => { if (dragging) applyDrag(e.clientX); });
+    document.addEventListener('mouseup',   () => { if (dragging) { dragging = false; triggerSearch(); } });
+    thumb.addEventListener('touchstart',   () => { dragging = true; }, { passive: true });
+    document.addEventListener('touchmove', e => { if (dragging) applyDrag(e.touches[0].clientX); }, { passive: true });
+    document.addEventListener('touchend',  () => { if (dragging) { dragging = false; triggerSearch(); } });
+  }
+
+  makeDraggable(thumbMin, true);
+  makeDraggable(thumbMax, false);
+
+  inputMin.addEventListener('change', () => {
+    priceMinVal = Math.min(parseInt(inputMin.value) || PRICE_MIN_GLOBAL, priceMaxVal - 1);
+    updateTrack(); triggerSearch();
+  });
+  inputMax.addEventListener('change', () => {
+    priceMaxVal = Math.max(parseInt(inputMax.value) || PRICE_MAX_GLOBAL, priceMinVal + 1);
+    updateTrack(); triggerSearch();
+  });
+
+  updateTrack();
+}
+
+// ── Filter Listeners ─────────────────────────────────────────────
+function initFilterListeners() {
+  document.getElementById('q-input').addEventListener('input', triggerSearch);
+  document.getElementById('checkin-input').addEventListener('change', triggerSearch);
+  document.getElementById('checkout-input').addEventListener('change', triggerSearch);
+  document.getElementById('sort-select').addEventListener('change', triggerSearch);
+
+  document.querySelectorAll('.type-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      triggerSearch();
+    });
+  });
+
+  document.querySelectorAll('.star-cb').forEach(cb => cb.addEventListener('change', triggerSearch));
+
+  const ratingSlider = document.getElementById('rating-slider');
+  ratingSlider.addEventListener('input', () => {
+    document.getElementById('rating-val-label').textContent = ratingSlider.value + '+';
+  });
+  ratingSlider.addEventListener('change', triggerSearch);
+
+  document.querySelectorAll('.amenity-cb').forEach(cb => cb.addEventListener('change', triggerSearch));
+}
+
+// ── Search ───────────────────────────────────────────────────────
+function triggerSearch() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(doSearch, 320);
+}
+
+async function doSearch() {
+  showSkeleton();
+  const params = new URLSearchParams();
+
+  const q = document.getElementById('q-input').value.trim();
+  if (q) params.set('q', q);
+
+  const type = document.querySelector('.type-pill.active')?.dataset.type || '';
+  if (type) params.set('type', type);
+
+  // ★ FIX: only send price params if user actually moved the slider
+  if (priceMinVal > PRICE_MIN_GLOBAL) params.set('minPrice', priceMinVal);
+  if (priceMaxVal < PRICE_MAX_GLOBAL) params.set('maxPrice', priceMaxVal);
+
+  [...document.querySelectorAll('.star-cb:checked')].forEach(c => params.append('stars[]', c.value));
+
+  const minRating = document.getElementById('rating-slider').value;
+  if (parseFloat(minRating) > 0) params.set('minRating', minRating);
+
+  [...document.querySelectorAll('.amenity-cb:checked')].forEach(c => params.append('amenities[]', c.value));
+
+  const checkIn  = document.getElementById('checkin-input').value;
+  const checkOut = document.getElementById('checkout-input').value;
+  if (checkIn)  params.set('checkIn',  checkIn);
+  if (checkOut) params.set('checkOut', checkOut);
+
+  params.set('sort', document.getElementById('sort-select').value);
+
+  try {
+    const res  = await fetch(`${SEARCH_URL}?${params.toString()}`, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    currentAccommodations = data.accommodations;
+    renderCards(data.accommodations);
+    plotMarkers(data.accommodations);
+    document.getElementById('results-pill').textContent =
+      `${data.count} stay${data.count !== 1 ? 's' : ''}`;
+  } catch (e) {
+    console.error('Search error', e);
+    showToast('Search failed. Please try again.', 'error');
+    hideSkeleton();
+  }
+}
+
+// ── Render Cards ─────────────────────────────────────────────────
+async function renderCards(items) {
+  const grid = document.getElementById('cards-grid');
+
+  if (!items.length) {
+    const emptyIcon = inlineSVG(IC.hotel, 48);
+    grid.innerHTML = `
+      <div class="state-empty">
+        <div class="ic-empty" style="justify-content:center;">${emptyIcon}</div>
+        <h3 style="font-family:var(--font-display,serif);margin-bottom:8px;">No stays found</h3>
+        <p style="font-size:14px;color:var(--text-muted);">Try adjusting your filters or search term.</p>
+      </div>`;
+    return;
+  }
+
+  const pinSvg    = inlineSVG(IC.pinSmall, 12);
+  const locSvg    = inlineSVG(IC.pin,      11);
+  const starSvg   = inlineSVG(IC.starSmall,10);
+  const eyeSvg    = inlineSVG(IC.eye,      13);
+  const mapBtnSvg = inlineSVG(IC.pinSmall, 13);
+
+  grid.innerHTML = items.map(a => {
+    const stars      = '★'.repeat(a.stars) + '☆'.repeat(5 - a.stars);
+    const isSelected = selectedAccommodations.includes(a.id);
+
+    const amenitiesList = a.amenities
+      ? a.amenities.split(',').map(s => s.trim()).filter(Boolean)
+      : [];
+    const amenitiesHtml = amenitiesList.slice(0, 8)
+      .map(am => `<span class="amenity-tag">${escapeHtml(am)}</span>`)
+      .join('');
+
+    const imgHtml = a.imagePath
+      ? `<img src="/${escapeHtml(a.imagePath)}" alt="${escapeHtml(a.name)}" onerror="this.style.display='none'">`
+      : `<span class="card-img-fallback ic ic-48">${inlineSVG(IC.hotel, 48)}</span>`;
+
+    const priceHtml = a.minPrice ? `
+      <div class="card-price-badge">
+        <span class="card-price-from">from</span>
+        <span class="card-price-val">€${a.minPrice}</span>
+        <span class="card-price-night">/night</span>
+      </div>` : '';
+
+    const ratingHtml = a.rating ? `
+      <span class="card-rating">${starSvg} ${a.rating}</span>` : '';
+
+    return `
+      <div class="acc-card" data-id="${a.id}"
+           data-lat="${a.latitude || ''}" data-lng="${a.longitude || ''}"
+           onclick="focusOnMap(${a.id})">
+        <div class="card-img">
+          ${imgHtml}
+          <div class="card-img-overlay"></div>
+          <div class="card-select-checkbox ${isSelected ? 'selected' : ''}"
+               onclick="event.stopPropagation(); toggleSelection(${a.id})"></div>
+          ${a.type ? `<div class="card-type-badge">${escapeHtml(a.type)}</div>` : ''}
+          <div class="card-map-btn"
+               onclick="event.stopPropagation();flyToMarker(${a.id})"
+               title="Show on map">${pinSvg}</div>
+          ${priceHtml}
+        </div>
+        <div class="card-body">
+          <div class="card-name">${escapeHtml(a.name)}</div>
+          <div class="card-loc">
+            ${locSvg}
+            ${escapeHtml(a.city || '')}${a.country ? ', ' + escapeHtml(a.country) : ''}
+          </div>
+          <div class="card-meta">
+            <span class="card-stars">${stars}</span>
+            ${ratingHtml}
+            <span class="card-rooms">${a.availableRooms} room${a.availableRooms !== 1 ? 's' : ''}</span>
+          </div>
+          ${amenitiesHtml ? `<div class="card-amenities">${amenitiesHtml}</div>` : ''}
+          <div class="card-footer">
+            <a href="#"
+               class="card-btn card-btn-primary"
+               onclick="event.stopPropagation(); showToast('Coming soon! Room details will be available soon.', 'info'); return false;">
+              ${eyeSvg} View Rooms
+            </a>
+            <button class="card-btn card-btn-map"
+                    onclick="event.stopPropagation();flyToMarker(${a.id})">
+              ${mapBtnSvg} Map
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── Skeleton ─────────────────────────────────────────────────────
+function showSkeleton() {
+  document.getElementById('cards-grid').innerHTML =
+    Array(6).fill('<div class="skeleton-card"></div>').join('');
+}
+
+function hideSkeleton() {
+  document.getElementById('cards-grid').innerHTML = '';
+}
+
+// ── Clear Filters ────────────────────────────────────────────────
+function clearFilters() {
+  document.getElementById('q-input').value        = '';
+  document.getElementById('checkin-input').value  = '';
+  document.getElementById('checkout-input').value = '';
+  document.getElementById('sort-select').value    = 'rating';
+
+  document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
+  document.querySelector('.type-pill[data-type=""]').classList.add('active');
+
+  document.querySelectorAll('.star-cb').forEach(cb    => cb.checked = false);
+  document.querySelectorAll('.amenity-cb').forEach(cb => cb.checked = false);
+
+  const ratingSlider = document.getElementById('rating-slider');
+  ratingSlider.value = 0;
+  document.getElementById('rating-val-label').textContent = '0+';
+
+  priceMinVal = PRICE_MIN_GLOBAL;
+  priceMaxVal = PRICE_MAX_GLOBAL;
+
+  document.getElementById('thumb-min').style.left          = '0%';
+  document.getElementById('thumb-max').style.left          = '100%';
+  document.getElementById('price-track').style.left        = '0%';
+  document.getElementById('price-track').style.width       = '100%';
+  document.getElementById('price-range-label').textContent = `€${PRICE_MIN_GLOBAL}–€${PRICE_MAX_GLOBAL}`;
+  document.getElementById('price-min-input').value         = PRICE_MIN_GLOBAL;
+  document.getElementById('price-max-input').value         = PRICE_MAX_GLOBAL;
+
+  triggerSearch();
+  showToast('All filters cleared!', 'success');
+}
+
+// ── Toast ────────────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent        = msg;
+  t.style.background   = type === 'error' ? '#ef4444' : type === 'info' ? '#3b82f6' : '#10b981';
+  t.style.transform    = 'translateY(0)';
+  t.style.opacity      = '1';
+  setTimeout(() => { t.style.transform = 'translateY(70px)'; t.style.opacity = '0'; }, 3000);
+}
+
+// ── Keyboard shortcut ────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+    e.preventDefault();
+    document.getElementById('q-input').focus();
+  }
+});
+
+// ── Expose globals ───────────────────────────────────────────────
+window.clearFilters      = clearFilters;
+window.flyToMarker       = flyToMarker;
+window.focusOnMap        = focusOnMap;
+window.refreshMapMarkers = refreshMapMarkers;
+window.showToast         = showToast;
+window.toggleSelection   = toggleSelection;
+window.compareWithAI     = compareWithAI;
+window.clearSelection    = clearSelection;
+window.closeCompareModal = closeCompareModal;
+</script>
+{% endblock %}

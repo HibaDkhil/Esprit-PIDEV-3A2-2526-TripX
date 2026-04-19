@@ -31,6 +31,7 @@ class Destination
     private ?string $country = null;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[Assert\NotBlank(message: 'The city is required.')]
     #[Assert\Length(max: 100, maxMessage: 'The city cannot be longer than {{ limit }} characters.')]
     private ?string $city = null;
 

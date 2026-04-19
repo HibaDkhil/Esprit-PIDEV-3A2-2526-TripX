@@ -1,0 +1,1665 @@
+{% extends 'admin/admin_base.html.twig' %}
+
+{% block title %}Rooms — {{ acc.name }} — TripX Admin{% endblock %}
+
+{% block breadcrumbs %}
+  <a href="{{ path('admin_accommodations_index') }}" class="crumb">Accommodations</a>
+  <span class="sep">›</span>
+  <a href="{{ path('admin_accommodations_index') }}" class="crumb" onclick="history.back();return false;">{{ acc.name }}</a>
+  <span class="sep">›</span>
+  <span class="crumb active">Rooms</span>
+{% endblock %}
+
+{% block page_styles %}
+  /* ── Header bar ── */
+  .rooms-header {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:28px; flex-wrap:wrap; gap:16px;
+  }
+  .rooms-header-left h1 { font-family:var(--font-display); font-size:26px; font-weight:700; margin-bottom:4px; }
+  .rooms-header-left p  { font-size:13px; color:var(--text-muted); }
+  .rooms-stats { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:28px; }
+  .rstat {
+    background:var(--bg-card); border:1px solid var(--border-color);
+    border-radius:12px; padding:16px 22px; display:flex; align-items:center; gap:14px;
+  }
+  .rstat-icon { font-size:24px; }
+  .rstat-val  { font-family:var(--font-display); font-size:24px; font-weight:700; color:var(--accent-primary); line-height:1; }
+  .rstat-lbl  { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em; }
+
+  /* ── Rooms grid ── */
+  .rooms-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:24px; }
+
+  /* ── Room card ── */
+  .room-card {
+    background:var(--bg-card); border:1px solid var(--border-color);
+    border-radius:18px; overflow:hidden;
+    transition:transform .25s,box-shadow .25s,border-color .25s;
+  }
+  .room-card:hover { transform:translateY(-5px); box-shadow:0 16px 40px rgba(0,0,0,.18); border-color:var(--accent-primary); }
+
+  /* ── Carousel ── */
+  .carousel { position:relative; height:220px; background:linear-gradient(135deg,#1e3a5f,#0a6587); overflow:hidden; }
+  .carousel-track { display:flex; height:100%; transition:transform .4s cubic-bezier(.4,0,.2,1); }
+  .carousel-slide { min-width:100%; height:100%; position:relative; flex-shrink:0; }
+  .carousel-slide img { width:100%; height:100%; object-fit:cover; }
+  .carousel-slide .no-img { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:64px; }
+  .carousel-btn {
+    position:absolute; top:50%; transform:translateY(-50%);
+    width:34px; height:34px; background:rgba(0,0,0,.55); border:none;
+    border-radius:50%; color:#fff; font-size:16px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; transition:opacity .2s; z-index:5;
+  }
+  .carousel:hover .carousel-btn { opacity:1; }
+  .carousel-btn.prev { left:10px; }
+  .carousel-btn.next { right:10px; }
+  .carousel-dots { position:absolute; bottom:10px; left:50%; transform:translateX(-50%); display:flex; gap:5px; z-index:5; }
+  .carousel-dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.5); cursor:pointer; transition:background .2s,transform .2s; }
+  .carousel-dot.active { background:#fff; transform:scale(1.3); }
+  .carousel-count { position:absolute; top:10px; right:10px; background:rgba(0,0,0,.55); color:#fff; font-size:11px; padding:3px 8px; border-radius:10px; z-index:5; }
+  .avail-badge {
+    position:absolute; top:10px; left:10px;
+    padding:4px 10px; border-radius:20px; font-size:11px; font-weight:600; z-index:5;
+  }
+  .avail-yes { background:rgba(16,185,129,.85); color:#fff; }
+  .avail-no  { background:rgba(239,68,68,.85); color:#fff; }
+
+  /* ── Room card body ── */
+  .room-body { padding:18px; }
+  .room-name { font-family:var(--font-display); font-size:17px; font-weight:700; margin-bottom:6px; }
+  .room-type-pill { display:inline-block; padding:3px 10px; background:rgba(0,166,237,.1); color:var(--accent-primary); border-radius:20px; font-size:11px; font-weight:600; margin-bottom:10px; }
+  .room-info-row { display:flex; gap:16px; margin-bottom:12px; flex-wrap:wrap; }
+  .room-info-item { display:flex; align-items:center; gap:5px; font-size:12px; color:var(--text-muted); }
+  .room-price { font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--accent-primary); margin-bottom:12px; }
+  .room-amenities { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:14px; }
+  .room-amenity-tag { font-size:11px; padding:2px 8px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:8px; }
+  .room-actions { display:flex; gap:8px; padding-top:14px; border-top:1px solid var(--border-color); }
+  .room-btn { flex:1; padding:8px 6px; border-radius:9px; border:none; cursor:pointer; font-size:12px; font-weight:600; transition:opacity .2s,transform .2s; display:flex; align-items:center; justify-content:center; gap:5px; }
+  .room-btn:hover { opacity:.82; transform:translateY(-1px); }
+  .rb-images { background:rgba(139,92,246,.12); color:#8b5cf6; }
+  .rb-edit   { background:rgba(245,158,11,.12); color:#f59e0b; }
+  .rb-del    { background:rgba(239,68,68,.12); color:#ef4444; }
+
+  /* ── Add room btn ── */
+  .btn-add-room {
+    display:flex; align-items:center; gap:8px; padding:11px 22px;
+    background:var(--accent-primary); color:#fff; border:none;
+    border-radius:11px; font-size:14px; font-weight:600; cursor:pointer;
+    transition:opacity .2s; white-space:nowrap;
+  }
+  .btn-add-room:hover { opacity:.88; }
+  .btn-back {
+    display:flex; align-items:center; gap:7px; padding:10px 18px;
+    background:var(--bg-card); color:var(--text-muted); border:1px solid var(--border-color);
+    border-radius:11px; font-size:13px; font-weight:500; cursor:pointer;
+    text-decoration:none; transition:border-color .2s,color .2s;
+  }
+  .btn-back:hover { border-color:var(--accent-primary); color:var(--accent-primary); }
+
+  /* ── Drawer ── */
+  .drawer-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; opacity:0; pointer-events:none; transition:opacity .3s; }
+  .drawer-overlay.open { opacity:1; pointer-events:all; }
+  .drawer {
+    position:fixed; top:0; right:0; bottom:0; width:500px; max-width:95vw;
+    background:var(--bg-card); border-left:1px solid var(--border-color);
+    z-index:1001; display:flex; flex-direction:column;
+    transform:translateX(100%); transition:transform .35s cubic-bezier(.4,0,.2,1);
+  }
+  .drawer.open { transform:translateX(0); }
+  .drawer-header { padding:22px 26px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .drawer-title { font-family:var(--font-display); font-size:19px; font-weight:700; }
+  .drawer-close { width:34px; height:34px; border-radius:8px; background:var(--bg-surface); border:1px solid var(--border-color); cursor:pointer; font-size:17px; display:flex; align-items:center; justify-content:center; }
+  .drawer-close:hover { background:rgba(239,68,68,.1); color:#ef4444; border-color:#ef4444; }
+  .drawer-body { flex:1; overflow-y:auto; padding:26px; scroll-behavior:smooth; }
+  .drawer-body::-webkit-scrollbar { width:4px; }
+  .drawer-body::-webkit-scrollbar-thumb { background:var(--border-color); border-radius:4px; }
+  .drawer-footer { padding:18px 26px; border-top:1px solid var(--border-color); display:flex; gap:12px; flex-shrink:0; }
+
+  .form-group { margin-bottom:18px; }
+  .form-label { display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--text-muted); margin-bottom:7px; }
+  .form-input, .form-select, .form-textarea { width:100%; padding:10px 13px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:9px; color:inherit; font-size:14px; transition:border-color .2s; }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { outline:none; border-color:var(--accent-primary); }
+  .form-textarea { resize:vertical; min-height:80px; }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .form-section-title { font-size:12px; font-weight:700; color:var(--accent-primary); margin:18px 0 12px; text-transform:uppercase; letter-spacing:.07em; }
+
+  /* Image upload in drawer */
+  .img-drop-zone {
+    border:2px dashed var(--border-color); border-radius:12px; padding:24px;
+    text-align:center; cursor:pointer; transition:border-color .2s,background .2s;
+  }
+  .img-drop-zone:hover, .img-drop-zone.dragover { border-color:var(--accent-primary); background:rgba(0,166,237,.05); }
+  .img-thumbs { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .img-thumb-wrap { position:relative; width:70px; height:70px; border-radius:8px; overflow:hidden; border:2px solid transparent; transition:border-color .2s; }
+  .img-thumb-wrap.primary { border-color:var(--accent-primary); }
+  .img-thumb-wrap img { width:100%; height:100%; object-fit:cover; }
+  .img-thumb-del { position:absolute; top:2px; right:2px; background:rgba(239,68,68,.85); color:#fff; border:none; border-radius:50%; width:18px; height:18px; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+  /* ── Image manager modal ── */
+  .imgmgr-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:2000; opacity:0; pointer-events:none; transition:opacity .3s; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .imgmgr-overlay.open { opacity:1; pointer-events:all; }
+  .imgmgr {
+    background:var(--bg-card); border-radius:20px; width:720px; max-width:100%; max-height:90vh;
+    display:flex; flex-direction:column; border:1px solid var(--border-color);
+    transform:scale(.95); transition:transform .3s;
+  }
+  .imgmgr-overlay.open .imgmgr { transform:scale(1); }
+  .imgmgr-header { padding:20px 24px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .imgmgr-body { flex:1; overflow-y:auto; padding:24px; }
+  .imgmgr-body::-webkit-scrollbar { width:4px; }
+  .imgmgr-body::-webkit-scrollbar-thumb { background:var(--border-color); border-radius:4px; }
+
+  /* Big carousel in image manager */
+  .imgmgr-carousel {
+    border-radius:14px; overflow:hidden; height:300px;
+    background:linear-gradient(135deg,#1e3a5f,#0a6587);
+    position:relative; margin-bottom:20px;
+  }
+  .imgmgr-carousel .carousel-track {
+    display:flex; height:100%; width:100%;
+    transition:transform .4s cubic-bezier(.4,0,.2,1);
+  }
+  .imgmgr-carousel .carousel-slide {
+    min-width:100%; height:100%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .imgmgr-carousel .carousel-slide img { width:100%; height:100%; object-fit:cover; display:block; }
+  .imgmgr-carousel .carousel-btn { opacity:1; width:40px; height:40px; font-size:18px; }
+
+  .imgmgr-thumbs { display:flex; gap:10px; flex-wrap:wrap; }
+  .imgmgr-thumb {
+    width:90px; height:70px; border-radius:10px; overflow:hidden;
+    border:2px solid var(--border-color); cursor:pointer; position:relative;
+    transition:border-color .2s;
+  }
+  .imgmgr-thumb:hover { border-color:var(--accent-primary); }
+  .imgmgr-thumb.active { border-color:var(--accent-primary); }
+  .imgmgr-thumb.primary-thumb::after { content:'★'; position:absolute; top:3px; left:3px; background:var(--accent-primary); color:#fff; font-size:10px; padding:1px 5px; border-radius:5px; }
+  .imgmgr-thumb img { width:100%; height:100%; object-fit:cover; }
+  .imgmgr-thumb-actions { position:absolute; inset:0; background:rgba(0,0,0,.5); opacity:0; transition:opacity .2s; display:flex; align-items:center; justify-content:center; gap:4px; }
+  .imgmgr-thumb:hover .imgmgr-thumb-actions { opacity:1; }
+  .imgmgr-thumb-btn { background:rgba(255,255,255,.9); border:none; border-radius:5px; padding:3px 6px; font-size:10px; cursor:pointer; font-weight:600; }
+
+  .imgmgr-upload-bar { display:flex; gap:10px; align-items:center; margin-top:16px; padding-top:16px; border-top:1px solid var(--border-color); }
+  .imgmgr-footer { padding:16px 24px; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; flex-shrink:0; }
+
+  /* ── Delete confirm ── */
+  .del-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:3000; opacity:0; pointer-events:none; transition:opacity .25s; display:flex; align-items:center; justify-content:center; }
+  .del-overlay.open { opacity:1; pointer-events:all; }
+  .del-box { background:var(--bg-card); border-radius:16px; padding:30px; width:380px; max-width:90vw; text-align:center; transform:scale(.9); transition:transform .25s; border:1px solid var(--border-color); }
+  .del-overlay.open .del-box { transform:scale(1); }
+
+  /* ── Toast ── */
+  .toast { position:fixed; bottom:24px; right:24px; z-index:9999; padding:13px 18px; border-radius:11px; font-size:14px; font-weight:500; display:flex; align-items:center; gap:8px; transform:translateY(70px); opacity:0; transition:transform .3s,opacity .3s; box-shadow:0 8px 24px rgba(0,0,0,.2); }
+  .toast.show { transform:translateY(0); opacity:1; }
+  .toast.success { background:#10b981; color:#fff; }
+  .toast.error   { background:#ef4444; color:#fff; }
+
+  .empty-rooms { text-align:center; padding:80px 40px; color:var(--text-muted); }
+  .empty-rooms .ei { font-size:64px; opacity:.3; margin-bottom:16px; }
+
+  /* AI Insights Panel */
+  .ai-panel {
+    background: linear-gradient(135deg, rgba(127,119,221,0.08) 0%, rgba(127,119,221,0.02) 100%);
+    border: 1px solid rgba(127,119,221,0.2);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 28px;
+    transition: all 0.3s ease;
+  }
+  .ai-panel:hover {
+    border-color: rgba(127,119,221,0.4);
+    box-shadow: 0 8px 24px -12px rgba(0,0,0,0.2);
+  }
+  .ai-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .ai-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ai-badge {
+    background: rgba(127,119,221,0.15);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #7F77DD;
+  }
+  .ai-refresh {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 9px;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .ai-refresh:hover {
+    border-color: #7F77DD;
+    transform: translateY(-1px);
+  }
+  .ai-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .ai-stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+  .ai-stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .ai-stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .ai-stat-critical .ai-stat-value { color: #ef4444; }
+  .ai-stat-warning .ai-stat-value { color: #f59e0b; }
+  .ai-stat-score .ai-stat-value { color: #10b981; }
+  .ai-issues-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .ai-issue-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    transition: all 0.2s ease;
+  }
+  .ai-issue-item:hover {
+    border-color: rgba(127,119,221,0.4);
+    transform: translateX(4px);
+  }
+  .ai-issue-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .ai-issue-content {
+    flex: 1;
+  }
+  .ai-issue-title {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .ai-issue-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .ai-issue-suggestion {
+    font-size: 11px;
+    color: #7F77DD;
+    background: rgba(127,119,221,0.08);
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .ai-critical .ai-issue-icon { color: #ef4444; }
+  .ai-warning .ai-issue-icon { color: #f59e0b; }
+  .ai-insight-text {
+    background: rgba(127,119,221,0.05);
+    border-left: 3px solid #7F77DD;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    margin-top: 20px;
+  }
+  .room-quality-badge {
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .room-quality-badge.high { background: rgba(16,185,129,0.15); color: #10b981; }
+  .room-quality-badge.medium { background: rgba(245,158,11,0.15); color: #f59e0b; }
+  .room-quality-badge.low { background: rgba(239,68,68,0.15); color: #ef4444; }
+  .ai-model-tag {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    text-align: right;
+  }
+  @media (max-width: 768px) {
+    .ai-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+  }
+{% endblock %}
+
+{% block content %}
+
+{# ── Header ── #}
+<div class="rooms-header">
+  <div class="rooms-header-left">
+    <h1>🛏️ Rooms — <span style="color:var(--accent-primary)">{{ acc.name }}</span></h1>
+    <p>{{ acc.city }}{% if acc.country %}, {{ acc.country }}{% endif %} • {{ acc.type }} • {{ acc.stars }}★</p>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center;">
+    <a href="{{ path('admin_accommodations_index') }}" class="btn-back">← Back</a>
+    <button class="btn-add-room" onclick="openDrawer()">＋ Add Room</button>
+  </div>
+</div>
+
+{# ── Stats ── #}
+<div class="rooms-stats">
+  <div class="rstat">
+    <span class="rstat-icon">🛏️</span>
+    <div><div class="rstat-val" id="stat-total">{{ total }}</div><div class="rstat-lbl">Total Rooms</div></div>
+  </div>
+  <div class="rstat">
+    <span class="rstat-icon">✅</span>
+    <div><div class="rstat-val" id="stat-avail" style="color:#10b981">{{ available }}</div><div class="rstat-lbl">Available</div></div>
+  </div>
+  <div class="rstat">
+    <span class="rstat-icon">⏸️</span>
+    <div><div class="rstat-val" id="stat-unavail" style="color:#ef4444">{{ total - available }}</div><div class="rstat-lbl">Unavailable</div></div>
+  </div>
+</div>
+
+{# AI Insights Panel #}
+<div class="ai-panel" id="ai-panel" style="display: none;">
+    <div class="ai-header">
+        <div class="ai-title">
+            <span>AI Room Intelligence</span>
+            <span class="ai-badge" id="ai-model-badge">Loading...</span>
+        </div>
+        <button class="ai-refresh" onclick="loadAiInsights()" id="ai-refresh-btn">
+            Refresh Analysis
+        </button>
+    </div>
+    
+    <div id="ai-content">
+        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+            Loading insights...
+        </div>
+    </div>
+</div>
+
+{# ── Rooms Grid ── #}
+<div class="rooms-grid" id="rooms-grid">
+  {% if roomsData is empty %}
+  <div class="empty-rooms" style="grid-column:1/-1">
+    <div class="ei">🛏️</div>
+    <h3 style="font-family:var(--font-display);margin-bottom:8px">No rooms yet</h3>
+    <p>Click "Add Room" to create the first room for this accommodation.</p>
+  </div>
+  {% else %}
+    {% for rd in roomsData %}
+    {% set r = rd.room %}
+    <div class="room-card" id="room-card-{{ r.id }}">
+      {# Carousel #}
+      <div class="carousel" id="carousel-{{ r.id }}">
+        {% if rd.allImages is empty %}
+        <div class="carousel-track">
+          <div class="carousel-slide"><div class="no-img">🛏️</div></div>
+        </div>
+        {% else %}
+        <div class="carousel-track" id="track-{{ r.id }}">
+          {% for img in rd.allImages %}
+          <div class="carousel-slide">
+            <img src="{{ img.filePath starts with '/' ? img.filePath : '/' ~ img.filePath }}" alt="{{ r.roomName }}" loading="lazy">
+          </div>
+          {% endfor %}
+        </div>
+        {% if rd.allImages|length > 1 %}
+        <button class="carousel-btn prev" onclick="carouselPrev('{{ r.id }}')">‹</button>
+        <button class="carousel-btn next" onclick="carouselNext('{{ r.id }}')">›</button>
+        <div class="carousel-dots" id="dots-{{ r.id }}">
+          {% for img in rd.allImages %}
+          <div class="carousel-dot {% if loop.first %}active{% endif %}" onclick="carouselGoTo('{{ r.id }}', {{ loop.index0 }})"></div>
+          {% endfor %}
+        </div>
+        <div class="carousel-count">{{ rd.imageCount }} 📷</div>
+        {% endif %}
+        {% endif %}
+        <span class="avail-badge {{ r.isAvailable ? 'avail-yes' : 'avail-no' }}">
+          {{ r.isAvailable ? 'Available' : 'Unavailable' }}
+        </span>
+      </div>
+
+      {# Body #}
+      <div class="room-body">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;">
+          <div class="room-name">{{ r.roomName }}</div>
+          <div style="display: flex; gap: 6px;">
+            {% if r.roomType %}<span class="room-type-pill">{{ r.roomType }}</span>{% endif %}
+            <span class="room-quality-badge" id="quality-badge-{{ r.id }}" style="display: none;"></span>
+          </div>
+        </div>
+        <div class="room-info-row">
+          {% if r.capacity %}<span class="room-info-item">👥 {{ r.capacity }} person(s)</span>{% endif %}
+          {% if r.size %}<span class="room-info-item">📐 {{ r.size }} m²</span>{% endif %}
+        </div>
+        {% if r.pricePerNight %}
+        <div class="room-price">€{{ r.pricePerNight|number_format(2) }} <span style="font-size:13px;font-weight:400;color:var(--text-muted)">/ night</span></div>
+        {% endif %}
+        {% if r.amenities %}
+        <div class="room-amenities">
+          {% for am in r.amenities|split(',') %}
+            {% if loop.index <= 4 %}<span class="room-amenity-tag">{{ am|trim }}</span>{% endif %}
+          {% endfor %}
+          {% if r.amenities|split(',')|length > 4 %}
+          <span class="room-amenity-tag" style="color:var(--text-muted)">+{{ r.amenities|split(',')|length - 4 }} more</span>
+          {% endif %}
+        </div>
+        {% endif %}
+        <div class="room-actions">
+          <button class="room-btn rb-images" onclick="openImgMgr({{ r.id }}, '{{ r.roomName|e('js') }}')">🖼 Images ({{ rd.imageCount }})</button>
+          <button class="room-btn rb-edit" onclick="editRoom({{ r.id }})">✏️ Edit</button>
+          <button class="room-btn rb-del"  onclick="confirmDel({{ r.id }}, '{{ r.roomName|e('js') }}')">🗑</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% endif %}
+</div>
+
+{# ════════════════ DRAWER — Add/Edit Room ════════════════ #}
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-title" id="drawer-title">Add Room</div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body">
+
+    <div class="form-group">
+      <label class="form-label">Room Name *</label>
+      <input type="text" class="form-input" id="f-roomName" placeholder="e.g. Deluxe Suite">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Room Type</label>
+        <select class="form-select" id="f-roomType">
+          <option value="">Select type</option>
+          <option>Single Room</option><option>Double Room</option>
+          <option>Twin Room</option><option>Suite</option>
+          <option>Family Room</option><option>Deluxe Room</option>
+          <option>Penthouse</option><option>Studio</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Availability</label>
+        <select class="form-select" id="f-isAvailable">
+          <option value="1">Available</option>
+          <option value="0">Unavailable</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Price / Night (€) *</label>
+        <input type="number" class="form-input" id="f-pricePerNight" step="0.01" min="0" placeholder="150.00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Capacity (persons)</label>
+        <input type="number" class="form-input" id="f-capacity" min="1" placeholder="2">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Size (m²)</label>
+      <input type="number" class="form-input" id="f-size" step="0.1" placeholder="35">
+    </div>
+
+    <div class="form-section-title">✨ Amenities</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+      {% for am in ['King Bed','Queen Bed','Single Bed','Double Bed','Bunk Bed','Air Conditioning','Free WiFi','TV','Mini Bar','Safe','Balcony','Sea View','Bathtub','Shower','Jacuzzi','Bathrobes & Slippers','In-room Safe','Coffee Maker'] %}
+      <label style="display:flex;align-items:center;gap:7px;padding:8px 10px;background:var(--bg-surface);border-radius:8px;border:1px solid var(--border-color);cursor:pointer;font-size:12px;">
+        <input type="checkbox" class="room-amenity-cb" value="{{ am }}" style="accent-color:var(--accent-primary)"> {{ am }}
+      </label>
+      {% endfor %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">Other Amenities (comma separated)</label>
+      <input type="text" class="form-input" id="f-custom-amenities" placeholder="Private Pool, Butler Service…">
+    </div>
+
+    <div class="form-section-title">📷 Images</div>
+    <div class="form-group">
+      <div class="img-drop-zone" id="drop-zone"
+           onclick="document.getElementById('f-images').click()"
+           ondragover="this.classList.add('dragover');event.preventDefault()"
+           ondragleave="this.classList.remove('dragover')"
+           ondrop="handleDrop(event)">
+        <div style="font-size:32px;margin-bottom:8px;">📷</div>
+        <div style="font-size:13px;color:var(--text-muted)">Click or drag & drop — select multiple at once</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">JPG, PNG, WebP — hold Ctrl/Cmd to select multiple</div>
+      </div>
+      <input type="file" id="f-images" accept="image/*" multiple style="display:none"
+             onchange="previewImages(Array.from(this.files))">
+      <div class="img-thumbs" id="img-thumbs-preview"></div>
+    </div>
+
+  </div>
+  <div class="drawer-footer">
+    <button class="btn-add-room" style="flex:1;justify-content:center;" id="save-btn" onclick="saveRoom()">💾 Save Room</button>
+    <button style="padding:10px 18px;background:var(--bg-surface);border:1px solid var(--border-color);border-radius:10px;cursor:pointer;font-size:14px;" onclick="closeDrawer()">Cancel</button>
+  </div>
+</div>
+
+{# ════════════════ IMAGE MANAGER MODAL ════════════════ #}
+<div class="imgmgr-overlay" id="imgmgr-overlay" onclick="if(event.target===this)closeImgMgr()">
+  <div class="imgmgr">
+    <div class="imgmgr-header">
+      <div>
+        <div style="font-family:var(--font-display);font-size:18px;font-weight:700">🖼 Image Manager</div>
+        <div style="font-size:12px;color:var(--text-muted)" id="imgmgr-room-name"></div>
+      </div>
+      <button class="drawer-close" onclick="closeImgMgr()">✕</button>
+    </div>
+    <div class="imgmgr-body">
+      {# Big carousel #}
+      <div class="imgmgr-carousel" id="imgmgr-carousel">
+        <div class="carousel-track" id="imgmgr-track">
+          <div class="carousel-slide"><div class="no-img" style="height:300px;display:flex;align-items:center;justify-content:center;font-size:64px;">🖼</div></div>
+        </div>
+        <button class="carousel-btn prev" onclick="imgMgrPrev()">‹</button>
+        <button class="carousel-btn next" onclick="imgMgrNext()">›</button>
+        <div class="carousel-count" id="imgmgr-count">0 / 0</div>
+      </div>
+
+      {# Thumbnails #}
+      <div class="imgmgr-thumbs" id="imgmgr-thumbs"></div>
+
+      {# Upload bar #}
+      <div class="imgmgr-upload-bar">
+        <button class="btn-add-room" onclick="document.getElementById('imgmgr-upload-input').click()" style="padding:9px 16px;font-size:13px;">📤 Upload More</button>
+        <input type="file" id="imgmgr-upload-input" accept="image/*" multiple style="display:none"
+               onchange="uploadMoreImages(Array.from(this.files)); this.value='';">
+        <span style="font-size:12px;color:var(--text-muted)">Click ★ to set primary • 🗑 to delete • Hold Ctrl/Cmd to select multiple</span>
+      </div>
+    </div>
+    <div class="imgmgr-footer">
+      <button style="padding:10px 22px;background:var(--bg-surface);border:1px solid var(--border-color);border-radius:10px;cursor:pointer;font-size:14px;" onclick="closeImgMgr()">Done</button>
+    </div>
+  </div>
+</div>
+
+{# ── Delete confirm ── #}
+<div class="del-overlay" id="del-overlay">
+  <div class="del-box">
+    <div style="font-size:44px;margin-bottom:14px">🗑️</div>
+    <h3 style="font-family:var(--font-display);margin-bottom:8px">Delete Room</h3>
+    <p style="color:var(--text-muted);font-size:14px;margin-bottom:22px">Delete <strong id="del-name"></strong>? All images will be deleted too.</p>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button style="padding:10px 26px;background:#ef4444;color:#fff;border:none;border-radius:9px;cursor:pointer;font-weight:600;" onclick="doDelete()">Delete</button>
+      <button style="padding:10px 26px;background:var(--bg-surface);border:1px solid var(--border-color);border-radius:9px;cursor:pointer;" onclick="closeDel()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+const AJAX_H  = { 'X-Requested-With': 'XMLHttpRequest' };
+const ACC_ID  = {{ acc.id }};
+const BASE    = `/admin/accommodations/${ACC_ID}/rooms`;
+const NEW_URL = `${BASE}/new`;
+const VIEW_URL  = (id) => `${BASE}/${id}`;
+const EDIT_URL  = (id) => `${BASE}/${id}/edit`;
+const DEL_URL   = (id) => `${BASE}/${id}/delete`;
+const IMG_UP    = (id) => `${BASE}/${id}/images/upload`;
+const IMG_PRI   = (id, imgId) => `${BASE}/${id}/images/${imgId}/primary`;
+const IMG_DEL   = (id, imgId) => `${BASE}/${id}/images/${imgId}/delete`;
+const IMG_REORD = (id) => `${BASE}/${id}/images/reorder`;
+
+// ── Carousel ──────────────────────────────────────────────
+const carouselState = {};
+const carouselTimers = {};
+
+function carouselInit(roomId, total, primaryIndex) {
+  carouselState[roomId] = { current: primaryIndex || 0, total };
+  const track = document.getElementById(`track-${roomId}`);
+  if (track && primaryIndex > 0) {
+    track.style.transition = 'none';
+    track.style.transform = `translateX(-${primaryIndex * 100}%)`;
+    setTimeout(() => { if(track) track.style.transition = ''; }, 50);
+    document.querySelectorAll(`#dots-${roomId} .carousel-dot`).forEach((d, i) => {
+      d.classList.toggle('active', i === primaryIndex);
+    });
+  }
+  if (total > 1) {
+    if (carouselTimers[roomId]) clearInterval(carouselTimers[roomId]);
+    carouselTimers[roomId] = setInterval(() => carouselNext(roomId), 4000);
+  }
+}
+
+function carouselGoTo(roomId, idx) {
+  const state = carouselState[roomId];
+  if (!state) return;
+  state.current = ((idx % state.total) + state.total) % state.total;
+  const track = document.getElementById(`track-${roomId}`);
+  if (track) track.style.transform = `translateX(-${state.current * 100}%)`;
+  document.querySelectorAll(`#dots-${roomId} .carousel-dot`).forEach((d, i) => {
+    d.classList.toggle('active', i === state.current);
+  });
+  if (carouselTimers[roomId]) {
+    clearInterval(carouselTimers[roomId]);
+    if (state.total > 1) carouselTimers[roomId] = setInterval(() => carouselNext(roomId), 4000);
+  }
+}
+function carouselNext(roomId) { const s = carouselState[roomId]; if(s) carouselGoTo(roomId, s.current + 1); }
+function carouselPrev(roomId) { const s = carouselState[roomId]; if(s) carouselGoTo(roomId, s.current - 1); }
+
+async function refreshRoomCard(roomId) {
+  try {
+    const res = await fetch(VIEW_URL(roomId), { headers: AJAX_H });
+    const data = await res.json();
+    
+    const card = document.getElementById(`room-card-${roomId}`);
+    if (!card) return;
+    
+    // Update availability badge
+    const availBadge = card.querySelector('.avail-badge');
+    if (availBadge) {
+      availBadge.className = `avail-badge ${data.isAvailable ? 'avail-yes' : 'avail-no'}`;
+      availBadge.textContent = data.isAvailable ? 'Available' : 'Unavailable';
+    }
+    
+    // Update room name
+    const nameEl = card.querySelector('.room-name');
+    if (nameEl) nameEl.textContent = data.roomName;
+    
+    // Update room type
+    const typeEl = card.querySelector('.room-type-pill');
+    if (typeEl) {
+      if (data.roomType) {
+        typeEl.textContent = data.roomType;
+        typeEl.style.display = 'inline-block';
+      } else {
+        typeEl.style.display = 'none';
+      }
+    }
+    
+    // Update info row
+    const infoRow = card.querySelector('.room-info-row');
+    if (infoRow) {
+      let infoHtml = '';
+      if (data.capacity) infoHtml += `<span class="room-info-item">👥 ${data.capacity} person(s)</span>`;
+      if (data.size) infoHtml += `<span class="room-info-item">📐 ${data.size} m²</span>`;
+      infoRow.innerHTML = infoHtml;
+    }
+    
+    // Update price
+    const priceEl = card.querySelector('.room-price');
+    if (priceEl) {
+      if (data.pricePerNight) {
+        priceEl.innerHTML = `€${parseFloat(data.pricePerNight).toFixed(2)} <span style="font-size:13px;font-weight:400;color:var(--text-muted)">/ night</span>`;
+      } else {
+        priceEl.innerHTML = '';
+      }
+    }
+    
+    // Update amenities
+    const amenitiesEl = card.querySelector('.room-amenities');
+    if (amenitiesEl && data.amenities) {
+      const amenities = data.amenities.split(',').map(a => a.trim());
+      let amenitiesHtml = '';
+      amenities.slice(0, 4).forEach(am => {
+        amenitiesHtml += `<span class="room-amenity-tag">${am}</span>`;
+      });
+      if (amenities.length > 4) {
+        amenitiesHtml += `<span class="room-amenity-tag" style="color:var(--text-muted)">+${amenities.length - 4} more</span>`;
+      }
+      amenitiesEl.innerHTML = amenitiesHtml;
+    }
+    
+    // Update images
+    const images = data.images || [];
+    const trackDiv = card.querySelector('.carousel-track');
+    const dotsContainer = card.querySelector('.carousel-dots');
+    const countDiv = card.querySelector('.carousel-count');
+    
+    if (trackDiv) {
+      if (images.length > 0) {
+        const imgSrc = (path) => {
+          if (!path) return '';
+          if (path.startsWith('http')) return path;
+          return '/' + path.replace(/^\/+/, '');
+        };
+        
+        trackDiv.innerHTML = images.map(img => `
+          <div class="carousel-slide">
+            <img src="${imgSrc(img.filePath)}" alt="${data.roomName}" loading="lazy">
+          </div>
+        `).join('');
+        
+        if (dotsContainer && images.length > 1) {
+          dotsContainer.innerHTML = images.map((_, i) => `
+            <div class="carousel-dot ${i === 0 ? 'active' : ''}" onclick="carouselGoTo('${roomId}', ${i})"></div>
+          `).join('');
+        } else if (dotsContainer && images.length <= 1) {
+          dotsContainer.innerHTML = '';
+        }
+        
+        if (countDiv) {
+          countDiv.textContent = `${images.length} 📷`;
+        }
+        
+        const primaryIndex = images.findIndex(img => img.isPrimary);
+        const newTotal = images.length;
+        
+        if (carouselTimers[roomId]) {
+          clearInterval(carouselTimers[roomId]);
+          delete carouselTimers[roomId];
+        }
+        
+        carouselState[roomId] = { current: primaryIndex >= 0 ? primaryIndex : 0, total: newTotal };
+        
+        trackDiv.style.transition = 'none';
+        trackDiv.style.transform = `translateX(-${carouselState[roomId].current * 100}%)`;
+        setTimeout(() => { trackDiv.style.transition = ''; }, 50);
+        
+        document.querySelectorAll(`#dots-${roomId} .carousel-dot`).forEach((d, i) => {
+          d.classList.toggle('active', i === carouselState[roomId].current);
+        });
+        
+        if (newTotal > 1) {
+          carouselTimers[roomId] = setInterval(() => carouselNext(roomId), 4000);
+        }
+      } else {
+        trackDiv.innerHTML = `<div class="carousel-slide"><div class="no-img">🛏️</div></div>`;
+        if (dotsContainer) dotsContainer.innerHTML = '';
+        if (countDiv) countDiv.innerHTML = '';
+        carouselState[roomId] = { current: 0, total: 0 };
+        if (carouselTimers[roomId]) {
+          clearInterval(carouselTimers[roomId]);
+          delete carouselTimers[roomId];
+        }
+      }
+    }
+    
+    // Update stats after card refresh
+    updateStats();
+    
+  } catch(e) {
+    console.error('Failed to refresh room card:', e);
+  }
+}
+
+// Init all carousels
+{% for rd in roomsData %}
+  {% set primaryIndex = 0 %}
+  {% for img in rd.allImages %}{% if img.isPrimary %}{% set primaryIndex = loop.index0 %}{% endif %}{% endfor %}
+  {% if rd.allImages|length > 0 %}
+  carouselInit('{{ rd.room.id }}', {{ rd.allImages|length }}, {{ primaryIndex }});
+  {% endif %}
+{% endfor %}
+
+// ── Drawer ────────────────────────────────────────────────
+let editingId   = null;
+let pendingFiles = [];
+
+function openDrawer(id = null) {
+  editingId = id;
+  document.getElementById('drawer-title').textContent = id ? 'Edit Room' : 'Add Room';
+  if (!id) resetForm();
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+}
+function closeDrawer() {
+  document.getElementById('drawer-overlay').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+  pendingFiles = [];
+}
+function resetForm() {
+  ['roomName','roomType','pricePerNight','capacity','size','f-custom-amenities'].forEach(id => {
+    const el = document.getElementById(id.startsWith('f-') ? id : 'f-' + id);
+    if (el) el.value = '';
+  });
+  document.getElementById('f-isAvailable').value = '1';
+  document.querySelectorAll('.room-amenity-cb').forEach(cb => cb.checked = false);
+  document.getElementById('img-thumbs-preview').innerHTML = '';
+  document.getElementById('f-images').value = '';
+  pendingFiles = [];
+  
+  document.querySelectorAll('.form-input, .form-select').forEach(el => {
+    el.style.borderColor = '';
+    el.style.borderWidth = '';
+  });
+}
+
+// ── Image preview in drawer ───────────────────────────────
+function previewImages(files) {
+  pendingFiles = [...pendingFiles, ...files];
+  renderPreviews();
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('dragover');
+  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  pendingFiles = [...pendingFiles, ...files];
+  renderPreviews();
+}
+function renderPreviews() {
+  const container = document.getElementById('img-thumbs-preview');
+  container.innerHTML = '';
+  pendingFiles.forEach((f, i) => {
+    const url  = URL.createObjectURL(f);
+    const wrap = document.createElement('div');
+    wrap.className = 'img-thumb-wrap' + (i === 0 ? ' primary' : '');
+    wrap.innerHTML = `<img src="${url}" alt=""><button class="img-thumb-del" onclick="removePendingFile(${i})">✕</button>`;
+    container.appendChild(wrap);
+  });
+  if (pendingFiles.length > 0) {
+    const info = document.createElement('div');
+    info.style.cssText = 'width:100%;font-size:12px;color:var(--text-muted);margin-top:6px;';
+    info.textContent = `${pendingFiles.length} image(s) selected. First one will be set as primary.`;
+    container.appendChild(info);
+  }
+}
+function removePendingFile(i) {
+  pendingFiles.splice(i, 1);
+  renderPreviews();
+}
+
+// ── Validation helper functions ───────────────────────────
+function validateRoomName(name) {
+  if (!name || name.trim().length === 0) {
+    return { valid: false, message: 'Room name is required' };
+  }
+  if (name.trim().length < 2) {
+    return { valid: false, message: 'Room name must be at least 2 characters' };
+  }
+  if (name.trim().length > 100) {
+    return { valid: false, message: 'Room name cannot exceed 100 characters' };
+  }
+  return { valid: true, message: '' };
+}
+
+function validateRoomType(type) {
+  if (!type || type.trim().length === 0) {
+    return { valid: false, message: 'Room type is required' };
+  }
+  const validTypes = ['Single Room', 'Double Room', 'Twin Room', 'Suite', 'Family Room', 'Deluxe Room', 'Penthouse', 'Studio'];
+  if (!validTypes.includes(type)) {
+    return { valid: false, message: 'Please select a valid room type' };
+  }
+  return { valid: true, message: '' };
+}
+
+function validatePrice(price) {
+  if (!price || price.toString().trim().length === 0) {
+    return { valid: false, message: 'Price per night is required' };
+  }
+  const priceNum = parseFloat(price);
+  if (isNaN(priceNum)) {
+    return { valid: false, message: 'Price per night must be a valid number' };
+  }
+  if (priceNum <= 0) {
+    return { valid: false, message: 'Price per night must be a positive number' };
+  }
+  if (priceNum > 100000) {
+    return { valid: false, message: 'Price per night cannot exceed 100,000' };
+  }
+  return { valid: true, message: '' };
+}
+
+function validateCapacity(capacity) {
+  if (!capacity || capacity.toString().trim().length === 0) {
+    return { valid: false, message: 'Capacity is required' };
+  }
+  const capacityNum = parseInt(capacity);
+  if (isNaN(capacityNum)) {
+    return { valid: false, message: 'Capacity must be a valid number' };
+  }
+  if (capacityNum < 1) {
+    return { valid: false, message: 'Capacity must be at least 1 person' };
+  }
+  if (capacityNum > 50) {
+    return { valid: false, message: 'Capacity cannot exceed 50 persons' };
+  }
+  return { valid: true, message: '' };
+}
+
+function validateSize(size) {
+  if (!size || size.toString().trim().length === 0) {
+    return { valid: false, message: 'Room size is required' };
+  }
+  const sizeNum = parseFloat(size);
+  if (isNaN(sizeNum)) {
+    return { valid: false, message: 'Size must be a valid number' };
+  }
+  if (sizeNum <= 0) {
+    return { valid: false, message: 'Size must be greater than 0' };
+  }
+  if (sizeNum > 1000) {
+    return { valid: false, message: 'Size cannot exceed 1000 m²' };
+  }
+  return { valid: true, message: '' };
+}
+
+// ── Save room ─────────────────────────────────────────────
+async function saveRoom() {
+  const name = document.getElementById('f-roomName').value.trim();
+  const type = document.getElementById('f-roomType').value;
+  const price = document.getElementById('f-pricePerNight').value.trim();
+  const capacity = document.getElementById('f-capacity').value.trim();
+  const size = document.getElementById('f-size').value.trim();
+  
+  document.querySelectorAll('.form-input, .form-select').forEach(el => {
+    el.style.borderColor = '';
+    el.style.borderWidth = '';
+  });
+  
+  const nameValidation = validateRoomName(name);
+  if (!nameValidation.valid) {
+    showToast('❌ ' + nameValidation.message, 'error');
+    const nameField = document.getElementById('f-roomName');
+    nameField.style.borderColor = '#ef4444';
+    nameField.style.borderWidth = '2px';
+    nameField.focus();
+    return;
+  }
+  
+  const typeValidation = validateRoomType(type);
+  if (!typeValidation.valid) {
+    showToast('❌ ' + typeValidation.message, 'error');
+    const typeField = document.getElementById('f-roomType');
+    typeField.style.borderColor = '#ef4444';
+    typeField.style.borderWidth = '2px';
+    typeField.focus();
+    return;
+  }
+  
+  const priceValidation = validatePrice(price);
+  if (!priceValidation.valid) {
+    showToast('❌ ' + priceValidation.message, 'error');
+    const priceField = document.getElementById('f-pricePerNight');
+    priceField.style.borderColor = '#ef4444';
+    priceField.style.borderWidth = '2px';
+    priceField.focus();
+    return;
+  }
+  
+  const capacityValidation = validateCapacity(capacity);
+  if (!capacityValidation.valid) {
+    showToast('❌ ' + capacityValidation.message, 'error');
+    const capacityField = document.getElementById('f-capacity');
+    capacityField.style.borderColor = '#ef4444';
+    capacityField.style.borderWidth = '2px';
+    capacityField.focus();
+    return;
+  }
+  
+  const sizeValidation = validateSize(size);
+  if (!sizeValidation.valid) {
+    showToast('❌ ' + sizeValidation.message, 'error');
+    const sizeField = document.getElementById('f-size');
+    sizeField.style.borderColor = '#ef4444';
+    sizeField.style.borderWidth = '2px';
+    sizeField.focus();
+    return;
+  }
+
+  const btn = document.getElementById('save-btn');
+  const originalText = btn.textContent;
+  btn.textContent = '⏳ Saving…'; 
+  btn.disabled = true;
+
+  const checked = [...document.querySelectorAll('.room-amenity-cb:checked')].map(c => c.value);
+  const custom  = document.getElementById('f-custom-amenities').value.split(',').map(s => s.trim()).filter(Boolean);
+  const amenities = [...checked, ...custom].join(',');
+
+  const fd = new FormData();
+  fd.append('roomName',      name);
+  fd.append('roomType',      type);
+  fd.append('isAvailable',   document.getElementById('f-isAvailable').value);
+  fd.append('pricePerNight', parseFloat(price));
+  fd.append('capacity',      parseInt(capacity));
+  fd.append('size',          size);
+  fd.append('amenities',     amenities);
+  
+  pendingFiles.forEach(f => fd.append('images[]', f));
+
+  const url = editingId ? EDIT_URL(editingId) : NEW_URL;
+  try {
+    const res  = await fetch(url, { method: 'POST', body: fd, headers: AJAX_H });
+    const data = await res.json();
+    
+    if (data.success) {
+      showToast('✅ ' + data.message, 'success');
+      closeDrawer();
+      
+      if (editingId) {
+        await refreshRoomCard(editingId);
+        await loadAiInsights();
+      } else {
+        // Add new room without page refresh
+        await addNewRoomCard(data.id);
+        await loadAiInsights();
+      }
+    } else {
+      if (data.errors) {
+        let errorMsg = "❌ Validation failed:\n\n";
+        for (const [field, msg] of Object.entries(data.errors)) {
+          let fieldLabel = field;
+          const labels = {
+            'roomName': 'Room Name',
+            'roomType': 'Room Type',
+            'pricePerNight': 'Price per Night',
+            'capacity': 'Capacity',
+            'size': 'Size',
+            'amenities': 'Amenities',
+            'isAvailable': 'Availability'
+          };
+          fieldLabel = labels[field] || field;
+          errorMsg += `• ${fieldLabel}: ${msg}\n`;
+          
+          let fieldId = field;
+          if (field === 'pricePerNight') fieldId = 'pricePerNight';
+          else if (field === 'roomName') fieldId = 'roomName';
+          else if (field === 'capacity') fieldId = 'capacity';
+          else if (field === 'size') fieldId = 'size';
+          else if (field === 'roomType') fieldId = 'roomType';
+          else if (field === 'isAvailable') fieldId = 'isAvailable';
+          
+          const fieldElement = document.getElementById(`f-${fieldId}`);
+          if (fieldElement) {
+            fieldElement.style.borderColor = '#ef4444';
+            fieldElement.style.borderWidth = '2px';
+            setTimeout(() => {
+              fieldElement.style.borderColor = '';
+              fieldElement.style.borderWidth = '';
+            }, 3000);
+          }
+        }
+        showToast(errorMsg, 'error');
+      } else {
+        showToast('❌ ' + (data.error || 'Error saving room'), 'error');
+      }
+    }
+  } catch(e) { 
+    showToast('❌ Network error: ' + e.message, 'error'); 
+  }
+  btn.textContent = originalText; 
+  btn.disabled = false;
+}
+
+// ── Add new room card without page refresh ─────────────────
+async function addNewRoomCard(roomId) {
+  try {
+    const res = await fetch(VIEW_URL(roomId), { headers: AJAX_H });
+    const data = await res.json();
+    
+    const grid = document.getElementById('rooms-grid');
+    
+    // Remove empty state if present
+    const emptyState = grid.querySelector('.empty-rooms');
+    if (emptyState) emptyState.remove();
+    
+    // Create new card
+    const card = document.createElement('div');
+    card.className = 'room-card';
+    card.id = `room-card-${roomId}`;
+    
+    // Build carousel HTML
+    let carouselHtml = '';
+    if (!data.images || data.images.length === 0) {
+      carouselHtml = `
+        <div class="carousel" id="carousel-${roomId}">
+          <div class="carousel-track">
+            <div class="carousel-slide"><div class="no-img">🛏️</div></div>
+          </div>
+          <span class="avail-badge ${data.isAvailable ? 'avail-yes' : 'avail-no'}">
+            ${data.isAvailable ? 'Available' : 'Unavailable'}
+          </span>
+        </div>
+      `;
+    } else {
+      const imgSrc = (path) => {
+        if (!path) return '';
+        if (path.startsWith('http')) return path;
+        return '/' + path.replace(/^\/+/, '');
+      };
+      
+      const slidesHtml = data.images.map(img => `
+        <div class="carousel-slide">
+          <img src="${imgSrc(img.filePath)}" alt="${data.roomName}" loading="lazy">
+        </div>
+      `).join('');
+      
+      const dotsHtml = data.images.length > 1 ? `
+        <div class="carousel-dots" id="dots-${roomId}">
+          ${data.images.map((_, i) => `
+            <div class="carousel-dot ${i === 0 ? 'active' : ''}" onclick="carouselGoTo('${roomId}', ${i})"></div>
+          `).join('')}
+        </div>
+        <button class="carousel-btn prev" onclick="carouselPrev('${roomId}')">‹</button>
+        <button class="carousel-btn next" onclick="carouselNext('${roomId}')">›</button>
+        <div class="carousel-count">${data.images.length} 📷</div>
+      ` : '';
+      
+      carouselHtml = `
+        <div class="carousel" id="carousel-${roomId}">
+          <div class="carousel-track" id="track-${roomId}">
+            ${slidesHtml}
+          </div>
+          ${dotsHtml}
+          <span class="avail-badge ${data.isAvailable ? 'avail-yes' : 'avail-no'}">
+            ${data.isAvailable ? 'Available' : 'Unavailable'}
+          </span>
+        </div>
+      `;
+    }
+    
+    // Build amenities HTML
+    let amenitiesHtml = '';
+    if (data.amenities) {
+      const amenities = data.amenities.split(',').map(a => a.trim());
+      amenities.slice(0, 4).forEach(am => {
+        amenitiesHtml += `<span class="room-amenity-tag">${am}</span>`;
+      });
+      if (amenities.length > 4) {
+        amenitiesHtml += `<span class="room-amenity-tag" style="color:var(--text-muted)">+${amenities.length - 4} more</span>`;
+      }
+    }
+    
+    // Build info row
+    let infoRowHtml = '';
+    if (data.capacity) infoRowHtml += `<span class="room-info-item">👥 ${data.capacity} person(s)</span>`;
+    if (data.size) infoRowHtml += `<span class="room-info-item">📐 ${data.size} m²</span>`;
+    
+    card.innerHTML = `
+      ${carouselHtml}
+      <div class="room-body">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;">
+          <div class="room-name">${data.roomName}</div>
+          <div style="display: flex; gap: 6px;">
+            ${data.roomType ? `<span class="room-type-pill">${data.roomType}</span>` : ''}
+            <span class="room-quality-badge" id="quality-badge-${roomId}" style="display: none;"></span>
+          </div>
+        </div>
+        <div class="room-info-row">
+          ${infoRowHtml}
+        </div>
+        ${data.pricePerNight ? `
+        <div class="room-price">€${parseFloat(data.pricePerNight).toFixed(2)} <span style="font-size:13px;font-weight:400;color:var(--text-muted)">/ night</span></div>
+        ` : ''}
+        ${amenitiesHtml ? `<div class="room-amenities">${amenitiesHtml}</div>` : ''}
+        <div class="room-actions">
+          <button class="room-btn rb-images" onclick="openImgMgr(${roomId}, '${data.roomName.replace(/'/g, "\\'")}')">🖼 Images (${data.images ? data.images.length : 0})</button>
+          <button class="room-btn rb-edit" onclick="editRoom(${roomId})">✏️ Edit</button>
+          <button class="room-btn rb-del" onclick="confirmDel(${roomId}, '${data.roomName.replace(/'/g, "\\'")}')">🗑</button>
+        </div>
+      </div>
+    `;
+    
+    grid.appendChild(card);
+    
+    // Initialize carousel if there are images
+    if (data.images && data.images.length > 0) {
+      const primaryIndex = data.images.findIndex(img => img.isPrimary);
+      carouselInit(roomId.toString(), data.images.length, primaryIndex >= 0 ? primaryIndex : 0);
+    }
+    
+    // Update stats
+    updateStats();
+    
+  } catch(e) {
+    console.error('Failed to add new room card:', e);
+    // Fallback to page reload if something goes wrong
+    location.reload();
+  }
+}
+
+// ── Edit room ─────────────────────────────────────────────
+async function editRoom(id) {
+  try {
+    const res = await fetch(VIEW_URL(id), { headers: AJAX_H });
+    const d   = await res.json();
+    openDrawer(id);
+    setTimeout(() => {
+      document.getElementById('f-roomName').value      = d.roomName || '';
+      document.getElementById('f-roomType').value      = d.roomType || '';
+      document.getElementById('f-isAvailable').value   = d.isAvailable ? '1' : '0';
+      document.getElementById('f-pricePerNight').value = d.pricePerNight || '';
+      document.getElementById('f-capacity').value      = d.capacity || '';
+      document.getElementById('f-size').value          = d.size || '';
+      if (d.amenities) {
+        const list = d.amenities.split(',').map(s => s.trim());
+        document.querySelectorAll('.room-amenity-cb').forEach(cb => { cb.checked = list.includes(cb.value); });
+      }
+      document.querySelectorAll('.form-input, .form-select').forEach(el => {
+        el.style.borderColor = '';
+        el.style.borderWidth = '';
+      });
+    }, 80);
+  } catch(e) { showToast('❌ Failed to load room', 'error'); }
+}
+
+// ── Delete ────────────────────────────────────────────────
+let deleteId = null;
+function confirmDel(id, name) {
+  deleteId = id;
+  document.getElementById('del-name').textContent = name;
+  document.getElementById('del-overlay').classList.add('open');
+}
+function closeDel() { document.getElementById('del-overlay').classList.remove('open'); deleteId = null; }
+async function doDelete() {
+  if (!deleteId) return;
+  try {
+    const res  = await fetch(DEL_URL(deleteId), { method: 'POST', headers: AJAX_H });
+    const data = await res.json();
+    if (data.success) {
+      showToast('✅ ' + data.message, 'success');
+      closeDel();
+      
+      // Remove the card from DOM
+      const card = document.getElementById(`room-card-${deleteId}`);
+      if (card) {
+        card.remove();
+      }
+      
+      // Update stats
+      updateStats();
+      
+      // Refresh AI insights
+      await loadAiInsights();
+      
+      // Check if grid is empty
+      const grid = document.getElementById('rooms-grid');
+      const remainingCards = grid.querySelectorAll('.room-card');
+      if (remainingCards.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-rooms" style="grid-column:1/-1">
+            <div class="ei">🛏️</div>
+            <h3 style="font-family:var(--font-display);margin-bottom:8px">No rooms yet</h3>
+            <p>Click "Add Room" to create the first room for this accommodation.</p>
+          </div>
+        `;
+      }
+    } else { 
+      showToast('❌ ' + (data.error || 'Delete failed'), 'error'); 
+    }
+  } catch(e) { 
+    showToast('❌ Network error: ' + e.message, 'error'); 
+  }
+}
+
+function updateStats() {
+  const cards = document.querySelectorAll('.room-card');
+  const total = cards.length;
+  const available = document.querySelectorAll('.avail-yes').length;
+  const unavailable = total - available;
+  
+  const totalEl = document.getElementById('stat-total');
+  const availEl = document.getElementById('stat-avail');
+  const unavailEl = document.getElementById('stat-unavail');
+  
+  if (totalEl) totalEl.textContent = total;
+  if (availEl) availEl.textContent = available;
+  if (unavailEl) unavailEl.textContent = unavailable;
+}
+
+// ── Image Manager ─────────────────────────────────────────
+let imgMgrRoomId  = null;
+let imgMgrCurrent = 0;
+let imgMgrImages  = [];
+
+async function openImgMgr(roomId, roomName) {
+  imgMgrRoomId = roomId;
+  document.getElementById('imgmgr-room-name').textContent = roomName;
+  document.getElementById('imgmgr-overlay').classList.add('open');
+  await loadImgMgr();
+}
+function closeImgMgr() {
+  document.getElementById('imgmgr-overlay').classList.remove('open');
+  imgMgrRoomId = null; imgMgrImages = []; imgMgrCurrent = 0;
+}
+
+async function loadImgMgr() {
+  try {
+    const res  = await fetch(VIEW_URL(imgMgrRoomId), { headers: AJAX_H });
+    const data = await res.json();
+    imgMgrImages  = data.images || [];
+    imgMgrCurrent = 0;
+    renderImgMgr();
+  } catch(e) { showToast('❌ Failed to load images', 'error'); }
+}
+
+function renderImgMgr() {
+  const track = document.getElementById('imgmgr-track');
+  const thumbs = document.getElementById('imgmgr-thumbs');
+  const count  = document.getElementById('imgmgr-count');
+
+  if (imgMgrImages.length === 0) {
+    track.innerHTML = `<div class="carousel-slide"><div style="height:300px;display:flex;align-items:center;justify-content:center;font-size:64px;color:var(--text-muted)">📷</div></div>`;
+    thumbs.innerHTML = `<div style="color:var(--text-muted);font-size:13px;padding:8px">No images yet. Upload some!</div>`;
+    count.textContent = '0 / 0';
+    return;
+  }
+
+  const imgSrc = (path) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    return '/' + path.replace(/^\/+/, '');
+  };
+
+  track.innerHTML = imgMgrImages.map(img =>
+    `<div class="carousel-slide"><img src="${imgSrc(img.filePath)}" alt="" style="width:100%;height:300px;object-fit:cover;"></div>`
+  ).join('');
+  track.style.transform = `translateX(-${imgMgrCurrent * 100}%)`;
+  count.textContent = `${imgMgrCurrent + 1} / ${imgMgrImages.length}`;
+
+  thumbs.innerHTML = imgMgrImages.map((img, i) => `
+    <div class="imgmgr-thumb ${i === imgMgrCurrent ? 'active' : ''} ${img.isPrimary ? 'primary-thumb' : ''}" onclick="imgMgrGoTo(${i})">
+      <img src="${imgSrc(img.filePath)}" alt="">
+      <div class="imgmgr-thumb-actions">
+        <button class="imgmgr-thumb-btn" onclick="event.stopPropagation();setPrimary(${img.id})" title="Set as primary">★</button>
+        <button class="imgmgr-thumb-btn" style="background:rgba(239,68,68,.9);color:#fff;" onclick="event.stopPropagation();deleteImage(${img.id})" title="Delete">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+function imgMgrGoTo(i) {
+  imgMgrCurrent = (i + imgMgrImages.length) % imgMgrImages.length;
+  const track = document.getElementById('imgmgr-track');
+  track.style.transform = `translateX(-${imgMgrCurrent * 100}%)`;
+  document.getElementById('imgmgr-count').textContent = `${imgMgrCurrent + 1} / ${imgMgrImages.length}`;
+  document.querySelectorAll('.imgmgr-thumb').forEach((t, idx) => t.classList.toggle('active', idx === imgMgrCurrent));
+}
+function imgMgrNext() { imgMgrGoTo(imgMgrCurrent + 1); }
+function imgMgrPrev() { imgMgrGoTo(imgMgrCurrent - 1); }
+
+async function setPrimary(imgId) {
+  try {
+    const res  = await fetch(IMG_PRI(imgMgrRoomId, imgId), { method: 'POST', headers: AJAX_H });
+    const data = await res.json();
+    if (data.success) {
+      showToast('✅ Primary image updated', 'success');
+      imgMgrImages.forEach(img => img.isPrimary = (img.id === imgId));
+      renderImgMgr();
+      await refreshRoomCard(imgMgrRoomId);
+      await loadAiInsights();
+    } else showToast('❌ ' + (data.error || 'Error'), 'error');
+  } catch(e) { showToast('❌ Error setting primary image', 'error'); }
+}
+
+async function deleteImage(imgId) {
+  if (!confirm('Delete this image?')) return;
+  try {
+    const res  = await fetch(IMG_DEL(imgMgrRoomId, imgId), { method: 'POST', headers: AJAX_H });
+    const data = await res.json();
+    if (data.success) { 
+      showToast('✅ Image deleted', 'success'); 
+      await loadImgMgr();
+      await refreshRoomCard(imgMgrRoomId);
+      await loadAiInsights();
+    }
+    else showToast('❌ ' + (data.error || 'Delete failed'), 'error');
+  } catch(e) { showToast('❌ Error deleting image', 'error'); }
+}
+
+async function uploadMoreImages(files) {
+  if (!files || !files.length) return;
+  showToast(`📤 Uploading ${files.length} image(s)…`, 'success');
+  const fd = new FormData();
+  files.forEach(f => fd.append('images[]', f));
+  try {
+    const res  = await fetch(IMG_UP(imgMgrRoomId), { method: 'POST', body: fd, headers: AJAX_H });
+    const data = await res.json();
+    if (data.success) { 
+      showToast('✅ ' + data.message, 'success'); 
+      await loadImgMgr();
+      await refreshRoomCard(imgMgrRoomId);
+      await loadAiInsights();
+    }
+    else showToast('❌ ' + (data.error || 'Upload failed'), 'error');
+  } catch(e) { showToast('❌ Upload failed: ' + e.message, 'error'); }
+}
+
+// ── Toast ─────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+// ── Keyboard shortcuts ────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeDrawer(); closeImgMgr(); closeDel(); }
+  if (e.key === 'ArrowRight' && imgMgrImages.length) imgMgrNext();
+  if (e.key === 'ArrowLeft'  && imgMgrImages.length) imgMgrPrev();
+});
+
+// ── Drop zone event listeners ────────────────────────────
+const dropZone = document.getElementById('drop-zone');
+if (dropZone) {
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+  });
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('dragover');
+  });
+  dropZone.addEventListener('drop', handleDrop);
+}
+
+// ── AI Insights Functions ─────────────────────────────────
+async function loadAiInsights() {
+    const panel = document.getElementById('ai-panel');
+    const content = document.getElementById('ai-content');
+    const refreshBtn = document.getElementById('ai-refresh-btn');
+    
+    panel.style.display = 'block';
+    content.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">Analyzing rooms...</div>';
+    
+    if (refreshBtn) {
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = 'Loading...';
+    }
+    
+    try {
+        const response = await fetch(`/admin/accommodations/${ACC_ID}/rooms/insights`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const data = await response.json();
+        
+        if (data.summary) {
+            renderAiInsights(data);
+        } else {
+            content.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">No insights available. Add rooms to see analysis.</div>';
+        }
+    } catch (error) {
+        console.error('AI insights error:', error);
+        content.innerHTML = '<div style="text-align: center; padding: 40px; color: #ef4444;">Failed to load insights. Please try again.</div>';
+    } finally {
+        if (refreshBtn) {
+            refreshBtn.disabled = false;
+            refreshBtn.textContent = 'Refresh Analysis';
+        }
+    }
+}
+
+function renderAiInsights(data) {
+    const summary = data.summary;
+    const content = document.getElementById('ai-content');
+    const modelBadge = document.getElementById('ai-model-badge');
+    
+    if (modelBadge && summary.aiInsights) {
+        modelBadge.textContent = summary.aiInsights.model || 'AI Model';
+    }
+    
+    let criticalHtml = '';
+    let warningHtml = '';
+    
+    if (data.criticalIssues && data.criticalIssues.length > 0) {
+        criticalHtml = `
+            <div style="margin-bottom: 16px;">
+                <div style="font-weight: 700; margin-bottom: 10px; color: #ef4444; font-size: 13px;">Critical Issues - Need Immediate Attention</div>
+                <div class="ai-issues-list">
+                    ${data.criticalIssues.map(issue => `
+                        <div class="ai-issue-item ai-critical">
+                            <div class="ai-issue-icon">⚠️</div>
+                            <div class="ai-issue-content">
+                                <div class="ai-issue-title">${escapeHtml(issue.roomName)}</div>
+                                <div class="ai-issue-desc">${escapeHtml(issue.issues[0]?.message || 'Price anomaly detected')}</div>
+                                <div class="ai-issue-suggestion">${escapeHtml(issue.issues[0]?.suggestion || 'Review pricing')}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    if (data.warnings && data.warnings.length > 0) {
+        warningHtml = `
+            <div style="margin-bottom: 16px;">
+                <div style="font-weight: 700; margin-bottom: 10px; color: #f59e0b; font-size: 13px;">Warnings - Recommended Actions</div>
+                <div class="ai-issues-list">
+                    ${data.warnings.slice(0, 5).map(warning => `
+                        <div class="ai-issue-item ai-warning">
+                            <div class="ai-issue-icon">ℹ️</div>
+                            <div class="ai-issue-content">
+                                <div class="ai-issue-title">${escapeHtml(warning.roomName)}</div>
+                                <div class="ai-issue-desc">${escapeHtml(warning.issues[0]?.message || 'Quality improvement needed')}</div>
+                                <div class="ai-issue-suggestion">${escapeHtml(warning.issues[0]?.suggestion || 'Take action to improve')}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    let tipsHtml = '';
+    if (data.tips && data.tips.length > 0) {
+        tipsHtml = `
+            <div style="margin-bottom: 16px;">
+                <div style="font-weight: 700; margin-bottom: 10px; color: #10b981; font-size: 13px;">Quick Tips to Improve</div>
+                <div class="ai-issues-list">
+                    ${data.tips.map(tip => `
+                        <div class="ai-issue-item">
+                            <div class="ai-issue-icon">💡</div>
+                            <div class="ai-issue-content">
+                                <div class="ai-issue-desc" style="margin-bottom: 0;">${escapeHtml(tip)}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+   let insightHtml = '';
+if (summary.aiInsights && summary.aiInsights.insights) {
+    const formatted = summary.aiInsights.insights
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/\n/g, '<br>');
+
+    insightHtml = `
+        <div class="ai-insight-text">
+            <p>${formatted}</p>
+            ${summary.aiInsights.generated === false ? '<div style="font-size: 10px; margin-top: 8px; opacity: 0.6;">Rule-based analysis (Gemini not configured)</div>' : ''}
+        </div>
+    `;
+}
+    
+    content.innerHTML = `
+        <div class="ai-stats-grid">
+            <div class="ai-stat-card">
+                <div class="ai-stat-value">${summary.totalRooms}</div>
+                <div class="ai-stat-label">Total Rooms</div>
+            </div>
+            <div class="ai-stat-card">
+                <div class="ai-stat-value">€${summary.avgPrice}</div>
+                <div class="ai-stat-label">Avg Price / Night</div>
+            </div>
+            <div class="ai-stat-card ai-stat-critical">
+                <div class="ai-stat-value">${summary.criticalCount}</div>
+                <div class="ai-stat-label">Critical Issues</div>
+            </div>
+            <div class="ai-stat-card ai-stat-warning">
+                <div class="ai-stat-value">${summary.warningCount}</div>
+                <div class="ai-stat-label">Warnings</div>
+            </div>
+        </div>
+        ${criticalHtml}
+        ${warningHtml}
+        ${tipsHtml}
+        ${insightHtml}
+    `;
+    
+    if (data.rooms) {
+        updateRoomQualityBadges(data.rooms);
+    }
+}
+
+function updateRoomQualityBadges(roomsData) {
+    for (const roomId in roomsData) {
+        const analysis = roomsData[roomId];
+        const badge = document.getElementById(`quality-badge-${roomId}`);
+        if (badge) {
+            const score = analysis.qualityScore;
+            badge.style.display = 'inline-block';
+            badge.textContent = `${score}`;
+            if (score >= 70) {
+                badge.className = 'room-quality-badge high';
+                badge.title = 'Good quality room';
+            } else if (score >= 40) {
+                badge.className = 'room-quality-badge medium';
+                badge.title = 'Average quality - room for improvement';
+            } else {
+                badge.className = 'room-quality-badge low';
+                badge.title = 'Needs attention - check pricing and amenities';
+            }
+        }
+    }
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+// Load AI insights when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(loadAiInsights, 500);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,243 @@
+{% extends 'base.html.twig' %}
+{% block title %}Create Post — TripX{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/blog.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="blog-page">
+<div class="cp-wrap">
+
+  <span class="cp-eyebrow">✍️ Create</span>
+  <h1 class="cp-title">Share your <span>Travel Story</span></h1>
+  <p class="cp-subtitle">Post a story, review, tip or question to the TripX community.<br>All posts are reviewed before going live.</p>
+
+  {% for msg in app.flashes('error') %}
+    <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:16px;padding:14px 18px;margin-bottom:20px;color:#fca5a5;font-size:14px;">
+      ❌ {{ msg }}
+    </div>
+  {% endfor %}
+
+  <div class="cp-card">
+    <div class="cp-notice">ℹ️ Your post will be reviewed by an admin before appearing publicly.</div>
+
+    {{ form_start(form, {
+      'attr': {
+        'novalidate': 'novalidate',
+        'enctype': 'multipart/form-data',
+        'id': 'post-create-form'
+      }
+    }) }}
+
+      {# Title #}
+      <div class="cp-field" id="field-title">
+        <label class="cp-field-label" for="post-title-input">📝 Post Title</label>
+        {{ form_widget(form.title, {
+          'attr': {
+            'class': 'cp-input',
+            'id': 'post-title-input',
+            'placeholder': 'Give your post a clear, catchy title…',
+            'autocomplete': 'off'
+          }
+        }) }}
+        <span class="field-error" id="err-title"></span>
+      </div>
+
+      {# Body #}
+      <div class="cp-field" id="field-body">
+        <label class="cp-field-label" for="post-body-input">📖 Content</label>
+        {{ form_widget(form.body, {
+          'attr': {
+            'class': 'cp-textarea',
+            'id': 'post-body-input',
+            'placeholder': 'Tell your story, share your experience, ask your question…'
+          }
+        }) }}
+        <span class="field-error" id="err-body"></span>
+        <div style="text-align:right;font-size:11px;color:var(--text-3);margin-top:4px;" id="body-count">0 chars</div>
+      </div>
+
+      {# Type #}
+      <div class="cp-field" id="field-type">
+        <label class="cp-field-label" for="post-type-select">🏷️ Post Type</label>
+        <div class="select-wrap">
+          {{ form_widget(form.type, {
+            'attr': {
+              'class': 'cp-select',
+              'id': 'post-type-select'
+            }
+          }) }}
+        </div>
+        <span class="field-error" id="err-type"></span>
+      </div>
+
+      {# Images #}
+      <div class="cp-field" id="field-images">
+        <span class="cp-field-label">🖼️ Images (optional — up to 5)</span>
+        {% set fileInputId = form.imageFile.vars.id %}
+        <div style="position:absolute;width:0;height:0;overflow:hidden;">
+          {{ form_widget(form.imageFile, {'attr': {'multiple': 'multiple'}}) }}
+        </div>
+        <label for="{{ fileInputId }}" class="upload-zone" id="upload-zone"
+               ondragover="handleDragOver(event)"
+               ondragleave="handleDragLeave(event)"
+               ondrop="handleDrop(event)">
+          <span class="upload-icon">📷</span>
+          <div class="upload-zone-text">Click to add photos — or drag & drop</div>
+          <div class="upload-zone-sub">JPG · PNG · WebP · GIF &nbsp;·&nbsp; max 5 MB each &nbsp;·&nbsp; up to 5 images</div>
+        </label>
+        <div class="preview-grid" id="preview-grid"></div>
+        <span class="field-error" id="err-images"></span>
+      </div>
+
+      <div class="cp-actions">
+        <button type="button" class="cp-submit" onclick="validateAndSubmit()">
+          🚀 Publish Post
+        </button>
+        <a href="{{ path('blog') }}" class="cp-back">← Back to blog</a>
+      </div>
+
+    {{ form_end(form) }}
+  </div>
+</div>
+</div>
+
+<script>
+/* ── Image Upload ── */
+const fileInput   = document.querySelector('input[type="file"][multiple]');
+const previewGrid = document.getElementById('preview-grid');
+const uploadZone  = document.getElementById('upload-zone');
+let selectedFiles = [];
+const MAX_FILES   = 5;
+const MAX_SIZE    = 5 * 1024 * 1024;
+const ALLOWED_TYPES = ['image/jpeg','image/png','image/webp','image/gif'];
+
+function syncFilesToInput() {
+  const dt = new DataTransfer();
+  selectedFiles.forEach(f => dt.items.add(f));
+  fileInput.files = dt.files;
+}
+
+function renderPreviews() {
+  previewGrid.innerHTML = '';
+  selectedFiles.forEach((file, idx) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const item = document.createElement('div');
+      item.className = 'preview-item';
+      item.style.animationDelay = (idx * 0.06) + 's';
+      item.innerHTML = `<img src="${e.target.result}" alt="${file.name}">
+        <button type="button" class="preview-remove" onclick="removeFile(${idx})" title="Remove">✕</button>`;
+      previewGrid.appendChild(item);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function removeFile(idx) {
+  selectedFiles.splice(idx, 1);
+  syncFilesToInput();
+  renderPreviews();
+}
+
+function addFiles(files) {
+  const errEl = document.getElementById('err-images');
+  errEl.textContent = '';
+  const arr = Array.from(files);
+  const valid = [];
+  for (const f of arr) {
+    if (!ALLOWED_TYPES.includes(f.type)) {
+      errEl.textContent = `"${f.name}" is not a valid image format.`;
+      continue;
+    }
+    if (f.size > MAX_SIZE) {
+      errEl.textContent = `"${f.name}" exceeds 5 MB limit.`;
+      continue;
+    }
+    valid.push(f);
+  }
+  selectedFiles = [...selectedFiles, ...valid].slice(0, MAX_FILES);
+  if (selectedFiles.length >= MAX_FILES) {
+    errEl.textContent = 'Maximum 5 images allowed.';
+  }
+  syncFilesToInput();
+  renderPreviews();
+}
+
+fileInput.addEventListener('change', () => addFiles(fileInput.files));
+
+function handleDragOver(e) { e.preventDefault(); uploadZone.classList.add('dragover'); }
+function handleDragLeave()  { uploadZone.classList.remove('dragover'); }
+function handleDrop(e) {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+}
+
+/* ── Character Count ── */
+const bodyInput = document.getElementById('post-body-input');
+const bodyCount = document.getElementById('body-count');
+if (bodyInput && bodyCount) {
+  bodyInput.addEventListener('input', () => {
+    const len = bodyInput.value.length;
+    bodyCount.textContent = len + ' chars';
+    bodyCount.style.color = len < 10 ? 'var(--danger)' : 'var(--text-3)';
+  });
+}
+
+/* ── JS Validation ── */
+function setFieldError(fieldId, errId, msg) {
+  const field = document.getElementById(fieldId);
+  const err   = document.getElementById(errId);
+  if (field) field.classList.toggle('err', !!msg);
+  if (err)   { err.textContent = msg || ''; }
+  return !msg;
+}
+
+function validateAndSubmit() {
+  let valid = true;
+
+  const title = document.getElementById('post-title-input')?.value.trim() || '';
+  valid = setFieldError('post-title-input', 'err-title',
+    title === '' ? 'Title is required.' :
+    title.length < 3 ? 'Title must be at least 3 characters.' :
+    title.length > 255 ? 'Title must not exceed 255 characters.' : '') && valid;
+
+  const body = document.getElementById('post-body-input')?.value.trim() || '';
+  valid = setFieldError('post-body-input', 'err-body',
+    body === '' ? 'Content is required.' :
+    body.length < 10 ? 'Content must be at least 10 characters.' : '') && valid;
+
+  const type = document.getElementById('post-type-select')?.value || '';
+  valid = setFieldError('post-type-select', 'err-type',
+    type === '' ? 'Please select a post type.' : '') && valid;
+
+  if (valid) {
+    const btn = document.querySelector('.cp-submit');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Submitting…'; }
+    document.getElementById('post-create-form').submit();
+  }
+}
+
+/* ── Real-time validation on blur ── */
+document.addEventListener('DOMContentLoaded', () => {
+  const titleEl = document.getElementById('post-title-input');
+  const bodyEl  = document.getElementById('post-body-input');
+  const typeEl  = document.getElementById('post-type-select');
+
+  if (titleEl) titleEl.addEventListener('input', () => {
+    setFieldError('post-title-input', 'err-title', '');
+  });
+
+  if (bodyEl) bodyEl.addEventListener('input', () => {
+    setFieldError('post-body-input', 'err-body', '');
+  });
+
+  if (typeEl) typeEl.addEventListener('change', () => {
+    setFieldError('post-type-select', 'err-type', '');
+  });
+});
+</script>
+{% endblock %}

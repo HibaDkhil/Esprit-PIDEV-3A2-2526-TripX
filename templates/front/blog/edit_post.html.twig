@@ -1,0 +1,240 @@
+{% extends 'base.html.twig' %}
+{% block title %}Edit Post — TripX{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/blog.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="blog-page">
+<div class="cp-wrap">
+
+  <span class="cp-eyebrow">✏️ Edit</span>
+  <h1 class="cp-title">Edit your <span>Post</span></h1>
+  <p class="cp-subtitle">Update your post details below. It will be re-submitted for review.</p>
+
+  {% for msg in app.flashes('error') %}
+    <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:16px;padding:14px 18px;margin-bottom:20px;color:#fca5a5;font-size:14px;">❌ {{ msg }}</div>
+  {% endfor %}
+  {% for msg in app.flashes('success') %}
+    <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:16px;padding:14px 18px;margin-bottom:20px;color:#6ee7b7;font-size:14px;">✅ {{ msg }}</div>
+  {% endfor %}
+
+  <div class="cp-card">
+    <div class="cp-notice">⚠️ Editing will re-submit this post for admin approval.</div>
+
+    {{ form_start(form, {
+      'attr': {
+        'novalidate': 'novalidate',
+        'enctype': 'multipart/form-data',
+        'id': 'post-edit-form'
+      }
+    }) }}
+
+      {# Title #}
+      <div class="cp-field">
+        <label class="cp-field-label" for="edit-title-input">📝 Post Title</label>
+        {{ form_widget(form.title, {
+          'attr': {
+            'class': 'cp-input',
+            'id': 'edit-title-input',
+            'placeholder': 'Give your post a clear, catchy title…'
+          }
+        }) }}
+        <span class="field-error" id="err-title"></span>
+      </div>
+
+      {# Body #}
+      <div class="cp-field">
+        <label class="cp-field-label" for="edit-body-input">📖 Content</label>
+        {{ form_widget(form.body, {
+          'attr': {
+            'class': 'cp-textarea',
+            'id': 'edit-body-input',
+            'placeholder': 'Tell your story…'
+          }
+        }) }}
+        <span class="field-error" id="err-body"></span>
+        <div style="text-align:right;font-size:11px;color:var(--text-3);margin-top:4px;" id="body-count">0 chars</div>
+      </div>
+
+      {# Type #}
+      <div class="cp-field">
+        <label class="cp-field-label" for="edit-type-select">🏷️ Post Type</label>
+        <div class="select-wrap">
+          {{ form_widget(form.type, {
+            'attr': {
+              'class': 'cp-select',
+              'id': 'edit-type-select'
+            }
+          }) }}
+        </div>
+        <span class="field-error" id="err-type"></span>
+      </div>
+
+      {# Current image #}
+      {% if post.imageUrl %}
+        <div class="cp-field">
+          <span class="cp-field-label">🖼️ Current Image(s)</span>
+          <div class="preview-grid">
+            {% for img in post.imageUrl|split(',') %}
+              {% if img|trim %}
+                <div class="preview-item">
+                  <img src="{{ img|trim }}" alt="current" onerror="this.parentElement.style.display='none'">
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <p style="font-size:12px;color:var(--text-3);margin-top:8px;">Upload new images below to replace them.</p>
+        </div>
+      {% endif %}
+
+      {# New Images #}
+      <div class="cp-field">
+        <span class="cp-field-label">🖼️ Replace Images (optional)</span>
+        {% set fileInputId = form.imageFile.vars.id %}
+        <div style="position:absolute;width:0;height:0;overflow:hidden;">
+          {{ form_widget(form.imageFile, {'attr': {'multiple': 'multiple', 'id': fileInputId}}) }}
+        </div>
+        <label for="{{ fileInputId }}" class="upload-zone" id="upload-zone"
+               ondragover="handleDragOver(event)"
+               ondragleave="handleDragLeave(event)"
+               ondrop="handleDrop(event)">
+          <span class="upload-icon">📷</span>
+          <div class="upload-zone-text">Click to add photos — or drag & drop</div>
+          <div class="upload-zone-sub">JPG · PNG · WebP · GIF &nbsp;·&nbsp; max 5 MB each</div>
+        </label>
+        <div class="preview-grid" id="preview-grid"></div>
+        <span class="field-error" id="err-images"></span>
+      </div>
+
+      <div class="cp-actions">
+        <button type="button" class="cp-submit" onclick="validateAndSubmit()">
+          💾 Save Changes
+        </button>
+        <a href="{{ path('blog') }}" class="cp-back">← Back to blog</a>
+      </div>
+
+    {{ form_end(form) }}
+  </div>
+</div>
+</div>
+
+<script>
+const fileInput   = document.querySelector('input[type="file"][multiple]');
+const previewGrid = document.getElementById('preview-grid');
+const uploadZone  = document.getElementById('upload-zone');
+let selectedFiles = [];
+const MAX_FILES   = 5;
+const MAX_SIZE    = 5 * 1024 * 1024;
+const ALLOWED_TYPES = ['image/jpeg','image/png','image/webp','image/gif'];
+
+function syncFilesToInput() {
+  const dt = new DataTransfer();
+  selectedFiles.forEach(f => dt.items.add(f));
+  fileInput.files = dt.files;
+}
+
+function renderPreviews() {
+  previewGrid.innerHTML = '';
+  selectedFiles.forEach((file, idx) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const item = document.createElement('div');
+      item.className = 'preview-item';
+      item.innerHTML = `<img src="${e.target.result}" alt="${file.name}">
+        <button type="button" class="preview-remove" onclick="removeFile(${idx})">✕</button>`;
+      previewGrid.appendChild(item);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function removeFile(idx) {
+  selectedFiles.splice(idx, 1);
+  syncFilesToInput();
+  renderPreviews();
+}
+
+function addFiles(files) {
+  const errEl = document.getElementById('err-images');
+  errEl.textContent = '';
+  const arr   = Array.from(files);
+  const valid = [];
+  for (const f of arr) {
+    if (!ALLOWED_TYPES.includes(f.type)) { errEl.textContent = `"${f.name}" is not a valid image.`; continue; }
+    if (f.size > MAX_SIZE)              { errEl.textContent = `"${f.name}" exceeds 5 MB.`; continue; }
+    valid.push(f);
+  }
+  selectedFiles = [...selectedFiles, ...valid].slice(0, MAX_FILES);
+  syncFilesToInput();
+  renderPreviews();
+}
+
+fileInput.addEventListener('change', () => addFiles(fileInput.files));
+function handleDragOver(e) { e.preventDefault(); uploadZone.classList.add('dragover'); }
+function handleDragLeave()  { uploadZone.classList.remove('dragover'); }
+function handleDrop(e) {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+}
+
+/* char count */
+const bodyEl  = document.getElementById('edit-body-input');
+const bodyCnt = document.getElementById('body-count');
+if (bodyEl && bodyCnt) {
+  bodyEl.addEventListener('input', () => { bodyCnt.textContent = bodyEl.value.length + ' chars'; });
+  bodyCnt.textContent = (bodyEl.value || '').length + ' chars';
+}
+
+function setFieldError(inputId, errId, msg) {
+  const el  = document.getElementById(inputId);
+  const err = document.getElementById(errId);
+  if (el)  el.classList.toggle('err', !!msg);
+  if (err) err.textContent = msg || '';
+  return !msg;
+}
+
+function validateAndSubmit() {
+  let valid = true;
+  const titleEl = document.getElementById('edit-title-input');
+  const bodyEl = document.getElementById('edit-body-input');
+  const typeEl = document.getElementById('edit-type-select');
+
+  if (titleEl) titleEl.addEventListener('input', () => {
+    setFieldError('edit-title-input', 'err-title', '');
+  });
+
+  if (bodyEl) bodyEl.addEventListener('input', () => {
+    setFieldError('edit-body-input', 'err-body', '');
+  });
+
+  if (typeEl) typeEl.addEventListener('change', () => {
+    setFieldError('edit-type-select', 'err-type', '');
+  });
+
+  const title = titleEl?.value.trim() || '';
+  valid = setFieldError('edit-title-input', 'err-title',
+    title === '' ? 'Title is required.' :
+    title.length < 3 ? 'Title must be at least 3 characters.' :
+    title.length > 255 ? 'Title must not exceed 255 characters.' : '') && valid;
+
+  const body = bodyEl?.value.trim() || '';
+  valid = setFieldError('edit-body-input', 'err-body',
+    body === '' ? 'Content is required.' :
+    body.length < 10 ? 'Content must be at least 10 characters.' : '') && valid;
+
+  const type = typeEl?.value || '';
+  valid = setFieldError('edit-type-select', 'err-type',
+    type === '' ? 'Please select a post type.' : '') && valid;
+
+  if (valid) {
+    const btn = document.querySelector('.cp-submit');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Saving…'; }
+    document.getElementById('post-edit-form').submit();
+  }
+}
+</script>
+{% endblock %}

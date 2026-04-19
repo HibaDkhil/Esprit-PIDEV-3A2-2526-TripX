@@ -1,0 +1,85 @@
+{% extends 'admin/admin_base.html.twig' %}
+{% block title %}Pack Categories — TripX Admin{% endblock %}
+
+{% block breadcrumbs %}
+  <a href="{{ path('admin_dashboard') }}" class="crumb">Dashboard</a>
+  <span class="sep">›</span>
+  <a href="{{ path('admin_packs') }}" class="crumb">Packs</a>
+  <span class="sep">›</span>
+  <span class="crumb active">Categories</span>
+{% endblock %}
+
+{% block content %}
+<div class="reveal">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;">
+    <div>
+      <h1 class="display-sm" style="margin-bottom:4px">Pack Categories</h1>
+      <p class="text-muted" style="font-size:14px">Manage the categories used to classify travel packs.</p>
+    </div>
+  </div>
+
+  <div class="stats-tab-bar reveal" style="display:flex; gap:16px; margin-bottom:24px; padding:12px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius-lg);">
+    <div style="flex:1; padding:12px 20px;">
+      <div class="text-muted" style="font-size:12px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">Total Categories</div>
+      <div style="font-family:var(--font-display); font-size:28px; font-weight:700; color:var(--accent-primary);">{{ stats.total }}</div>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px; align-items:start;">
+
+    {# Add form #}
+    <div class="card reveal">
+      <div class="card-body">
+        <h2 style="font-family:var(--font-display); font-size:18px; margin-bottom:20px;">Add Category</h2>
+        <form method="post" action="{{ path('admin_pack_category_add') }}">
+          <div class="form-group" style="margin-bottom:16px;">
+            <label style="display:block; margin-bottom:8px; font-weight:600;">Name *</label>
+            <input type="text" name="name" class="form-control"
+              style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;">Add Category</button>
+        </form>
+      </div>
+    </div>
+
+    {# List #}
+    <div  style="padding:0; overflow:hidden;">
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr style="background:rgba(0,166,237,0.05);">
+            <th style="text-align:left; padding:16px 20px; font-family:var(--font-display); font-size:14px;">ID</th>
+            <th style="text-align:left; padding:16px 20px; font-family:var(--font-display); font-size:14px;">Name</th>
+            <th style="text-align:right; padding:16px 20px; font-family:var(--font-display); font-size:14px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr style="border-top:1px solid var(--border-color);">
+            <td style="padding:14px 20px; font-family:var(--font-mono); font-size:12px; opacity:0.6">#{{ item.idCategory }}</td>
+            <td style="padding:14px 20px; font-weight:600;">{{ item.name }}</td>
+            <td style="padding:14px 20px; text-align:right;">
+              <div style="display:flex; gap:8px; justify-content:flex-end; align-items:center;">
+                {# Inline edit form #}
+                <form method="post" action="{{ path('admin_pack_category_edit', {id: item.idCategory}) }}" style="display:flex; gap:6px; align-items:center;">
+                  <input type="text" name="name" value="{{ item.name }}"
+                    style="padding:6px 10px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary); font-size:13px; width:130px;">
+                  <button type="submit" class="btn btn-secondary btn-sm">Save</button>
+                </form>
+                <a href="{{ path('admin_pack_category_delete', {id: item.idCategory}) }}"
+                   class="btn btn-primary btn-sm"
+                   onclick="return confirm('Delete category {{ item.name }}?')">Delete</a>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="3" style="text-align:center; padding:40px; color:var(--text-muted)">No categories yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

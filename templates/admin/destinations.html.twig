@@ -21,7 +21,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="reveal">
+<div>
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;">
     <div>
       <h1 class="display-sm" style="margin-bottom:4px">Destinations</h1>
@@ -30,7 +30,7 @@
     <a href="{{ path('admin_destination_add') }}" class="btn btn-primary ripple-btn">+ Add New Destination</a>
   </div>
 
-  <div class="stats-tab-bar reveal" style="display:flex; gap:16px; margin-bottom:24px; padding:12px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius-lg); box-shadow:var(--shadow-sm);">
+  <div class="stats-tab-bar" style="display:flex; gap:16px; margin-bottom:24px; padding:12px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius-lg); box-shadow:var(--shadow-sm);">
     <div style="flex:1; padding:12px 20px; border-right:1px solid var(--border-color);">
       <div class="text-muted" style="font-size:12px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px; font-family:var(--font-mono);">Total Destinations</div>
       <div style="font-family:var(--font-display); font-size:28px; font-weight:700; color:var(--accent-primary);">{{ stats.total }}</div>
@@ -45,27 +45,27 @@
     </div>
   </div>
 
-  <div class="search-wrap reveal">
-    <form method="get" action="{{ path('admin_destinations') }}" style="display:flex; width:100%; gap:12px;">
-      <input type="text" name="q" value="{{ currentQuery }}" class="input-search" placeholder="Search by name, country or continent...">
+  <div class="search-wrap">
+    <form id="destSearchForm" style="display:flex; width:100%; gap:12px;">
+      <input type="text" name="q" id="destSearchInput" value="{{ currentQuery }}" class="input-search" placeholder="Search by name, country or continent...">
       <button type="submit" class="btn btn-secondary">Search</button>
     </form>
   </div>
 
-  <div class="card reveal" style="padding:0; overflow:hidden;">
+  <div class="card" style="padding:0; overflow:hidden;">
     <table class="dest-table">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Country</th>
-          <th>Type</th>
-          <th>Price</th>
+          <th style="cursor:pointer;" onclick="sortData('destinationId')">ID ↕</th>
+          <th style="cursor:pointer;" onclick="sortData('name')">Name ↕</th>
+          <th style="cursor:pointer;" onclick="sortData('country')">Country ↕</th>
+          <th style="cursor:pointer;" onclick="sortData('type')">Type ↕</th>
+          <th style="cursor:pointer;" onclick="sortData('estimatedBudget')">Price ↕</th>
           <th>Best Season</th>
           <th style="text-align:right">Actions</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="destTableBody">
         {% for item in items %}
         <tr>
           <td style="font-family:var(--font-mono); font-size:12px; opacity:0.6">#{{ item.destinationId }}</td>
@@ -89,5 +89,109 @@
       </tbody>
     </table>
   </div>
+
+  {# ── Pagination Controls ── #}
+  {% if items.pageCount|default(0) > 1 or currentLimit is defined %}
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:12px;">
+    {# Items per page selector #}
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span style="font-size:13px; color:var(--text-muted); font-family:var(--font-mono);">Show</span>
+      {% for size in [5, 10, 25, 50] %}
+        <a href="{{ path('admin_destinations', {q: currentQuery, limit: size, page: 1}) }}"
+           class="btn btn-sm {{ currentLimit == size ? 'btn-primary' : 'btn-secondary' }}"
+           style="min-width:40px; text-align:center; font-size:12px;">{{ size }}</a>
+      {% endfor %}
+      <span style="font-size:13px; color:var(--text-muted); font-family:var(--font-mono);">per page</span>
+    </div>
+
+    {# Page navigation #}
+    {% if items.pageCount|default(0) > 1 %}
+    <div style="display:flex; align-items:center; gap:8px;">
+      {% if items.currentPageNumber > 1 %}
+        <a href="{{ path('admin_destinations', {page: items.currentPageNumber - 1, q: currentQuery, limit: currentLimit}) }}" class="btn btn-secondary btn-sm">← Prev</a>
+      {% endif %}
+
+      {% set startPage = max(1, items.currentPageNumber - 2) %}
+      {% set endPage = min(items.pageCount, items.currentPageNumber + 2) %}
+      {% for p in startPage..endPage %}
+        <a href="{{ path('admin_destinations', {page: p, q: currentQuery, limit: currentLimit}) }}"
+           class="btn btn-sm {{ p == items.currentPageNumber ? 'btn-primary' : 'btn-secondary' }}"
+           style="min-width:36px; text-align:center;">{{ p }}</a>
+      {% endfor %}
+
+      {% if items.currentPageNumber < items.pageCount %}
+        <a href="{{ path('admin_destinations', {page: items.currentPageNumber + 1, q: currentQuery, limit: currentLimit}) }}" class="btn btn-secondary btn-sm">Next →</a>
+      {% endif %}
+
+      <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono); margin-left:8px;">
+        Page {{ items.currentPageNumber }} of {{ items.pageCount }}
+      </span>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
 </div>
+
+<script>
+let currentSort = 'destinationId';
+let currentOrder = 'ASC';
+
+function sortData(col) {
+    if (currentSort === col) {
+        currentOrder = currentOrder === 'ASC' ? 'DESC' : 'ASC';
+    } else {
+        currentSort = col;
+        currentOrder = 'ASC';
+    }
+    
+    // Grab the current search query
+    const searchInput = document.getElementById('destSearchInput');
+    const q = searchInput ? searchInput.value : '';
+    
+    fetch(`{{ path('admin_destinations_api_sort') }}?sort=${currentSort}&order=${currentOrder}&q=${encodeURIComponent(q)}`)
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('destTableBody');
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px; color:var(--text-muted)">No destinations found matching your criteria.</td></tr>`;
+                return;
+            }
+            
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                  <td style="font-family:var(--font-mono); font-size:12px; opacity:0.6">#${item.id}</td>
+                  <td style="font-weight:600">${item.name}</td>
+                  <td>${item.country}</td>
+                  <td><span class="badge badge-teal">${(item.type || '').charAt(0).toUpperCase() + (item.type || '').slice(1)}</span></td>
+                  <td style="color:var(--accent-primary); font-weight:600">€${parseInt(item.estimatedBudget || 0).toLocaleString()}</td>
+                  <td>-</td>
+                  <td style="text-align:right">
+                    <div style="display:flex; gap:8px; justify-content:flex-end">
+                      <a href="${item.url_edit}" class="btn btn-secondary btn-sm">Edit</a>
+                      <a href="${item.url_delete}" class="btn btn-primary btn-sm" onclick="return confirm('Delete this destination?')">Delete</a>
+                    </div>
+                  </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+}
+
+// Live Dynamic Search
+let searchTimeout = null;
+document.getElementById('destSearchInput')?.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        sortData(currentSort); // Feeds current input value to the API
+    }, 300); // 300ms debounce
+});
+
+document.getElementById('destSearchForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    sortData(currentSort);
+});
+</script>
 {% endblock %}
