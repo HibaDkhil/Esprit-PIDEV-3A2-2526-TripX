@@ -52,12 +52,17 @@ services:
         arguments:
             $projectDir: '%kernel.project_dir%'
 
-    # Weather Service
+    # Weather Service (Accommodation version - with HTTP client and cache)
     App\service\Accommodation\WeatherService:
         arguments:
             $httpClient: '@http_client'
             $cache: '@App\service\Accommodation\CacheService'
             $openWeatherApiKey: '%env(OPENWEATHER_API_KEY)%'
+
+    # Weather Service (Simple version - just API key)
+    App\service\WeatherService:
+        arguments:
+            $apiKey: '%env(OPENWEATHER_API_KEY)%'
 
     # SerpApiService base class
     App\service\Accommodation\SerpApiService:

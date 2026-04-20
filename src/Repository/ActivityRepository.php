@@ -23,7 +23,9 @@ class ActivityRepository extends ServiceEntityRepository
      */
     public function search(string $query = ''): array
     {
-        $qb = $this->createQueryBuilder('a');
+        $qb = $this->createQueryBuilder('a')
+            ->innerJoin('a.destination', 'd')
+            ->addSelect('d');
 
         if (!empty($query)) {
             $qb->where('a.name LIKE :query OR a.category LIKE :query')
@@ -31,6 +33,25 @@ class ActivityRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Get Query for activities search (for pagination).
+     *
+     * @return \Doctrine\ORM\Query
+     */
+    public function searchQuery(string $query = ''): \Doctrine\ORM\Query
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.destination', 'd')
+            ->addSelect('d');
+
+        if (!empty($query)) {
+            $qb->where('a.name LIKE :query OR a.category LIKE :query')
+               ->setParameter('query', '%' . $query . '%');
+        }
+
+        return $qb->getQuery();
     }
 
     /**

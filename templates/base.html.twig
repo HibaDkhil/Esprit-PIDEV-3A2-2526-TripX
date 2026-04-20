@@ -8,7 +8,11 @@
     <link rel="stylesheet" href="/assets.php?f=css/animations.css">
     {% block stylesheets %}{% endblock %}
 </head>
-<body class="page-wipe-container"{% if app.user %} data-auth="1"{% endif %}>
+<body class="page-wipe-container"{% if app.user %} data-auth="1"{% endif %} style="position: relative; min-height: 100vh;">
+    <!-- Ambient Background Elements -->
+    <div style="position: fixed; top: 10%; left: 5%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, transparent 70%); border-radius: 50%; pointer-events: none; z-index: -1; animation: float-orb 15s ease-in-out infinite;"></div>
+    <div style="position: fixed; bottom: 10%; right: 5%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(0, 229, 255, 0.1) 0%, transparent 70%); border-radius: 50%; pointer-events: none; z-index: -1; animation: float-orb 20s ease-in-out infinite reverse;"></div>
+    
     <div id="cursor-dot"></div>
     <div id="cursor-halo"></div>
 

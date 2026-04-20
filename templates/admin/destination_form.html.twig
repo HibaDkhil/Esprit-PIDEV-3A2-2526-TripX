@@ -82,4 +82,55 @@
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const countryInput = document.querySelector('input[name$="[country]"]');
+    const latInput = document.querySelector('input[name$="[latitude]"]');
+    const lngInput = document.querySelector('input[name$="[longitude]"]');
+
+    if (countryInput && latInput && lngInput) {
+        countryInput.addEventListener('blur', function() {
+            const country = this.value.trim();
+            if (!country) return;
+
+            // Only auto-fill if fields are currently empty to not overwrite custom coords
+            if (latInput.value.trim() !== '' || lngInput.value.trim() !== '') {
+                return;
+            }
+
+            fetch(`https://restcountries.com/v3.1/name/${encodeURIComponent(country)}?fullText=true`)
+                .then(res => {
+                    if (!res.ok) {
+                        // If exact match fails, try fuzzy search
+                        return fetch(`https://restcountries.com/v3.1/name/${encodeURIComponent(country)}`);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    // Fuzzy search might return multiple or need another .then if it was a second fetch
+                    if (data && typeof data.json === 'function') {
+                         return data.json();
+                    }
+                    return data;
+                })
+                .then(data => {
+                    if (data && data.length > 0 && data[0].latlng) {
+                        latInput.value = data[0].latlng[0];
+                        lngInput.value = data[0].latlng[1];
+                        
+                        // Small visual feedback
+                        latInput.style.borderColor = '#10b981';
+                        lngInput.style.borderColor = '#10b981';
+                        setTimeout(() => {
+                            latInput.style.borderColor = '';
+                            lngInput.style.borderColor = '';
+                        }, 1500);
+                    }
+                })
+                .catch(err => console.error('TripX: Error fetching country coordinates', err));
+        });
+    }
+});
+</script>
 {% endblock %}

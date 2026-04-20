@@ -4,15 +4,19 @@ namespace App\service;
 
 use App\service\Accommodation\CacheService;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Psr\Log\LoggerInterface;
 
 class RestCountriesService
 {
     public function __construct(
         private HttpClientInterface $httpClient,
-        private CacheService $cache
+        private ?CacheService $cache = null,
+        private ?LoggerInterface $logger = null
     ) {}
 
     /**
+     * Get detailed country information with caching (from first version)
+     * 
      * @return array{
      *   name?: string,
      *   cca2?: string,
@@ -33,7 +37,7 @@ class RestCountriesService
         }
 
         $cacheKey = 'restcountries_name_' . mb_strtolower($countryName);
-        if ($this->cache->has($cacheKey)) {
+        if ($this->cache && $this->cache->has($cacheKey)) {
             return $this->cache->get($cacheKey);
         }
 
@@ -47,28 +51,135 @@ class RestCountriesService
 
             $arr = $resp->toArray(false);
             if (!is_array($arr) || !isset($arr[0]) || !is_array($arr[0])) {
-                $this->cache->set($cacheKey, null, 86400);
+                if ($this->cache) {
+                    $this->cache->set($cacheKey, null, 86400);
+                }
                 return null;
             }
 
-            $country = $this->normalize($arr[0]);
-            $this->cache->set($cacheKey, $country, 86400); // 24h
+            $country = $this->normalizeCountryData($arr[0]);
+            if ($this->cache) {
+                $this->cache->set($cacheKey, $country, 86400); // 24h
+            }
             return $country;
         } catch (\Throwable $e) {
-            error_log('RestCountries error: ' . $e->getMessage());
+            if ($this->logger) {
+                $this->logger->error('RestCountries error (getCountryByName): ' . $e->getMessage());
+            } else {
+                error_log('RestCountries error: ' . $e->getMessage());
+            }
             return null;
         }
     }
 
     /**
-     * @param array<string,mixed> $c
+     * Fetch country information including flag and local time based on timezones (from second version)
+     */
+    public function getCountryInfo(string $countryName): ?array
+    {
+        if (empty(trim($countryName))) {
+            return null;
+        }
+
+        try {
+            $response = $this->httpClient->request('GET', 'https://restcountries.com/v3.1/name/' . urlencode($countryName), [
+                'query' => [
+                    'fullText' => 'true'
+                ],
+                'timeout' => 3.0 // Short timeout to avoid blocking page load
+            ]);
+
+            if ($response->getStatusCode() !== 200) {
+                // Try a fuzzy search if exact match fails
+                $response = $this->httpClient->request('GET', 'https://restcountries.com/v3.1/name/' . urlencode($countryName), [
+                    'timeout' => 3.0
+                ]);
+
+                if ($response->getStatusCode() !== 200) {
+                    if ($this->logger) {
+                        $this->logger->warning('RestCountriesService: API returned status ' . $response->getStatusCode() . ' for ' . $countryName);
+                    }
+                    return null;
+                }
+            }
+
+            $data = $response->toArray();
+
+            if (empty($data) || !isset($data[0])) {
+                return null;
+            }
+
+            $countryData = $data[0];
+            $flagUrl = $countryData['flags']['svg'] ?? null;
+            $timezones = $countryData['timezones'] ?? [];
+
+            // Calculate current local time
+            $localTimeStr = null;
+            if (!empty($timezones)) {
+                $localTimeStr = $this->calculateLocalTime($timezones);
+            }
+
+            return [
+                'flag' => $flagUrl,
+                'timezones' => $timezones,
+                'localTime' => $localTimeStr
+            ];
+
+        } catch (\Exception $e) {
+            if ($this->logger) {
+                $this->logger->error('RestCountriesService: Exception during API call: ' . $e->getMessage());
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Calculate local time based on timezone offset
+     */
+    private function calculateLocalTime(array $timezones): ?string
+    {
+        if (empty($timezones)) {
+            return null;
+        }
+
+        // Use the first timezone generally
+        $firstTz = $timezones[0]; // e.g., "UTC+01:00", "UTC-05:00", "UTC"
+        
+        $offset = 0;
+        if ($firstTz !== 'UTC') {
+            // Extract +01:00 or -05:00
+            $offsetStr = str_replace('UTC', '', $firstTz);
+            $sign = substr($offsetStr, 0, 1) === '-' ? -1 : 1;
+            $parts = explode(':', substr($offsetStr, 1));
+            if (count($parts) === 2) {
+                $offset = $sign * ((int)$parts[0] * 3600 + (int)$parts[1] * 60);
+            }
+        }
+
+        // Create a timezone with the exact offset in seconds
+        $tzName = timezone_name_from_abbr('', $offset, 0);
+        if (!$tzName) {
+            // Fallback formatting if timezone alias can't be guessed
+            $gmtString = 'GMT' . ($offset >= 0 ? '+' : '-') . gmdate('H:i', abs($offset));
+            $dt = new \DateTime('now', new \DateTimeZone($gmtString));
+        } else {
+            $dt = new \DateTime('now', new \DateTimeZone($tzName));
+        }
+        
+        return $dt->format('l, g:i A'); // e.g. "Tuesday, 3:45 PM"
+    }
+
+    /**
+     * Normalize country data from API response
+     * 
+     * @param array<string,mixed> $countryData
      * @return array<string,mixed>
      */
-    private function normalize(array $c): array
+    private function normalizeCountryData(array $countryData): array
     {
         $currencies = [];
-        if (isset($c['currencies']) && is_array($c['currencies'])) {
-            foreach ($c['currencies'] as $code => $meta) {
+        if (isset($countryData['currencies']) && is_array($countryData['currencies'])) {
+            foreach ($countryData['currencies'] as $code => $meta) {
                 if (!is_array($meta)) {
                     continue;
                 }
@@ -81,8 +192,8 @@ class RestCountriesService
         }
 
         $languages = [];
-        if (isset($c['languages']) && is_array($c['languages'])) {
-            foreach ($c['languages'] as $lang) {
+        if (isset($countryData['languages']) && is_array($countryData['languages'])) {
+            foreach ($countryData['languages'] as $lang) {
                 if (is_string($lang) && $lang !== '') {
                     $languages[] = $lang;
                 }
@@ -90,21 +201,20 @@ class RestCountriesService
         }
 
         $capital = null;
-        if (isset($c['capital']) && is_array($c['capital']) && isset($c['capital'][0]) && is_string($c['capital'][0])) {
-            $capital = $c['capital'][0];
+        if (isset($countryData['capital']) && is_array($countryData['capital']) && isset($countryData['capital'][0]) && is_string($countryData['capital'][0])) {
+            $capital = $countryData['capital'][0];
         }
 
         return [
-            'name' => $c['name']['common'] ?? null,
-            'cca2' => $c['cca2'] ?? null,
-            'flagSvg' => $c['flags']['svg'] ?? null,
-            'flagPng' => $c['flags']['png'] ?? null,
-            'region' => $c['region'] ?? null,
-            'subregion' => $c['subregion'] ?? null,
+            'name' => $countryData['name']['common'] ?? null,
+            'cca2' => $countryData['cca2'] ?? null,
+            'flagSvg' => $countryData['flags']['svg'] ?? null,
+            'flagPng' => $countryData['flags']['png'] ?? null,
+            'region' => $countryData['region'] ?? null,
+            'subregion' => $countryData['subregion'] ?? null,
             'capital' => $capital,
             'currencies' => $currencies,
             'languages' => $languages,
         ];
     }
 }
-

@@ -4,67 +4,88 @@
 
 {% block stylesheets %}
 <style>
-  .page-top { padding-top: calc(var(--nav-height) + 60px); padding-bottom: 40px; }
+  :root {
+    --ocean-teal: #00F5D4;
+    --ocean-blue: #0ea5e9;
+    --glass-bg: rgba(7, 20, 40, 0.65);
+    --glass-border: rgba(0, 245, 212, 0.2);
+  }
+
+  .page-top { 
+    padding-top: calc(var(--nav-height) + 100px); 
+    padding-bottom: 80px; 
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% -20%, rgba(14, 165, 233, 0.15), transparent 60%);
+  }
+  .page-top::before {
+    content: ''; position: absolute; top: 0; right: 20%; width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(0,245,212,0.15) 0%, transparent 60%);
+    border-radius: 50%; filter: blur(40px); z-index: -1; animation: float-orb 15s ease-in-out infinite reverse;
+  }
   
   .stats-bar {
-    display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 32px;
+    display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 40px;
   }
   .stat-chip {
-    background: var(--bg-card); border: 1px solid var(--border-color);
+    background: var(--glass-bg); backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
     border-radius: var(--border-radius-md);
-    padding: 16px 20px; flex: 1; min-width: 140px; text-align: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    transition: transform 0.3s;
+    padding: 24px 20px; flex: 1; min-width: 140px; text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+    transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
   }
-  .stat-chip:hover { transform: translateY(-4px); border-color: var(--accent-primary); }
-  .stat-chip-val { font-family: var(--font-display); font-size: 32px; color: var(--accent-primary); line-height: 1; }
-  .stat-chip-label { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 8px; }
+  .stat-chip:hover { transform: translateY(-6px); border-color: rgba(0,245,212,0.4); box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(0,245,212,0.1); }
+  .stat-chip-val { font-family: var(--font-display); font-size: 36px; color: var(--ocean-teal); line-height: 1; text-shadow: 0 0 15px rgba(0,245,212,0.3); font-weight: 800; }
+  .stat-chip-label { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 12px; }
   
   /* Tabs */
   .bookings-tabs {
-    display: flex; gap: 8px; margin-bottom: 24px;
-    background: var(--bg-surface); padding: 8px; border-radius: 50px;
-    width: fit-content; border: 1px solid var(--border-color);
+    display: flex; gap: 8px; margin-bottom: 32px;
+    background: var(--glass-bg); padding: 8px; border-radius: 50px;
+    width: fit-content; border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px);
   }
   .bookings-tab {
-    padding: 8px 24px; border-radius: 50px; font-size: 13px; font-weight: 600;
-    cursor: pointer; transition: all 0.2s; color: var(--text-muted); border: none; background: transparent;
+    padding: 10px 28px; border-radius: 50px; font-size: 13px; font-weight: 600; font-family: var(--font-mono); letter-spacing: 0.05em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1); color: var(--text-muted); border: none; background: transparent;
   }
   .bookings-tab.active {
-    background: var(--accent-primary); color: white; box-shadow: 0 4px 12px rgba(167,139,250,0.3);
+    background: linear-gradient(135deg, var(--ocean-teal), var(--ocean-blue)); color: #020816; box-shadow: 0 4px 15px rgba(0,245,212,0.4); font-weight: 700;
   }
-  .bookings-tab:not(.active):hover { color: var(--text-primary); }
+  .bookings-tab:not(.active):hover { color: var(--text-primary); background: rgba(0,245,212,0.1); }
   
   .booking-row {
-    background: var(--bg-card); border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 16px;
-    transition: transform 0.3s, box-shadow 0.3s;
-    animation: slideUp 0.4s ease forwards; opacity: 0; transform: translateY(20px);
+    background: var(--glass-bg); backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 24px;
+    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    animation: slideUp 0.6s cubic-bezier(0.19, 1, 0.22, 1) forwards; opacity: 0; transform: translateY(30px);
   }
-  .booking-row:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-color: var(--accent-primary); }
+  .booking-row:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(0,0,0,0.4), 0 0 20px rgba(0,245,212,0.1); border-color: rgba(0,245,212,0.4); }
   
   @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
   
   .booking-row-header {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 16px 24px; border-bottom: 1px solid var(--border-color);
-    background: rgba(255,255,255,0.02);
+    padding: 20px 28px; border-bottom: 1px solid var(--glass-border);
+    background: rgba(0,0,0,0.2);
   }
-  .booking-type-icon { font-size: 24px; }
+  .booking-type-icon { font-size: 28px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5)); }
   .booking-status {
-    padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 6px 14px; border-radius: 50px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; font-family: var(--font-mono);
   }
   
-  .booking-row-body { display: grid; grid-template-columns: 1fr 1fr auto; gap: 24px; padding: 24px; align-items: center; }
+  .booking-row-body { display: grid; grid-template-columns: 1fr 1fr auto; gap: 24px; padding: 28px; align-items: center; }
   @media (max-width: 768px) { .booking-row-body { grid-template-columns: 1fr; } }
   
-  .booking-detail-label { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
-  .booking-detail-value { font-size: 15px; font-weight: 500; color: var(--text-primary); }
+  .booking-detail-label { font-family: var(--font-mono); font-size: 11px; color: var(--ocean-teal); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.05em; }
+  .booking-detail-value { font-size: 15px; font-weight: 500; color: #fff; }
   
   .booking-price { text-align: right; }
   @media (max-width: 768px) { .booking-price { text-align: left; } }
   
-  .booking-price-val { font-family: var(--font-display); font-size: 28px; color: var(--accent-primary); font-weight: 700; line-height: 1; margin-bottom: 12px; }
+  .booking-price-val { font-family: var(--font-display); font-size: 32px; color: var(--ocean-teal); font-weight: 800; line-height: 1; margin-bottom: 16px; text-shadow: 0 0 15px rgba(0,245,212,0.3); }
 </style>
 {% endblock %}
 
@@ -72,9 +93,9 @@
 <div class="page-top">
   <div class="container">
     <div class="section-label reveal"><span>Overview</span></div>
-    <h1 class="display-md reveal" style="margin-bottom:8px">My <span class="gradient-text">Bookings</span></h1>
-    <p class="serif-mood text-muted reveal reveal-delay-1" style="margin-bottom:32px;">
-      Manage all your destinations, accommodations, and transport reservations.
+    <h1 class="display-md reveal" style="margin-bottom:8px">My <span style="background: linear-gradient(90deg, #fff 0%, var(--ocean-teal) 50%, #fff 100%); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: text-shimmer 4s linear infinite;">Bookings</span></h1>
+    <p class="serif-mood text-muted reveal reveal-delay-1" style="margin-bottom:40px; font-size: 18px;">
+      Manage all your destinations, accommodations, and transport reservations in one beautiful dashboard.
     </p>
 
     {# Stats #}
@@ -184,6 +205,10 @@
                    class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; margin-bottom:8px;">
                   View Destination
                 </a>
+                <a href="{{ path('booking_des_invoice_pdf', {'id': b.id}) }}" 
+                   class="btn btn-sm" style="width:100%; justify-content:center; background:#6366f1; color:#fff; border:none; margin-bottom:8px;">
+                  📄 Download Invoice
+                </a>
               {% else %}
                 <a href="{{ path('user_booking_receipt_pdf', {'id': b.id}) }}" 
                    class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; margin-bottom:8px;">
@@ -192,9 +217,15 @@
               {% endif %}
               
               {% if b.status|lower == 'confirmed' %}
-                <a href="#" onclick="alert('Feature coming soon'); return false;" class="btn btn-sm" style="width:100%; justify-content:center; background:#10b981; color:#fff; border:none; font-weight:600;">
-                  Proceed to Payment
-                </a>
+                {% if isDest and b.entity.paymentStatus is defined and b.entity.paymentStatus|lower != 'paid' %}
+                  <a href="{{ path('payment_checkout', {'id': b.id}) }}" class="btn btn-sm" style="width:100%; justify-content:center; background:#10b981; color:#fff; border:none; font-weight:600;">
+                    Proceed to Payment
+                  </a>
+                {% elseif not isDest %}
+                  <a href="#" onclick="alert('Feature coming soon'); return false;" class="btn btn-sm" style="width:100%; justify-content:center; background:#10b981; color:#fff; border:none; font-weight:600;">
+                    Proceed to Payment
+                  </a>
+                {% endif %}
               {% endif %}
             </div>
           </div>
@@ -206,6 +237,46 @@
         </div>
       {% endfor %}
     </div>
+
+    {# ── Pagination Controls ── #}
+    {% if allBookings.pageCount|default(0) > 1 or currentLimit is defined %}
+    <div style="display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:32px;" class="reveal">
+      {# Items per page selector #}
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono); letter-spacing:0.05em; text-transform:uppercase;">Show</span>
+        {% for size in [5, 10, 25, 50] %}
+          <a href="{{ path('my_bookings', {limit: size, page: 1}) }}"
+             class="btn btn-sm {{ currentLimit == size ? 'btn-primary' : 'btn-secondary' }} ripple-btn"
+             style="min-width:42px; text-align:center; font-size:12px; border-radius:50px;">{{ size }}</a>
+        {% endfor %}
+        <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono); letter-spacing:0.05em; text-transform:uppercase;">per page</span>
+      </div>
+
+      {# Page navigation #}
+      {% if allBookings.pageCount|default(0) > 1 %}
+      <div style="display:flex; align-items:center; gap:8px;">
+        {% if allBookings.currentPageNumber > 1 %}
+          <a href="{{ path('my_bookings', {page: allBookings.currentPageNumber - 1, limit: currentLimit}) }}" class="btn btn-secondary ripple-btn" style="border-radius:50px; padding:10px 20px; font-size:13px;">← Previous</a>
+        {% endif %}
+
+        {% set startPage = max(1, allBookings.currentPageNumber - 2) %}
+        {% set endPage = min(allBookings.pageCount, allBookings.currentPageNumber + 2) %}
+        {% for p in startPage..endPage %}
+          <a href="{{ path('my_bookings', {page: p, limit: currentLimit}) }}"
+             class="btn {{ p == allBookings.currentPageNumber ? 'btn-primary' : 'btn-secondary' }} ripple-btn"
+             style="min-width:42px; text-align:center; border-radius:50px; padding:10px 16px; font-size:13px;">{{ p }}</a>
+        {% endfor %}
+
+        {% if allBookings.currentPageNumber < allBookings.pageCount %}
+          <a href="{{ path('my_bookings', {page: allBookings.currentPageNumber + 1, limit: currentLimit}) }}" class="btn btn-secondary ripple-btn" style="border-radius:50px; padding:10px 20px; font-size:13px;">Next →</a>
+        {% endif %}
+      </div>
+      <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono);">
+        Page {{ allBookings.currentPageNumber }} of {{ allBookings.pageCount }}
+      </span>
+      {% endif %}
+    </div>
+    {% endif %}
 
   </div>
 </div>
@@ -249,3 +320,4 @@ function filterBookings(type, btn) {
 }
 </script>
 {% endblock %}
+

@@ -6,8 +6,26 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Montserrat:wght@100..900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  /* ── Page top (below fixed nav) ── */
-  .page-top { padding-top: calc(var(--nav-height) + 60px); padding-bottom: 40px; }
+  /* Ocean Teal & Pastel Blue Luminous Aesthetic */
+  :root {
+    --ocean-teal: #00F5D4;
+    --ocean-blue: #0ea5e9;
+    --glass-bg: rgba(7, 20, 40, 0.65);
+    --glass-border: rgba(0, 245, 212, 0.2);
+  }
+
+  .page-top { 
+    position: relative;
+    padding-top: calc(var(--nav-height) + 100px); 
+    padding-bottom: 80px; 
+    overflow: hidden;
+    background: radial-gradient(circle at 50% -20%, rgba(14, 165, 233, 0.15), transparent 60%);
+  }
+  .page-top::before {
+    content: ''; position: absolute; top: 0; left: 10%; width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(0,245,212,0.2) 0%, transparent 60%);
+    border-radius: 50%; filter: blur(40px); z-index: -1; animation: float-orb 15s ease-in-out infinite;
+  }
 
   /* ── Tab bar ── */
   .transport-tab-bar {
@@ -31,19 +49,20 @@
 
   /* ── Schedule / Transport cards ── */
   .trip-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
+    background: var(--glass-bg); backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
     border-radius: var(--border-radius-lg);
     overflow: hidden;
-    transition: all var(--transition-smooth);
+    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
   }
-  .trip-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--accent-primary); }
+  .trip-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(0, 245, 212, 0.15); border-color: rgba(0, 245, 212, 0.4); }
   .trip-card-header {
     padding: 16px 20px;
-    background: linear-gradient(135deg, #1F294C, #0A4174);
+    background: linear-gradient(135deg, rgba(31,41,76,0.6), rgba(10,65,116,0.6));
+    border-bottom: 1px solid var(--glass-border);
   }
-  .trip-card-header.vehicle { background: linear-gradient(135deg, #2C5F6E, #4E8EA2); }
-  .trip-card-header.unavailable { background: linear-gradient(135deg, #6b7280, #9ca3af); }
+  .trip-card-header.vehicle { background: linear-gradient(135deg, rgba(44,95,110,0.6), rgba(78,142,162,0.6)); }
+  .trip-card-header.unavailable { background: linear-gradient(135deg, rgba(107,114,128,0.5), rgba(156,163,175,0.5)); }
   .trip-card-body { padding: 16px 20px; }
   .trip-card-footer { display: flex; border-top: 1px solid var(--border-color); }
   .trip-card-footer a, .trip-card-footer button {
@@ -87,19 +106,27 @@
 
   /* Type select cards */
   .type-select-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
+    background: var(--glass-bg); backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
     border-radius: var(--border-radius-lg);
     padding: 40px 32px;
     text-align: center; text-decoration: none;
-    transition: all var(--transition-smooth);
+    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
     display: flex; flex-direction: column;
     align-items: center; gap: 14px;
+    position: relative; overflow: hidden;
   }
-  .type-select-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); border-color: var(--accent-primary); }
-  .type-select-icon { font-size: 48px; }
-  .type-select-title { font-family: var(--font-display); font-size: 22px; color: var(--text-primary); font-weight: 700; }
-  .type-select-sub { font-size: 0.88rem; color: var(--text-muted); }
+  .type-select-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(0, 245, 212, 0.05), rgba(14, 165, 233, 0.05));
+    opacity: 0; transition: opacity 0.5s; pointer-events: none;
+  }
+  .type-select-card:hover { transform: translateY(-8px); box-shadow: 0 25px 50px rgba(0,0,0,0.4), 0 0 40px rgba(0, 245, 212, 0.15); border-color: rgba(0, 245, 212, 0.5); }
+  .type-select-card:hover::before { opacity: 1; }
+  .type-select-icon { font-size: 56px; transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3)); }
+  .type-select-card:hover .type-select-icon { transform: scale(1.2) translateY(-10px); }
+  .type-select-title { font-family: var(--font-display); font-size: 28px; color: #fff; font-weight: 700; }
+  .type-select-sub { font-size: 15px; color: var(--text-secondary); line-height: 1.6; }
 
   /* Stats bar */
   .stats-bar {
@@ -154,12 +181,20 @@
 
   /* ── Route cards (from second file) ── */
   .route-card {
-    background: var(--bg-card); border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg); padding: 24px; margin-bottom: 16px;
-    transition: all var(--transition-smooth);
+    background: var(--glass-bg); backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius-lg); padding: 28px; margin-bottom: 20px;
+    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    position: relative; overflow: hidden;
   }
-  .route-card:hover { border-color: var(--accent-primary); transform: translateX(4px); }
-  .route-top { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+  .route-card::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle at top right, rgba(0, 245, 212, 0.1), transparent 50%);
+    opacity: 0; transition: opacity 0.5s; pointer-events: none;
+  }
+  .route-card:hover { border-color: rgba(0,245,212,0.4); transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 30px rgba(0, 245, 212, 0.1); }
+  .route-card:hover::before { opacity: 1; }
+  .route-top { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
   .airline-logo {
     width: 40px; height: 40px; border-radius: 8px; background: var(--bg-secondary);
     display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
@@ -285,21 +320,21 @@
     margin-top: 10px;
   }
   .schedule-row {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
+    background: var(--glass-bg); backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
     border-radius: var(--border-radius-lg);
     display: flex;
     align-items: center;
-    padding: 20px 28px;
+    padding: 24px 28px;
     gap: 32px;
-    transition: all var(--transition-smooth);
+    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
     position: relative;
     overflow: hidden;
   }
   .schedule-row:hover {
-    border-color: var(--accent-primary);
-    box-shadow: var(--shadow-md);
-    transform: translateX(4px);
+    border-color: rgba(0,245,212,0.4);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 30px rgba(0, 245, 212, 0.1);
+    transform: translateY(-4px);
   }
   .schedule-row::before {
     content: '';
@@ -354,11 +389,11 @@
   <div class="container">
     <div class="section-label reveal"><span>✈ Travel with TripX</span></div>
     <h1 class="display-md reveal" style="margin-bottom:8px">
-      {% if tab == 'schedules' %}Find Your <span class="gradient-text">Schedule</span>
-      {% elseif tab == 'transport' %}Browse <span class="gradient-text">Transport</span>
-      {% elseif tab == 'booking_form' %}Book <span class="gradient-text">Your Trip</span>
-      {% elseif tab == 'my_bookings' %}My <span class="gradient-text">Bookings</span>
-      {% else %}Get There <span class="gradient-text">Smarter</span>{% endif %}
+      {% if tab == 'schedules' %}Find Your <span style="background: linear-gradient(90deg, #fff 0%, var(--ocean-teal) 50%, #fff 100%); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: text-shimmer 4s linear infinite;">Schedule</span>
+      {% elseif tab == 'transport' %}Browse <span style="background: linear-gradient(90deg, #fff 0%, var(--ocean-teal) 50%, #fff 100%); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: text-shimmer 4s linear infinite;">Transport</span>
+      {% elseif tab == 'booking_form' %}Book <span style="background: linear-gradient(90deg, #fff 0%, var(--ocean-teal) 50%, #fff 100%); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: text-shimmer 4s linear infinite;">Your Trip</span>
+      {% elseif tab == 'my_bookings' %}My <span style="background: linear-gradient(90deg, #fff 0%, var(--ocean-teal) 50%, #fff 100%); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: text-shimmer 4s linear infinite;">Bookings</span>
+      {% else %}Get There <span style="background: linear-gradient(90deg, #fff 0%, var(--ocean-teal) 50%, #fff 100%); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: text-shimmer 4s linear infinite;">Smarter</span>{% endif %}
     </h1>
     <p class="serif-mood text-muted reveal reveal-delay-1">
       AI-powered schedules, real-time availability, and seamless booking — all in one place.

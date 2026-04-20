@@ -22,6 +22,14 @@ class BookingService
         return $this->repository->search($query);
     }
 
+    /**
+     * Return a Query object for paginated results.
+     */
+    public function getAllQuery(string $query = ''): \Doctrine\ORM\Query
+    {
+        return $this->repository->searchQuery($query);
+    }
+
     public function getByUser(int $userId): array
     {
         return $this->repository->findByUser($userId);

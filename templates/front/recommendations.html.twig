@@ -1,0 +1,491 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Recommendations — TripX{% endblock %}
+
+{% block stylesheets %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Montserrat:wght@100..900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    .page-top { padding-top: calc(var(--nav-height) + 60px); padding-bottom: 40px; }
+
+    /* ── Preference Panel ── */
+    .rec-panel {
+      background: var(--bg-glass);
+      backdrop-filter: var(--bg-glass-blur);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      padding: 32px;
+      margin-bottom: 48px;
+    }
+    .rec-panel-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .rec-form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      align-items: end;
+    }
+    .rec-field label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .rec-field select,
+    .rec-field input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-md);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 14px;
+      transition: border-color var(--transition-fast);
+    }
+    .rec-field select:focus,
+    .rec-field input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+    }
+    .rec-submit-wrap {
+      display: flex;
+      align-items: end;
+    }
+    .rec-submit {
+      width: 100%;
+      padding: 12px 24px;
+      background: var(--accent-primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--border-radius-md);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .rec-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(99, 102, 241, 0.4);
+    }
+
+    /* ── Results Grid ── */
+    .rec-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    @media (max-width: 900px)  { .rec-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px)  { .rec-grid { grid-template-columns: 1fr; } }
+
+    .rec-card {
+      position: relative;
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+      height: 380px;
+      cursor: pointer;
+      transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
+    }
+    .rec-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+
+    .rec-card-bg {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 80px;
+      transition: transform var(--transition-smooth);
+    }
+    .rec-card:hover .rec-card-bg { transform: scale(1.07); }
+    .rec-card-bg img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; }
+
+    .rec-card-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(3,7,18,0.88) 0%, rgba(3,7,18,0.2) 55%, transparent 100%);
+    }
+
+    /* Score badge */
+    .rec-score-badge {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 100px;
+      letter-spacing: 0.05em;
+      z-index: 2;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+    }
+
+    .rec-card-content {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 24px;
+      color: #F0F4F8;
+      z-index: 1;
+    }
+    .rec-card-country {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      opacity: 0.7;
+      margin-bottom: 6px;
+    }
+    .rec-card-name {
+      font-family: var(--font-display);
+      font-size: 28px;
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .rec-card-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    /* Match reasons */
+    .rec-reasons {
+      display: flex; flex-direction: column; gap: 4px;
+      margin-top: 8px;
+    }
+    .rec-reason {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: rgba(240,244,248,0.8);
+      background: rgba(255,255,255,0.08);
+      padding: 4px 10px;
+      border-radius: 6px;
+      display: inline-block;
+      width: fit-content;
+    }
+
+    /* Hover overlay with actions */
+    .rec-hover-layer {
+      position: absolute; inset: 0;
+      background: rgba(3,7,18,0.7);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      opacity: 0;
+      transition: opacity var(--transition-smooth);
+      gap: 12px;
+      z-index: 3;
+    }
+    .rec-card:hover .rec-hover-layer { opacity: 1; }
+
+    /* Loading state */
+    .rec-loading {
+      text-align: center;
+      padding: 80px 0;
+      display: none;
+    }
+    .rec-loading.active { display: block; }
+    .rec-spinner {
+      width: 48px; height: 48px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--accent-primary);
+      border-radius: 50%;
+      animation: recSpin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes recSpin { to { transform: rotate(360deg); } }
+
+    /* Empty state */
+    .rec-empty {
+      text-align: center;
+      padding: 80px 0;
+      color: var(--text-muted);
+    }
+    .rec-empty-icon { font-size: 64px; margin-bottom: 16px; }
+
+    /* Fade-in animation for cards */
+    .rec-card { opacity: 0; animation: recFadeIn 0.5s ease forwards; }
+    .rec-card:nth-child(1)  { animation-delay: 0.05s; }
+    .rec-card:nth-child(2)  { animation-delay: 0.10s; }
+    .rec-card:nth-child(3)  { animation-delay: 0.15s; }
+    .rec-card:nth-child(4)  { animation-delay: 0.20s; }
+    .rec-card:nth-child(5)  { animation-delay: 0.25s; }
+    .rec-card:nth-child(6)  { animation-delay: 0.30s; }
+    .rec-card:nth-child(7)  { animation-delay: 0.35s; }
+    .rec-card:nth-child(8)  { animation-delay: 0.40s; }
+    .rec-card:nth-child(9)  { animation-delay: 0.45s; }
+    .rec-card:nth-child(10) { animation-delay: 0.50s; }
+    .rec-card:nth-child(11) { animation-delay: 0.55s; }
+    .rec-card:nth-child(12) { animation-delay: 0.60s; }
+    @keyframes recFadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+
+<!-- Page Header -->
+<div class="page-top">
+  <div class="container">
+    <a href="{{ path('destinations') }}" style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.1em;color:var(--text-muted);display:inline-flex;align-items:center;gap:6px;margin-bottom:20px;transition:color 0.2s" onmouseover="this.style.color='var(--accent-primary)'" onmouseout="this.style.color='var(--text-muted)'">← Back to Destinations</a>
+    <div class="section-label reveal"><span>✨ Smart Picks</span></div>
+    <h1 class="display-md reveal" style="margin-bottom:8px">Your <span class="gradient-text">Recommendations</span></h1>
+    <p class="serif-mood text-muted reveal reveal-delay-1">Tell us what you love — we'll find your perfect match.</p>
+  </div>
+</div>
+
+<!-- Preference Panel -->
+<section class="section-sm">
+  <div class="container">
+    <div class="rec-panel reveal">
+      <div class="rec-panel-title">🎯 Set Your Preferences</div>
+      <form id="rec-form" class="rec-form-grid" method="GET" action="{{ path('destination_recommendations') }}">
+
+        <div class="rec-field">
+          <label for="rec-season">Climate / Season</label>
+          <select id="rec-season" name="season">
+            <option value="">Any Season</option>
+            <option value="spring" {{ preferences.season == 'spring' ? 'selected' : '' }}>🌸 Spring</option>
+            <option value="summer" {{ preferences.season == 'summer' ? 'selected' : '' }}>☀️ Summer</option>
+            <option value="autumn" {{ preferences.season == 'autumn' ? 'selected' : '' }}>🍂 Autumn</option>
+            <option value="winter" {{ preferences.season == 'winter' ? 'selected' : '' }}>❄️ Winter</option>
+            <option value="all_year" {{ preferences.season == 'all_year' ? 'selected' : '' }}>🌍 All Year</option>
+          </select>
+        </div>
+
+        <div class="rec-field">
+          <label for="rec-type">Destination Type</label>
+          <select id="rec-type" name="type">
+            <option value="">Any Type</option>
+            <option value="city" {{ preferences.type == 'city' ? 'selected' : '' }}>🏙️ City</option>
+            <option value="beach" {{ preferences.type == 'beach' ? 'selected' : '' }}>🏖️ Beach</option>
+            <option value="mountain" {{ preferences.type == 'mountain' ? 'selected' : '' }}>🏔️ Mountain</option>
+            <option value="countryside" {{ preferences.type == 'countryside' ? 'selected' : '' }}>🌾 Countryside</option>
+            <option value="desert" {{ preferences.type == 'desert' ? 'selected' : '' }}>🏜️ Desert</option>
+            <option value="island" {{ preferences.type == 'island' ? 'selected' : '' }}>🏝️ Island</option>
+            <option value="forest" {{ preferences.type == 'forest' ? 'selected' : '' }}>🌲 Forest</option>
+            <option value="cruise" {{ preferences.type == 'cruise' ? 'selected' : '' }}>🚢 Cruise</option>
+          </select>
+        </div>
+
+        <div class="rec-field">
+          <label for="rec-rating">Minimum Rating</label>
+          <select id="rec-rating" name="minRating">
+            <option value="">Any Rating</option>
+            <option value="3" {{ preferences.minRating == 3 ? 'selected' : '' }}>⭐ 3+ Stars</option>
+            <option value="3.5" {{ preferences.minRating == 3.5 ? 'selected' : '' }}>⭐ 3.5+ Stars</option>
+            <option value="4" {{ preferences.minRating == 4 ? 'selected' : '' }}>⭐ 4+ Stars</option>
+            <option value="4.5" {{ preferences.minRating == 4.5 ? 'selected' : '' }}>⭐ 4.5+ Stars</option>
+          </select>
+        </div>
+
+        <div class="rec-field">
+          <label for="rec-budget">Max Budget (€)</label>
+          <input type="number" id="rec-budget" name="maxBudget" placeholder="e.g. 2000" min="0" step="100" value="{{ preferences.maxBudget ?? '' }}">
+        </div>
+
+        <div class="rec-submit-wrap">
+          <button type="submit" class="rec-submit ripple-btn" id="rec-submit-btn">✨ Get Recommendations</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Results Header -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <h2 style="font-family:var(--font-display);font-size:24px;">
+        {% if hasFilters %}
+          🎯 <span class="gradient-text">{{ results|length }}</span> Matches Found
+        {% else %}
+          🔥 Top Picks For You
+        {% endif %}
+      </h2>
+      {% if hasFilters %}
+        <a href="{{ path('destination_recommendations') }}" class="btn btn-secondary btn-sm ripple-btn">Clear Filters</a>
+      {% endif %}
+    </div>
+
+    <!-- Loading indicator (used by AJAX) -->
+    <div class="rec-loading" id="rec-loading">
+      <div class="rec-spinner"></div>
+      <p style="font-family:var(--font-mono);font-size:12px;letter-spacing:0.1em;color:var(--text-muted);">Finding your perfect destinations…</p>
+    </div>
+
+    <!-- Results Grid -->
+    <div class="rec-grid" id="rec-results">
+      {% if results is empty %}
+        <div class="rec-empty" style="grid-column:1/-1;">
+          <div class="rec-empty-icon">🔍</div>
+          <h3 style="margin-bottom:8px;">No matches found</h3>
+          <p>Try adjusting your preferences for wider results.</p>
+        </div>
+      {% else %}
+        {% for r in results %}
+          {% set dest = r.destination %}
+          <div class="rec-card">
+            <div class="rec-card-bg" style="background:linear-gradient(135deg,#1a3a5c,#2d6a4f)">
+              {% if dest.imageUrl %}
+                <img src="{{ dest.imageUrl }}" alt="{{ dest.name }}" onerror="this.src='https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80'">
+              {% else %}
+                <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80" alt="{{ dest.name }}">
+              {% endif %}
+            </div>
+            <div class="rec-card-overlay"></div>
+
+            <div class="rec-score-badge">{{ r.score }}%</div>
+
+            <div class="rec-card-content">
+              <div class="rec-card-country">{{ dest.country }}</div>
+              <div class="rec-card-name">{{ dest.name }}</div>
+              <div class="rec-card-meta">
+                <span class="badge badge-teal">{{ dest.type|capitalize }}</span>
+                <span class="badge badge-coral">⭐ {{ dest.averageRating }}/5</span>
+                <span class="badge badge-muted">€{{ dest.estimatedBudget|default(0)|number_format(0) }}</span>
+              </div>
+              <div class="rec-reasons">
+                {% for reason in r.matchReasons %}
+                  <span class="rec-reason">{{ reason }}</span>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="rec-hover-layer">
+              <a href="{{ path('destination_detail', {id: dest.destinationId}) }}" class="btn-31">
+                <span class="text-container"><span class="text">Explore {{ dest.name }}</span></span>
+              </a>
+              <a href="{{ path('booking_form', {destinationId: dest.destinationId}) }}" class="btn btn-primary btn-sm ripple-btn" style="margin-top:6px;padding:10px 24px;font-size:12px;">📋 Book Now</a>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 TripX. All rights reserved.</div>
+      <a href="{{ path('destinations') }}" class="footer-copy" style="color:var(--accent-primary)">← All Destinations</a>
+    </div>
+  </div>
+</footer>
+
+<button class="aria-orb" id="aria-orb" aria-label="Open ARIA">✦</button>
+<div class="aria-panel" id="aria-panel">
+  <div class="aria-header">
+    <div class="aria-avatar">✦</div>
+    <div><span class="aria-name">ARIA</span><span class="aria-status">Recommendation Expert ✨</span></div>
+    <button id="aria-close" style="margin-left:auto;font-size:18px;color:var(--text-muted);cursor:none">✕</button>
+  </div>
+  <div class="aria-messages" id="aria-messages">
+    <div class="aria-msg bot"><div class="aria-bubble">Looking for the perfect trip? Set your preferences above and I'll find your ideal destinations! 🎯</div></div>
+  </div>
+  <div class="aria-input-row">
+    <input class="aria-input" id="aria-input" type="text" placeholder="Ask ARIA about destinations...">
+    <button class="aria-send" id="aria-send">➤</button>
+  </div>
+</div>
+
+{% block javascripts %}
+<script>
+(function() {
+  const form     = document.getElementById('rec-form');
+  const grid     = document.getElementById('rec-results');
+  const loading  = document.getElementById('rec-loading');
+
+  if (!form) return;
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const data = {
+      season:    document.getElementById('rec-season').value || null,
+      type:      document.getElementById('rec-type').value || null,
+      minRating: document.getElementById('rec-rating').value ? parseFloat(document.getElementById('rec-rating').value) : null,
+      maxBudget: document.getElementById('rec-budget').value ? parseFloat(document.getElementById('rec-budget').value) : null,
+    };
+
+    grid.innerHTML = '';
+    loading.classList.add('active');
+
+    fetch('{{ path("api_destination_recommendations") }}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    .then(r => r.json())
+    .then(json => {
+      loading.classList.remove('active');
+      const results = json.results || [];
+
+      if (results.length === 0) {
+        grid.innerHTML = `
+          <div class="rec-empty" style="grid-column:1/-1;">
+            <div class="rec-empty-icon">🔍</div>
+            <h3 style="margin-bottom:8px;">No matches found</h3>
+            <p>Try adjusting your preferences for wider results.</p>
+          </div>`;
+        return;
+      }
+
+      // Update header
+      const header = document.querySelector('.rec-grid').closest('.container').querySelector('h2');
+      if (header) {
+        header.innerHTML = '🎯 <span class="gradient-text">' + results.length + '</span> Matches Found';
+      }
+
+      results.forEach(function(r, i) {
+        const imgSrc = r.imageUrl || 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80';
+        const reasons = (r.matchReasons || []).map(function(reason) {
+          return '<span class="rec-reason">' + reason + '</span>';
+        }).join('');
+
+        const card = document.createElement('div');
+        card.className = 'rec-card';
+        card.style.animationDelay = (i * 0.05) + 's';
+
+        card.innerHTML = `
+          <div class="rec-card-bg" style="background:linear-gradient(135deg,#1a3a5c,#2d6a4f)">
+            <img src="${imgSrc}" alt="${r.name}" onerror="this.src='https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80'">
+          </div>
+          <div class="rec-card-overlay"></div>
+          <div class="rec-score-badge">${r.score}%</div>
+          <div class="rec-card-content">
+            <div class="rec-card-country">${r.country}</div>
+            <div class="rec-card-name">${r.name}</div>
+            <div class="rec-card-meta">
+              <span class="badge badge-teal">${r.type ? r.type.charAt(0).toUpperCase() + r.type.slice(1) : ''}</span>
+              <span class="badge badge-coral">⭐ ${r.averageRating}/5</span>
+              <span class="badge badge-muted">€${parseInt(r.estimatedBudget || 0).toLocaleString()}</span>
+            </div>
+            <div class="rec-reasons">${reasons}</div>
+          </div>
+          <div class="rec-hover-layer">
+            <a href="/destinations/${r.id}" class="btn-31">
+              <span class="text-container"><span class="text">Explore ${r.name}</span></span>
+            </a>
+            <a href="/destinations/${r.id}/book" class="btn btn-primary btn-sm ripple-btn" style="margin-top:6px;padding:10px 24px;font-size:12px;">📋 Book Now</a>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    })
+    .catch(function(err) {
+      loading.classList.remove('active');
+      grid.innerHTML = '<div class="rec-empty" style="grid-column:1/-1;"><div class="rec-empty-icon">⚠️</div><h3>Something went wrong</h3><p>' + err.message + '</p></div>';
+    });
+  });
+})();
+</script>
+{% endblock %}
+{% endblock %}
