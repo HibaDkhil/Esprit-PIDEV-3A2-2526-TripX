@@ -129,19 +129,35 @@ services:
         arguments:
             $projectDir: '%kernel.project_dir%'
 
+    # ============ CALENDARIFIC SERVICE ============
+    
+    App\service\CalendarificService:
+        arguments:
+            $calendarificApiKey: '%env(CALENDARIFIC_API_KEY)%'
+    
+    # ============ GEMINI PACK SERVICE ============
+    
+    App\service\GeminiPackService:
+        arguments:
+            $apiKey: '%env(GROQ_PACK_API_KEY)%'
+    
+    # ============ ADMIN CONTROLLERS ============
+    
+    App\Controller\admin\AdminPacksController:
+        arguments:
+            $paginator: '@knp_paginator'
+    
+    App\Controller\admin\OverviewController:
+        arguments:
+            $groqApiKey: '%env(TRANSPORTAI)%'
+        tags: ['controller.service_arguments']
+
     # ============ TRANSPORT SERVICES ============
     
     # Transport Optimal Route Service
     App\service\TransportOptimalRouteService:
         arguments:
             $groqApiKey: '%env(TRANSPORTAI)%'
-
-    # ============ ADMIN CONTROLLER ============
-    
-    App\Controller\admin\OverviewController:
-        arguments:
-            $groqApiKey: '%env(TRANSPORTAI)%'
-        tags: ['controller.service_arguments']
 
     # ============ AI COMPARISON CONTROLLER ============
 
