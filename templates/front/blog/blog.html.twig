@@ -64,6 +64,62 @@
     .feed-spinner { display: none; text-align: center; padding: 40px 0; font-size: 1.1rem; color: #9ca3af; }
     .feed-spinner.visible { display: block; }
 
+    .moderation-placeholder-card {
+      border-left: 3px solid #ef4444;
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .moderation-placeholder-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .moderation-placeholder-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: #fee2e2;
+      color: #b91c1c;
+      font-size: 1rem;
+    }
+    .moderation-placeholder-title {
+      margin: 6px 0 8px;
+      font-size: 1.05rem;
+      color: #991b1b;
+      font-weight: 800;
+    }
+    .moderation-placeholder-message {
+      margin: 0;
+      color: #7f1d1d;
+      font-size: .94rem;
+      line-height: 1.6;
+    }
+    .moderation-placeholder-reason {
+      margin: 12px 0 0;
+      color: #7f1d1d;
+      font-size: .88rem;
+      background: rgba(254, 226, 226, .85);
+      border: 1px solid #fecaca;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .moderation-placeholder-actions {
+      margin-top: 14px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .moderation-link-btn {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .ig-story-modal { position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 10020; display: none; align-items: center; justify-content: center; }
     .ig-story-modal.open { display: flex; }
     .ig-story-frame { width: min(420px, 92vw); height: min(760px, 88vh); border-radius: 18px; overflow: hidden; background: #111; position: relative; box-shadow: 0 24px 60px rgba(0,0,0,.45); }
@@ -78,6 +134,61 @@
     .ig-story-close { border:0; background:transparent; color:#fff; font-size:1.55rem; cursor:pointer; line-height:1; }
     .ig-story-image { width:100%; height:100%; object-fit:cover; }
     .ig-story-caption { position:absolute; left:14px; right:14px; bottom:14px; z-index:2; color:#fff; background:rgba(0,0,0,.35); padding:10px 12px; border-radius:12px; font-size:.92rem; }
+    .ig-story-removed-panel {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 24px;
+      z-index: 6;
+      background: rgba(17, 24, 39, 0.96);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      border-radius: 14px;
+      padding: 14px;
+      color: #f3f4f6;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 18px 35px rgba(0, 0, 0, 0.35);
+    }
+    .ig-story-removed-panel h4 {
+      margin: 0;
+      font-size: .98rem;
+      font-weight: 800;
+      color: #fecaca;
+    }
+    .ig-story-removed-panel p {
+      margin: 0;
+      font-size: .86rem;
+      line-height: 1.45;
+      color: #e5e7eb;
+    }
+    .ig-story-removed-reason {
+      background: rgba(127, 29, 29, 0.35);
+      border: 1px solid rgba(252, 165, 165, 0.35);
+      border-radius: 10px;
+      padding: 9px 10px;
+    }
+    .ig-story-removed-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .ig-story-removed-btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: .82rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .ig-story-removed-btn.primary {
+      background: #ef4444;
+      color: #fff;
+    }
+    .ig-story-removed-btn.secondary {
+      background: rgba(255, 255, 255, 0.12);
+      color: #f9fafb;
+    }
     .ig-story-hit { position:absolute; top:0; bottom:0; width:42%; z-index:3; cursor:pointer; }
     .ig-story-hit.left { left:0; }
     .ig-story-hit.right { right:0; }
@@ -98,6 +209,636 @@
     .ig-story-viewers-empty { color:rgba(255,255,255,.66); font-size:.86rem; text-align:center; padding:16px 8px 20px; }
     .story-ring.js-story-open.is-seen { background: #9ca3af; }
     .story-ring.js-story-open.is-unseen { background: linear-gradient(135deg,#f59e0b,#ef4444); }
+
+    .stories-head-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+    .live-head-btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 7px 12px;
+      color: #fff;
+      font-weight: 800;
+      font-size: .74rem;
+      cursor: pointer;
+      background: linear-gradient(135deg,#fb7185,#ef4444);
+      box-shadow: 0 8px 20px rgba(239,68,68,.28);
+      white-space: nowrap;
+    }
+    .live-head-btn:disabled { opacity: .65; cursor: not-allowed; box-shadow: none; }
+
+    .story-bbl.live-story-bbl .story-lbl {
+      color: #be123c;
+      font-weight: 700;
+    }
+    .story-ring.live-story-ring {
+      position: relative;
+      background: linear-gradient(140deg,#ef4444 0%, #f43f5e 42%, #fb7185 100%);
+      box-shadow:
+        0 0 0 2px rgba(244,63,94,.24),
+        0 0 0 6px rgba(251,113,133,.14),
+        0 0 18px rgba(244,63,94,.48);
+      animation: liveStoryPulse 1.8s ease-in-out infinite;
+    }
+    .story-ring.live-story-ring .story-inner {
+      color: #fff;
+      background: radial-gradient(circle at 30% 24%, #334155 0%, #0f172a 100%);
+      border: 2px solid rgba(255,255,255,.72);
+    }
+    .live-story-badge {
+      position: absolute;
+      top: -9px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 999px;
+      padding: 2px 6px;
+      font-size: .56rem;
+      letter-spacing: .06em;
+      font-weight: 900;
+      color: #fff;
+      background: linear-gradient(135deg,#e11d48,#f43f5e);
+      box-shadow: 0 4px 12px rgba(225,29,72,.42);
+      pointer-events: none;
+    }
+
+    .live-strip {
+      margin-top: 12px;
+      border: 1px solid #fee2e2;
+      border-radius: 14px;
+      background: linear-gradient(120deg, #fff1f2 0%, #ffffff 45%, #fff7ed 100%);
+      box-shadow: 0 10px 26px rgba(190, 24, 93, .08);
+      overflow: hidden;
+    }
+    .live-strip-head {
+      padding: 11px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #ffe4e6;
+      gap: 10px;
+    }
+    .live-strip-head h3 {
+      margin: 0;
+      font-size: .95rem;
+      font-weight: 800;
+      color: #831843;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .live-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #ef4444;
+      box-shadow: 0 0 0 0 rgba(239,68,68,.55);
+      animation: liveDotPulse 1.4s infinite;
+    }
+    .live-start-btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 7px 12px;
+      color: #fff;
+      font-weight: 800;
+      font-size: .76rem;
+      cursor: pointer;
+      background: linear-gradient(135deg,#fb7185,#ef4444);
+      box-shadow: 0 8px 20px rgba(239,68,68,.28);
+    }
+    .live-start-btn:disabled { opacity: .65; cursor: not-allowed; box-shadow: none; }
+    .live-strip-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 10px;
+      padding: 10px;
+    }
+    .live-card {
+      border: 1px solid #fecdd3;
+      border-radius: 12px;
+      padding: 10px;
+      background: #fff;
+      box-shadow: 0 8px 16px rgba(15,23,42,.07);
+      display: grid;
+      gap: 8px;
+    }
+    .live-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .live-host { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .live-host-av {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg,#f43f5e,#fb7185);
+      color: #fff;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      font-size: .8rem;
+    }
+    .live-host-name {
+      font-size: .82rem;
+      font-weight: 700;
+      color: #0f172a;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .live-pill {
+      border-radius: 999px;
+      padding: 3px 7px;
+      font-size: .66rem;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(135deg,#e11d48,#ef4444);
+      letter-spacing: .04em;
+    }
+    .live-card-title {
+      font-size: .78rem;
+      color: #334155;
+      min-height: 34px;
+      line-height: 1.35;
+    }
+    .live-card-meta {
+      display: flex;
+      gap: 8px;
+      font-size: .72rem;
+      color: #64748b;
+      font-weight: 700;
+      flex-wrap: wrap;
+    }
+    .live-join-btn {
+      border: 1px solid #fda4af;
+      border-radius: 10px;
+      background: #fff1f2;
+      color: #be123c;
+      font-weight: 800;
+      font-size: .74rem;
+      cursor: pointer;
+      padding: 7px 9px;
+    }
+    .live-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: #94a3b8;
+      font-size: .82rem;
+      padding: 8px 4px;
+    }
+    @keyframes liveStoryPulse {
+      0% {
+        box-shadow:
+          0 0 0 2px rgba(244,63,94,.2),
+          0 0 0 6px rgba(251,113,133,.12),
+          0 0 12px rgba(244,63,94,.32);
+      }
+      55% {
+        box-shadow:
+          0 0 0 2px rgba(244,63,94,.3),
+          0 0 0 8px rgba(251,113,133,.2),
+          0 0 20px rgba(244,63,94,.52);
+      }
+      100% {
+        box-shadow:
+          0 0 0 2px rgba(244,63,94,.2),
+          0 0 0 6px rgba(251,113,133,.12),
+          0 0 12px rgba(244,63,94,.32);
+      }
+    }
+
+    .live-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 10220;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      background: rgba(6, 10, 24, .78);
+      backdrop-filter: blur(4px);
+    }
+    .live-modal.open { display: flex; }
+    .live-dialog {
+      width: min(1080px, 96vw);
+      height: min(760px, 92vh);
+      border-radius: 18px;
+      overflow: hidden;
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 24px 62px rgba(0,0,0,.44);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+    }
+    .live-stage {
+      position: relative;
+      background: radial-gradient(circle at 22% 20%, #1e293b 0%, #0f172a 55%, #020617 100%);
+      overflow: hidden;
+    }
+    .live-video-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 700;
+      background: radial-gradient(circle at 50% 40%, rgba(248,113,113,.24), rgba(15,23,42,.2) 48%, rgba(2,6,23,.9) 100%);
+    }
+    .live-video-placeholder .inner {
+      text-align: center;
+      background: rgba(2,6,23,.42);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 14px;
+      padding: 14px 16px;
+      backdrop-filter: blur(4px);
+    }
+    .live-local-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+      transform: scaleX(-1);
+    }
+    .live-head-overlay {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      z-index: 3;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .live-head-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      color: #fff;
+      background: rgba(2,6,23,.36);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 12px;
+      padding: 8px 9px;
+    }
+    .live-head-main .av {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg,#f43f5e,#fb7185);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: .82rem;
+      flex: 0 0 auto;
+    }
+    .live-head-main .nm {
+      font-size: .84rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 210px;
+    }
+    .live-head-main .meta {
+      font-size: .72rem;
+      color: rgba(255,255,255,.82);
+      margin-top: 2px;
+    }
+    .live-close-btn {
+      border: 0;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(2,6,23,.46);
+      color: #fff;
+      font-size: 1.1rem;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,.18);
+    }
+    .live-reaction-burst {
+      position: absolute;
+      right: 16px;
+      bottom: 74px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+      z-index: 4;
+    }
+    .live-reaction-burst span {
+      font-size: 1.2rem;
+      animation: liveHeartFloat 1.35s ease forwards;
+      filter: drop-shadow(0 3px 6px rgba(0,0,0,.35));
+    }
+    .live-side {
+      background: #ffffff;
+      border-left: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .live-side-head {
+      padding: 11px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      background: linear-gradient(90deg, #fff1f2, #fff7ed);
+    }
+    .live-side-head h4 {
+      margin: 0;
+      font-size: .86rem;
+      color: #881337;
+      font-weight: 800;
+    }
+    .live-side-head p {
+      margin: 4px 0 0;
+      font-size: .74rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+    .live-comments {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      padding: 10px;
+      display: grid;
+      gap: 7px;
+      background: #f8fafc;
+    }
+    .live-c-row {
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      padding: 7px 8px;
+      font-size: .76rem;
+      color: #334155;
+      line-height: 1.35;
+    }
+    .live-c-row strong {
+      color: #0f172a;
+      font-size: .73rem;
+      margin-right: 4px;
+    }
+    .live-comment-form {
+      border-top: 1px solid #e2e8f0;
+      padding: 9px;
+      display: grid;
+      gap: 8px;
+      background: #fff;
+    }
+    .live-rxn-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .live-filter-controls {
+      display: grid;
+      gap: 8px;
+      padding: 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #f8fafc;
+    }
+    .live-filter-presets {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .live-filter-chip {
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      border-radius: 999px;
+      font-size: .7rem;
+      font-weight: 700;
+      color: #334155;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+    .live-filter-chip.active {
+      border-color: #fb7185;
+      color: #be123c;
+      background: #fff1f2;
+    }
+    .live-filter-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .live-filter-item {
+      display: grid;
+      gap: 4px;
+      color: #475569;
+      font-size: .7rem;
+      font-weight: 700;
+    }
+    .live-filter-item input[type="range"] {
+      width: 100%;
+    }
+    .live-filter-reset {
+      justify-self: end;
+      border: 1px solid #fecdd3;
+      background: #fff1f2;
+      color: #be123c;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+    .live-rxn-btn {
+      border: 1px solid #fecdd3;
+      border-radius: 999px;
+      background: #fff1f2;
+      color: #be123c;
+      font-size: .73rem;
+      font-weight: 700;
+      padding: 5px 8px;
+      cursor: pointer;
+    }
+    .live-input-row { display: flex; gap: 6px; }
+    .live-input-row input {
+      flex: 1;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
+      padding: 8px 9px;
+      font-size: .78rem;
+    }
+    .live-input-row input:focus {
+      outline: none;
+      border-color: #f43f5e;
+      box-shadow: 0 0 0 3px rgba(244,63,94,.15);
+    }
+    .live-input-row button {
+      border: 0;
+      border-radius: 9px;
+      background: linear-gradient(135deg,#fb7185,#ef4444);
+      color: #fff;
+      font-weight: 800;
+      font-size: .75rem;
+      padding: 0 11px;
+      cursor: pointer;
+    }
+    .live-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 2px;
+    }
+    .live-actions button {
+      border: 0;
+      border-radius: 9px;
+      font-size: .73rem;
+      font-weight: 800;
+      padding: 7px 8px;
+      cursor: pointer;
+      flex: 1;
+    }
+    .live-actions .end { background: #fee2e2; color: #b91c1c; }
+    .live-actions .leave { background: #e2e8f0; color: #334155; }
+
+    .live-edit-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 11020;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2, 6, 23, 0.72);
+      backdrop-filter: blur(2px);
+      padding: 16px;
+    }
+    .live-edit-modal.open { display: flex; }
+    .live-edit-dialog {
+      width: min(980px, 98vw);
+      max-height: 92vh;
+      overflow: auto;
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 16px;
+      box-shadow: 0 24px 56px rgba(0,0,0,.42);
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+    .live-edit-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+    }
+    .live-edit-head h4 {
+      margin: 0;
+      font-size: .95rem;
+      font-weight: 800;
+    }
+    .live-edit-close {
+      border: 0;
+      background: transparent;
+      color: #e2e8f0;
+      font-size: 1.35rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .live-edit-preview {
+      width: 100%;
+      background: #000;
+      border-radius: 12px;
+      max-height: 58vh;
+    }
+    .live-edit-controls {
+      display: grid;
+      gap: 10px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      padding: 10px;
+      color: #cbd5e1;
+      font-size: .82rem;
+    }
+    .live-edit-row {
+      display: grid;
+      gap: 6px;
+    }
+    .live-edit-row input[type="range"] {
+      width: 100%;
+    }
+    .live-edit-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+    .live-edit-preset {
+      border: 1px solid rgba(255,255,255,.2);
+      background: rgba(15,23,42,.55);
+      color: #cbd5e1;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: .72rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .live-edit-preset.active {
+      border-color: #86efac;
+      color: #dcfce7;
+      background: rgba(22,163,74,.25);
+    }
+    .live-edit-time {
+      color: #fff;
+      font-size: .85rem;
+      font-weight: 700;
+    }
+    .live-edit-progress {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(148,163,184,.25);
+      overflow: hidden;
+      display: none;
+    }
+    .live-edit-progress.visible { display: block; }
+    .live-edit-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #22c55e, #16a34a);
+      transition: width .18s linear;
+    }
+    .live-edit-status {
+      color: #94a3b8;
+      font-size: .75rem;
+      min-height: 1.1em;
+    }
+    .live-edit-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .live-edit-actions button {
+      border: 0;
+      border-radius: 10px;
+      font-size: .8rem;
+      font-weight: 800;
+      padding: 9px 13px;
+      cursor: pointer;
+    }
+    .live-edit-actions .cancel { background: #334155; color: #e2e8f0; }
+    .live-edit-actions .save { background: linear-gradient(135deg,#22c55e,#16a34a); color: #fff; }
+
+    @keyframes liveDotPulse {
+      0% { box-shadow: 0 0 0 0 rgba(239,68,68,.55); }
+      70% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+      100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+    }
+
+    @keyframes liveHeartFloat {
+      0% { opacity: 1; transform: translateY(0) scale(.9); }
+      100% { opacity: 0; transform: translateY(-70px) scale(1.35); }
+    }
 
     .ts-map-modal {
       position: fixed;
@@ -723,6 +1464,16 @@
       .story-editor-stage {
         min-height: 360px;
       }
+      .live-dialog {
+        grid-template-columns: 1fr;
+        height: min(92vh, 860px);
+      }
+      .live-stage {
+        min-height: 300px;
+      }
+      .live-head-main .nm {
+        max-width: 150px;
+      }
     }
   </style>
 {% endblock %}
@@ -819,9 +1570,12 @@
     <div class="stories-card">
       <div class="stories-head">
         <h3>Stories</h3>
-        <a href="#" class="watch-all" onclick="return openFirstStory(event)">Watch all</a>
+        <div class="stories-head-actions">
+          <button type="button" class="live-head-btn" id="live-start-btn">Go Live</button>
+          <a href="#" class="watch-all" onclick="return openFirstStory(event)">Watch all</a>
+        </div>
       </div>
-      <div class="stories-row">
+      <div class="stories-row" id="stories-row">
         <div class="story-bbl" title="Add a story">
           <button type="button" class="story-ring add-ring" id="story-add-btn" aria-label="Add story">
             <div class="story-inner add-in">+</div>
@@ -892,6 +1646,7 @@
             <p>Move hand left: next filter</p>
             <p>Move hand right: previous filter</p>
             <p>Move hand up: remove filter</p>
+            <p>Raise index finger: capture photo</p>
             <p>Pinch in/out: zoom preview</p>
             <button type="button" id="story-camera-gesture-guide-close">Got it</button>
           </div>
@@ -1003,6 +1758,15 @@
           <button class="ig-story-close" type="button" id="ig-story-close" aria-label="Close">&times;</button>
         </div>
         <img id="ig-story-image" class="ig-story-image" src="" alt="Story">
+        <div class="ig-story-removed-panel" id="ig-story-removed-panel" style="display:none;">
+          <h4>Story removed by admin</h4>
+          <p>This story was removed because it violated our community guidelines.</p>
+          <p class="ig-story-removed-reason" id="ig-story-removed-reason" style="display:none;"></p>
+          <div class="ig-story-removed-actions">
+            <button type="button" class="ig-story-removed-btn primary" id="ig-story-removed-ok">OK</button>
+            <button type="button" class="ig-story-removed-btn secondary" id="ig-story-removed-reason-btn">View reason / Learn more</button>
+          </div>
+        </div>
         <div class="ig-story-caption" id="ig-story-caption" style="display:none;"></div>
         <button class="ig-story-seen-trigger" id="ig-story-seen-trigger" type="button" style="display:none;">
           <span class="eye">&#128065;</span>
@@ -1018,6 +1782,136 @@
         </div>
         <button class="ig-story-hit left" type="button" id="ig-story-prev" aria-label="Previous"></button>
         <button class="ig-story-hit right" type="button" id="ig-story-next" aria-label="Next"></button>
+      </div>
+    </div>
+
+    <div class="live-modal" id="live-modal" aria-hidden="true">
+      <div class="live-dialog" role="dialog" aria-modal="true" aria-labelledby="live-title-label">
+        <div class="live-stage">
+          <video id="live-local-video" class="live-local-video" autoplay playsinline muted></video>
+          <div class="live-video-placeholder" id="live-video-placeholder">
+            <div class="inner">
+              <div id="live-title-label">Live stream</div>
+              <div style="margin-top:4px;font-size:.78rem;opacity:.85;" id="live-stage-sub">Waiting for host video</div>
+            </div>
+          </div>
+          <div class="live-head-overlay">
+            <div class="live-head-main">
+              <div class="av" id="live-host-av">U</div>
+              <div>
+                <div class="nm" id="live-host-name">Host</div>
+                <div class="meta" id="live-meta-line">0 watching · 0 reactions</div>
+              </div>
+              <span class="live-pill">LIVE</span>
+            </div>
+            <button type="button" class="live-close-btn" id="live-close-btn" aria-label="Close live">&times;</button>
+          </div>
+          <div class="live-reaction-burst" id="live-reaction-burst"></div>
+        </div>
+        <aside class="live-side">
+          <div class="live-side-head">
+            <h4>Live chat</h4>
+            <p id="live-status-line">Connected</p>
+          </div>
+          <div class="live-comments" id="live-comments"></div>
+          <form class="live-comment-form" id="live-comment-form">
+            <div class="live-rxn-row" id="live-rxn-row">
+              <button type="button" class="live-rxn-btn" data-live-rxn="like">👍 Like</button>
+              <button type="button" class="live-rxn-btn" data-live-rxn="love">❤️ Love</button>
+              <button type="button" class="live-rxn-btn" data-live-rxn="fire">🔥 Fire</button>
+              <button type="button" class="live-rxn-btn" data-live-rxn="wow">😮 Wow</button>
+              <button type="button" class="live-rxn-btn" data-live-rxn="clap">👏 Clap</button>
+            </div>
+            <div class="live-filter-controls" id="live-filter-controls" style="display:none;">
+              <div class="live-filter-presets" id="live-filter-presets">
+                <button type="button" class="live-filter-chip active" data-live-filter-preset="normal">Normal</button>
+                <button type="button" class="live-filter-chip" data-live-filter-preset="cinematic">Cinematic</button>
+                <button type="button" class="live-filter-chip" data-live-filter-preset="vivid">Vivid</button>
+                <button type="button" class="live-filter-chip" data-live-filter-preset="warm">Warm</button>
+                <button type="button" class="live-filter-chip" data-live-filter-preset="noir">Noir</button>
+              </div>
+              <div class="live-filter-grid">
+                <label class="live-filter-item">Brightness
+                  <input id="live-filter-brightness" type="range" min="-100" max="100" step="1" value="0">
+                </label>
+                <label class="live-filter-item">Contrast
+                  <input id="live-filter-contrast" type="range" min="20" max="200" step="1" value="100">
+                </label>
+                <label class="live-filter-item">Saturation
+                  <input id="live-filter-saturation" type="range" min="0" max="200" step="1" value="100">
+                </label>
+                <label class="live-filter-item">Blur
+                  <input id="live-filter-blur" type="range" min="0" max="6" step="0.1" value="0">
+                </label>
+              </div>
+              <button type="button" class="live-filter-reset" id="live-filter-reset">Reset filters</button>
+            </div>
+            <div class="live-input-row">
+              <input type="text" id="live-comment-input" maxlength="800" placeholder="Add a comment...">
+              <button type="submit">Send</button>
+            </div>
+            <div class="live-actions">
+              <button type="button" class="end" id="live-end-btn" style="display:none;">End Live</button>
+              <button type="button" class="leave" id="live-leave-btn">Leave</button>
+            </div>
+          </form>
+        </aside>
+      </div>
+    </div>
+
+    <div class="live-edit-modal" id="live-edit-modal" aria-hidden="true">
+      <div class="live-edit-dialog" role="dialog" aria-modal="true" aria-labelledby="live-edit-title">
+        <div class="live-edit-head">
+          <h4 id="live-edit-title">Edit Live Replay Before Saving</h4>
+          <button type="button" class="live-edit-close" id="live-edit-close" aria-label="Close">&times;</button>
+        </div>
+        <video id="live-edit-preview" class="live-edit-preview" controls playsinline></video>
+        <div class="live-edit-controls">
+          <div class="live-edit-row">
+            <label for="live-edit-start">Trim start</label>
+            <input id="live-edit-start" type="range" min="0" max="0" step="0.1" value="0">
+          </div>
+          <div class="live-edit-row">
+            <label for="live-edit-end">Trim end</label>
+            <input id="live-edit-end" type="range" min="0" max="0" step="0.1" value="0">
+          </div>
+          <div class="live-edit-row">
+            <label for="live-edit-brightness">Brightness</label>
+            <input id="live-edit-brightness" type="range" min="-100" max="100" step="1" value="0">
+          </div>
+          <div class="live-edit-row">
+            <label for="live-edit-contrast">Contrast</label>
+            <input id="live-edit-contrast" type="range" min="0" max="200" step="1" value="100">
+          </div>
+          <div class="live-edit-row">
+            <label for="live-edit-saturation">Saturation</label>
+            <input id="live-edit-saturation" type="range" min="0" max="200" step="1" value="100">
+          </div>
+          <div class="live-edit-row">
+            <label for="live-edit-blur">Blur</label>
+            <input id="live-edit-blur" type="range" min="0" max="10" step="1" value="0">
+          </div>
+          <div class="live-edit-row">
+            <button type="button" class="cancel" id="live-edit-reset-filters" style="width:max-content;">Reset filters</button>
+          </div>
+          <div class="live-edit-row">
+            <label>Presets</label>
+            <div class="live-edit-presets" id="live-edit-presets">
+              <button type="button" class="live-edit-preset active" data-live-preset="normal">Normal</button>
+              <button type="button" class="live-edit-preset" data-live-preset="cinematic">Cinematic</button>
+              <button type="button" class="live-edit-preset" data-live-preset="vivid">Vivid</button>
+              <button type="button" class="live-edit-preset" data-live-preset="warm">Warm</button>
+              <button type="button" class="live-edit-preset" data-live-preset="noir">Noir</button>
+            </div>
+          </div>
+          <div class="live-edit-time" id="live-edit-time">0:00 - 0:00</div>
+          <div class="live-edit-progress" id="live-edit-progress"><div class="live-edit-progress-bar" id="live-edit-progress-bar"></div></div>
+          <div class="live-edit-status" id="live-edit-status"></div>
+        </div>
+        <div class="live-edit-actions">
+          <button type="button" class="cancel" id="live-edit-cancel">Cancel Save</button>
+          <button type="button" class="save" id="live-edit-save">Save Edited Replay</button>
+        </div>
       </div>
     </div>
 
@@ -1103,6 +1997,8 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/livekit-client@2.15.8/dist/livekit-client.umd.min.js"></script>
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
 
 <script>
 /* ═══════════════════════════════════════════════════════════
@@ -1120,8 +2016,46 @@ const _storyViewersCache = {};
 let _storyTouchStartY = null;
 const _storyDurationMs = 5000;
 const _currentUserId = {{ currentUserId is not null ? currentUserId : 'null' }};
+const _liveCurrentUserName = '{{ app.user ? ((app.user.firstName ~ ' ' ~ app.user.lastName)|trim)|e('js') : '' }}';
+const _liveListUrl = '{{ path('blog_live_list') }}';
+const _liveStartUrl = '{{ path('blog_live_start') }}';
+const _liveStateUrlPattern = '{{ path('blog_live_state', {id: 0}) }}';
+const _liveJoinUrlPattern = '{{ path('blog_live_join', {id: 0}) }}';
+const _liveLeaveUrlPattern = '{{ path('blog_live_leave', {id: 0}) }}';
+const _liveEndUrlPattern = '{{ path('blog_live_end', {id: 0}) }}';
+const _liveCommentUrlPattern = '{{ path('blog_live_comment', {id: 0}) }}';
+const _liveReactUrlPattern = '{{ path('blog_live_react', {id: 0, type: 'like'}) }}';
+const _liveTokenUrlPattern = '{{ path('blog_live_token', {id: 0}) }}';
+const _liveRecordingUploadUrlPattern = '{{ path('blog_live_recording_upload', {id: 0}) }}';
+const _liveLoginUrl = '{{ path('app_login') }}';
 const _storySeenUrlPattern = '{{ path('story_seen_mark', {id: 0}) }}';
 const _storyViewersUrlPattern = '{{ path('story_viewers_list', {id: 0}) }}';
+const _storyDismissRemovedUrlPattern = '{{ path('story_dismiss_removed', {id: 0}) }}';
+const _liveReactionEmoji = { like: '👍', love: '❤️', fire: '🔥', wow: '😮', clap: '👏' };
+let _liveSessions = [];
+let _liveListPollTimer = null;
+let _liveStatePollTimer = null;
+let _liveActiveSessionId = null;
+let _liveActiveIsHost = false;
+let _liveReactionCountsSeen = null;
+let _liveReactionBurstSuppress = {};
+let _liveLocalStream = null;
+let _liveRecorder = null;
+let _liveRecordingChunks = [];
+let _liveRecordingBlob = null;
+let _liveCompositeCanvas = null;
+let _liveCompositeCtx = null;
+let _liveCompositeStream = null;
+let _liveCompositeAnimTimer = null;
+let _liveRecorderFxBursts = [];
+let _liveEditResolve = null;
+let _liveEditObjectUrl = null;
+let _liveFfmpeg = null;
+let _liveFfmpegLoadPromise = null;
+let _livePreviewFilter = { brightness: 0, contrast: 100, saturation: 100, blur: 0 };
+let _liveKitRoom = null;
+let _liveKitLib = window.LivekitClient || null;
+let _liveKitLoadPromise = null;
 let _countryFlagsMap = null;
 let _countryFlagsPromise = null;
 let _tsMap = null;
@@ -1145,10 +2079,8 @@ let _storyCameraPinchStartZoom = 1;
 let _storyGestureLockUntil = 0;
 let _storyCameraSwipeCooldownUntil = 0;
 let _storyCameraUpCooldownUntil = 0;
-let _storyPointerClickPinched = false;
-let _storyPointerClickCooldownUntil = 0;
-let _storyPointerOverSince = 0;
-let _storyPointerPressActive = false;
+let _storyPointerUpSince = 0;
+let _storyPointerUpCooldownUntil = 0;
 let _storyMpVision = null;
 let _storyHandLandmarker = null;
 let _storyGestureLoopId = null;
@@ -1360,7 +2292,7 @@ function beginStoryGestureCalibration() {
   _storyGestureHint = 'Hold your hand still to calibrate';
 }
 
-function drawStoryGestureAssist(landmarks = null, center = null, handSize = 0, hint = '', pointer = null, pointerOverCapture = false, captureTarget = null) {
+function drawStoryGestureAssist(landmarks = null, center = null, handSize = 0, hint = '', pointer = null) {
   const canvas = document.getElementById('story-camera-gesture-canvas');
   if (!canvas) return;
 
@@ -1397,6 +2329,7 @@ function drawStoryGestureAssist(landmarks = null, center = null, handSize = 0, h
   ctx.fillText('LEFT = NEXT', guideX + 10, guideY + guideH - 14);
   ctx.fillText('RIGHT = PREV', guideX + guideW - 110, guideY + guideH - 14);
   ctx.fillText('UP = REMOVE', guideX + guideW * 0.5 - 38, guideY + 16);
+  ctx.fillText('INDEX UP = CAPTURE', guideX + guideW * 0.5 - 62, guideY + 32);
 
   if (landmarks && landmarks.length) {
     const connections = [
@@ -1436,10 +2369,10 @@ function drawStoryGestureAssist(landmarks = null, center = null, handSize = 0, h
 
   if (pointer) {
     ctx.beginPath();
-    ctx.strokeStyle = pointerOverCapture ? 'rgba(34,197,94,.95)' : 'rgba(56,189,248,.95)';
-    ctx.fillStyle = pointerOverCapture ? 'rgba(34,197,94,.24)' : 'rgba(56,189,248,.2)';
+    ctx.strokeStyle = 'rgba(56,189,248,.95)';
+    ctx.fillStyle = 'rgba(56,189,248,.2)';
     ctx.lineWidth = 2;
-    ctx.arc(pointer.x, pointer.y, pointerOverCapture ? 14 : 11, 0, Math.PI * 2);
+    ctx.arc(pointer.x, pointer.y, 11, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
     ctx.beginPath();
@@ -1449,20 +2382,6 @@ function drawStoryGestureAssist(landmarks = null, center = null, handSize = 0, h
     ctx.lineTo(pointer.x + 8, pointer.y);
     ctx.moveTo(pointer.x, pointer.y - 8);
     ctx.lineTo(pointer.x, pointer.y + 8);
-    ctx.stroke();
-  }
-
-  if (captureTarget) {
-    ctx.beginPath();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = pointerOverCapture ? 'rgba(34,197,94,.96)' : 'rgba(255,255,255,.72)';
-    ctx.fillStyle = pointerOverCapture ? 'rgba(34,197,94,.18)' : 'rgba(255,255,255,.08)';
-    ctx.arc(captureTarget.x, captureTarget.y, captureTarget.radius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.strokeStyle = 'rgba(255,255,255,.8)';
-    ctx.arc(captureTarget.x, captureTarget.y, Math.max(8, captureTarget.radius - 12), 0, Math.PI * 2);
     ctx.stroke();
   }
 
@@ -1512,37 +2431,22 @@ function getStoryPointerFromHand(navHand) {
   };
 }
 
-function getStoryCaptureTargetOnCanvas() {
-  const captureBtn = document.getElementById('story-camera-capture');
-  const canvas = document.getElementById('story-camera-gesture-canvas');
-  if (!captureBtn || !canvas) return null;
+function isStoryIndexFingerUp(hand) {
+  if (!hand || !hand[5] || !hand[6] || !hand[8]) return false;
 
-  const btnRect = captureBtn.getBoundingClientRect();
-  const canvasRect = canvas.getBoundingClientRect();
-  const width = Math.max(1, Math.floor(canvasRect.width));
-  const height = Math.max(1, Math.floor(canvasRect.height));
+  const indexTip = hand[8].y;
+  const indexPip = hand[6].y;
+  const indexMcp = hand[5].y;
+  const indexExtended = indexTip < indexPip - 0.025 && indexPip < indexMcp - 0.005;
+  if (!indexExtended) return false;
 
-  // The physical shutter is in the footer (outside canvas). Clamp target into
-  // the visible gesture canvas near the bottom so pointer mode is reachable.
-  const rawX = btnRect.left + (btnRect.width / 2) - canvasRect.left;
-  const rawY = btnRect.top + (btnRect.height / 2) - canvasRect.top;
+  const foldedCount = [
+    hand[12] && hand[10] ? hand[12].y > hand[10].y : false,
+    hand[16] && hand[14] ? hand[16].y > hand[14].y : false,
+    hand[20] && hand[18] ? hand[20].y > hand[18].y : false,
+  ].filter(Boolean).length;
 
-  const x = Math.max(32, Math.min(width - 32, rawX));
-  const y = Math.max(40, Math.min(height - 24, rawY));
-  const radius = 44;
-
-  return { x, y, radius };
-}
-
-function isStoryPointerOverCapture(pointer, captureTarget = null) {
-  const captureBtn = document.getElementById('story-camera-capture');
-  const canvas = document.getElementById('story-camera-gesture-canvas');
-  if (!captureBtn || !canvas || !pointer) return false;
-
-  const target = captureTarget || getStoryCaptureTargetOnCanvas();
-  if (!target) return false;
-  const dist = Math.hypot(pointer.x - target.x, pointer.y - target.y);
-  return dist <= target.radius;
+  return foldedCount >= 2;
 }
 
 async function ensureStoryHandTrackingReady() {
@@ -1592,10 +2496,8 @@ function stopStoryGestureLoop() {
   _storyCameraPinchStartDistance = null;
   _storyCameraPinchStartZoom = 1;
   _storyGestureLockUntil = 0;
-  _storyPointerClickPinched = false;
-  _storyPointerClickCooldownUntil = 0;
-  _storyPointerOverSince = 0;
-  _storyPointerPressActive = false;
+  _storyPointerUpSince = 0;
+  _storyPointerUpCooldownUntil = 0;
   _storyLastVideoTime = -1;
   _storyCameraSmoothedCenter = null;
   _storyCameraSmoothedPinch = null;
@@ -1651,8 +2553,6 @@ function processStoryHandGestures(landmarks, now) {
 
   const handSize = Math.max(0.08, Math.hypot(pinchHand[0].x - pinchHand[9].x, pinchHand[0].y - pinchHand[9].y));
   const pointer = getStoryPointerFromHand(navHand);
-  const captureTarget = getStoryCaptureTargetOnCanvas();
-  const pointerOverCapture = isStoryPointerOverCapture(pointer, captureTarget);
   const insideGuide = centerX >= 0.2 && centerX <= 0.8 && centerY >= 0.18 && centerY <= 0.82;
   const goodScale = handSize >= 0.09 && handSize <= 0.36;
 
@@ -1663,7 +2563,7 @@ function processStoryHandGestures(landmarks, now) {
     _storyCameraLastPinch = null;
     _storyCameraPinchStartDistance = null;
     _storyCameraPinchStartZoom = _storyCameraZoom;
-    _storyPointerClickPinched = false;
+    _storyPointerUpSince = 0;
     _storyGestureAccumX = 0;
     _storyGestureAccumY = 0;
     _storyGestureAccumTs = now;
@@ -1672,7 +2572,7 @@ function processStoryHandGestures(landmarks, now) {
     _storyCalibrationCenter = center;
     _storyCalibrationSize = handSize;
     _storyGestureHint = !insideGuide ? 'Move hand inside the guide frame' : (handSize < 0.09 ? 'Move your hand closer' : 'Move your hand farther');
-    drawStoryGestureAssist(navHand, center, handSize, _storyGestureHint, pointer, pointerOverCapture, captureTarget);
+    drawStoryGestureAssist(navHand, center, handSize, _storyGestureHint, pointer);
     applyCameraPreviewFilter();
     return;
   }
@@ -1720,45 +2620,29 @@ function processStoryHandGestures(landmarks, now) {
 
     _storyCameraLastCenter = center;
     _storyCameraLastCenterTs = now;
-    drawStoryGestureAssist(navHand, center, handSize, _storyGestureHint, pointer, pointerOverCapture, captureTarget);
+    drawStoryGestureAssist(navHand, center, handSize, _storyGestureHint, pointer);
     applyCameraPreviewFilter();
     return;
   }
 
-  const navHandSize = Math.max(0.08, Math.hypot(navHand[0].x - navHand[9].x, navHand[0].y - navHand[9].y));
-  const navClickPinch = Math.hypot(navHand[4].x - navHand[8].x, navHand[4].y - navHand[8].y) / navHandSize;
-  const pointerPinchStart = Math.min(profile.pinchStart + 0.04, 0.34);
-  const pointerPinchRelease = Math.max(profile.pinchRelease + 0.03, 0.44);
-  const canPointerClick = pointerOverCapture && now > _storyPointerClickCooldownUntil && !_storyCameraCaptureBusy;
-  const pointerDwellMs = 420;
+  const pointerUpHoldMs = 220;
+  const pointerUpCooldownMs = 1100;
+  const pointerUp = isStoryIndexFingerUp(navHand);
 
-  if (pointerOverCapture) {
-    if (!_storyPointerOverSince) _storyPointerOverSince = now;
-  } else {
-    _storyPointerOverSince = 0;
-    _storyPointerPressActive = false;
-  }
-
-  if (canPointerClick && !_storyPointerClickPinched && navClickPinch <= pointerPinchStart) {
-    _storyPointerClickPinched = true;
-    _storyPointerPressActive = true;
-    _storyGestureHint = 'Press detected';
-    _storyPointerClickCooldownUntil = now + 900;
-    captureStoryFromCamera();
-  } else if (_storyPointerClickPinched && navClickPinch >= pointerPinchRelease) {
-    _storyPointerClickPinched = false;
-    _storyPointerPressActive = false;
-  } else if (!pointerOverCapture && navClickPinch >= pointerPinchRelease) {
-    _storyPointerClickPinched = false;
-    _storyPointerPressActive = false;
-  } else if (canPointerClick && !_storyPointerClickPinched && _storyPointerOverSince && (now - _storyPointerOverSince) >= pointerDwellMs) {
-    _storyPointerPressActive = true;
-    _storyGestureHint = 'Pointer click';
-    _storyPointerClickCooldownUntil = now + 900;
-    _storyPointerOverSince = now;
-    captureStoryFromCamera();
-  } else if (pointerOverCapture && !_storyPointerClickPinched && now > _storyPointerClickCooldownUntil) {
-    _storyGestureHint = 'Press with pinch or hold pointer to click';
+  if (pointerUp && now > _storyPointerUpCooldownUntil && !_storyCameraCaptureBusy) {
+    if (!_storyPointerUpSince) _storyPointerUpSince = now;
+    const elapsed = now - _storyPointerUpSince;
+    if (elapsed >= pointerUpHoldMs) {
+      _storyPointerUpCooldownUntil = now + pointerUpCooldownMs;
+      _storyPointerUpSince = 0;
+      _storyGestureLockUntil = now + 260;
+      _storyGestureHint = 'Index up detected';
+      captureStoryFromCamera();
+    } else {
+      _storyGestureHint = 'Hold index finger up to capture';
+    }
+  } else if (!pointerUp) {
+    _storyPointerUpSince = 0;
   }
 
   const pinchDistanceRaw = Math.hypot(pinchHand[4].x - pinchHand[8].x, pinchHand[4].y - pinchHand[8].y) / handSize;
@@ -1775,9 +2659,9 @@ function processStoryHandGestures(landmarks, now) {
 
   const pinchStartGate = Math.min(profile.pinchRelease - 0.02, profile.pinchStart + 0.08);
   const pinchReleaseGate = Math.max(profile.pinchRelease + 0.06, profile.pinchStart + 0.1);
-  const pointerClickMode = pointerOverCapture || _storyPointerClickPinched;
+  const pointerUpMode = pointerUp || _storyPointerUpSince > 0;
 
-  if (!pointerClickMode && !_storyCameraPinchActive && pinchDistance <= pinchStartGate && motionCalm && now > _storyGestureLockUntil) {
+  if (!pointerUpMode && !_storyCameraPinchActive && pinchDistance <= pinchStartGate && motionCalm && now > _storyGestureLockUntil) {
     _storyCameraPinchActive = true;
     _storyCameraLastPinch = pinchDistance;
     _storyCameraPinchStartDistance = Math.max(0.001, pinchDistance);
@@ -1791,7 +2675,7 @@ function processStoryHandGestures(landmarks, now) {
     _storyGestureLockUntil = now + 180;
   }
 
-  if (!pointerClickMode && _storyCameraPinchActive && _storyCameraPinchStartDistance !== null) {
+  if (!pointerUpMode && _storyCameraPinchActive && _storyCameraPinchStartDistance !== null) {
     const ratio = pinchDistance / Math.max(0.001, _storyCameraPinchStartDistance);
     const targetZoom = Math.max(0.8, Math.min(2.8, _storyCameraPinchStartZoom * ratio));
     _storyCameraZoom = lerpNumber(_storyCameraZoom, targetZoom, 0.42);
@@ -1839,9 +2723,9 @@ function processStoryHandGestures(landmarks, now) {
   _storyCameraLastCenter = center;
   _storyCameraLastCenterTs = now;
   if (!_storyCameraPinchActive && _storyGestureHint === 'Place your hand inside the frame') {
-    _storyGestureHint = 'Ready for swipe, up, or pinch';
+    _storyGestureHint = 'Ready for swipe, up, pinch, or index-up capture';
   }
-  drawStoryGestureAssist(navHand, center, handSize, _storyGestureHint, pointer, pointerOverCapture, captureTarget);
+  drawStoryGestureAssist(navHand, center, handSize, _storyGestureHint, pointer);
   applyCameraPreviewFilter();
 }
 
@@ -1873,16 +2757,14 @@ function startStoryGestureLoop() {
         _storyCameraPinchActive = false;
         _storyCameraPinchStartDistance = null;
         _storyCameraPinchStartZoom = _storyCameraZoom;
-        _storyPointerClickPinched = false;
+        _storyPointerUpSince = 0;
         _storyGestureLockUntil = 0;
-        _storyPointerOverSince = 0;
-        _storyPointerPressActive = false;
         _storyCameraSmoothedCenter = null;
         _storyCameraSmoothedPinch = null;
         _storyGestureAccumX = 0;
         _storyGestureAccumY = 0;
         _storyGestureAccumTs = 0;
-        _storyPointerClickCooldownUntil = 0;
+        _storyPointerUpCooldownUntil = 0;
         if (!_storyCalibrationReady) {
           _storyCalibrationActive = true;
           _storyCalibrationStableMs = 0;
@@ -1934,10 +2816,8 @@ async function startStoryCameraStream() {
     _storyCameraPinchActive = false;
     _storyCameraPinchStartDistance = null;
     _storyCameraPinchStartZoom = 1;
-    _storyPointerClickPinched = false;
-    _storyPointerClickCooldownUntil = 0;
-    _storyPointerOverSince = 0;
-    _storyPointerPressActive = false;
+    _storyPointerUpSince = 0;
+    _storyPointerUpCooldownUntil = 0;
     _storyGestureLockUntil = 0;
     _storyCameraSmoothedCenter = null;
     _storyCameraSmoothedPinch = null;
@@ -2394,6 +3274,1604 @@ function showToast(msg) {
   t._timer = setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(20px)'; }, 2800);
 }
 
+function buildLiveIdUrl(pattern, id) {
+  return pattern.replace('/0/', `/${id}/`);
+}
+
+function buildLiveReactionUrl(id, type) {
+  return _liveReactUrlPattern.replace('/0/react/like', `/${id}/react/${encodeURIComponent(type)}`);
+}
+
+function applyLivePreviewFilter() {
+  const video = document.getElementById('live-local-video');
+  if (!video) return;
+  const b = Number(_livePreviewFilter.brightness || 0);
+  const c = Number(_livePreviewFilter.contrast || 100);
+  const s = Number(_livePreviewFilter.saturation || 100);
+  const blur = Number(_livePreviewFilter.blur || 0);
+  video.style.filter = `brightness(${1 + (b / 100)}) contrast(${c / 100}) saturate(${s / 100}) blur(${blur}px)`;
+}
+
+function sanitizeLiveFilterPayload(filter) {
+  const input = filter && typeof filter === 'object' ? filter : {};
+  return {
+    brightness: Math.max(-100, Math.min(100, Number(input.brightness || 0))),
+    contrast: Math.max(20, Math.min(200, Number(input.contrast || 100))),
+    saturation: Math.max(0, Math.min(200, Number(input.saturation || 100))),
+    blur: Math.max(0, Math.min(6, Number(input.blur || 0))),
+  };
+}
+
+async function publishLiveFilterRealtime() {
+  if (!_liveActiveIsHost) return;
+  if (!_liveKitRoom || !_liveKitRoom.localParticipant) return;
+
+  const msg = JSON.stringify({
+    t: 'live_filter',
+    f: sanitizeLiveFilterPayload(_livePreviewFilter),
+    u: Number(_currentUserId || 0),
+    s: Number(_liveActiveSessionId || 0),
+    ts: Date.now(),
+  });
+
+  try {
+    const bytes = typeof TextEncoder !== 'undefined'
+      ? new TextEncoder().encode(msg)
+      : Uint8Array.from(msg.split('').map(ch => ch.charCodeAt(0)));
+    await _liveKitRoom.localParticipant.publishData(bytes, { reliable: true });
+  } catch (_) {}
+}
+
+function setLivePreviewPreset(name = 'normal') {
+  const preset = String(name || 'normal').toLowerCase();
+  if (preset === 'cinematic') {
+    _livePreviewFilter = { brightness: -8, contrast: 126, saturation: 88, blur: 1 };
+  } else if (preset === 'vivid') {
+    _livePreviewFilter = { brightness: 4, contrast: 115, saturation: 138, blur: 0 };
+  } else if (preset === 'warm') {
+    _livePreviewFilter = { brightness: 7, contrast: 105, saturation: 118, blur: 0 };
+  } else if (preset === 'noir') {
+    _livePreviewFilter = { brightness: -4, contrast: 145, saturation: 0, blur: 0 };
+  } else {
+    _livePreviewFilter = { brightness: 0, contrast: 100, saturation: 100, blur: 0 };
+  }
+
+  const b = document.getElementById('live-filter-brightness');
+  const c = document.getElementById('live-filter-contrast');
+  const s = document.getElementById('live-filter-saturation');
+  const blur = document.getElementById('live-filter-blur');
+  if (b) b.value = String(_livePreviewFilter.brightness);
+  if (c) c.value = String(_livePreviewFilter.contrast);
+  if (s) s.value = String(_livePreviewFilter.saturation);
+  if (blur) blur.value = String(_livePreviewFilter.blur);
+
+  const wrap = document.getElementById('live-filter-presets');
+  if (wrap) {
+    wrap.querySelectorAll('[data-live-filter-preset]').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.liveFilterPreset === preset);
+    });
+  }
+
+  applyLivePreviewFilter();
+  publishLiveFilterRealtime();
+}
+
+function syncLivePreviewFilterFromInputs() {
+  const b = document.getElementById('live-filter-brightness');
+  const c = document.getElementById('live-filter-contrast');
+  const s = document.getElementById('live-filter-saturation');
+  const blur = document.getElementById('live-filter-blur');
+  _livePreviewFilter = {
+    brightness: Number(b ? b.value : 0),
+    contrast: Number(c ? c.value : 100),
+    saturation: Number(s ? s.value : 100),
+    blur: Number(blur ? blur.value : 0),
+  };
+  _livePreviewFilter = sanitizeLiveFilterPayload(_livePreviewFilter);
+  applyLivePreviewFilter();
+  publishLiveFilterRealtime();
+}
+
+function bindLiveFilterControls() {
+  const presetsWrap = document.getElementById('live-filter-presets');
+  const resetBtn = document.getElementById('live-filter-reset');
+  const b = document.getElementById('live-filter-brightness');
+  const c = document.getElementById('live-filter-contrast');
+  const s = document.getElementById('live-filter-saturation');
+  const blur = document.getElementById('live-filter-blur');
+
+  if (presetsWrap) {
+    presetsWrap.querySelectorAll('[data-live-filter-preset]').forEach((btn) => {
+      btn.onclick = () => setLivePreviewPreset(btn.dataset.liveFilterPreset || 'normal');
+    });
+  }
+  if (resetBtn) resetBtn.onclick = () => setLivePreviewPreset('normal');
+
+  [b, c, s, blur].forEach((el) => {
+    if (!el) return;
+    el.oninput = () => {
+      const wrap = document.getElementById('live-filter-presets');
+      if (wrap) {
+        wrap.querySelectorAll('[data-live-filter-preset]').forEach((btn) => btn.classList.remove('active'));
+      }
+      syncLivePreviewFilterFromInputs();
+    };
+  });
+
+  setLivePreviewPreset('normal');
+}
+
+async function fetchLiveSessions() {
+  try {
+    const res = await fetch(_liveListUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    if (!res.ok) throw new Error('live list failed');
+    const json = await res.json();
+    if (!json.ok) return;
+    _liveSessions = Array.isArray(json.sessions) ? json.sessions : [];
+    renderLiveStrip();
+  } catch (_) {}
+}
+
+function renderLiveStrip() {
+  const storiesRow = document.getElementById('stories-row');
+  const startBtn = document.getElementById('live-start-btn');
+  if (!storiesRow || !startBtn) return;
+
+  storiesRow.querySelectorAll('.live-story-bbl').forEach(node => node.remove());
+
+  if (_currentUserId === null) {
+    startBtn.textContent = 'Login to go live';
+  } else {
+    const mine = _liveSessions.find(s => s && s.isHost && s.status === 'live');
+    startBtn.textContent = mine ? 'Resume Live' : 'Go Live';
+    startBtn.dataset.liveResumeId = mine ? String(mine.id) : '';
+  }
+
+  if (!_liveSessions.length) {
+    return;
+  }
+
+  const cards = _liveSessions.map(s => {
+    const host = s.host && s.host.name ? s.host.name : 'Host';
+    const av = host.charAt(0).toUpperCase() || 'U';
+    const cta = s.isHost ? 'Resume' : 'Join live';
+    return `<div class="story-bbl live-story-bbl" title="${escapeHtml(host)} is live">
+      <button type="button" class="story-ring live-story-ring" data-live-open-id="${Number(s.id)}" data-live-host="${s.isHost ? '1' : '0'}" aria-label="${cta} ${escapeHtml(host)} live">
+        <span class="live-story-badge">LIVE</span>
+        <div class="story-inner">${escapeHtml(av)}</div>
+      </button>
+      <span class="story-lbl">${escapeHtml(host.split(' ')[0] || host)}</span>
+    </div>`;
+  });
+
+  storiesRow.insertAdjacentHTML('afterbegin', cards.join(''));
+}
+
+async function startLiveSession() {
+  if (_currentUserId === null) {
+    window.location.href = _liveLoginUrl;
+    return;
+  }
+
+  const resumeId = Number(document.getElementById('live-start-btn')?.dataset.liveResumeId || 0);
+  if (resumeId > 0) {
+    await openLiveModal(resumeId, true);
+    return;
+  }
+
+  const titleInput = window.prompt('Live title', `${_liveCurrentUserName || 'My'} live session`) || '';
+  const form = new FormData();
+  form.append('title', titleInput);
+  form.append('_hp', '');
+  form.append('_recaptcha_token', await window.tripxGetRecaptchaToken('live_start'));
+
+  try {
+    const res = await fetch(_liveStartUrl, {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body: form,
+    });
+    const json = await res.json();
+    if (!res.ok || !json.ok || !json.session || !json.session.id) throw new Error(json.message || 'Could not start live');
+    await fetchLiveSessions();
+    await openLiveModal(Number(json.session.id), true);
+  } catch (e) {
+    showToast(e.message || 'Could not start live');
+  }
+}
+
+async function openLiveModal(sessionId, isHost = false) {
+  if (_currentUserId === null) {
+    window.location.href = _liveLoginUrl;
+    return;
+  }
+
+  const modal = document.getElementById('live-modal');
+  if (!modal) return;
+
+  _liveActiveSessionId = Number(sessionId || 0);
+  _liveActiveIsHost = !!isHost;
+  _liveReactionCountsSeen = null;
+  _liveReactionBurstSuppress = {};
+
+  if (!_liveActiveSessionId) return;
+
+  if (!_liveActiveIsHost) {
+    try {
+      await fetch(buildLiveIdUrl(_liveJoinUrlPattern, _liveActiveSessionId), {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      });
+    } catch (_) {}
+  }
+
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('story-editor-open');
+
+  const endBtn = document.getElementById('live-end-btn');
+  const leaveBtn = document.getElementById('live-leave-btn');
+  const stageSub = document.getElementById('live-stage-sub');
+  const comments = document.getElementById('live-comments');
+  const filterControls = document.getElementById('live-filter-controls');
+
+  if (comments) comments.innerHTML = '<div class="live-empty">Loading live comments...</div>';
+  if (endBtn) endBtn.style.display = _liveActiveIsHost ? '' : 'none';
+  if (leaveBtn) leaveBtn.textContent = _liveActiveIsHost ? 'Close' : 'Leave';
+  if (stageSub) stageSub.textContent = _liveActiveIsHost ? 'You are live' : 'Watching live stream';
+  if (filterControls) filterControls.style.display = _liveActiveIsHost ? 'grid' : 'none';
+  setLivePreviewPreset('normal');
+
+  await toggleLocalLivePreview(_liveActiveIsHost);
+  await connectLiveTransport();
+  await fetchLiveState();
+
+  if (_liveStatePollTimer) clearInterval(_liveStatePollTimer);
+  _liveStatePollTimer = setInterval(fetchLiveState, 3000);
+}
+
+async function closeLiveModal(shouldLeave = true) {
+  const modal = document.getElementById('live-modal');
+  if (modal) {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+
+  if (shouldLeave && _liveActiveSessionId && !_liveActiveIsHost) {
+    try {
+      await fetch(buildLiveIdUrl(_liveLeaveUrlPattern, _liveActiveSessionId), {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      });
+    } catch (_) {}
+  }
+
+  if (_liveStatePollTimer) {
+    clearInterval(_liveStatePollTimer);
+    _liveStatePollTimer = null;
+  }
+
+  await disconnectLiveTransport();
+  await toggleLocalLivePreview(false);
+  _liveReactionCountsSeen = null;
+  _liveReactionBurstSuppress = {};
+  _liveActiveSessionId = null;
+  _liveActiveIsHost = false;
+  const filterControls = document.getElementById('live-filter-controls');
+  if (filterControls) filterControls.style.display = 'none';
+
+  if (!document.getElementById('story-editor-modal')?.classList.contains('open') && !document.getElementById('story-source-sheet')?.classList.contains('open') && !document.getElementById('story-camera-modal')?.classList.contains('open') && !document.getElementById('live-edit-modal')?.classList.contains('open')) {
+    document.body.classList.remove('story-editor-open');
+  }
+}
+
+async function toggleLocalLivePreview(show) {
+  const video = document.getElementById('live-local-video');
+  const placeholder = document.getElementById('live-video-placeholder');
+  const stageSub = document.getElementById('live-stage-sub');
+  if (!video || !placeholder) return;
+
+  const showWatcherPlaceholder = _liveActiveIsHost;
+
+  if (!show) {
+    await stopLiveRecordingCapture();
+    if (_liveLocalStream) {
+      _liveLocalStream.getTracks().forEach(track => track.stop());
+      _liveLocalStream = null;
+    }
+    video.srcObject = null;
+    video.style.transform = '';
+    video.style.filter = '';
+    video.style.display = 'none';
+    placeholder.style.display = showWatcherPlaceholder ? '' : 'none';
+    return;
+  }
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    if (stageSub && _liveActiveIsHost) stageSub.textContent = 'Camera preview is not supported in this browser';
+    placeholder.style.display = showWatcherPlaceholder ? '' : 'none';
+    return;
+  }
+
+  try {
+    try {
+      _liveLocalStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      if (stageSub && _liveActiveIsHost) stageSub.textContent = 'You are live';
+    } catch (_) {
+      // Fallback for browsers/users that deny microphone but allow camera.
+      _liveLocalStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      if (stageSub && _liveActiveIsHost) stageSub.textContent = 'Live video on (microphone blocked)';
+    }
+
+    video.srcObject = _liveLocalStream;
+    video.muted = true;
+    video.playsInline = true;
+    video.style.transform = 'scaleX(-1)';
+    applyLivePreviewFilter();
+    try {
+      await video.play();
+    } catch (_) {}
+    video.style.display = 'block';
+    placeholder.style.display = 'none';
+    await startLiveRecordingCapture(_liveLocalStream);
+  } catch (_) {
+    if (stageSub && _liveActiveIsHost) stageSub.textContent = 'Allow camera access to show live preview';
+    placeholder.style.display = showWatcherPlaceholder ? '' : 'none';
+  }
+}
+
+async function startLiveRecordingCapture(stream) {
+  if (!_liveActiveIsHost) return;
+  if (!_liveActiveSessionId) return;
+  if (!stream) return;
+  if (typeof window.MediaRecorder === 'undefined') return;
+  if (_liveRecorder && _liveRecorder.state === 'recording') return;
+
+  const buildCompositeStream = () => {
+    const video = document.getElementById('live-local-video');
+    if (!video || typeof document.createElement !== 'function') return null;
+
+    const width = 1280;
+    const height = 720;
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    const streamOut = typeof canvas.captureStream === 'function' ? canvas.captureStream(24) : null;
+    if (!streamOut) return null;
+
+    _liveCompositeCanvas = canvas;
+    _liveCompositeCtx = ctx;
+    _liveCompositeStream = streamOut;
+
+    // Keep host microphone in replay.
+    try {
+      const tracks = stream.getAudioTracks ? stream.getAudioTracks() : [];
+      tracks.forEach((track) => {
+        try { streamOut.addTrack(track); } catch (_) {}
+      });
+    } catch (_) {}
+
+    const drawFrame = () => {
+      if (!_liveCompositeCtx || !_liveCompositeCanvas) return;
+
+      const c = _liveCompositeCanvas;
+      const g = _liveCompositeCtx;
+      const w = c.width;
+      const h = c.height;
+      const panelW = Math.floor(w * 0.30);
+      const stageW = w - panelW;
+      const now = Date.now();
+
+      g.fillStyle = '#0b1220';
+      g.fillRect(0, 0, w, h);
+
+      // Stage area (left): actual live video.
+      g.fillStyle = '#000';
+      g.fillRect(0, 0, stageW, h);
+      try {
+        if (video.readyState >= 2) {
+          const b = Number(_livePreviewFilter.brightness || 0);
+          const cVal = Number(_livePreviewFilter.contrast || 100);
+          const sVal = Number(_livePreviewFilter.saturation || 100);
+          const blurVal = Number(_livePreviewFilter.blur || 0);
+          g.filter = `brightness(${1 + (b / 100)}) contrast(${cVal / 100}) saturate(${sVal / 100}) blur(${blurVal}px)`;
+          g.drawImage(video, 0, 0, stageW, h);
+          g.filter = 'none';
+        }
+      } catch (_) {}
+
+      // Header overlays.
+      const titleEl = document.getElementById('live-title-label');
+      const hostEl = document.getElementById('live-host-name');
+      const metaEl = document.getElementById('live-meta-line');
+      const title = titleEl ? String(titleEl.textContent || '') : 'Live session';
+      const host = hostEl ? String(hostEl.textContent || '') : 'Host';
+      const meta = metaEl ? String(metaEl.textContent || '') : '';
+
+      g.fillStyle = 'rgba(0,0,0,0.42)';
+      g.fillRect(0, 0, stageW, 84);
+      g.fillStyle = '#ffffff';
+      g.font = '700 26px Montserrat, sans-serif';
+      g.fillText(title.slice(0, 48), 20, 34);
+      g.font = '600 18px Montserrat, sans-serif';
+      g.fillText(host.slice(0, 32), 20, 58);
+      g.font = '500 16px Montserrat, sans-serif';
+      g.fillStyle = '#cbd5e1';
+      g.fillText(meta.slice(0, 52), 20, 78);
+
+      // Reactions floating on stage.
+      _liveRecorderFxBursts = _liveRecorderFxBursts.filter((b) => now - b.startedAt < 1600);
+      _liveRecorderFxBursts.forEach((b) => {
+        const age = now - b.startedAt;
+        const t = Math.max(0, Math.min(1, age / 1600));
+        const x = b.x * stageW;
+        const y = h - 120 - t * 220;
+        g.globalAlpha = 1 - t;
+        g.font = '700 54px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+        g.fillStyle = '#ffffff';
+        g.fillText(b.emoji, x, y);
+        g.globalAlpha = 1;
+      });
+
+      // Chat/comments panel (right).
+      g.fillStyle = '#0f172a';
+      g.fillRect(stageW, 0, panelW, h);
+      g.fillStyle = '#ffffff';
+      g.font = '700 24px Montserrat, sans-serif';
+      g.fillText('Live chat', stageW + 16, 34);
+
+      const comments = Array.from(document.querySelectorAll('#live-comments .live-c-row'))
+        .map((el) => String(el.textContent || '').trim())
+        .filter(Boolean)
+        .slice(-16);
+
+      let y = 68;
+      g.font = '500 15px Montserrat, sans-serif';
+      comments.forEach((line) => {
+        if (y > h - 20) return;
+        const maxChars = 42;
+        const text = line.length > maxChars ? `${line.slice(0, maxChars - 1)}…` : line;
+        g.fillStyle = '#e2e8f0';
+        g.fillText(text, stageW + 14, y);
+        y += 24;
+      });
+    };
+
+    drawFrame();
+    _liveCompositeAnimTimer = setInterval(drawFrame, 1000 / 24);
+    return streamOut;
+  };
+
+  const composite = buildCompositeStream();
+  const recordStream = composite || stream;
+
+  try {
+    _liveRecordingChunks = [];
+    _liveRecordingBlob = null;
+    _liveRecorder = new MediaRecorder(recordStream, { mimeType: 'video/webm;codecs=vp8,opus' });
+  } catch (_) {
+    try {
+      _liveRecorder = new MediaRecorder(recordStream);
+    } catch (_) {
+      _liveRecorder = null;
+      return;
+    }
+  }
+
+  _liveRecorder.ondataavailable = (event) => {
+    if (!event || !event.data || event.data.size <= 0) return;
+    _liveRecordingChunks.push(event.data);
+  };
+
+  _liveRecorder.start(1000);
+}
+
+async function stopLiveRecordingCapture() {
+  if (!_liveRecorder) return _liveRecordingBlob;
+  if (_liveRecorder.state === 'inactive') return _liveRecordingBlob;
+
+  await new Promise(resolve => {
+    const recorder = _liveRecorder;
+    recorder.onstop = () => {
+      _liveRecordingBlob = _liveRecordingChunks.length
+        ? new Blob(_liveRecordingChunks, { type: _liveRecordingChunks[0].type || 'video/webm' })
+        : null;
+      _liveRecorder = null;
+      _liveRecordingChunks = [];
+
+      if (_liveCompositeAnimTimer) {
+        clearInterval(_liveCompositeAnimTimer);
+        _liveCompositeAnimTimer = null;
+      }
+      _liveCompositeStream = null;
+      _liveCompositeCanvas = null;
+      _liveCompositeCtx = null;
+      _liveRecorderFxBursts = [];
+
+      resolve();
+    };
+    try {
+      if (typeof recorder.requestData === 'function') {
+        try { recorder.requestData(); } catch (_) {}
+      }
+      recorder.stop();
+    } catch (_) {
+      _liveRecorder = null;
+      _liveRecordingChunks = [];
+      resolve();
+    }
+  });
+
+  return _liveRecordingBlob;
+}
+
+async function uploadLiveRecording(sessionId, blob) {
+  if (!sessionId || !blob) return;
+  const ext = blob.type && blob.type.includes('mp4') ? 'mp4' : 'webm';
+  const uploadId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const chunkSize = 1024 * 1024;
+  const totalChunks = Math.max(1, Math.ceil(blob.size / chunkSize));
+
+  for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex += 1) {
+    const start = chunkIndex * chunkSize;
+    const end = Math.min(blob.size, start + chunkSize);
+    const chunkBlob = blob.slice(start, end, blob.type || 'video/webm');
+    const form = new FormData();
+    form.append('recordingChunk', chunkBlob, `live-${sessionId}-${chunkIndex}.${ext}`);
+    form.append('uploadId', uploadId);
+    form.append('chunkIndex', String(chunkIndex));
+    form.append('totalChunks', String(totalChunks));
+    form.append('ext', ext);
+
+    const res = await fetch(buildLiveIdUrl(_liveRecordingUploadUrlPattern, sessionId), {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body: form,
+    });
+    const json = await res.json();
+    if (!res.ok || !json.ok) {
+      throw new Error(json.message || 'Could not upload live recording');
+    }
+  }
+}
+
+function formatLiveSeconds(total) {
+  const s = Math.max(0, Math.floor(Number(total) || 0));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+  return `${m}:${String(sec).padStart(2, '0')}`;
+}
+
+function closeLiveEditModal(resultBlob = null) {
+  const modal = document.getElementById('live-edit-modal');
+  const preview = document.getElementById('live-edit-preview');
+  const status = document.getElementById('live-edit-status');
+
+  if (modal) {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+  if (preview) {
+    try { preview.pause(); } catch (_) {}
+    preview.removeAttribute('src');
+    preview.load();
+  }
+  if (status) status.textContent = '';
+
+  if (_liveEditObjectUrl) {
+    URL.revokeObjectURL(_liveEditObjectUrl);
+    _liveEditObjectUrl = null;
+  }
+
+  const resolve = _liveEditResolve;
+  _liveEditResolve = null;
+  if (typeof resolve === 'function') {
+    resolve(resultBlob);
+  }
+
+  if (!document.getElementById('story-editor-modal')?.classList.contains('open') && !document.getElementById('story-source-sheet')?.classList.contains('open') && !document.getElementById('story-camera-modal')?.classList.contains('open') && !document.getElementById('live-modal')?.classList.contains('open')) {
+    document.body.classList.remove('story-editor-open');
+  }
+}
+
+async function trimRecordedBlob(blob, startSec, endSec) {
+  const start = Math.max(0, Number(startSec) || 0);
+  const end = Math.max(start, Number(endSec) || 0);
+  if (end - start < 0.2) return blob;
+
+  const srcUrl = URL.createObjectURL(blob);
+  const video = document.createElement('video');
+  video.src = srcUrl;
+  video.preload = 'auto';
+
+  await new Promise((resolve, reject) => {
+    video.onloadedmetadata = () => resolve();
+    video.onerror = () => reject(new Error('Could not decode recording for trimming'));
+  });
+
+  if (Math.abs(start) < 0.1 && Math.abs((video.duration || 0) - end) < 0.2) {
+    URL.revokeObjectURL(srcUrl);
+    return blob;
+  }
+
+  if (typeof video.captureStream !== 'function') {
+    URL.revokeObjectURL(srcUrl);
+    return blob;
+  }
+
+  const stream = video.captureStream(30);
+  let recorder;
+  try {
+    recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp8,opus' });
+  } catch (_) {
+    try {
+      recorder = new MediaRecorder(stream);
+    } catch (_) {
+      URL.revokeObjectURL(srcUrl);
+      return blob;
+    }
+  }
+
+  const chunks = [];
+  recorder.ondataavailable = (event) => {
+    if (event && event.data && event.data.size > 0) chunks.push(event.data);
+  };
+
+  const edited = await new Promise((resolve) => {
+    let done = false;
+    const stopNow = () => {
+      if (done) return;
+      done = true;
+      try { video.pause(); } catch (_) {}
+      try {
+        if (typeof recorder.requestData === 'function') recorder.requestData();
+      } catch (_) {}
+      try { recorder.stop(); } catch (_) { resolve(blob); }
+    };
+
+    recorder.onstop = () => {
+      if (!chunks.length) {
+        resolve(blob);
+        return;
+      }
+      resolve(new Blob(chunks, { type: chunks[0].type || 'video/webm' }));
+    };
+
+    video.addEventListener('timeupdate', () => {
+      if (video.currentTime >= end - 0.02) stopNow();
+    });
+
+    recorder.start(250);
+    video.currentTime = start;
+    video.onseeked = async () => {
+      try {
+        await video.play();
+      } catch (_) {
+        stopNow();
+      }
+    };
+
+    setTimeout(() => stopNow(), Math.max(1200, Math.ceil((end - start) * 1000) + 1200));
+  });
+
+  try {
+    stream.getTracks().forEach((t) => t.stop());
+  } catch (_) {}
+  URL.revokeObjectURL(srcUrl);
+  return edited;
+}
+
+async function processLiveReplayInBrowser(blob, options, onStatus, onProgress) {
+  const start = Math.max(0, Number(options?.start ?? 0));
+  const endInput = Number(options?.end ?? 0);
+  const brightness = Math.max(-100, Math.min(100, Number(options?.brightness ?? 0)));
+  const contrast = Math.max(0, Number(options?.contrast ?? 100));
+  const saturation = Math.max(0, Number(options?.saturation ?? 100));
+  const blur = Math.max(0, Number(options?.blur ?? 0));
+
+  const srcUrl = URL.createObjectURL(blob);
+  const video = document.createElement('video');
+  video.src = srcUrl;
+  video.preload = 'auto';
+  video.muted = false;
+  video.playsInline = true;
+
+  await new Promise((resolve, reject) => {
+    video.onloadedmetadata = () => resolve();
+    video.onerror = () => reject(new Error('Could not decode recording for browser processing'));
+  });
+
+  const duration = Math.max(0, Number(video.duration || 0));
+  const end = endInput > 0 ? Math.min(duration || endInput, endInput) : duration;
+  const safeEnd = Math.max(start, end);
+
+  if (safeEnd - start < 0.2) {
+    URL.revokeObjectURL(srcUrl);
+    return blob;
+  }
+
+  if (typeof document.createElement !== 'function') {
+    URL.revokeObjectURL(srcUrl);
+    return blob;
+  }
+
+  const width = Math.max(2, Number(video.videoWidth || 1280));
+  const height = Math.max(2, Number(video.videoHeight || 720));
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx || typeof canvas.captureStream !== 'function') {
+    URL.revokeObjectURL(srcUrl);
+    return blob;
+  }
+
+  const filterCss = `brightness(${1 + (brightness / 100)}) contrast(${contrast / 100}) saturate(${saturation / 100}) blur(${blur}px)`;
+  const outStream = canvas.captureStream(30);
+
+  try {
+    if (typeof video.captureStream === 'function') {
+      const sourceStream = video.captureStream();
+      sourceStream.getAudioTracks().forEach((track) => {
+        try { outStream.addTrack(track); } catch (_) {}
+      });
+    }
+  } catch (_) {}
+
+  let recorder;
+  try {
+    recorder = new MediaRecorder(outStream, { mimeType: 'video/webm;codecs=vp8,opus' });
+  } catch (_) {
+    try {
+      recorder = new MediaRecorder(outStream);
+    } catch (_) {
+      URL.revokeObjectURL(srcUrl);
+      return blob;
+    }
+  }
+
+  const chunks = [];
+  recorder.ondataavailable = (event) => {
+    if (event && event.data && event.data.size > 0) chunks.push(event.data);
+  };
+
+  if (typeof onStatus === 'function') onStatus('Applying edits in browser...');
+
+  const output = await new Promise((resolve) => {
+    let raf = 0;
+    let finished = false;
+    const total = Math.max(0.001, safeEnd - start);
+
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      if (raf) cancelAnimationFrame(raf);
+      try { video.pause(); } catch (_) {}
+      try {
+        if (typeof recorder.requestData === 'function') recorder.requestData();
+      } catch (_) {}
+      try {
+        if (recorder.state !== 'inactive') recorder.stop();
+      } catch (_) {
+        resolve(blob);
+      }
+    };
+
+    const draw = () => {
+      if (finished) return;
+      try {
+        ctx.filter = filterCss;
+        ctx.drawImage(video, 0, 0, width, height);
+        ctx.filter = 'none';
+      } catch (_) {}
+
+      const ratio = Math.max(0, Math.min(1, (Number(video.currentTime || 0) - start) / total));
+      if (typeof onProgress === 'function') onProgress(ratio);
+
+      if (Number(video.currentTime || 0) >= safeEnd - 0.03) {
+        finish();
+        return;
+      }
+      raf = requestAnimationFrame(draw);
+    };
+
+    recorder.onstop = () => {
+      if (!chunks.length) {
+        resolve(blob);
+        return;
+      }
+      if (typeof onProgress === 'function') onProgress(1);
+      if (typeof onStatus === 'function') onStatus('Edited replay ready.');
+      resolve(new Blob(chunks, { type: chunks[0].type || 'video/webm' }));
+    };
+
+    video.addEventListener('ended', finish);
+    video.addEventListener('timeupdate', () => {
+      if (Number(video.currentTime || 0) >= safeEnd - 0.03) finish();
+    });
+
+    recorder.start(250);
+    video.currentTime = start;
+    video.onseeked = async () => {
+      try {
+        await video.play();
+        draw();
+      } catch (_) {
+        finish();
+      }
+    };
+
+    setTimeout(() => finish(), Math.max(1500, Math.ceil(total * 1000) + 2000));
+  });
+
+  try {
+    outStream.getTracks().forEach((t) => t.stop());
+  } catch (_) {}
+  URL.revokeObjectURL(srcUrl);
+  return output;
+}
+
+async function loadLiveFfmpegWasm() {
+  if (_liveFfmpeg) return _liveFfmpeg;
+  if (_liveFfmpegLoadPromise) return _liveFfmpegLoadPromise;
+
+  _liveFfmpegLoadPromise = (async () => {
+    const ff = window.FFmpeg;
+    if (!ff || typeof ff.createFFmpeg !== 'function') {
+      throw new Error('FFmpeg.wasm runtime unavailable');
+    }
+
+    const corePath = 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js';
+    const engine = ff.createFFmpeg({ log: false, corePath });
+    await engine.load();
+    _liveFfmpeg = engine;
+    return engine;
+  })();
+
+  return _liveFfmpegLoadPromise;
+}
+
+async function processLiveReplayWithFfmpeg(blob, options, onStatus, onProgress) {
+  const start = Math.max(0, Number(options?.start ?? 0));
+  const end = Math.max(start, Number(options?.end ?? 0));
+  const brightness = Number(options?.brightness ?? 0);
+  const contrast = Number(options?.contrast ?? 100);
+  const saturation = Number(options?.saturation ?? 100);
+  const blur = Number(options?.blur ?? 0);
+
+  const noTrim = Math.abs(start) < 0.1 && (!Number.isFinite(end) || end <= 0);
+  const noFx = brightness === 0 && contrast === 100 && saturation === 100 && blur === 0;
+  if (noTrim && noFx) return blob;
+
+  try {
+    if (typeof onStatus === 'function') onStatus('Loading FFmpeg.wasm...');
+    const engine = await loadLiveFfmpegWasm();
+    const ff = window.FFmpeg;
+    const inputName = `live-input-${Date.now()}.webm`;
+    const outputName = `live-output-${Date.now()}.webm`;
+    engine.FS('writeFile', inputName, await ff.fetchFile(blob));
+
+    const vf = [];
+    if (brightness !== 0 || contrast !== 100 || saturation !== 100) {
+      const b = Math.max(-1, Math.min(1, brightness / 100));
+      const c = Math.max(0, contrast / 100);
+      const s = Math.max(0, saturation / 100);
+      vf.push(`eq=brightness=${b.toFixed(3)}:contrast=${c.toFixed(3)}:saturation=${s.toFixed(3)}`);
+    }
+    if (blur > 0) {
+      vf.push(`gblur=sigma=${Math.max(0.1, blur / 2).toFixed(2)}`);
+    }
+
+    const args = [];
+    if (start > 0) {
+      args.push('-ss', `${start.toFixed(2)}`);
+    }
+    if (end > 0) {
+      args.push('-to', `${end.toFixed(2)}`);
+    }
+    args.push('-i', inputName);
+    if (vf.length) {
+      args.push('-vf', vf.join(','));
+    }
+    args.push('-c:v', 'libvpx-vp9', '-b:v', '1200k', '-c:a', 'libopus', '-b:a', '96k', outputName);
+
+    if (typeof engine.setProgress === 'function') {
+      engine.setProgress(({ ratio }) => {
+        if (typeof onProgress === 'function') {
+          onProgress(Number.isFinite(ratio) ? Math.max(0, Math.min(1, ratio)) : 0);
+        }
+      });
+    }
+
+    if (typeof onStatus === 'function') onStatus('Applying trim and filters with FFmpeg...');
+    await engine.run(...args);
+
+    if (typeof engine.setProgress === 'function') {
+      engine.setProgress(() => {});
+    }
+
+    const data = engine.FS('readFile', outputName);
+    try { engine.FS('unlink', inputName); } catch (_) {}
+    try { engine.FS('unlink', outputName); } catch (_) {}
+
+    if (typeof onStatus === 'function') onStatus('Edited replay ready.');
+    if (typeof onProgress === 'function') onProgress(1);
+    return new Blob([data.buffer], { type: 'video/webm' });
+  } catch (_) {
+    // Fallback if FFmpeg fails in browser/runtime: still apply trim + visual edits.
+    return processLiveReplayInBrowser(blob, { start, end, brightness, contrast, saturation, blur }, onStatus, onProgress);
+  }
+}
+
+async function openLiveRecordingEditor(blob) {
+  const modal = document.getElementById('live-edit-modal');
+  const preview = document.getElementById('live-edit-preview');
+  const startInput = document.getElementById('live-edit-start');
+  const endInput = document.getElementById('live-edit-end');
+  const brightnessInput = document.getElementById('live-edit-brightness');
+  const contrastInput = document.getElementById('live-edit-contrast');
+  const saturationInput = document.getElementById('live-edit-saturation');
+  const blurInput = document.getElementById('live-edit-blur');
+  const resetFiltersBtn = document.getElementById('live-edit-reset-filters');
+  const presetsWrap = document.getElementById('live-edit-presets');
+  const progressWrap = document.getElementById('live-edit-progress');
+  const progressBar = document.getElementById('live-edit-progress-bar');
+  const timeLabel = document.getElementById('live-edit-time');
+  const status = document.getElementById('live-edit-status');
+  const saveBtn = document.getElementById('live-edit-save');
+  const cancelBtn = document.getElementById('live-edit-cancel');
+  const closeBtn = document.getElementById('live-edit-close');
+
+  if (!modal || !preview || !startInput || !endInput || !brightnessInput || !contrastInput || !saturationInput || !blurInput || !timeLabel || !status || !saveBtn || !cancelBtn) {
+    return blob;
+  }
+
+  if (_liveEditObjectUrl) {
+    URL.revokeObjectURL(_liveEditObjectUrl);
+    _liveEditObjectUrl = null;
+  }
+
+  _liveEditObjectUrl = URL.createObjectURL(blob);
+  preview.src = _liveEditObjectUrl;
+
+  await new Promise((resolve) => {
+    preview.onloadedmetadata = () => resolve();
+    preview.onerror = () => resolve();
+  });
+
+  const duration = Math.max(0, Number(preview.duration || 0));
+  startInput.min = '0';
+  startInput.max = String(duration || 0);
+  startInput.step = '0.1';
+  startInput.value = '0';
+
+  endInput.min = '0';
+  endInput.max = String(duration || 0);
+  endInput.step = '0.1';
+  endInput.value = String(duration || 0);
+  brightnessInput.value = '0';
+  contrastInput.value = '100';
+  saturationInput.value = '100';
+  blurInput.value = '0';
+
+  const syncLabel = () => {
+    const s = Math.max(0, Number(startInput.value || 0));
+    const e = Math.max(s, Number(endInput.value || 0));
+    if (Number(endInput.value || 0) < s) endInput.value = String(s);
+    timeLabel.textContent = `${formatLiveSeconds(s)} - ${formatLiveSeconds(e)} (duration ${formatLiveSeconds(e - s)})`;
+  };
+
+  startInput.oninput = () => {
+    const s = Number(startInput.value || 0);
+    if (Number(endInput.value || 0) < s) endInput.value = String(s);
+    syncLabel();
+    preview.currentTime = s;
+  };
+  endInput.oninput = () => {
+    const e = Number(endInput.value || 0);
+    if (Number(startInput.value || 0) > e) startInput.value = String(e);
+    syncLabel();
+  };
+
+  const updatePreviewFilter = () => {
+    const b = Math.max(-100, Math.min(100, Number(brightnessInput.value || 0)));
+    const c = Math.max(0, Number(contrastInput.value || 100));
+    const s = Math.max(0, Number(saturationInput.value || 100));
+    const blur = Math.max(0, Number(blurInput.value || 0));
+    preview.style.filter = `brightness(${1 + (b / 100)}) contrast(${c / 100}) saturate(${s / 100}) blur(${blur}px)`;
+  };
+
+  const setPreset = (name) => {
+    const preset = String(name || 'normal').toLowerCase();
+    if (preset === 'cinematic') {
+      brightnessInput.value = '-8';
+      contrastInput.value = '126';
+      saturationInput.value = '88';
+      blurInput.value = '1';
+    } else if (preset === 'vivid') {
+      brightnessInput.value = '4';
+      contrastInput.value = '115';
+      saturationInput.value = '138';
+      blurInput.value = '0';
+    } else if (preset === 'warm') {
+      brightnessInput.value = '7';
+      contrastInput.value = '105';
+      saturationInput.value = '118';
+      blurInput.value = '0';
+    } else if (preset === 'noir') {
+      brightnessInput.value = '-4';
+      contrastInput.value = '145';
+      saturationInput.value = '0';
+      blurInput.value = '0';
+    } else {
+      brightnessInput.value = '0';
+      contrastInput.value = '100';
+      saturationInput.value = '100';
+      blurInput.value = '0';
+    }
+    updatePreviewFilter();
+    if (presetsWrap) {
+      presetsWrap.querySelectorAll('[data-live-preset]').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.livePreset === preset);
+      });
+    }
+  };
+
+  if (presetsWrap) {
+    presetsWrap.querySelectorAll('[data-live-preset]').forEach((btn) => {
+      btn.onclick = () => setPreset(btn.dataset.livePreset || 'normal');
+    });
+  }
+
+  brightnessInput.oninput = updatePreviewFilter;
+  contrastInput.oninput = updatePreviewFilter;
+  saturationInput.oninput = updatePreviewFilter;
+  blurInput.oninput = updatePreviewFilter;
+  if (resetFiltersBtn) {
+    resetFiltersBtn.onclick = () => {
+      setPreset('normal');
+    };
+  }
+  setPreset('normal');
+  syncLabel();
+
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('story-editor-open');
+
+  return await new Promise((resolve) => {
+    _liveEditResolve = resolve;
+
+    const cancel = () => closeLiveEditModal(null);
+    const save = async () => {
+      saveBtn.disabled = true;
+      cancelBtn.disabled = true;
+      if (closeBtn) closeBtn.disabled = true;
+      status.textContent = 'Preparing FFmpeg edit...';
+      if (progressWrap) progressWrap.classList.add('visible');
+      if (progressBar) progressBar.style.width = '0%';
+      try {
+        const s = Number(startInput.value || 0);
+        const e = Number(endInput.value || 0);
+        const edited = await processLiveReplayWithFfmpeg(blob, {
+          start: s,
+          end: e,
+          brightness: Number(brightnessInput.value || 0),
+          contrast: Number(contrastInput.value || 100),
+          saturation: Number(saturationInput.value || 100),
+          blur: Number(blurInput.value || 0),
+        }, (msg) => {
+          status.textContent = msg;
+        }, (ratio) => {
+          if (progressBar) {
+            const pct = Math.max(0, Math.min(100, Math.round((Number(ratio) || 0) * 100)));
+            progressBar.style.width = `${pct}%`;
+          }
+        });
+        closeLiveEditModal(edited);
+      } catch (_) {
+        closeLiveEditModal(blob);
+      } finally {
+        if (progressWrap) progressWrap.classList.remove('visible');
+        if (progressBar) progressBar.style.width = '0%';
+        saveBtn.disabled = false;
+        cancelBtn.disabled = false;
+        if (closeBtn) closeBtn.disabled = false;
+      }
+    };
+
+    saveBtn.onclick = save;
+    cancelBtn.onclick = cancel;
+    if (closeBtn) closeBtn.onclick = cancel;
+    modal.onclick = (event) => {
+      if (event.target === modal) cancel();
+    };
+  });
+}
+
+async function ensureLiveKitClientLoaded() {
+  if (_liveKitLib) return _liveKitLib;
+  if (_liveKitLoadPromise) return _liveKitLoadPromise;
+
+  _liveKitLoadPromise = new Promise((resolve, reject) => {
+    const existing = document.querySelector('script[data-livekit-client="1"]');
+    if (existing) {
+      existing.addEventListener('load', () => {
+        _liveKitLib = window.LivekitClient || null;
+        if (_liveKitLib) resolve(_liveKitLib);
+        else reject(new Error('LiveKit client failed to initialize'));
+      }, { once: true });
+      existing.addEventListener('error', () => reject(new Error('Failed to load LiveKit client')), { once: true });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/livekit-client@2.15.8/dist/livekit-client.umd.min.js';
+    script.async = true;
+    script.dataset.livekitClient = '1';
+    script.addEventListener('load', () => {
+      _liveKitLib = window.LivekitClient || null;
+      if (_liveKitLib) resolve(_liveKitLib);
+      else reject(new Error('LiveKit client failed to initialize'));
+    }, { once: true });
+    script.addEventListener('error', () => reject(new Error('Failed to load LiveKit client')), { once: true });
+    document.head.appendChild(script);
+  });
+
+  return _liveKitLoadPromise;
+}
+
+async function connectLiveTransport() {
+  if (!_liveActiveSessionId) return;
+
+  const stageSub = document.getElementById('live-stage-sub');
+  const video = document.getElementById('live-local-video');
+  const placeholder = document.getElementById('live-video-placeholder');
+  const status = document.getElementById('live-status-line');
+
+  const attachTrackToStage = async (track) => {
+    if (!video || !track) return false;
+    if (track.kind !== 'video') return false;
+    track.attach(video);
+    // Keep autoplay reliable across browsers for watcher mode.
+    video.muted = true;
+    video.playsInline = true;
+    video.style.transform = _liveActiveIsHost ? 'scaleX(-1)' : 'none';
+    applyLivePreviewFilter();
+    video.style.display = 'block';
+    try {
+      await video.play();
+    } catch (_) {
+      // Retry once with strict autoplay-safe flags.
+      video.muted = true;
+      video.autoplay = true;
+      try {
+        await video.play();
+      } catch (_) {}
+    }
+    if (placeholder) placeholder.style.display = 'none';
+    if (stageSub && !_liveActiveIsHost) stageSub.textContent = 'Watching live stream';
+    return true;
+  };
+
+  try {
+    await disconnectLiveTransport();
+    const LK = await ensureLiveKitClientLoaded();
+
+    const tokenRes = await fetch(buildLiveIdUrl(_liveTokenUrlPattern, _liveActiveSessionId), {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    });
+    const tokenJson = await tokenRes.json();
+    if (!tokenRes.ok || !tokenJson.ok || !tokenJson.token || !tokenJson.wsUrl) {
+      throw new Error(tokenJson.message || 'Live transport token unavailable');
+    }
+
+    const room = new LK.Room({ adaptiveStream: true, dynacast: true });
+    _liveKitRoom = room;
+
+    room.on(LK.RoomEvent.DataReceived, (payload) => {
+      let raw = '';
+      try {
+        if (typeof payload === 'string') {
+          raw = payload;
+        } else if (typeof TextDecoder !== 'undefined') {
+          raw = new TextDecoder().decode(payload);
+        } else {
+          raw = Array.from(payload || []).map(v => String.fromCharCode(v)).join('');
+        }
+      } catch (_) {
+        return;
+      }
+
+      if (!raw) return;
+
+      let msg = null;
+      try {
+        msg = JSON.parse(raw);
+      } catch (_) {
+        return;
+      }
+
+      if (!msg || Number(msg.s || 0) !== Number(_liveActiveSessionId || 0)) return;
+
+      if (msg.t === 'live_rxn') {
+        const type = String(msg.r || '');
+        if (!_liveReactionEmoji[type]) return;
+
+        const fromUserId = Number(msg.u || 0);
+        if (_currentUserId !== null && fromUserId === Number(_currentUserId)) return;
+
+        _liveReactionBurstSuppress[type] = Number(_liveReactionBurstSuppress[type] || 0) + 1;
+        showLiveReactionBurst(type);
+        return;
+      }
+
+      if (msg.t === 'live_filter') {
+        if (_liveActiveIsHost) return;
+        _livePreviewFilter = sanitizeLiveFilterPayload(msg.f);
+        applyLivePreviewFilter();
+      }
+    });
+
+    room.on(LK.RoomEvent.ParticipantConnected, () => {
+      if (_liveActiveIsHost) {
+        publishLiveFilterRealtime();
+      }
+    });
+
+    room.on(LK.RoomEvent.TrackSubscribed, async (track) => {
+      await attachTrackToStage(track);
+    });
+
+    room.on(LK.RoomEvent.TrackUnsubscribed, (track) => {
+      if (typeof track.detach === 'function') track.detach();
+      if (!_liveActiveIsHost && video) {
+        video.srcObject = null;
+        video.style.display = 'none';
+      }
+    });
+
+    room.on(LK.RoomEvent.Disconnected, () => {
+      if (!_liveActiveIsHost && placeholder) placeholder.style.display = 'none';
+      if (status) status.textContent = 'Disconnected';
+    });
+
+    await room.connect(tokenJson.wsUrl, tokenJson.token);
+    if (status) status.textContent = 'Connected';
+
+    if (_liveActiveIsHost) {
+      if (_liveLocalStream) {
+        const camTrack = _liveLocalStream.getVideoTracks ? _liveLocalStream.getVideoTracks()[0] : null;
+        const micTrack = _liveLocalStream.getAudioTracks ? _liveLocalStream.getAudioTracks()[0] : null;
+        if (camTrack) {
+          try {
+            await room.localParticipant.publishTrack(camTrack, { source: LK.Track.Source.Camera });
+          } catch (_) {}
+        }
+        if (micTrack) {
+          try {
+            await room.localParticipant.publishTrack(micTrack, { source: LK.Track.Source.Microphone });
+          } catch (_) {}
+        }
+      }
+      if (video && _liveLocalStream) {
+        video.srcObject = _liveLocalStream;
+        video.style.transform = 'scaleX(-1)';
+        applyLivePreviewFilter();
+        video.style.display = 'block';
+        try {
+          await video.play();
+        } catch (_) {}
+      }
+      if (placeholder) placeholder.style.display = 'none';
+      publishLiveFilterRealtime();
+    } else {
+      const participants = Array.from(room.remoteParticipants.values());
+      const first = participants[0];
+      let attached = false;
+      if (first) {
+        for (const pub of first.trackPublications.values()) {
+          if (attached || !pub.track || pub.track.kind !== LK.Track.Kind.Video) continue;
+          attached = await attachTrackToStage(pub.track);
+          if (attached) break;
+        }
+      }
+      if (!attached) {
+        for (const p of participants) {
+          for (const pub of p.trackPublications.values()) {
+            if (attached || !pub.track || pub.track.kind !== LK.Track.Kind.Video) continue;
+            attached = await attachTrackToStage(pub.track);
+            if (attached) break;
+          }
+          if (attached) break;
+        }
+      }
+      if (!attached) {
+        if (placeholder) placeholder.style.display = '';
+        if (stageSub) stageSub.textContent = 'Waiting for host video...';
+        if (video) {
+          video.style.filter = 'none';
+          video.style.display = 'none';
+        }
+      }
+    }
+  } catch (err) {
+    const errMsg = err && err.message ? String(err.message) : 'Video transport unavailable';
+    if (status) status.textContent = `Video transport unavailable: ${errMsg}`;
+    if (_liveActiveIsHost) {
+      if (stageSub) stageSub.textContent = 'Live without transport (configure LiveKit)';
+      if (placeholder) placeholder.style.display = '';
+    } else {
+      if (stageSub) stageSub.textContent = 'Host video unavailable';
+      if (placeholder) placeholder.style.display = '';
+      if (video) {
+        video.srcObject = null;
+        video.style.display = 'none';
+        video.style.transform = '';
+        video.style.filter = '';
+      }
+    }
+  }
+}
+
+async function disconnectLiveTransport() {
+  if (!_liveKitRoom) return;
+  try {
+    _liveKitRoom.disconnect();
+  } catch (_) {}
+  _liveKitRoom = null;
+}
+
+async function fetchLiveState() {
+  if (!_liveActiveSessionId) return;
+
+  try {
+    const res = await fetch(buildLiveIdUrl(_liveStateUrlPattern, _liveActiveSessionId), {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    });
+    const json = await res.json();
+    if (!res.ok || !json.ok || !json.session) {
+      await closeLiveModal(false);
+      await fetchLiveSessions();
+      return;
+    }
+
+    const s = json.session;
+    renderLiveStateHeader(s);
+    syncLiveReactionBursts(s);
+    renderLiveComments(Array.isArray(json.comments) ? json.comments : []);
+
+    if (!_liveActiveIsHost && s.status !== 'live') {
+      showToast('Live has ended');
+      await closeLiveModal(false);
+      await fetchLiveSessions();
+    }
+  } catch (_) {}
+}
+
+function renderLiveStateHeader(session) {
+  const hostName = session.host && session.host.name ? session.host.name : 'Host';
+  const av = hostName.charAt(0).toUpperCase() || 'U';
+  const title = session.title || `${hostName} is live`;
+  const viewers = Number(session.viewerCount || 0);
+  const reactions = Number(session.totalReactions || 0);
+
+  const hostAv = document.getElementById('live-host-av');
+  const hostNm = document.getElementById('live-host-name');
+  const meta = document.getElementById('live-meta-line');
+  const titleLabel = document.getElementById('live-title-label');
+  const statusLine = document.getElementById('live-status-line');
+  const stageSub = document.getElementById('live-stage-sub');
+
+  if (hostAv) hostAv.textContent = av;
+  if (hostNm) hostNm.textContent = hostName;
+  if (meta) meta.textContent = `${viewers} watching · ${reactions} reactions`;
+  if (titleLabel) titleLabel.textContent = title;
+  if (statusLine) statusLine.textContent = session.status === 'live' ? 'Connected' : 'Session ended';
+  if (stageSub && !_liveActiveIsHost) stageSub.textContent = session.status === 'live' ? 'Watching live stream' : 'Live ended';
+}
+
+function syncLiveReactionBursts(session) {
+  const currentCounts = session && session.reactionCounts && typeof session.reactionCounts === 'object'
+    ? session.reactionCounts
+    : {};
+
+  if (!_liveReactionCountsSeen) {
+    _liveReactionCountsSeen = { ...currentCounts };
+    return;
+  }
+
+  Object.keys(_liveReactionEmoji).forEach(type => {
+    const prev = Number(_liveReactionCountsSeen[type] || 0);
+    const next = Number(currentCounts[type] || 0);
+    let delta = Math.max(0, next - prev);
+
+    const suppress = Number(_liveReactionBurstSuppress[type] || 0);
+    if (suppress > 0) {
+      const used = Math.min(suppress, delta);
+      delta -= used;
+      _liveReactionBurstSuppress[type] = suppress - used;
+    }
+
+    for (let i = 0; i < delta; i += 1) {
+      showLiveReactionBurst(type);
+    }
+  });
+
+  _liveReactionCountsSeen = { ...currentCounts };
+}
+
+function renderLiveComments(comments) {
+  const box = document.getElementById('live-comments');
+  if (!box) return;
+
+  if (!comments.length) {
+    box.innerHTML = '<div class="live-empty">No comments yet. Start the conversation.</div>';
+    return;
+  }
+
+  box.innerHTML = comments.map(c => {
+    const nm = c.user && c.user.name ? c.user.name : 'User';
+    return `<div class="live-c-row"><strong>${escapeHtml(nm)}:</strong> ${escapeHtml(c.message || '')}</div>`;
+  }).join('');
+
+  box.scrollTop = box.scrollHeight;
+}
+
+async function submitLiveComment(event) {
+  event.preventDefault();
+  if (!_liveActiveSessionId) return;
+
+  const input = document.getElementById('live-comment-input');
+  if (!input) return;
+  const message = input.value.trim();
+  if (!message) return;
+
+  const form = new FormData();
+  form.append('message', message);
+  form.append('_hp', '');
+  form.append('_recaptcha_token', await window.tripxGetRecaptchaToken('live_comment'));
+
+  try {
+    const res = await fetch(buildLiveIdUrl(_liveCommentUrlPattern, _liveActiveSessionId), {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body: form,
+    });
+    const json = await res.json();
+    if (!res.ok || !json.ok) throw new Error(json.message || 'Could not send comment');
+    input.value = '';
+    await fetchLiveState();
+  } catch (e) {
+    showToast(e.message || 'Could not send comment');
+  }
+}
+
+function showLiveReactionBurst(type) {
+  const box = document.getElementById('live-reaction-burst');
+  if (!box) return;
+  const emoji = _liveReactionEmoji[type] || '❤️';
+
+  _liveRecorderFxBursts.push({
+    emoji,
+    startedAt: Date.now(),
+    x: 0.18 + Math.random() * 0.56,
+  });
+
+  const el = document.createElement('span');
+  el.textContent = emoji;
+  box.appendChild(el);
+  setTimeout(() => el.remove(), 1400);
+}
+
+async function publishLiveReactionRealtime(type) {
+  if (!_liveKitRoom || !_liveKitRoom.localParticipant) return;
+  if (!_liveReactionEmoji[type]) return;
+
+  const msg = JSON.stringify({
+    t: 'live_rxn',
+    r: type,
+    u: Number(_currentUserId || 0),
+    s: Number(_liveActiveSessionId || 0),
+    ts: Date.now(),
+  });
+
+  try {
+    const bytes = typeof TextEncoder !== 'undefined'
+      ? new TextEncoder().encode(msg)
+      : Uint8Array.from(msg.split('').map(ch => ch.charCodeAt(0)));
+    await _liveKitRoom.localParticipant.publishData(bytes, { reliable: false });
+  } catch (_) {}
+}
+
+async function sendLiveReaction(type) {
+  if (!_liveActiveSessionId || !type) return;
+  try {
+    const res = await fetch(buildLiveReactionUrl(_liveActiveSessionId, type), {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    });
+    const json = await res.json();
+    if (!res.ok || !json.ok) throw new Error(json.message || 'Could not react');
+    showLiveReactionBurst(type);
+
+    // Keep polling baseline in sync with backend counts so local sender doesn't re-burst on next poll.
+    if (json.counts && typeof json.counts === 'object') {
+      if (!_liveReactionCountsSeen || typeof _liveReactionCountsSeen !== 'object') {
+        _liveReactionCountsSeen = {};
+      }
+      Object.keys(json.counts).forEach((k) => {
+        const key = String(k || '').trim().toLowerCase();
+        if (!key) return;
+        _liveReactionCountsSeen[key] = Number(json.counts[k] || 0);
+      });
+    }
+
+    await publishLiveReactionRealtime(type);
+    await fetchLiveState();
+  } catch (_) {}
+}
+
+async function endLiveSession() {
+  if (!_liveActiveSessionId || !_liveActiveIsHost) return;
+
+  const sessionId = Number(_liveActiveSessionId || 0);
+  const endBtn = document.getElementById('live-end-btn');
+  let saveToProfile = window.confirm('Store this live on your profile in the Lives section?\nPress OK to save, Cancel to end without saving.');
+
+  if (endBtn) endBtn.disabled = true;
+
+  const form = new FormData();
+  form.append('saveToProfile', saveToProfile ? '1' : '0');
+
+  try {
+    const res = await fetch(buildLiveIdUrl(_liveEndUrlPattern, sessionId), {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body: form,
+    });
+    const json = await res.json();
+    if (!res.ok || !json.ok) throw new Error(json.message || 'Could not end live');
+
+    // End the live immediately for everyone before running optional edit/upload flow.
+    await closeLiveModal(false);
+    await fetchLiveSessions();
+
+    let recordingBlob = _liveRecordingBlob;
+    if (!recordingBlob) {
+      recordingBlob = await stopLiveRecordingCapture();
+    }
+
+    if (recordingBlob) {
+      try {
+        if (saveToProfile) {
+          const editedBlob = await openLiveRecordingEditor(recordingBlob);
+          if (editedBlob) {
+            await uploadLiveRecording(sessionId, editedBlob);
+            showToast('Live replay saved to your profile');
+          }
+        } else {
+          await uploadLiveRecording(sessionId, recordingBlob);
+          showToast('Live recording archived for admin');
+        }
+      } catch (uploadErr) {
+        showToast(uploadErr.message || 'Live ended, but recording upload failed');
+      }
+    } else {
+      showToast('Live ended, but no recording data was captured.');
+    }
+  } catch (e) {
+    showToast(e.message || 'Could not end live');
+  } finally {
+    if (endBtn) endBtn.disabled = false;
+  }
+}
+
 function setStoryAdjustmentLabel(id, value) {
   const el = document.getElementById(id);
   if (el) el.textContent = String(value);
@@ -2615,6 +5093,8 @@ async function uploadStoryFromEditor() {
   form.append('story_image', blob, `story-${Date.now()}.jpg`);
   captionInput.value = (cap.value || '').trim();
   form.append('caption', captionInput.value);
+  form.append('_hp', '');
+  form.append('_recaptcha_token', await window.tripxGetRecaptchaToken('story_create'));
 
   try {
     const res = await fetch('{{ path('story_create') }}', {
@@ -2778,7 +5258,11 @@ function hydrateUserNames() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  bindLiveFilterControls();
   loadGestureSensitivity();
+  fetchLiveSessions();
+  if (_liveListPollTimer) clearInterval(_liveListPollTimer);
+  _liveListPollTimer = setInterval(fetchLiveSessions, 15000);
   const hash = window.location.hash;
   if (hash && (hash.startsWith('#c') || hash.startsWith('#tsc'))) {
     const box = document.getElementById(hash.slice(1));
@@ -2843,6 +5327,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const storyEditorClose = document.getElementById('story-editor-close');
   const storyEditorCancel = document.getElementById('story-editor-cancel');
   const storyEditorPublish = document.getElementById('story-editor-publish');
+  const liveStartBtn = document.getElementById('live-start-btn');
+  const storiesRow = document.getElementById('stories-row');
+  const liveModal = document.getElementById('live-modal');
+  const liveCloseBtn = document.getElementById('live-close-btn');
+  const liveLeaveBtn = document.getElementById('live-leave-btn');
+  const liveEndBtn = document.getElementById('live-end-btn');
+  const liveCommentForm = document.getElementById('live-comment-form');
   if (addBtn && fileInput) {
     addBtn.addEventListener('click', () => {
       {% if app.user %}
@@ -2857,6 +5348,44 @@ document.addEventListener('DOMContentLoaded', () => {
       captionInput.value = '';
       closeStorySourceSheet();
       openStoryEditor(fileInput.files[0]);
+    });
+  }
+
+  if (liveStartBtn) {
+    liveStartBtn.addEventListener('click', startLiveSession);
+  }
+  if (storiesRow) {
+    storiesRow.addEventListener('click', async event => {
+      const btn = event.target.closest('[data-live-open-id]');
+      if (!btn) return;
+      const sid = Number(btn.dataset.liveOpenId || 0);
+      if (!sid) return;
+      const host = btn.dataset.liveHost === '1';
+      await openLiveModal(sid, host);
+    });
+  }
+  if (liveCloseBtn) {
+    liveCloseBtn.addEventListener('click', () => closeLiveModal(true));
+  }
+  if (liveLeaveBtn) {
+    liveLeaveBtn.addEventListener('click', () => closeLiveModal(true));
+  }
+  if (liveEndBtn) {
+    liveEndBtn.addEventListener('click', endLiveSession);
+  }
+  if (liveCommentForm) {
+    liveCommentForm.addEventListener('submit', submitLiveComment);
+  }
+  document.querySelectorAll('#live-rxn-row [data-live-rxn]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      sendLiveReaction(btn.dataset.liveRxn || '');
+    });
+  });
+  if (liveModal) {
+    liveModal.addEventListener('click', event => {
+      if (event.target === liveModal) {
+        closeLiveModal(true);
+      }
     });
   }
 
@@ -3010,6 +5539,8 @@ function openStoryViewer(stories, userName, sourceButton = null) {
   document.getElementById('ig-story-close').onclick = closeStoryViewer;
   document.getElementById('ig-story-prev').onclick = () => moveStory(-1);
   document.getElementById('ig-story-next').onclick = () => moveStory(1);
+  document.getElementById('ig-story-removed-ok').onclick = dismissRemovedStory;
+  document.getElementById('ig-story-removed-reason-btn').onclick = toggleRemovedStoryReason;
 }
 
 function closeStoryViewer() {
@@ -3138,7 +5669,7 @@ async function updateSeenTriggerForStory(story) {
 
 function updateActiveStoryRingState() {
   if (!_activeStoryButton) return;
-  const hasUnseen = _activeStoryList.some(story => !story.isSeenByMe);
+  const hasUnseen = _activeStoryList.some(story => !story.isSeenByMe && !story.removedByAdmin);
   _activeStoryButton.classList.toggle('is-unseen', hasUnseen);
   _activeStoryButton.classList.toggle('is-seen', !hasUnseen);
   _activeStoryButton.dataset.hasUnseen = hasUnseen ? '1' : '0';
@@ -3160,6 +5691,81 @@ function markStorySeen(storyId) {
   }
 }
 
+function toggleRemovedStoryReason() {
+  const reasonEl = document.getElementById('ig-story-removed-reason');
+  const btn = document.getElementById('ig-story-removed-reason-btn');
+  if (!reasonEl || !btn) return;
+
+  const isHidden = reasonEl.style.display === 'none' || reasonEl.style.display === '';
+  reasonEl.style.display = isHidden ? 'block' : 'none';
+  btn.textContent = isHidden ? 'Hide reason' : 'View reason / Learn more';
+}
+
+async function dismissRemovedStory() {
+  const story = _activeStoryList[_activeStoryIndex];
+  if (!story || !story.removedByAdmin || !story.id) {
+    return;
+  }
+
+  const okBtn = document.getElementById('ig-story-removed-ok');
+  if (okBtn) okBtn.disabled = true;
+
+  try {
+    const url = _storyDismissRemovedUrlPattern.replace('/0/dismiss-removed', `/${story.id}/dismiss-removed`);
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+
+    const json = await res.json();
+    if (!res.ok || !json.ok) {
+      throw new Error(json.message || 'Could not remove moderated story');
+    }
+
+    const removedStoryId = Number(story.id);
+    _activeStoryList.splice(_activeStoryIndex, 1);
+
+    if (_activeStoryButton) {
+      let buttonStories = [];
+      try {
+        buttonStories = JSON.parse(_activeStoryButton.dataset.stories || '[]');
+      } catch (_) {
+        buttonStories = [];
+      }
+
+      const filteredStories = buttonStories.filter(item => Number(item.id) !== removedStoryId);
+      _activeStoryButton.dataset.stories = JSON.stringify(filteredStories);
+
+      const hasUnseen = filteredStories.some(item => !item.isSeenByMe && !item.removedByAdmin);
+      _activeStoryButton.classList.toggle('is-unseen', hasUnseen);
+      _activeStoryButton.classList.toggle('is-seen', !hasUnseen);
+      _activeStoryButton.dataset.hasUnseen = hasUnseen ? '1' : '0';
+
+      if (!filteredStories.length) {
+        _activeStoryButton.closest('.story-bbl')?.remove();
+        closeStoryViewer();
+        return;
+      }
+    }
+
+    if (!_activeStoryList.length) {
+      closeStoryViewer();
+      return;
+    }
+
+    if (_activeStoryIndex >= _activeStoryList.length) {
+      _activeStoryIndex = _activeStoryList.length - 1;
+    }
+
+    renderStoryAt(_activeStoryIndex);
+  } catch (err) {
+    if (typeof showToast === 'function') {
+      showToast(err.message || 'Could not remove moderated story');
+    }
+    if (okBtn) okBtn.disabled = false;
+  }
+}
+
 function moveStory(delta) {
   const next = _activeStoryIndex + delta;
   if (next < 0) { closeStoryViewer(); return; }
@@ -3177,13 +5783,43 @@ function renderStoryAt(index) {
   const cap = document.getElementById('ig-story-caption');
   const tm  = document.getElementById('ig-story-time');
   const bars = document.getElementById('ig-story-bars');
+  const removedPanel = document.getElementById('ig-story-removed-panel');
+  const removedReason = document.getElementById('ig-story-removed-reason');
+  const removedReasonBtn = document.getElementById('ig-story-removed-reason-btn');
+  const seenTrigger = document.getElementById('ig-story-seen-trigger');
+  const isRemoved = Boolean(story.removedByAdmin);
 
-  img.src = story.imageUrl || '';
-  cap.textContent = story.caption || '';
-  cap.style.display = story.caption ? '' : 'none';
-  tm.textContent = story.createdAt ? timeAgo(story.createdAt) : 'now';
-  markStorySeen(story.id);
-  updateSeenTriggerForStory(story);
+  if (isRemoved) {
+    img.style.display = 'none';
+    img.src = '';
+    cap.style.display = 'none';
+    tm.textContent = story.removedAt ? `removed ${timeAgo(story.removedAt)}` : 'removed';
+    closeStoryViewersSheet();
+    if (seenTrigger) seenTrigger.style.display = 'none';
+
+    if (removedPanel) {
+      removedPanel.style.display = 'flex';
+    }
+    if (removedReason) {
+      removedReason.textContent = story.removalReason || 'This story was removed because it violated our community guidelines.';
+      removedReason.style.display = 'none';
+    }
+    if (removedReasonBtn) {
+      removedReasonBtn.textContent = 'View reason / Learn more';
+    }
+  } else {
+    img.style.display = '';
+    img.src = story.imageUrl || '';
+    cap.textContent = story.caption || '';
+    cap.style.display = story.caption ? '' : 'none';
+    tm.textContent = story.createdAt ? timeAgo(story.createdAt) : 'now';
+    if (removedPanel) {
+      removedPanel.style.display = 'none';
+    }
+
+    markStorySeen(story.id);
+    updateSeenTriggerForStory(story);
+  }
 
   bars.innerHTML = '';
   _activeStoryList.forEach((_, i) => {
@@ -3191,7 +5827,10 @@ function renderStoryAt(index) {
     bar.className = 'ig-story-bar';
     const fill = document.createElement('span');
     if (i < index) fill.style.width = '100%';
-    if (i === index) {
+    if (i === index && isRemoved) {
+      fill.style.width = '100%';
+    }
+    if (i === index && !isRemoved) {
       fill.style.transition = `width ${_storyDurationMs}ms linear`;
       setTimeout(() => { fill.style.width = '100%'; }, 20);
     }
@@ -3199,9 +5838,11 @@ function renderStoryAt(index) {
     bars.appendChild(bar);
   });
 
-  _storyTimer = setTimeout(() => {
-    moveStory(1);
-  }, _storyDurationMs + 50);
+  if (!isRemoved) {
+    _storyTimer = setTimeout(() => {
+      moveStory(1);
+    }, _storyDurationMs + 50);
+  }
 }
 
 function timeAgo(dateString) {
@@ -3241,6 +5882,64 @@ function toggleReplies(id, btn) {
   wrap.style.display = isOpen ? 'none' : 'block';
   const arrow = btn.querySelector('span'); if (arrow) arrow.textContent = isOpen ? '▸' : '▾';
 }
+
+document.addEventListener('click', async event => {
+  const dismissBtn = event.target.closest('[data-dismiss-moderation-card]');
+  if (dismissBtn) {
+    const card = dismissBtn.closest('.moderation-placeholder-card');
+    const dismissUrl = dismissBtn.getAttribute('data-dismiss-url') || '';
+    const dismissToken = dismissBtn.getAttribute('data-dismiss-token') || '';
+
+    if (!card) {
+      return;
+    }
+
+    if (!dismissUrl || !dismissToken) {
+      card.remove();
+      return;
+    }
+
+    dismissBtn.disabled = true;
+
+    try {
+      const body = new FormData();
+      body.append('_token', dismissToken);
+
+      const res = await fetch(dismissUrl, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body,
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.ok) {
+        throw new Error(json.message || 'Could not remove moderated story');
+      }
+
+      card.remove();
+    } catch (err) {
+      if (typeof showToast === 'function') {
+        showToast(err.message || 'Could not remove moderated story');
+      }
+      dismissBtn.disabled = false;
+    }
+
+    return;
+  }
+
+  const reasonBtn = event.target.closest('[data-toggle-reason]');
+  if (!reasonBtn) return;
+
+  const storyId = reasonBtn.getAttribute('data-toggle-reason');
+  if (!storyId) return;
+
+  const reasonEl = document.querySelector(`[data-reason-for-story="${storyId}"]`);
+  if (!reasonEl) return;
+
+  const isHidden = reasonEl.style.display === 'none' || reasonEl.style.display === '';
+  reasonEl.style.display = isHidden ? 'block' : 'none';
+  reasonBtn.textContent = isHidden ? 'Hide reason' : 'View reason';
+});
 
 document.getElementById('ig-story-viewers-close')?.addEventListener('click', closeStoryViewersSheet);
 

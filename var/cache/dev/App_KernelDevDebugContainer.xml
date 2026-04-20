@@ -9,8 +9,8 @@
     <parameter key="kernel.runtime_mode.cli">%env(not:default:kernel.runtime_mode.web:)%</parameter>
     <parameter key="kernel.runtime_mode.worker">%env(bool:default::key:worker:default:kernel.runtime_mode:)%</parameter>
     <parameter key="kernel.debug">true</parameter>
-    <parameter key="kernel.build_dir">C:/Users/nmour/Downloads/symfony1/var/cache/dev</parameter>
-    <parameter key="kernel.cache_dir">C:/Users/nmour/Downloads/symfony1/var/cache/dev</parameter>
+    <parameter key="kernel.build_dir">C:\Users\nmour\Downloads\symfony1\var\cache\dev</parameter>
+    <parameter key="kernel.cache_dir">C:\Users\nmour\Downloads\symfony1\var\cache\dev</parameter>
     <parameter key="kernel.logs_dir">C:\Users\nmour\Downloads\symfony1\var\log</parameter>
     <parameter key="kernel.bundles" type="collection">
       <parameter key="FrameworkBundle">Symfony\Bundle\FrameworkBundle\FrameworkBundle</parameter>
@@ -21,6 +21,9 @@
       <parameter key="DoctrineMigrationsBundle">Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle</parameter>
       <parameter key="SecurityBundle">Symfony\Bundle\SecurityBundle\SecurityBundle</parameter>
       <parameter key="KnpPaginatorBundle">Knp\Bundle\PaginatorBundle\KnpPaginatorBundle</parameter>
+      <parameter key="MercureBundle">Symfony\Bundle\MercureBundle\MercureBundle</parameter>
+      <parameter key="StimulusBundle">Symfony\UX\StimulusBundle\StimulusBundle</parameter>
+      <parameter key="ChartjsBundle">Symfony\UX\Chartjs\ChartjsBundle</parameter>
     </parameter>
     <parameter key="kernel.bundles_metadata" type="collection">
       <parameter key="FrameworkBundle" type="collection">
@@ -55,6 +58,18 @@
         <parameter key="path">C:\Users\nmour\Downloads\symfony1\vendor\knplabs\knp-paginator-bundle</parameter>
         <parameter key="namespace">Knp\Bundle\PaginatorBundle</parameter>
       </parameter>
+      <parameter key="MercureBundle" type="collection">
+        <parameter key="path">C:\Users\nmour\Downloads\symfony1\vendor\symfony\mercure-bundle\src</parameter>
+        <parameter key="namespace">Symfony\Bundle\MercureBundle</parameter>
+      </parameter>
+      <parameter key="StimulusBundle" type="collection">
+        <parameter key="path">C:\Users\nmour\Downloads\symfony1\vendor\symfony\stimulus-bundle</parameter>
+        <parameter key="namespace">Symfony\UX\StimulusBundle</parameter>
+      </parameter>
+      <parameter key="ChartjsBundle" type="collection">
+        <parameter key="path">C:\Users\nmour\Downloads\symfony1\vendor\symfony\ux-chartjs</parameter>
+        <parameter key="namespace">Symfony\UX\Chartjs</parameter>
+      </parameter>
     </parameter>
     <parameter key="kernel.charset">UTF-8</parameter>
     <parameter key="kernel.container_class">App_KernelDevDebugContainer</parameter>
@@ -62,6 +77,13 @@
     <parameter key="env(RAGHED_GEMINI)"></parameter>
     <parameter key="env(SERPAPI_API_KEY)"></parameter>
     <parameter key="env(OPENWEATHER_API_KEY)"></parameter>
+    <parameter key="env(AKISMET_API_KEY)"></parameter>
+    <parameter key="env(AKISMET_BLOG_URL)"></parameter>
+    <parameter key="env(OPENAI_API_KEY)"></parameter>
+    <parameter key="env(OPENAI_MODERATION_MODEL)">omni-moderation-latest</parameter>
+    <parameter key="env(RECAPTCHA_SECRET_KEY)"></parameter>
+    <parameter key="env(float:RECAPTCHA_MIN_SCORE)" type="string">0.5</parameter>
+    <parameter key="app.moderation.bad_words_file">C:\Users\nmour\Downloads\symfony1/config/moderation_bad_words.txt</parameter>
     <parameter key="event_dispatcher.event_aliases" type="collection">
       <parameter key="Symfony\Component\Console\Event\ConsoleCommandEvent">console.command</parameter>
       <parameter key="Symfony\Component\Console\Event\ConsoleErrorEvent">console.error</parameter>
@@ -99,12 +121,12 @@
     <parameter key="translator.logging">false</parameter>
     <parameter key="translator.default_path">C:\Users\nmour\Downloads\symfony1/translations</parameter>
     <parameter key="debug.error_handler.throw_at">-1</parameter>
-    <parameter key="debug.container.dump">C:/Users/nmour/Downloads/symfony1/var/cache/dev/App_KernelDevDebugContainer.xml</parameter>
+    <parameter key="debug.container.dump">C:\Users\nmour\Downloads\symfony1\var\cache\dev/App_KernelDevDebugContainer.xml</parameter>
     <parameter key="router.request_context.host">localhost</parameter>
     <parameter key="router.request_context.scheme">http</parameter>
     <parameter key="router.request_context.base_url"></parameter>
     <parameter key="router.resource">kernel::loadRoutes</parameter>
-    <parameter key="router.cache_dir">C:/Users/nmour/Downloads/symfony1/var/cache/dev</parameter>
+    <parameter key="router.cache_dir">C:\Users\nmour\Downloads\symfony1\var\cache\dev</parameter>
     <parameter key="request_listener.http_port">80</parameter>
     <parameter key="request_listener.https_port">443</parameter>
     <parameter key="cache.prefix.seed">_C:\Users\nmour\Downloads\symfony1.App_KernelDevDebugContainer</parameter>
@@ -121,7 +143,7 @@
     <parameter key="session.metadata.update_threshold">0</parameter>
     <parameter key="form.type_extension.csrf.enabled">true</parameter>
     <parameter key="form.type_extension.csrf.field_name">_token</parameter>
-    <parameter key="validator.mapping.cache.file">C:/Users/nmour/Downloads/symfony1/var/cache/dev/validation.php</parameter>
+    <parameter key="validator.mapping.cache.file">C:\Users\nmour\Downloads\symfony1\var\cache\dev/validation.php</parameter>
     <parameter key="validator.translation_domain">validators</parameter>
     <parameter key="data_collector.templates" type="collection"/>
     <parameter key="twig.form.resources" type="collection">
@@ -194,7 +216,7 @@
     <parameter key="doctrine.orm.auto_generate_proxy_classes">false</parameter>
     <parameter key="doctrine.orm.enable_lazy_ghost_objects">true</parameter>
     <parameter key="doctrine.orm.enable_native_lazy_objects">false</parameter>
-    <parameter key="doctrine.orm.proxy_dir">C:/Users/nmour/Downloads/symfony1/var/cache/dev/doctrine/orm/Proxies</parameter>
+    <parameter key="doctrine.orm.proxy_dir">C:\Users\nmour\Downloads\symfony1\var\cache\dev/doctrine/orm/Proxies</parameter>
     <parameter key="doctrine.orm.proxy_namespace">Proxies</parameter>
     <parameter key="doctrine.migrations.preferred_em">null</parameter>
     <parameter key="doctrine.migrations.preferred_connection">null</parameter>
@@ -537,6 +559,13 @@
         <argument type="service" id=".service_locator.O2p6Lk7.App\Controller\user\FrontPacksController"/>
       </call>
     </service>
+    <service id="App\Controller\user\LiveController" class="App\Controller\user\LiveController" public="true" autowire="true" autoconfigure="true">
+      <tag name="controller.service_arguments"/>
+      <tag name="container.service_subscriber"/>
+      <call method="setContainer">
+        <argument type="service" id=".service_locator.O2p6Lk7.App\Controller\user\LiveController"/>
+      </call>
+    </service>
     <service id="App\Controller\user\MyBookingsController" class="App\Controller\user\MyBookingsController" public="true" autowire="true" autoconfigure="true">
       <tag name="controller.service_arguments"/>
       <tag name="container.service_subscriber"/>
@@ -560,6 +589,13 @@
       <tag name="container.service_subscriber"/>
       <call method="setContainer">
         <argument type="service" id=".service_locator.O2p6Lk7.App\Controller\user\PricePredictionController"/>
+      </call>
+    </service>
+    <service id="App\Controller\user\ProfileController" class="App\Controller\user\ProfileController" public="true" autowire="true" autoconfigure="true">
+      <tag name="controller.service_arguments"/>
+      <tag name="container.service_subscriber"/>
+      <call method="setContainer">
+        <argument type="service" id=".service_locator.O2p6Lk7.App\Controller\user\ProfileController"/>
       </call>
     </service>
     <service id="App\Controller\user\ReactionController" class="App\Controller\user\ReactionController" public="true" autowire="true" autoconfigure="true">
@@ -691,6 +727,22 @@
       <argument type="service" id="doctrine"/>
     </service>
     <service id="App\Repository\FollowingRepository" class="App\Repository\FollowingRepository" autowire="true" autoconfigure="true">
+      <tag name="doctrine.repository_service"/>
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="App\Repository\LiveCommentRepository" class="App\Repository\LiveCommentRepository" autowire="true" autoconfigure="true">
+      <tag name="doctrine.repository_service"/>
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="App\Repository\LiveReactionRepository" class="App\Repository\LiveReactionRepository" autowire="true" autoconfigure="true">
+      <tag name="doctrine.repository_service"/>
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="App\Repository\LiveSessionRepository" class="App\Repository\LiveSessionRepository" autowire="true" autoconfigure="true">
+      <tag name="doctrine.repository_service"/>
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="App\Repository\LiveSessionViewerRepository" class="App\Repository\LiveSessionViewerRepository" autowire="true" autoconfigure="true">
       <tag name="doctrine.repository_service"/>
       <argument type="service" id="doctrine"/>
     </service>
@@ -836,6 +888,19 @@
       <argument type="service" id="App\service\BookingMailerService"/>
       <argument type="service" id="App\service\TransportService"/>
     </service>
+    <service id="App\service\BotProtectionService" class="App\service\BotProtectionService" autowire="true" autoconfigure="true">
+      <argument type="service" id="http_client.uri_template"/>
+      <argument>%env(RECAPTCHA_SECRET_KEY)%</argument>
+      <argument>%env(float:RECAPTCHA_MIN_SCORE)%</argument>
+    </service>
+    <service id="App\service\ContentModerationService" class="App\service\ContentModerationService" autowire="true" autoconfigure="true">
+      <argument type="service" id="http_client.uri_template"/>
+      <argument>%env(AKISMET_API_KEY)%</argument>
+      <argument>%env(AKISMET_BLOG_URL)%</argument>
+      <argument>%env(OPENAI_API_KEY)%</argument>
+      <argument>%env(OPENAI_MODERATION_MODEL)%</argument>
+      <argument>C:\Users\nmour\Downloads\symfony1/config/moderation_bad_words.txt</argument>
+    </service>
     <service id="App\service\DestinationService" class="App\service\DestinationService" autowire="true" autoconfigure="true">
       <argument type="service" id="doctrine.orm.default_entity_manager"/>
     </service>
@@ -850,6 +915,9 @@
     </service>
     <service id="App\service\LoyaltyService" class="App\service\LoyaltyService" autowire="true" autoconfigure="true">
       <argument type="service" id="doctrine.orm.default_entity_manager"/>
+    </service>
+    <service id="App\service\ModerationRecordService" class="App\service\ModerationRecordService" autowire="true" autoconfigure="true">
+      <argument type="service" id="doctrine.dbal.default_connection"/>
     </service>
     <service id="App\service\OfferService" class="App\service\OfferService" autowire="true" autoconfigure="true">
       <argument type="service" id="doctrine.orm.default_entity_manager"/>
@@ -903,7 +971,7 @@
     </service>
     <service id="argument_resolver.service" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">
       <tag priority="-50" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">controller.argument_value_resolver</tag>
-      <argument type="service" id=".service_locator.FWCfwU."/>
+      <argument type="service" id=".service_locator.rlbbtSE"/>
     </service>
     <service id="argument_resolver.default" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">
       <tag priority="-100" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">controller.argument_value_resolver</tag>
@@ -986,7 +1054,7 @@
       </argument>
     </service>
     <service id="http_cache.store" class="Symfony\Component\HttpKernel\HttpCache\Store">
-      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/http_cache</argument>
+      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/http_cache</argument>
     </service>
     <service id="url_helper" class="Symfony\Component\HttpFoundation\UrlHelper">
       <argument type="service" id="request_stack"/>
@@ -996,7 +1064,7 @@
       <tag name="container.no_preload"/>
       <argument type="tagged_iterator" tag="kernel.cache_warmer"/>
       <argument>true</argument>
-      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/App_KernelDevDebugContainerDeprecations.log</argument>
+      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/App_KernelDevDebugContainerDeprecations.log</argument>
     </service>
     <service id="cache_clearer" class="Symfony\Component\HttpKernel\CacheClearer\ChainCacheClearer">
       <argument type="tagged_iterator" tag="kernel.cache_clearer"/>
@@ -1725,7 +1793,7 @@
       <tag name="kernel.reset" method="reset"/>
       <argument>zsafarRXO5</argument>
       <argument>0</argument>
-      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/app</argument>
+      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/app</argument>
       <argument type="service" id="cache.default_marshaller" on-invalid="ignore"/>
       <call method="setLogger">
         <argument type="service" id="logger" on-invalid="ignore"/>
@@ -1741,7 +1809,7 @@
       <argument>Xc+7VoxdT4</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
-      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/system</argument>
+      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/system</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
@@ -1751,7 +1819,7 @@
       <argument>su+yLxx4il</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
-      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/system</argument>
+      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/system</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
@@ -1761,7 +1829,7 @@
       <argument>Bk9wjE6tMH</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
-      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/system</argument>
+      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/system</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
@@ -1771,7 +1839,7 @@
       <argument>4b32cb6Xc-</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
-      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/system</argument>
+      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/system</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
@@ -1781,7 +1849,7 @@
       <argument>wUxeThw2eU</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
-      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/system</argument>
+      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/system</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
@@ -1791,7 +1859,7 @@
       <argument></argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
-      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/system</argument>
+      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/system</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
@@ -1810,7 +1878,7 @@
       <tag name="monolog.logger" channel="cache"/>
       <argument></argument>
       <argument>0</argument>
-      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/app</argument>
+      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/app</argument>
       <argument type="service" id="cache.default_marshaller" on-invalid="ignore"/>
       <call method="setLogger">
         <argument type="service" id="logger" on-invalid="ignore"/>
@@ -2142,7 +2210,7 @@
         </argument>
       </argument>
       <argument type="collection">
-        <argument key="cache_dir">C:/Users/nmour/Downloads/symfony1/var/cache/dev/translations</argument>
+        <argument key="cache_dir">C:\Users\nmour\Downloads\symfony1\var\cache\dev/translations</argument>
         <argument key="debug">true</argument>
         <argument key="resource_files" type="collection">
           <argument key="af" type="collection">
@@ -2478,6 +2546,9 @@
           <argument>C:\Users\nmour\Downloads\symfony1\vendor\doctrine\doctrine-bundle/translations</argument>
           <argument>C:\Users\nmour\Downloads\symfony1\vendor\doctrine\doctrine-migrations-bundle/translations</argument>
           <argument>C:\Users\nmour\Downloads\symfony1\vendor\symfony\security-bundle/translations</argument>
+          <argument>C:\Users\nmour\Downloads\symfony1\vendor\symfony\mercure-bundle\src/translations</argument>
+          <argument>C:\Users\nmour\Downloads\symfony1\vendor\symfony\stimulus-bundle/translations</argument>
+          <argument>C:\Users\nmour\Downloads\symfony1\vendor\symfony\ux-chartjs/translations</argument>
         </argument>
         <argument key="cache_vary" type="collection">
           <argument key="scanned_directories" type="collection">
@@ -2493,6 +2564,9 @@
             <argument>C:\Users\nmour\Downloads\symfony1\vendor\doctrine\doctrine-bundle/translations</argument>
             <argument>C:\Users\nmour\Downloads\symfony1\vendor\doctrine\doctrine-migrations-bundle/translations</argument>
             <argument>C:\Users\nmour\Downloads\symfony1\vendor\symfony\security-bundle/translations</argument>
+            <argument>C:\Users\nmour\Downloads\symfony1\vendor\symfony\mercure-bundle\src/translations</argument>
+            <argument>C:\Users\nmour\Downloads\symfony1\vendor\symfony\stimulus-bundle/translations</argument>
+            <argument>C:\Users\nmour\Downloads\symfony1\vendor\symfony\ux-chartjs/translations</argument>
           </argument>
         </argument>
       </argument>
@@ -3072,6 +3146,14 @@
         <argument>-64</argument>
       </call>
       <call method="addListener">
+        <argument>kernel.response</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="web_link.add_link_header_listener"/>
+          <argument>onKernelResponse</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
         <argument>kernel.request</argument>
         <argument type="collection">
           <argument type="service_closure" id="session_listener"/>
@@ -3253,7 +3335,7 @@
     </service>
     <service id="argument_resolver.not_tagged_controller" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\NotTaggedControllerValueResolver">
       <tag name="controller.argument_value_resolver" priority="-200"/>
-      <argument type="service" id=".service_locator.FWCfwU."/>
+      <argument type="service" id=".service_locator.rlbbtSE"/>
     </service>
     <service id="routing.resolver" class="Symfony\Component\Config\Loader\LoaderResolver">
       <call method="addLoader">
@@ -3348,7 +3430,7 @@
       <argument type="service" id=".service_locator.PvoQzFT.router.default"/>
       <argument>kernel::loadRoutes</argument>
       <argument type="collection">
-        <argument key="cache_dir">C:/Users/nmour/Downloads/symfony1/var/cache/dev</argument>
+        <argument key="cache_dir">C:\Users\nmour\Downloads\symfony1\var\cache\dev</argument>
         <argument key="debug">true</argument>
         <argument key="generator_class">Symfony\Component\Routing\Generator\CompiledUrlGenerator</argument>
         <argument key="generator_dumper_class">Symfony\Component\Routing\Generator\Dumper\CompiledUrlGeneratorDumper</argument>
@@ -3459,6 +3541,12 @@
       <tag name="property_info.access_extractor" priority="-1000"/>
       <tag name="property_info.initializable_extractor" priority="-1000"/>
     </service>
+    <service id="web_link.http_header_serializer" class="Symfony\Component\WebLink\HttpHeaderSerializer"/>
+    <service id="web_link.add_link_header_listener" class="Symfony\Component\WebLink\EventListener\AddLinkHeaderListener">
+      <tag name="kernel.event_subscriber"/>
+      <tag name="container.hot_path"/>
+      <argument type="service" id="web_link.http_header_serializer"/>
+    </service>
     <service id=".cache_connection.GD_MSZC" class="Symfony\Component\Cache\Adapter\AbstractAdapter" constructor="createConnection">
       <argument>redis://localhost</argument>
       <argument type="collection">
@@ -3507,7 +3595,7 @@
       <argument>true</argument>
     </service>
     <service id="session.storage.factory.mock_file" class="Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFactory">
-      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/sessions</argument>
+      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/sessions</argument>
       <argument>MOCKSESSID</argument>
       <argument type="service">
         <service class="Symfony\Component\HttpFoundation\Session\Storage\MetadataBag">
@@ -3710,10 +3798,10 @@
     <service id="validator.mapping.cache_warmer" class="Symfony\Bundle\FrameworkBundle\CacheWarmer\ValidatorCacheWarmer">
       <tag name="kernel.cache_warmer"/>
       <argument type="service" id="validator.builder"/>
-      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/validation.php</argument>
+      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/validation.php</argument>
     </service>
     <service id="validator.mapping.cache.adapter" class="Symfony\Component\Cache\Adapter\PhpArrayAdapter" constructor="create">
-      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/validation.php</argument>
+      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/validation.php</argument>
       <argument type="service" id="cache.validator"/>
     </service>
     <service id="validator.validator_factory" class="Symfony\Component\Validator\ContainerConstraintValidatorFactory">
@@ -3982,7 +4070,7 @@
       <argument>+peV3BD3yg</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
-      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/system</argument>
+      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/system</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
@@ -4133,7 +4221,7 @@
       <argument type="service" id="twig.loader.native_filesystem"/>
       <argument type="collection">
         <argument key="autoescape">name</argument>
-        <argument key="cache">C:/Users/nmour/Downloads/symfony1/var/cache/dev/twig</argument>
+        <argument key="cache">C:\Users\nmour\Downloads\symfony1\var\cache\dev/twig</argument>
         <argument key="charset">UTF-8</argument>
         <argument key="debug">true</argument>
         <argument key="strict_variables">true</argument>
@@ -4172,6 +4260,9 @@
         <argument type="service" id="twig.extension.httpfoundation"/>
       </call>
       <call method="addExtension">
+        <argument type="service" id="twig.extension.weblink"/>
+      </call>
+      <call method="addExtension">
         <argument type="service" id="twig.extension.form"/>
       </call>
       <call method="addExtension">
@@ -4189,12 +4280,25 @@
       <call method="addExtension">
         <argument type="service" id="knp_paginator.twig.extension.pagination"/>
       </call>
+      <call method="addExtension">
+        <argument type="service" id="stimulus.ux_controllers_twig_extension"/>
+      </call>
+      <call method="addExtension">
+        <argument type="service" id="chartjs.twig_extension"/>
+      </call>
+      <call method="addExtension">
+        <argument type="service" id="stimulus.twig_extension"/>
+      </call>
       <call method="addGlobal">
         <argument>app</argument>
         <argument type="service" id="twig.app_variable"/>
       </call>
       <call method="addRuntimeLoader">
         <argument type="service" id="twig.runtime_loader"/>
+      </call>
+      <call method="addGlobal">
+        <argument>recaptcha_site_key</argument>
+        <argument>%env(RECAPTCHA_SITE_KEY)%</argument>
       </call>
       <call method="registerUndefinedFilterCallback">
         <argument type="collection">
@@ -4298,6 +4402,14 @@
         <argument>!KnpPaginator</argument>
       </call>
       <call method="addPath">
+        <argument>C:\Users\nmour\Downloads\symfony1\vendor\symfony\mercure-bundle\src/Resources/views</argument>
+        <argument>Mercure</argument>
+      </call>
+      <call method="addPath">
+        <argument>C:\Users\nmour\Downloads\symfony1\vendor\symfony\mercure-bundle\src/Resources/views</argument>
+        <argument>!Mercure</argument>
+      </call>
+      <call method="addPath">
         <argument>C:\Users\nmour\Downloads\symfony1/templates</argument>
       </call>
       <call method="addPath">
@@ -4372,6 +4484,7 @@
       <tag name="twig.extension"/>
     </service>
     <service id="twig.extension.weblink" class="Symfony\Bridge\Twig\Extension\WebLinkExtension">
+      <tag name="twig.extension"/>
       <argument type="service" id="request_stack"/>
     </service>
     <service id="twig.translation.extractor" class="Symfony\Bridge\Twig\Translation\TwigExtractor">
@@ -4851,7 +4964,7 @@
     <service id="doctrine.orm.configuration" class="Doctrine\ORM\Configuration" abstract="true"/>
     <service id="doctrine.orm.entity_manager.abstract" class="Doctrine\ORM\EntityManager" lazy="true" abstract="true"/>
     <service id="doctrine.orm.container_repository_factory" class="Doctrine\Bundle\DoctrineBundle\Repository\ContainerRepositoryFactory">
-      <argument type="service" id=".service_locator.faqqu11"/>
+      <argument type="service" id=".service_locator.7RjNWx8"/>
     </service>
     <service id="doctrine.orm.manager_configurator.abstract" class="Doctrine\Bundle\DoctrineBundle\ManagerConfigurator" abstract="true">
       <argument type="collection"/>
@@ -5074,7 +5187,7 @@
         <argument type="service" id=".doctrine.orm.default_metadata_driver"/>
       </call>
       <call method="setProxyDir">
-        <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/doctrine/orm/Proxies</argument>
+        <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/doctrine/orm/Proxies</argument>
       </call>
       <call method="setProxyNamespace">
         <argument>Proxies</argument>
@@ -5516,7 +5629,7 @@
       <argument>lPWV-56O7R</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
-      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/system</argument>
+      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/system</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
@@ -5535,7 +5648,7 @@
       <argument>Y9qagrRZ7J</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
-      <argument>C:/Users/nmour/Downloads/symfony1/var/cache/dev/pools/system</argument>
+      <argument>C:\Users\nmour\Downloads\symfony1\var\cache\dev/pools/system</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
@@ -5632,6 +5745,18 @@
         <argument type="service" id=".security.request_matcher.S4V.jF3"/>
         <argument type="collection">
           <argument>PUBLIC_ACCESS</argument>
+        </argument>
+        <argument>null</argument>
+      </call>
+      <call method="add">
+        <argument type="service" id=".security.request_matcher.Dkah0.q"/>
+        <argument type="collection">
+          <argument>ROLE_ADMIN</argument>
+          <argument>ROLE_ADMIN_DESTINATION</argument>
+          <argument>ROLE_ADMIN_ACCOMODATION</argument>
+          <argument>ROLE_ADMIN_OFFERS</argument>
+          <argument>ROLE_ADMIN_BLOG</argument>
+          <argument>ROLE_ADMIN_TRANSPORT</argument>
         </argument>
         <argument>null</argument>
       </call>
@@ -6223,6 +6348,14 @@
         <argument type="service" id=".security.request_matcher.MgrNqSg"/>
       </argument>
     </service>
+    <service id=".security.request_matcher.6_3qNyt" class="Symfony\Component\HttpFoundation\RequestMatcher\PathRequestMatcher">
+      <argument>^/blog/admin</argument>
+    </service>
+    <service id=".security.request_matcher.Dkah0.q" class="Symfony\Component\HttpFoundation\ChainRequestMatcher">
+      <argument type="collection">
+        <argument type="service" id=".security.request_matcher.6_3qNyt"/>
+      </argument>
+    </service>
     <service id=".security.request_matcher.obhk0jm" class="Symfony\Component\HttpFoundation\RequestMatcher\PathRequestMatcher">
       <argument>^/admin</argument>
     </service>
@@ -6309,6 +6442,24 @@
       <argument>page</argument>
       <argument>false</argument>
     </service>
+    <service id="stimulus.helper" class="Symfony\UX\StimulusBundle\Helper\StimulusHelper">
+      <argument type="service" id="twig" on-invalid="null"/>
+    </service>
+    <service id="stimulus.twig_extension" class="Symfony\UX\StimulusBundle\Twig\StimulusTwigExtension">
+      <tag name="twig.extension" priority="-10"/>
+      <argument type="service" id="stimulus.helper"/>
+    </service>
+    <service id="stimulus.asset_mapper.ux_package_reader" class="Symfony\UX\StimulusBundle\Ux\UxPackageReader">
+      <argument>C:\Users\nmour\Downloads\symfony1</argument>
+    </service>
+    <service id="stimulus.ux_controllers_twig_extension" class="Symfony\UX\StimulusBundle\Twig\UxControllersTwigExtension">
+      <tag name="twig.extension"/>
+    </service>
+    <service id="chartjs.builder" class="Symfony\UX\Chartjs\Builder\ChartBuilder"/>
+    <service id="chartjs.twig_extension" class="Symfony\UX\Chartjs\Twig\ChartExtension">
+      <tag name="twig.extension"/>
+      <argument type="service" id="stimulus.helper"/>
+    </service>
     <service id=".instanceof.Symfony\Component\Console\Command\Command.0.App\Command\FixAdminCommand" class="App\Command\FixAdminCommand" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Command\FixAdminCommand" class="App\Command\FixAdminCommand" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Component\Console\Command\Command.0.App\Command\HashPasswordsCommand" class="App\Command\HashPasswordsCommand" autowire="true" abstract="true"/>
@@ -6392,6 +6543,9 @@
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\user\FrontPacksController" class="App\Controller\user\FrontPacksController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\user\FrontPacksController" class="App\Controller\user\FrontPacksController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\user\FrontPacksController" class="App\Controller\user\FrontPacksController" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\user\LiveController" class="App\Controller\user\LiveController" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\user\LiveController" class="App\Controller\user\LiveController" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Controller\user\LiveController" class="App\Controller\user\LiveController" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\user\MyBookingsController" class="App\Controller\user\MyBookingsController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\user\MyBookingsController" class="App\Controller\user\MyBookingsController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\user\MyBookingsController" class="App\Controller\user\MyBookingsController" autowire="true" autoconfigure="true" abstract="true"/>
@@ -6401,6 +6555,9 @@
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\user\PricePredictionController" class="App\Controller\user\PricePredictionController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\user\PricePredictionController" class="App\Controller\user\PricePredictionController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\user\PricePredictionController" class="App\Controller\user\PricePredictionController" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\user\ProfileController" class="App\Controller\user\ProfileController" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\user\ProfileController" class="App\Controller\user\ProfileController" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Controller\user\ProfileController" class="App\Controller\user\ProfileController" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\user\ReactionController" class="App\Controller\user\ReactionController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\user\ReactionController" class="App\Controller\user\ReactionController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\user\ReactionController" class="App\Controller\user\ReactionController" autowire="true" autoconfigure="true" abstract="true"/>
@@ -6461,6 +6618,14 @@
     <service id=".abstract.instanceof.App\Repository\DestinationTransRepository" class="App\Repository\DestinationTransRepository" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\FollowingRepository" class="App\Repository\FollowingRepository" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Repository\FollowingRepository" class="App\Repository\FollowingRepository" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\LiveCommentRepository" class="App\Repository\LiveCommentRepository" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Repository\LiveCommentRepository" class="App\Repository\LiveCommentRepository" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\LiveReactionRepository" class="App\Repository\LiveReactionRepository" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Repository\LiveReactionRepository" class="App\Repository\LiveReactionRepository" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\LiveSessionRepository" class="App\Repository\LiveSessionRepository" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Repository\LiveSessionRepository" class="App\Repository\LiveSessionRepository" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\LiveSessionViewerRepository" class="App\Repository\LiveSessionViewerRepository" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Repository\LiveSessionViewerRepository" class="App\Repository\LiveSessionViewerRepository" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\PostRepository" class="App\Repository\PostRepository" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Repository\PostRepository" class="App\Repository\PostRepository" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\ReactionRepository" class="App\Repository\ReactionRepository" autowire="true" abstract="true"/>
@@ -6964,6 +7129,14 @@
         <argument key="repo" type="service_closure" id="App\Repository\ActivityRepository"/>
       </argument>
     </service>
+    <service id=".service_locator.uy9JhDI" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="chartBuilder" type="service_closure" id="chartjs.builder"/>
+        <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+        <argument key="moderationRecordService" type="service_closure" id="App\service\ModerationRecordService"/>
+      </argument>
+    </service>
     <service id=".service_locator.rqfqJiJ" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
@@ -7013,12 +7186,13 @@
         <argument key="tsRepository" type="service_closure" id="App\Repository\TravelStoryRepository"/>
       </argument>
     </service>
-    <service id=".service_locator.uqbn8U3" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.1hWEiXf" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="blogProfileRepository" type="service_closure" id="App\Repository\BlogProfileRepository"/>
         <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
         <argument key="followingRepository" type="service_closure" id="App\Repository\FollowingRepository"/>
+        <argument key="liveSessionRepository" type="service_closure" id="App\Repository\LiveSessionRepository"/>
         <argument key="postRepository" type="service_closure" id="App\Repository\PostRepository"/>
         <argument key="storyRepository" type="service_closure" id="App\Repository\StoryRepository"/>
         <argument key="travelStoryRepository" type="service_closure" id="App\Repository\TravelStoryRepository"/>
@@ -7045,6 +7219,21 @@
         <argument key="gemini" type="service_closure" id="App\service\GeminiService"/>
       </argument>
     </service>
+    <service id=".service_locator.N8t_O_t" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="botProtectionService" type="service_closure" id="App\service\BotProtectionService"/>
+        <argument key="contentModerationService" type="service_closure" id="App\service\ContentModerationService"/>
+        <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+      </argument>
+    </service>
+    <service id=".service_locator.HdrQbXP" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="contentModerationService" type="service_closure" id="App\service\ContentModerationService"/>
+        <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+      </argument>
+    </service>
     <service id=".service_locator.cnUb0Hd" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
@@ -7058,10 +7247,77 @@
         <argument key="followingRepo" type="service_closure" id="App\Repository\FollowingRepository"/>
       </argument>
     </service>
-    <service id=".service_locator.P3uOD4s" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.ohyOHkM" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="reactionRepository" type="service_closure" id="App\Repository\LiveReactionRepository"/>
+        <argument key="sessionRepository" type="service_closure" id="App\Repository\LiveSessionRepository"/>
+        <argument key="viewerRepository" type="service_closure" id="App\Repository\LiveSessionViewerRepository"/>
+      </argument>
+    </service>
+    <service id=".service_locator._3gJj7f" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="botProtectionService" type="service_closure" id="App\service\BotProtectionService"/>
+        <argument key="contentModerationService" type="service_closure" id="App\service\ContentModerationService"/>
+        <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+        <argument key="reactionRepository" type="service_closure" id="App\Repository\LiveReactionRepository"/>
+        <argument key="sessionRepository" type="service_closure" id="App\Repository\LiveSessionRepository"/>
+        <argument key="viewerRepository" type="service_closure" id="App\Repository\LiveSessionViewerRepository"/>
+      </argument>
+    </service>
+    <service id=".service_locator.jV1Acjb" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+        <argument key="viewerRepository" type="service_closure" id="App\Repository\LiveSessionViewerRepository"/>
+      </argument>
+    </service>
+    <service id=".service_locator.UZ.ekux" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+        <argument key="reactionRepository" type="service_closure" id="App\Repository\LiveReactionRepository"/>
+      </argument>
+    </service>
+    <service id=".service_locator.EA6LsQ_" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="commentRepository" type="service_closure" id="App\Repository\LiveCommentRepository"/>
+        <argument key="reactionRepository" type="service_closure" id="App\Repository\LiveReactionRepository"/>
+        <argument key="sessionRepository" type="service_closure" id="App\Repository\LiveSessionRepository"/>
+        <argument key="viewerRepository" type="service_closure" id="App\Repository\LiveSessionViewerRepository"/>
+      </argument>
+    </service>
+    <service id=".service_locator.oEBI9jR" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="sessionRepository" type="service_closure" id="App\Repository\LiveSessionRepository"/>
+      </argument>
+    </service>
+    <service id=".service_locator.YITS9bL" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+        <argument key="sessionRepository" type="service_closure" id="App\Repository\LiveSessionRepository"/>
+      </argument>
+    </service>
+    <service id=".service_locator.QWXjtgZ" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="botProtectionService" type="service_closure" id="App\service\BotProtectionService"/>
+        <argument key="contentModerationService" type="service_closure" id="App\service\ContentModerationService"/>
+        <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+        <argument key="moderationRecordService" type="service_closure" id="App\service\ModerationRecordService"/>
+        <argument key="slugger" type="service_closure" id="slugger"/>
+      </argument>
+    </service>
+    <service id=".service_locator.OfMjHYS" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="contentModerationService" type="service_closure" id="App\service\ContentModerationService"/>
+        <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+        <argument key="moderationRecordService" type="service_closure" id="App\service\ModerationRecordService"/>
         <argument key="slugger" type="service_closure" id="slugger"/>
       </argument>
     </service>
@@ -7071,11 +7327,30 @@
         <argument key="pricePredictionService" type="service_closure" id="App\service\PricePredictionService"/>
       </argument>
     </service>
+    <service id=".service_locator.eKyZePg" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+        <argument key="followingRepository" type="service_closure" id="App\Repository\FollowingRepository"/>
+        <argument key="postRepository" type="service_closure" id="App\Repository\PostRepository"/>
+        <argument key="storyRepository" type="service_closure" id="App\Repository\StoryRepository"/>
+        <argument key="travelStoryRepository" type="service_closure" id="App\Repository\TravelStoryRepository"/>
+      </argument>
+    </service>
     <service id=".service_locator.66gHImX" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
         <argument key="mailer" type="service_closure" id="mailer.mailer"/>
+      </argument>
+    </service>
+    <service id=".service_locator.ykznSMT" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="botProtectionService" type="service_closure" id="App\service\BotProtectionService"/>
+        <argument key="contentModerationService" type="service_closure" id="App\service\ContentModerationService"/>
+        <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+        <argument key="slugger" type="service_closure" id="slugger"/>
       </argument>
     </service>
     <service id=".service_locator.ZogaELX" class="Symfony\Component\DependencyInjection\ServiceLocator">
@@ -7103,9 +7378,11 @@
         <argument key="travelStoryRepository" type="service_closure" id="App\Repository\TravelStoryRepository"/>
       </argument>
     </service>
-    <service id=".service_locator.LNwsF6h" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.5DObpjU" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
+        <argument key="botProtectionService" type="service_closure" id="App\service\BotProtectionService"/>
+        <argument key="contentModerationService" type="service_closure" id="App\service\ContentModerationService"/>
         <argument key="entityManager" type="service_closure" id="doctrine.orm.default_entity_manager"/>
         <argument key="slugger" type="service_closure" id="slugger"/>
       </argument>
@@ -7117,12 +7394,14 @@
         <argument key="travelStory" type="service_closure" id=".errored..service_locator.By014CM.App\Entity\TravelStory"/>
       </argument>
     </service>
-    <service id=".service_locator.HGK3GJE" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.pf3aHGG" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
+        <argument key="botProtectionService" type="service_closure" id="App\service\BotProtectionService"/>
+        <argument key="contentModerationService" type="service_closure" id="App\service\ContentModerationService"/>
         <argument key="entityManager" type="service_closure" id="doctrine.orm.default_entity_manager"/>
         <argument key="slugger" type="service_closure" id="slugger"/>
-        <argument key="travelStory" type="service_closure" id=".errored..service_locator.HGK3GJE.App\Entity\TravelStory"/>
+        <argument key="travelStory" type="service_closure" id=".errored..service_locator.pf3aHGG.App\Entity\TravelStory"/>
       </argument>
     </service>
     <service id=".service_locator.aPvvAg5" class="Symfony\Component\DependencyInjection\ServiceLocator">
@@ -7131,7 +7410,7 @@
         <argument key="httpClient" type="service_closure" id="http_client.uri_template"/>
       </argument>
     </service>
-    <service id=".service_locator.FWCfwU." class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.rlbbtSE" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="App\Controller\ActivityController::log" type="service_closure" id=".service_locator.9kKwU2t"/>
@@ -7150,10 +7429,13 @@
         <argument key="App\Controller\admin\AdminController::userDetail" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\admin\AdminController::users" type="service_closure" id=".service_locator.ZUwwaRD"/>
         <argument key="App\Controller\admin\BlogAdminController::approve" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\admin\BlogAdminController::bulkAction" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\admin\BlogAdminController::delete" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\admin\BlogAdminController::deleteComment" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\admin\BlogAdminController::deleteIgStory" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\admin\BlogAdminController::deleteLiveSession" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\admin\BlogAdminController::deleteStory" type="service_closure" id=".service_locator.9kKwU2t"/>
-        <argument key="App\Controller\admin\BlogAdminController::index" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\admin\BlogAdminController::index" type="service_closure" id=".service_locator.uy9JhDI"/>
         <argument key="App\Controller\admin\BlogAdminController::reject" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\admin\BlogAdminController::showPost" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\admin\BlogAdminController::showStory" type="service_closure" id=".service_locator.9kKwU2t"/>
@@ -7170,41 +7452,59 @@
         <argument key="App\Controller\user\BlogController::userNames" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\BlogProfileController::archive" type="service_closure" id=".service_locator.KkdZ2zt"/>
         <argument key="App\Controller\user\BlogProfileController::edit" type="service_closure" id=".service_locator.WUBwqdy"/>
-        <argument key="App\Controller\user\BlogProfileController::show" type="service_closure" id=".service_locator.uqbn8U3"/>
+        <argument key="App\Controller\user\BlogProfileController::show" type="service_closure" id=".service_locator.1hWEiXf"/>
         <argument key="App\Controller\user\ChatController::chat" type="service_closure" id=".service_locator.dCNpF2s"/>
-        <argument key="App\Controller\user\CommentController::create" type="service_closure" id=".service_locator.9kKwU2t"/>
-        <argument key="App\Controller\user\CommentController::createForTravelStory" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\user\CommentController::create" type="service_closure" id=".service_locator.N8t_O_t"/>
+        <argument key="App\Controller\user\CommentController::createForTravelStory" type="service_closure" id=".service_locator.N8t_O_t"/>
         <argument key="App\Controller\user\CommentController::delete" type="service_closure" id=".service_locator.9kKwU2t"/>
-        <argument key="App\Controller\user\CommentController::edit" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\user\CommentController::edit" type="service_closure" id=".service_locator.HdrQbXP"/>
         <argument key="App\Controller\user\DestinationsController::bookingForm" type="service_closure" id=".service_locator.SoIa2O7"/>
         <argument key="App\Controller\user\FollowController::myStats" type="service_closure" id=".service_locator.cnUb0Hd"/>
         <argument key="App\Controller\user\FollowController::status" type="service_closure" id=".service_locator.B2PCAxH"/>
         <argument key="App\Controller\user\FollowController::toggle" type="service_closure" id=".service_locator.cnUb0Hd"/>
-        <argument key="App\Controller\user\PostController::create" type="service_closure" id=".service_locator.P3uOD4s"/>
+        <argument key="App\Controller\user\LiveController::comment" type="service_closure" id=".service_locator.N8t_O_t"/>
+        <argument key="App\Controller\user\LiveController::delete" type="service_closure" id=".service_locator.YITS9bL"/>
+        <argument key="App\Controller\user\LiveController::dismissRemoved" type="service_closure" id=".service_locator.YITS9bL"/>
+        <argument key="App\Controller\user\LiveController::end" type="service_closure" id=".service_locator.jV1Acjb"/>
+        <argument key="App\Controller\user\LiveController::join" type="service_closure" id=".service_locator.jV1Acjb"/>
+        <argument key="App\Controller\user\LiveController::leave" type="service_closure" id=".service_locator.jV1Acjb"/>
+        <argument key="App\Controller\user\LiveController::list" type="service_closure" id=".service_locator.ohyOHkM"/>
+        <argument key="App\Controller\user\LiveController::react" type="service_closure" id=".service_locator.UZ.ekux"/>
+        <argument key="App\Controller\user\LiveController::start" type="service_closure" id=".service_locator._3gJj7f"/>
+        <argument key="App\Controller\user\LiveController::state" type="service_closure" id=".service_locator.EA6LsQ_"/>
+        <argument key="App\Controller\user\LiveController::token" type="service_closure" id=".service_locator.oEBI9jR"/>
+        <argument key="App\Controller\user\LiveController::uploadRecording" type="service_closure" id=".service_locator.YITS9bL"/>
+        <argument key="App\Controller\user\PostController::create" type="service_closure" id=".service_locator.QWXjtgZ"/>
         <argument key="App\Controller\user\PostController::delete" type="service_closure" id=".service_locator.9kKwU2t"/>
-        <argument key="App\Controller\user\PostController::edit" type="service_closure" id=".service_locator.P3uOD4s"/>
+        <argument key="App\Controller\user\PostController::dismissRemoved" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\user\PostController::edit" type="service_closure" id=".service_locator.OfMjHYS"/>
         <argument key="App\Controller\user\PostController::show" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\PricePredictionController::createPriceAlert" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\PricePredictionController::dashboard" type="service_closure" id=".service_locator.Yn5um30"/>
         <argument key="App\Controller\user\PricePredictionController::feedAlerts" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\user\ProfileController::archive" type="service_closure" id=".service_locator.KkdZ2zt"/>
+        <argument key="App\Controller\user\ProfileController::edit" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\user\ProfileController::show" type="service_closure" id=".service_locator.eKyZePg"/>
         <argument key="App\Controller\user\ReactionController::reactToComment" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\ReactionController::reactToPost" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\ReactionController::reactToTravelStory" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\ResetPasswordController::forgotPassword" type="service_closure" id=".service_locator.66gHImX"/>
         <argument key="App\Controller\user\SavedPostController::saved" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\SavedPostController::toggle" type="service_closure" id=".service_locator.9kKwU2t"/>
-        <argument key="App\Controller\user\StoryController::create" type="service_closure" id=".service_locator.P3uOD4s"/>
+        <argument key="App\Controller\user\StoryController::create" type="service_closure" id=".service_locator.ykznSMT"/>
         <argument key="App\Controller\user\StoryController::delete" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\user\StoryController::dismissRemoved" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\StoryController::listByUser" type="service_closure" id=".service_locator.ZogaELX"/>
         <argument key="App\Controller\user\StoryController::markSeen" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\StoryController::viewers" type="service_closure" id=".service_locator.uwThabE"/>
         <argument key="App\Controller\user\TestGeminiController::test" type="service_closure" id=".service_locator.ZBf0eUd"/>
         <argument key="App\Controller\user\TravelStoryController::aiAssist" type="service_closure" id=".service_locator.aPvvAg5"/>
         <argument key="App\Controller\user\TravelStoryController::delete" type="service_closure" id=".service_locator.By014CM"/>
-        <argument key="App\Controller\user\TravelStoryController::edit" type="service_closure" id=".service_locator.HGK3GJE"/>
+        <argument key="App\Controller\user\TravelStoryController::dismissRemoved" type="service_closure" id=".service_locator.By014CM"/>
+        <argument key="App\Controller\user\TravelStoryController::edit" type="service_closure" id=".service_locator.pf3aHGG"/>
         <argument key="App\Controller\user\TravelStoryController::geocodeDestination" type="service_closure" id=".service_locator.aPvvAg5"/>
         <argument key="App\Controller\user\TravelStoryController::index" type="service_closure" id=".service_locator.D0T7klK"/>
-        <argument key="App\Controller\user\TravelStoryController::new" type="service_closure" id=".service_locator.LNwsF6h"/>
+        <argument key="App\Controller\user\TravelStoryController::new" type="service_closure" id=".service_locator.5DObpjU"/>
         <argument key="App\Controller\user\TravelStoryController::show" type="service_closure" id=".service_locator.By014CM"/>
         <argument key="App\Kernel::loadRoutes" type="service_closure" id=".service_locator.y4_Zrx."/>
         <argument key="App\Kernel::registerContainerConfiguration" type="service_closure" id=".service_locator.y4_Zrx."/>
@@ -7226,10 +7526,13 @@
         <argument key="App\Controller\admin\AdminController:userDetail" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\admin\AdminController:users" type="service_closure" id=".service_locator.ZUwwaRD"/>
         <argument key="App\Controller\admin\BlogAdminController:approve" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\admin\BlogAdminController:bulkAction" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\admin\BlogAdminController:delete" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\admin\BlogAdminController:deleteComment" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\admin\BlogAdminController:deleteIgStory" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\admin\BlogAdminController:deleteLiveSession" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\admin\BlogAdminController:deleteStory" type="service_closure" id=".service_locator.9kKwU2t"/>
-        <argument key="App\Controller\admin\BlogAdminController:index" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\admin\BlogAdminController:index" type="service_closure" id=".service_locator.uy9JhDI"/>
         <argument key="App\Controller\admin\BlogAdminController:reject" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\admin\BlogAdminController:showPost" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\admin\BlogAdminController:showStory" type="service_closure" id=".service_locator.9kKwU2t"/>
@@ -7246,41 +7549,59 @@
         <argument key="App\Controller\user\BlogController:userNames" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\BlogProfileController:archive" type="service_closure" id=".service_locator.KkdZ2zt"/>
         <argument key="App\Controller\user\BlogProfileController:edit" type="service_closure" id=".service_locator.WUBwqdy"/>
-        <argument key="App\Controller\user\BlogProfileController:show" type="service_closure" id=".service_locator.uqbn8U3"/>
+        <argument key="App\Controller\user\BlogProfileController:show" type="service_closure" id=".service_locator.1hWEiXf"/>
         <argument key="App\Controller\user\ChatController:chat" type="service_closure" id=".service_locator.dCNpF2s"/>
-        <argument key="App\Controller\user\CommentController:create" type="service_closure" id=".service_locator.9kKwU2t"/>
-        <argument key="App\Controller\user\CommentController:createForTravelStory" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\user\CommentController:create" type="service_closure" id=".service_locator.N8t_O_t"/>
+        <argument key="App\Controller\user\CommentController:createForTravelStory" type="service_closure" id=".service_locator.N8t_O_t"/>
         <argument key="App\Controller\user\CommentController:delete" type="service_closure" id=".service_locator.9kKwU2t"/>
-        <argument key="App\Controller\user\CommentController:edit" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\user\CommentController:edit" type="service_closure" id=".service_locator.HdrQbXP"/>
         <argument key="App\Controller\user\DestinationsController:bookingForm" type="service_closure" id=".service_locator.SoIa2O7"/>
         <argument key="App\Controller\user\FollowController:myStats" type="service_closure" id=".service_locator.cnUb0Hd"/>
         <argument key="App\Controller\user\FollowController:status" type="service_closure" id=".service_locator.B2PCAxH"/>
         <argument key="App\Controller\user\FollowController:toggle" type="service_closure" id=".service_locator.cnUb0Hd"/>
-        <argument key="App\Controller\user\PostController:create" type="service_closure" id=".service_locator.P3uOD4s"/>
+        <argument key="App\Controller\user\LiveController:comment" type="service_closure" id=".service_locator.N8t_O_t"/>
+        <argument key="App\Controller\user\LiveController:delete" type="service_closure" id=".service_locator.YITS9bL"/>
+        <argument key="App\Controller\user\LiveController:dismissRemoved" type="service_closure" id=".service_locator.YITS9bL"/>
+        <argument key="App\Controller\user\LiveController:end" type="service_closure" id=".service_locator.jV1Acjb"/>
+        <argument key="App\Controller\user\LiveController:join" type="service_closure" id=".service_locator.jV1Acjb"/>
+        <argument key="App\Controller\user\LiveController:leave" type="service_closure" id=".service_locator.jV1Acjb"/>
+        <argument key="App\Controller\user\LiveController:list" type="service_closure" id=".service_locator.ohyOHkM"/>
+        <argument key="App\Controller\user\LiveController:react" type="service_closure" id=".service_locator.UZ.ekux"/>
+        <argument key="App\Controller\user\LiveController:start" type="service_closure" id=".service_locator._3gJj7f"/>
+        <argument key="App\Controller\user\LiveController:state" type="service_closure" id=".service_locator.EA6LsQ_"/>
+        <argument key="App\Controller\user\LiveController:token" type="service_closure" id=".service_locator.oEBI9jR"/>
+        <argument key="App\Controller\user\LiveController:uploadRecording" type="service_closure" id=".service_locator.YITS9bL"/>
+        <argument key="App\Controller\user\PostController:create" type="service_closure" id=".service_locator.QWXjtgZ"/>
         <argument key="App\Controller\user\PostController:delete" type="service_closure" id=".service_locator.9kKwU2t"/>
-        <argument key="App\Controller\user\PostController:edit" type="service_closure" id=".service_locator.P3uOD4s"/>
+        <argument key="App\Controller\user\PostController:dismissRemoved" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\user\PostController:edit" type="service_closure" id=".service_locator.OfMjHYS"/>
         <argument key="App\Controller\user\PostController:show" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\PricePredictionController:createPriceAlert" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\PricePredictionController:dashboard" type="service_closure" id=".service_locator.Yn5um30"/>
         <argument key="App\Controller\user\PricePredictionController:feedAlerts" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\user\ProfileController:archive" type="service_closure" id=".service_locator.KkdZ2zt"/>
+        <argument key="App\Controller\user\ProfileController:edit" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\user\ProfileController:show" type="service_closure" id=".service_locator.eKyZePg"/>
         <argument key="App\Controller\user\ReactionController:reactToComment" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\ReactionController:reactToPost" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\ReactionController:reactToTravelStory" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\ResetPasswordController:forgotPassword" type="service_closure" id=".service_locator.66gHImX"/>
         <argument key="App\Controller\user\SavedPostController:saved" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\SavedPostController:toggle" type="service_closure" id=".service_locator.9kKwU2t"/>
-        <argument key="App\Controller\user\StoryController:create" type="service_closure" id=".service_locator.P3uOD4s"/>
+        <argument key="App\Controller\user\StoryController:create" type="service_closure" id=".service_locator.ykznSMT"/>
         <argument key="App\Controller\user\StoryController:delete" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\user\StoryController:dismissRemoved" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\StoryController:listByUser" type="service_closure" id=".service_locator.ZogaELX"/>
         <argument key="App\Controller\user\StoryController:markSeen" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\user\StoryController:viewers" type="service_closure" id=".service_locator.uwThabE"/>
         <argument key="App\Controller\user\TestGeminiController:test" type="service_closure" id=".service_locator.ZBf0eUd"/>
         <argument key="App\Controller\user\TravelStoryController:aiAssist" type="service_closure" id=".service_locator.aPvvAg5"/>
         <argument key="App\Controller\user\TravelStoryController:delete" type="service_closure" id=".service_locator.By014CM"/>
-        <argument key="App\Controller\user\TravelStoryController:edit" type="service_closure" id=".service_locator.HGK3GJE"/>
+        <argument key="App\Controller\user\TravelStoryController:dismissRemoved" type="service_closure" id=".service_locator.By014CM"/>
+        <argument key="App\Controller\user\TravelStoryController:edit" type="service_closure" id=".service_locator.pf3aHGG"/>
         <argument key="App\Controller\user\TravelStoryController:geocodeDestination" type="service_closure" id=".service_locator.aPvvAg5"/>
         <argument key="App\Controller\user\TravelStoryController:index" type="service_closure" id=".service_locator.D0T7klK"/>
-        <argument key="App\Controller\user\TravelStoryController:new" type="service_closure" id=".service_locator.LNwsF6h"/>
+        <argument key="App\Controller\user\TravelStoryController:new" type="service_closure" id=".service_locator.5DObpjU"/>
         <argument key="App\Controller\user\TravelStoryController:show" type="service_closure" id=".service_locator.By014CM"/>
         <argument key="kernel:loadRoutes" type="service_closure" id=".service_locator.y4_Zrx."/>
         <argument key="kernel:registerContainerConfiguration" type="service_closure" id=".service_locator.y4_Zrx."/>
@@ -7392,7 +7713,7 @@
         <argument key="doctrine.orm.listeners.pdo_session_handler_schema_listener" type="service_closure" id="doctrine.orm.listeners.pdo_session_handler_schema_listener"/>
       </argument>
     </service>
-    <service id=".service_locator.faqqu11" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.7RjNWx8" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="App\Repository\AccommodationRepository" type="service_closure" id="App\Repository\AccommodationRepository"/>
@@ -7405,6 +7726,10 @@
         <argument key="App\Repository\DestinationRepository" type="service_closure" id="App\Repository\DestinationRepository"/>
         <argument key="App\Repository\DestinationTransRepository" type="service_closure" id="App\Repository\DestinationTransRepository"/>
         <argument key="App\Repository\FollowingRepository" type="service_closure" id="App\Repository\FollowingRepository"/>
+        <argument key="App\Repository\LiveCommentRepository" type="service_closure" id="App\Repository\LiveCommentRepository"/>
+        <argument key="App\Repository\LiveReactionRepository" type="service_closure" id="App\Repository\LiveReactionRepository"/>
+        <argument key="App\Repository\LiveSessionRepository" type="service_closure" id="App\Repository\LiveSessionRepository"/>
+        <argument key="App\Repository\LiveSessionViewerRepository" type="service_closure" id="App\Repository\LiveSessionViewerRepository"/>
         <argument key="App\Repository\PostRepository" type="service_closure" id="App\Repository\PostRepository"/>
         <argument key="App\Repository\ReactionRepository" type="service_closure" id="App\Repository\ReactionRepository"/>
         <argument key="App\Repository\RoomImagesRepository" type="service_closure" id="App\Repository\RoomImagesRepository"/>
@@ -7596,6 +7921,7 @@
         <argument key="security.csrf.token_manager" type="service_closure" id="security.csrf.token_manager" on-invalid="ignore"/>
         <argument key="security.token_storage" type="service_closure" id="security.token_storage" on-invalid="ignore"/>
         <argument key="twig" type="service_closure" id="twig" on-invalid="ignore"/>
+        <argument key="web_link.http_header_serializer" type="service_closure" id="web_link.http_header_serializer" on-invalid="ignore"/>
       </argument>
     </service>
     <service id=".service_locator.O2p6Lk7.App\Controller\ActivityController" class="Symfony\Component\DependencyInjection\ServiceLocator">
@@ -7748,6 +8074,12 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.O2p6Lk7" method="withContext"/>
     </service>
+    <service id=".service_locator.O2p6Lk7.App\Controller\user\LiveController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\user\LiveController"/>
+      <argument>App\Controller\user\LiveController</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.O2p6Lk7" method="withContext"/>
+    </service>
     <service id=".service_locator.O2p6Lk7.App\Controller\user\MyBookingsController" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="App\Controller\user\MyBookingsController"/>
       <argument>App\Controller\user\MyBookingsController</argument>
@@ -7763,6 +8095,12 @@
     <service id=".service_locator.O2p6Lk7.App\Controller\user\PricePredictionController" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="App\Controller\user\PricePredictionController"/>
       <argument>App\Controller\user\PricePredictionController</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.O2p6Lk7" method="withContext"/>
+    </service>
+    <service id=".service_locator.O2p6Lk7.App\Controller\user\ProfileController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\user\ProfileController"/>
+      <argument>App\Controller\user\ProfileController</argument>
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.O2p6Lk7" method="withContext"/>
     </service>
@@ -7999,9 +8337,11 @@
           <argument>App\Controller\user\FrontAccommodationController</argument>
           <argument>App\Controller\user\FrontController</argument>
           <argument>App\Controller\user\FrontPacksController</argument>
+          <argument>App\Controller\user\LiveController</argument>
           <argument>App\Controller\user\MyBookingsController</argument>
           <argument>App\Controller\user\PostController</argument>
           <argument>App\Controller\user\PricePredictionController</argument>
+          <argument>App\Controller\user\ProfileController</argument>
           <argument>App\Controller\user\ReactionController</argument>
           <argument>App\Controller\user\ResetPasswordController</argument>
           <argument>App\Controller\user\SavedPostController</argument>
@@ -8063,8 +8403,8 @@
     <service id=".errored..service_locator.By014CM.App\Entity\TravelStory" class="App\Entity\TravelStory">
       <tag name="container.error" message="Cannot autowire service &quot;.service_locator.By014CM&quot;: it needs an instance of &quot;App\Entity\TravelStory&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
     </service>
-    <service id=".errored..service_locator.HGK3GJE.App\Entity\TravelStory" class="App\Entity\TravelStory">
-      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.HGK3GJE&quot;: it needs an instance of &quot;App\Entity\TravelStory&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
+    <service id=".errored..service_locator.pf3aHGG.App\Entity\TravelStory" class="App\Entity\TravelStory">
+      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.pf3aHGG&quot;: it needs an instance of &quot;App\Entity\TravelStory&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
     </service>
     <service id=".App\Command\FixAdminCommand.lazy" class="Symfony\Component\Console\Command\LazyCommand">
       <argument>app:fix-admin</argument>
@@ -8934,6 +9274,7 @@
     <service id="Symfony\Component\PropertyInfo\PropertyInitializableExtractorInterface" alias="property_info"/>
     <service id="Symfony\Component\PropertyInfo\PropertyReadInfoExtractorInterface" alias="property_info.reflection_extractor"/>
     <service id="Symfony\Component\PropertyInfo\PropertyWriteInfoExtractorInterface" alias="property_info.reflection_extractor"/>
+    <service id="Symfony\Component\WebLink\HttpHeaderSerializer" alias="web_link.http_header_serializer"/>
     <service id="cache.default_redis_provider" alias=".cache_connection.GD_MSZC"/>
     <service id="cache.default_memcached_provider" alias=".cache_connection.JKE6keX"/>
     <service id="cache.default_doctrine_dbal_provider" alias="doctrine.dbal.default_connection"/>
@@ -9003,21 +9344,34 @@
     <service id="Symfony\Component\Security\Core\User\UserCheckerInterface" alias="security.user_checker"/>
     <service id="Knp\Component\Pager\PaginatorInterface" alias="knp_paginator"/>
     <service id="Knp\Component\Pager\ArgumentAccess\ArgumentAccessInterface" alias="Knp\Component\Pager\ArgumentAccess\RequestArgumentAccess"/>
+    <service id="Symfony\UX\Chartjs\Builder\ChartBuilderInterface" alias="chartjs.builder"/>
     <service id="container.env_var_processors_locator" alias=".service_locator.w7.f4fT" public="true"/>
     <service id="twig.loader.filesystem" alias="twig.loader.native_filesystem"/>
-    <service id="argument_resolver.controller_locator" alias=".service_locator.FWCfwU."/>
+    <service id="argument_resolver.controller_locator" alias=".service_locator.rlbbtSE"/>
     <service id="twig.loader" alias="twig.loader.native_filesystem"/>
     <service id="doctrine.id_generator_locator" alias=".service_locator.KLVvNIq"/>
     <service id="Psr\Log\LoggerInterface" alias="logger"/>
     <service id=".service_locator.bJ.4HC5" alias=".service_locator.w7.f4fT"/>
     <service id=".service_locator.BDhd.dr" alias=".service_locator.PRkINEj"/>
+    <service id=".service_locator.1VIM9K9" alias=".service_locator.uy9JhDI"/>
     <service id=".service_locator.TlX0bfG" alias=".service_locator.6kYQa_a"/>
-    <service id=".service_locator.kWeAGrr" alias=".service_locator.uqbn8U3"/>
+    <service id=".service_locator.Q_6wO7N" alias=".service_locator.1hWEiXf"/>
     <service id=".service_locator..0yUjeb" alias=".service_locator.WUBwqdy"/>
     <service id=".service_locator.8K0LQzh" alias=".service_locator.dCNpF2s"/>
+    <service id=".service_locator.WtvFhWE" alias=".service_locator.N8t_O_t"/>
+    <service id=".service_locator.Vqx9gtA" alias=".service_locator.HdrQbXP"/>
+    <service id=".service_locator.E5I7Ku8" alias=".service_locator.ohyOHkM"/>
+    <service id=".service_locator.evS7iBc" alias=".service_locator._3gJj7f"/>
+    <service id=".service_locator.FyC0lwa" alias=".service_locator.EA6LsQ_"/>
+    <service id=".service_locator._qP9HbV" alias=".service_locator.YITS9bL"/>
+    <service id=".service_locator.iyTaAcp" alias=".service_locator.QWXjtgZ"/>
+    <service id=".service_locator..no4e54" alias=".service_locator.OfMjHYS"/>
+    <service id=".service_locator.YDwSgx2" alias=".service_locator.eKyZePg"/>
+    <service id=".service_locator.hryNKBF" alias=".service_locator.ykznSMT"/>
+    <service id=".service_locator.c9jSEUp" alias=".service_locator.5DObpjU"/>
     <service id=".service_locator.8XrMFzH" alias=".service_locator.By014CM"/>
-    <service id=".service_locator.ZeFzLsu" alias=".service_locator.HGK3GJE"/>
-    <service id=".service_locator._aMbamP" alias=".service_locator.FWCfwU."/>
+    <service id=".service_locator.6E07BZ1" alias=".service_locator.pf3aHGG"/>
+    <service id=".service_locator.DAxBDew" alias=".service_locator.rlbbtSE"/>
     <service id=".service_locator.Blc_TTv" alias=".service_locator.xEtfc9T"/>
     <service id=".service_locator.s7qvCS9" alias=".service_locator.XLUr0sJ"/>
     <service id=".service_locator.LMuqDDe" alias=".service_locator.VHsrTPK"/>
@@ -9043,6 +9397,7 @@
     <service id=".service_locator.88Hujv9" alias=".service_locator.bYqs9Eo"/>
     <service id=".service_locator.8ueWkvG" alias=".service_locator.pwwCS.s"/>
     <service id=".service_locator.TCIfP5z" alias=".service_locator.bThH7mx"/>
+    <service id=".service_locator.3z8e4ds" alias=".service_locator.uy9JhDI"/>
     <service id=".service_locator.KzBEmp2" alias=".service_locator.rqfqJiJ"/>
     <service id=".service_locator.FLEzpnY" alias=".service_locator.w.6UMfy"/>
     <service id=".service_locator.yArDdtI" alias=".service_locator.ATt7aga"/>
@@ -9050,24 +9405,36 @@
     <service id=".service_locator.w6qjOtf" alias=".service_locator.VIY6kUB"/>
     <service id=".service_locator.jDJcWKN" alias=".service_locator.6kYQa_a"/>
     <service id=".service_locator.OeX1E3v" alias=".service_locator.dlGbfkH"/>
-    <service id=".service_locator.21SR3os" alias=".service_locator.uqbn8U3"/>
+    <service id=".service_locator.E_VPdCM" alias=".service_locator.1hWEiXf"/>
     <service id=".service_locator.OWbdmbm" alias=".service_locator.KkdZ2zt"/>
     <service id=".service_locator._NkI1Rz" alias=".service_locator.WUBwqdy"/>
     <service id=".service_locator.RsJE6Ws" alias=".service_locator.dCNpF2s"/>
+    <service id=".service_locator.q2lSjIS" alias=".service_locator.N8t_O_t"/>
+    <service id=".service_locator.SV4aW63" alias=".service_locator.HdrQbXP"/>
     <service id=".service_locator.OmkowBM" alias=".service_locator.cnUb0Hd"/>
     <service id=".service_locator.4amK4Nb" alias=".service_locator.B2PCAxH"/>
-    <service id=".service_locator._frJunc" alias=".service_locator.P3uOD4s"/>
+    <service id=".service_locator.B17PtBf" alias=".service_locator.ohyOHkM"/>
+    <service id=".service_locator.VxCGXeh" alias=".service_locator._3gJj7f"/>
+    <service id=".service_locator.UiduZxe" alias=".service_locator.jV1Acjb"/>
+    <service id=".service_locator.jVesCrG" alias=".service_locator.UZ.ekux"/>
+    <service id=".service_locator.te7cXRI" alias=".service_locator.EA6LsQ_"/>
+    <service id=".service_locator.9EmLM1p" alias=".service_locator.oEBI9jR"/>
+    <service id=".service_locator.o85PQZG" alias=".service_locator.YITS9bL"/>
+    <service id=".service_locator.WJnjd9I" alias=".service_locator.QWXjtgZ"/>
+    <service id=".service_locator.Y35u2JH" alias=".service_locator.OfMjHYS"/>
     <service id=".service_locator.O9YAUsq" alias=".service_locator.Yn5um30"/>
+    <service id=".service_locator.USXQ4pE" alias=".service_locator.eKyZePg"/>
     <service id=".service_locator.hqsG8rt" alias=".service_locator.66gHImX"/>
+    <service id=".service_locator.Wa1sBBl" alias=".service_locator.ykznSMT"/>
     <service id=".service_locator.LYv5qcK" alias=".service_locator.ZogaELX"/>
     <service id=".service_locator.Fx6Vw8Y" alias=".service_locator.uwThabE"/>
     <service id=".service_locator.7U5j0BL" alias=".service_locator.ZBf0eUd"/>
     <service id=".service_locator.Mq6ypym" alias=".service_locator.D0T7klK"/>
-    <service id=".service_locator.lUJI3Z8" alias=".service_locator.LNwsF6h"/>
+    <service id=".service_locator.DHkKakq" alias=".service_locator.5DObpjU"/>
     <service id=".service_locator.vKWD28h" alias=".service_locator.By014CM"/>
-    <service id=".service_locator.8f5Ba4L" alias=".service_locator.HGK3GJE"/>
+    <service id=".service_locator.tGXeDpr" alias=".service_locator.pf3aHGG"/>
     <service id=".service_locator.GeFND7u" alias=".service_locator.aPvvAg5"/>
-    <service id=".service_locator.GDg2hr7" alias=".service_locator.O2p6Lk7"/>
+    <service id=".service_locator.cYApoMR" alias=".service_locator.O2p6Lk7"/>
     <service id=".service_locator.dGUCsbe" alias=".service_locator.oR77BOj"/>
     <service id=".service_locator._kIAbz1" alias=".service_locator.TpoC7U9"/>
     <service id=".service_locator.hnz5ZNh" alias=".service_locator.0TACwl3"/>

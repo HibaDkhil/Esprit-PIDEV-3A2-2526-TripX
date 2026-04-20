@@ -6,6 +6,8 @@ use App\Entity\Comment;
 use App\Entity\Post;
 use App\Entity\TravelStory;
 use App\Entity\User;
+use App\service\BotProtectionService;
+use App\service\ContentModerationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,7 +17,13 @@ use Symfony\Component\Routing\Annotation\Route;
 class CommentController extends AbstractController
 {
     #[Route('/comment/create/{id}', name: 'comment_create', methods: ['POST'])]
-    public function create(int $id, Request $request, EntityManagerInterface $em): Response
+    public function create(
+        int $id,
+        Request $request,
+        EntityManagerInterface $em,
+        BotProtectionService $botProtectionService,
+        ContentModerationService $contentModerationService
+    ): Response
     {
         /** @var User|null $user */
         $user = $this->getUser();
@@ -35,6 +43,18 @@ class CommentController extends AbstractController
         $body = trim((string) $request->request->get('body', ''));
         if ($body === '') {
             $this->addFlash('error', 'Comment cannot be empty.');
+            return $this->redirect($this->getRedirectUrl($request, $id));
+        }
+
+        $botIssue = $botProtectionService->validateRequest($request, 'comment_create');
+        if ($botIssue !== null) {
+            $this->addFlash('error', $botIssue);
+            return $this->redirect($this->getRedirectUrl($request, $id));
+        }
+
+        $moderationIssue = $contentModerationService->validateContent([$body], 'comment', $request, $user);
+        if ($moderationIssue !== null) {
+            $this->addFlash('error', $moderationIssue);
             return $this->redirect($this->getRedirectUrl($request, $id));
         }
 
@@ -62,7 +82,13 @@ class CommentController extends AbstractController
     }
 
     #[Route('/travel-story/comment/create/{id}', name: 'travel_story_comment_create', methods: ['POST'])]
-    public function createForTravelStory(int $id, Request $request, EntityManagerInterface $em): Response
+    public function createForTravelStory(
+        int $id,
+        Request $request,
+        EntityManagerInterface $em,
+        BotProtectionService $botProtectionService,
+        ContentModerationService $contentModerationService
+    ): Response
     {
         /** @var User|null $user */
         $user = $this->getUser();
@@ -81,6 +107,18 @@ class CommentController extends AbstractController
         $body = trim((string) $request->request->get('body', ''));
         if ($body === '') {
             $this->addFlash('error', 'Comment cannot be empty.');
+            return $this->redirect($this->getRedirectUrl($request, $id, 'tsc'));
+        }
+
+        $botIssue = $botProtectionService->validateRequest($request, 'travel_story_comment_create');
+        if ($botIssue !== null) {
+            $this->addFlash('error', $botIssue);
+            return $this->redirect($this->getRedirectUrl($request, $id, 'tsc'));
+        }
+
+        $moderationIssue = $contentModerationService->validateContent([$body], 'travel_story_comment', $request, $user);
+        if ($moderationIssue !== null) {
+            $this->addFlash('error', $moderationIssue);
             return $this->redirect($this->getRedirectUrl($request, $id, 'tsc'));
         }
 
@@ -108,7 +146,7 @@ class CommentController extends AbstractController
     }
 
     #[Route('/comment/{id}/edit', name: 'comment_edit', methods: ['POST'])]
-    public function edit(int $id, Request $request, EntityManagerInterface $em): Response
+    public function edit(int $id, Request $request, EntityManagerInterface $em, ContentModerationService $contentModerationService): Response
     {
         /** @var User|null $user */
         $user = $this->getUser();
@@ -133,6 +171,12 @@ class CommentController extends AbstractController
 
         $body = trim((string) $request->request->get('body', ''));
         if ($body !== '') {
+            $moderationIssue = $contentModerationService->validateContent([$body], 'comment_edit', $request, $user);
+            if ($moderationIssue !== null) {
+                $this->addFlash('error', $moderationIssue);
+                return $this->redirect($this->getRedirectUrlFromReferer($request));
+            }
+
             $comment->setBody($body);
             $em->flush();
         }

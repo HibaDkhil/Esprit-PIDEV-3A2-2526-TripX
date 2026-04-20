@@ -21,12 +21,18 @@ class Story extends \App\Entity\Story implements \Doctrine\ORM\Proxy\InternalPro
         "\0".parent::class."\0".'expiresAt' => [parent::class, 'expiresAt', null, 16],
         "\0".parent::class."\0".'id' => [parent::class, 'id', null, 16],
         "\0".parent::class."\0".'imageUrl' => [parent::class, 'imageUrl', null, 16],
+        "\0".parent::class."\0".'removalReason' => [parent::class, 'removalReason', null, 16],
+        "\0".parent::class."\0".'removedAt' => [parent::class, 'removedAt', null, 16],
+        "\0".parent::class."\0".'removedByAdmin' => [parent::class, 'removedByAdmin', null, 16],
         "\0".parent::class."\0".'user' => [parent::class, 'user', null, 16],
         'caption' => [parent::class, 'caption', null, 16],
         'createdAt' => [parent::class, 'createdAt', null, 16],
         'expiresAt' => [parent::class, 'expiresAt', null, 16],
         'id' => [parent::class, 'id', null, 16],
         'imageUrl' => [parent::class, 'imageUrl', null, 16],
+        'removalReason' => [parent::class, 'removalReason', null, 16],
+        'removedAt' => [parent::class, 'removedAt', null, 16],
+        'removedByAdmin' => [parent::class, 'removedByAdmin', null, 16],
         'user' => [parent::class, 'user', null, 16],
     ];
 

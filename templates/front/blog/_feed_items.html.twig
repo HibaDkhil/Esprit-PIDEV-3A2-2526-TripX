@@ -32,6 +32,42 @@
       {% set comments = post.comments|default([]) %}
       {% set nc = comments|length %}
 
+      {% if post.removedByAdmin %}
+        <article class="post-card moderation-placeholder-card" data-feed-type="post" data-post-id="{{ pid }}">
+          <div class="moderation-placeholder-head">
+            <span class="moderation-placeholder-icon" aria-hidden="true">⚠️</span>
+            <span class="pc-badge b-{{ post.type ?: 'other' }}">{{ post.type ?: 'Post' }}</span>
+          </div>
+          <h3 class="moderation-placeholder-title">Post removed</h3>
+          <p class="moderation-placeholder-message">
+            This post was removed by an admin because it violated the community guidelines.
+          </p>
+
+          {% if post.removalReason %}
+            <p class="moderation-placeholder-reason" data-reason-for-story="{{ pid }}" style="display:none;">
+              Reason: {{ post.removalReason }}
+            </p>
+          {% endif %}
+
+          <div class="moderation-placeholder-actions">
+            <button type="button"
+                    class="act-btn moderation-ok-btn"
+                    data-dismiss-moderation-card
+                    data-dismiss-url="{{ path('post_dismiss_removed', {id: pid}) }}"
+                    data-dismiss-token="{{ csrf_token('dismiss_removed_post_' ~ pid) }}">
+              OK
+            </button>
+            {% if post.removalReason %}
+              <button type="button" class="act-btn" data-toggle-reason="{{ pid }}">
+                View reason
+              </button>
+            {% else %}
+              <a href="{{ path('blog') }}#community-guidelines" class="act-btn moderation-link-btn">Learn more</a>
+            {% endif %}
+          </div>
+        </article>
+      {% else %}
+
       <article class="post-card" data-feed-type="post">
         <div class="pc-head">
           <div class="pc-avatar" data-uavatar="{{ post.userId }}">{{ aName|first|upper }}</div>
@@ -211,8 +247,10 @@
                 </div>
 
                 <div class="reply-form" id="reply-{{ comment.id }}">
-                  <form method="post" action="{{ path('comment_create', {id: pid}) }}">
+                  <form method="post" action="{{ path('comment_create', {id: pid}) }}" data-recaptcha-action="comment_create">
                     <input type="hidden" name="parent_comment_id" value="{{ comment.id }}">
+                    <input type="text" name="_hp" value="" tabindex="-1" autocomplete="off" style="display:none">
+                    <input type="hidden" name="_recaptcha_token" value="">
                     <div class="reply-form-inner">
                       <textarea name="body" rows="1" required
                                 placeholder="Reply to {{ cn|split(' ')|first }}…"
@@ -294,8 +332,10 @@
                       </div>
 
                       <div class="reply-form reply-form-nested" id="reply-{{ reply.id }}">
-                        <form method="post" action="{{ path('comment_create', {id: pid}) }}">
+                        <form method="post" action="{{ path('comment_create', {id: pid}) }}" data-recaptcha-action="comment_create">
                           <input type="hidden" name="parent_comment_id" value="{{ reply.id }}">
+                          <input type="text" name="_hp" value="" tabindex="-1" autocomplete="off" style="display:none">
+                          <input type="hidden" name="_recaptcha_token" value="">
                           <div class="reply-form-inner">
                             <textarea name="body" rows="1" required
                                       placeholder="Reply to {{ rn|split(' ')|first }}…"
@@ -316,7 +356,9 @@
               </p>
             {% endif %}
 
-            <form method="post" action="{{ path('comment_create', {id: pid}) }}">
+            <form method="post" action="{{ path('comment_create', {id: pid}) }}" data-recaptcha-action="comment_create">
+              <input type="text" name="_hp" value="" tabindex="-1" autocomplete="off" style="display:none">
+              <input type="hidden" name="_recaptcha_token" value="">
               <div class="cform-row">
                 <textarea name="body" rows="1" placeholder="Write a comment…" required
                           oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
@@ -327,12 +369,49 @@
           </div>
         </div>
       </article>
+      {% endif %}
 
     {% elseif item.feedType == 'travel_story' %}
       {% set story = item.entity %}
       {% set aName = authorMap[story.userId] ?? 'User #' ~ story.userId %}
       {% set isOwner = (currentUserId is not null and currentUserId == story.userId) %}
       {% set sid = story.id %}
+
+      {% if story.removedByAdmin %}
+        <article class="post-card ts-card moderation-placeholder-card" data-feed-type="travel_story" data-story-id="{{ sid }}">
+          <div class="moderation-placeholder-head">
+            <span class="moderation-placeholder-icon" aria-hidden="true">⚠️</span>
+            <span class="pc-badge b-travel_story">Travel Story</span>
+          </div>
+          <h3 class="moderation-placeholder-title">Travel Story removed</h3>
+          <p class="moderation-placeholder-message">
+            This Travel Story was removed by an admin because it violated the community guidelines.
+          </p>
+
+          {% if story.removalReason %}
+            <p class="moderation-placeholder-reason" data-reason-for-story="{{ sid }}" style="display:none;">
+              Reason: {{ story.removalReason }}
+            </p>
+          {% endif %}
+
+          <div class="moderation-placeholder-actions">
+            <button type="button"
+                    class="act-btn moderation-ok-btn"
+                    data-dismiss-moderation-card
+                    data-dismiss-url="{{ path('travel_story_dismiss_removed', {id: sid}) }}"
+                    data-dismiss-token="{{ csrf_token('dismiss_removed_travel_story_' ~ sid) }}">
+              OK
+            </button>
+            {% if story.removalReason %}
+              <button type="button" class="act-btn" data-toggle-reason="{{ sid }}">
+                View reason
+              </button>
+            {% else %}
+              <a href="{{ path('blog') }}#community-guidelines" class="act-btn moderation-link-btn">Learn more</a>
+            {% endif %}
+          </div>
+        </article>
+      {% else %}
       {% set counts = storyReactionSummary[sid] ?? {like:0,love:0,haha:0,wow:0,sad:0,angry:0} %}
       {% set myRxn = storyUserReactions[sid] ?? '' %}
       {% set total = counts.like + counts.love + counts.haha + counts.wow + counts.sad + counts.angry %}
@@ -517,8 +596,10 @@
                 </div>
 
                 <div class="reply-form" id="reply-{{ comment.id }}">
-                  <form method="post" action="{{ path('travel_story_comment_create', {id: sid}) }}">
+                  <form method="post" action="{{ path('travel_story_comment_create', {id: sid}) }}" data-recaptcha-action="travel_story_comment_create">
                     <input type="hidden" name="parent_comment_id" value="{{ comment.id }}">
+                    <input type="text" name="_hp" value="" tabindex="-1" autocomplete="off" style="display:none">
+                    <input type="hidden" name="_recaptcha_token" value="">
                     <div class="reply-form-inner">
                       <textarea name="body" rows="1" required placeholder="Reply to {{ cn|split(' ')|first }}..." oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
                       <button type="submit" class="reply-send">Reply</button>
@@ -579,8 +660,10 @@
                       </div>
 
                       <div class="reply-form reply-form-nested" id="reply-{{ reply.id }}">
-                        <form method="post" action="{{ path('travel_story_comment_create', {id: sid}) }}">
+                        <form method="post" action="{{ path('travel_story_comment_create', {id: sid}) }}" data-recaptcha-action="travel_story_comment_create">
                           <input type="hidden" name="parent_comment_id" value="{{ reply.id }}">
+                          <input type="text" name="_hp" value="" tabindex="-1" autocomplete="off" style="display:none">
+                          <input type="hidden" name="_recaptcha_token" value="">
                           <div class="reply-form-inner">
                             <textarea name="body" rows="1" required placeholder="Reply to {{ rn|split(' ')|first }}..." oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
                             <button type="submit" class="reply-send">Reply</button>
@@ -596,7 +679,9 @@
               <p class="no-comments">No comments yet — start the conversation!</p>
             {% endif %}
 
-            <form method="post" action="{{ path('travel_story_comment_create', {id: sid}) }}">
+            <form method="post" action="{{ path('travel_story_comment_create', {id: sid}) }}" data-recaptcha-action="travel_story_comment_create">
+              <input type="text" name="_hp" value="" tabindex="-1" autocomplete="off" style="display:none">
+              <input type="hidden" name="_recaptcha_token" value="">
               <div class="cform-row">
                 <textarea name="body" rows="1" placeholder="Write a comment..." required oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
                 <button type="submit" class="csend">Post</button>
@@ -605,6 +690,7 @@
           </div>
         </div>
       </article>
+      {% endif %}
     {% endif %}
   {% endfor %}
 {% endif %}

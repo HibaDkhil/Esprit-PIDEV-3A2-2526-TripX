@@ -7,6 +7,8 @@ use App\Entity\StoryView;
 use App\Entity\User;
 use App\Repository\StoryRepository;
 use App\Repository\StoryViewRepository;
+use App\service\BotProtectionService;
+use App\service\ContentModerationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
@@ -23,12 +25,25 @@ class StoryController extends AbstractController
 	public function create(
 		Request $request,
 		EntityManagerInterface $em,
-		SluggerInterface $slugger
+		SluggerInterface $slugger,
+		BotProtectionService $botProtectionService,
+		ContentModerationService $contentModerationService
 	): JsonResponse|RedirectResponse {
 		/** @var User|null $me */
 		$me = $this->getUser();
 		if (!$me instanceof User) {
 			return $this->json(['ok' => false, 'message' => 'Authentication required.'], 401);
+		}
+
+		$botIssue = $botProtectionService->validateRequest($request, 'story_create');
+		if ($botIssue !== null) {
+			return $this->json(['ok' => false, 'message' => $botIssue], 422);
+		}
+
+		$caption = trim((string) $request->request->get('caption', ''));
+		$moderationIssue = $contentModerationService->validateContent([$caption], 'story', $request, $me);
+		if ($moderationIssue !== null) {
+			return $this->json(['ok' => false, 'message' => $moderationIssue], 422);
 		}
 
 		$file = $request->files->get('story_image');
@@ -55,7 +70,7 @@ class StoryController extends AbstractController
 		$story = new Story();
 		$story->setUser($me);
 		$story->setImageUrl('/uploads/stories/' . $newName);
-		$story->setCaption(trim((string) $request->request->get('caption', '')) ?: null);
+		$story->setCaption($caption !== '' ? $caption : null);
 		$story->setCreatedAt($now);
 		$story->setExpiresAt($now->modify('+24 hours'));
 
@@ -144,7 +159,7 @@ class StoryController extends AbstractController
 		}
 
 		$story = $em->getRepository(Story::class)->find($id);
-		if (!$story instanceof Story || $story->isExpired()) {
+		if (!$story instanceof Story || $story->isExpired() || $story->isRemovedByAdmin()) {
 			return $this->json(['ok' => false, 'message' => 'Story not found.'], 404);
 		}
 
@@ -179,7 +194,7 @@ class StoryController extends AbstractController
 		}
 
 		$story = $em->getRepository(Story::class)->find($id);
-		if (!$story instanceof Story || $story->isExpired()) {
+		if (!$story instanceof Story || $story->isExpired() || $story->isRemovedByAdmin()) {
 			return $this->json(['ok' => false, 'message' => 'Story not found.'], 404);
 		}
 
@@ -194,5 +209,37 @@ class StoryController extends AbstractController
 			'count' => count($viewers),
 			'viewers' => $viewers,
 		]);
+	}
+
+	#[Route('/{id}/dismiss-removed', name: 'story_dismiss_removed', methods: ['POST'], requirements: ['id' => '\\d+'])]
+	public function dismissRemoved(int $id, EntityManagerInterface $em): JsonResponse
+	{
+		/** @var User|null $me */
+		$me = $this->getUser();
+		if (!$me instanceof User) {
+			return $this->json(['ok' => false, 'message' => 'Authentication required.'], 401);
+		}
+
+		$story = $em->getRepository(Story::class)->find($id);
+		if (!$story instanceof Story || !$story->isRemovedByAdmin()) {
+			return $this->json(['ok' => false, 'message' => 'Story not found.'], 404);
+		}
+
+		if ((int) $story->getUserId() !== (int) $me->getUserId()) {
+			return $this->json(['ok' => false, 'message' => 'Not allowed.'], 403);
+		}
+
+		$imagePath = (string) $story->getImageUrl();
+		if (str_starts_with($imagePath, '/uploads/stories/')) {
+			$abs = $this->getParameter('kernel.project_dir') . '/public' . $imagePath;
+			if (is_file($abs)) {
+				(new Filesystem())->remove($abs);
+			}
+		}
+
+		$em->remove($story);
+		$em->flush();
+
+		return $this->json(['ok' => true]);
 	}
 }

@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\StoryRepository;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\User;
+use Doctrine\DBAL\Types\Types;
 
 #[ORM\Entity(repositoryClass: StoryRepository::class)]
 #[ORM\Table(name: 'stories')]
@@ -31,6 +32,15 @@ class Story
 
     #[ORM\Column(name: 'expires_at', type: 'datetime')]
     private ?\DateTimeInterface $expiresAt = null;
+
+    #[ORM\Column(name: 'removed_by_admin', type: 'boolean', options: ['default' => false])]
+    private bool $removedByAdmin = false;
+
+    #[ORM\Column(name: 'removal_reason', type: Types::TEXT, nullable: true)]
+    private ?string $removalReason = null;
+
+    #[ORM\Column(name: 'removed_at', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $removedAt = null;
 
     // ===== GETTERS / SETTERS =====
 
@@ -106,5 +116,38 @@ class Story
         return $this->expiresAt instanceof \DateTimeInterface
             ? $this->expiresAt <= $at
             : true;
+    }
+
+    public function isRemovedByAdmin(): bool
+    {
+        return $this->removedByAdmin;
+    }
+
+    public function setRemovedByAdmin(bool $removedByAdmin): static
+    {
+        $this->removedByAdmin = $removedByAdmin;
+        return $this;
+    }
+
+    public function getRemovalReason(): ?string
+    {
+        return $this->removalReason;
+    }
+
+    public function setRemovalReason(?string $removalReason): static
+    {
+        $this->removalReason = $removalReason;
+        return $this;
+    }
+
+    public function getRemovedAt(): ?\DateTimeInterface
+    {
+        return $this->removedAt;
+    }
+
+    public function setRemovedAt(?\DateTimeInterface $removedAt): static
+    {
+        $this->removedAt = $removedAt;
+        return $this;
     }
 }

@@ -108,6 +108,15 @@ class TravelStory
     #[ORM\Column(name: 'updated_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
+    #[ORM\Column(name: 'removed_by_admin', type: 'boolean', options: ['default' => false])]
+    private bool $removedByAdmin = false;
+
+    #[ORM\Column(name: 'removal_reason', type: Types::TEXT, nullable: true)]
+    private ?string $removalReason = null;
+
+    #[ORM\Column(name: 'removed_at', type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $removedAt = null;
+
     public function __construct()
     {
         $this->wouldRecommend = true;
@@ -400,6 +409,39 @@ class TravelStory
     public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    public function isRemovedByAdmin(): bool
+    {
+        return $this->removedByAdmin;
+    }
+
+    public function setRemovedByAdmin(bool $removedByAdmin): static
+    {
+        $this->removedByAdmin = $removedByAdmin;
+        return $this;
+    }
+
+    public function getRemovalReason(): ?string
+    {
+        return $this->removalReason;
+    }
+
+    public function setRemovalReason(?string $removalReason): static
+    {
+        $this->removalReason = $removalReason;
+        return $this;
+    }
+
+    public function getRemovedAt(): ?\DateTimeInterface
+    {
+        return $this->removedAt;
+    }
+
+    public function setRemovedAt(?\DateTimeInterface $removedAt): static
+    {
+        $this->removedAt = $removedAt;
         return $this;
     }
 }

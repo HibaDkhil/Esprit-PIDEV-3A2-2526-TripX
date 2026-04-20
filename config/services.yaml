@@ -3,6 +3,13 @@ parameters:
     env(RAGHED_GEMINI): ''
     env(SERPAPI_API_KEY): ''
     env(OPENWEATHER_API_KEY): ''
+    env(AKISMET_API_KEY): ''
+    env(AKISMET_BLOG_URL): ''
+    env(OPENAI_API_KEY): ''
+    env(OPENAI_MODERATION_MODEL): 'omni-moderation-latest'
+    env(RECAPTCHA_SECRET_KEY): ''
+    env(float:RECAPTCHA_MIN_SCORE): '0.5'
+    app.moderation.bad_words_file: '%kernel.project_dir%/config/moderation_bad_words.txt'
 
 services:
     _defaults:
@@ -79,6 +86,19 @@ services:
     App\service\TransportOptimalRouteService:
         arguments:
             $groqApiKey: '%env(TRANSPORTAI)%'
+
+    App\service\ContentModerationService:
+        arguments:
+            $akismetApiKey: '%env(AKISMET_API_KEY)%'
+            $akismetBlogUrl: '%env(AKISMET_BLOG_URL)%'
+            $openAiApiKey: '%env(OPENAI_API_KEY)%'
+            $openAiModerationModel: '%env(OPENAI_MODERATION_MODEL)%'
+            $badWordsFile: '%app.moderation.bad_words_file%'
+
+    App\service\BotProtectionService:
+        arguments:
+            $recaptchaSecretKey: '%env(RECAPTCHA_SECRET_KEY)%'
+            $recaptchaMinScore: '%env(float:RECAPTCHA_MIN_SCORE)%'
 
     App\Controller\admin\OverviewController:
         arguments:

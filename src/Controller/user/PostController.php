@@ -6,7 +6,11 @@ use App\Entity\Post;
 use App\Entity\User;
 use App\Form\PostType;
 use App\Repository\PostRepository;
+use App\service\BotProtectionService;
+use App\service\ContentModerationService;
+use App\service\ModerationRecordService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +24,10 @@ class PostController extends AbstractController
     public function create(
         Request              $request,
         EntityManagerInterface $em,
-        SluggerInterface     $slugger
+        SluggerInterface     $slugger,
+        BotProtectionService $botProtectionService,
+        ContentModerationService $contentModerationService,
+        ModerationRecordService $moderationRecordService
     ): Response {
         /** @var User|null $user */
         $user = $this->getUser();
@@ -33,6 +40,27 @@ class PostController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $botIssue = $botProtectionService->validateRequest($request, 'post_create');
+            if ($botIssue !== null) {
+                $this->addFlash('error', $botIssue);
+                return $this->redirectToRoute('post_create');
+            }
+
+            $moderationResult = $contentModerationService->evaluateContent(
+                [
+                    $post->getTitle(),
+                    $post->getBody(),
+                    $post->getType(),
+                ],
+                'post',
+                $request,
+                $user
+            );
+            $moderationIssue = $moderationResult['issue_message'] ?? null;
+            if ($moderationIssue !== null) {
+                $this->addFlash('error', $moderationIssue);
+                return $this->redirectToRoute('post_create');
+            }
 
             // ── Handle uploaded images ──────────────────────────────────
             $imageUrls = [];
@@ -71,6 +99,11 @@ class PostController extends AbstractController
             $em->persist($post);
             $em->flush();
 
+            $postId = $post->getId();
+            if ($postId !== null) {
+                $moderationRecordService->upsert('post', (int) $postId, $moderationResult, 'api');
+            }
+
             $this->addFlash('success', 'Your post has been submitted and is pending approval.');
             return $this->redirectToRoute('blog');
         }
@@ -86,6 +119,9 @@ class PostController extends AbstractController
     {
         $post = $em->getRepository(Post::class)->find($id);
         if (!$post) {
+            throw $this->createNotFoundException('Post not found.');
+        }
+        if ($post->isRemovedByAdmin()) {
             throw $this->createNotFoundException('Post not found.');
         }
 
@@ -129,7 +165,9 @@ class PostController extends AbstractController
         int                  $id,
         Request              $request,
         EntityManagerInterface $em,
-        SluggerInterface     $slugger
+        SluggerInterface     $slugger,
+        ContentModerationService $contentModerationService,
+        ModerationRecordService $moderationRecordService
     ): Response {
         /** @var User|null $user */
         $user = $this->getUser();
@@ -139,12 +177,28 @@ class PostController extends AbstractController
 
         $post = $em->getRepository(Post::class)->find($id);
         if (!$post) throw $this->createNotFoundException('Post not found.');
+        if ($post->isRemovedByAdmin()) throw $this->createNotFoundException('Post not found.');
         if ($post->getUserId() !== $user->getId()) throw $this->createAccessDeniedException();
 
         $form = $this->createForm(PostType::class, $post);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $moderationResult = $contentModerationService->evaluateContent(
+                [
+                    $post->getTitle(),
+                    $post->getBody(),
+                    $post->getType(),
+                ],
+                'post_edit',
+                $request,
+                $user
+            );
+            $moderationIssue = $moderationResult['issue_message'] ?? null;
+            if ($moderationIssue !== null) {
+                $this->addFlash('error', $moderationIssue);
+                return $this->redirectToRoute('post_edit', ['id' => $id]);
+            }
 
             $files = $form->get('imageFile')->getData();
             if ($files) {
@@ -168,6 +222,11 @@ class PostController extends AbstractController
             $post->setIsConfirmed(false); // re-approve after edit
             $em->flush();
 
+            $postId = $post->getId();
+            if ($postId !== null) {
+                $moderationRecordService->upsert('post', (int) $postId, $moderationResult, 'api');
+            }
+
             $this->addFlash('success', 'Post updated and re-submitted for approval.');
             return $this->redirectToRoute('blog');
         }
@@ -190,6 +249,7 @@ class PostController extends AbstractController
 
         $post = $em->getRepository(Post::class)->find($id);
         if (!$post) throw $this->createNotFoundException('Post not found.');
+        if ($post->isRemovedByAdmin()) throw $this->createNotFoundException('Post not found.');
         if ($post->getUserId() !== $user->getId()) throw $this->createAccessDeniedException();
 
         if ($this->isCsrfTokenValid('delete_post_' . $id, $request->request->get('_token'))) {
@@ -199,5 +259,37 @@ class PostController extends AbstractController
         }
 
         return $this->redirectToRoute('blog');
+    }
+
+    #[Route('/post/{id}/dismiss-removed', name: 'post_dismiss_removed', methods: ['POST'], requirements: ['id' => '\\d+'])]
+    public function dismissRemoved(int $id, Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        /** @var User|null $user */
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->json(['ok' => false, 'message' => 'Authentication required.'], 401);
+        }
+
+        $post = $em->getRepository(Post::class)->find($id);
+        if (!$post instanceof Post) {
+            return $this->json(['ok' => false, 'message' => 'Post not found.'], 404);
+        }
+
+        if (!$post->isRemovedByAdmin()) {
+            return $this->json(['ok' => false, 'message' => 'Post is not moderated.'], 422);
+        }
+
+        if ((int) $post->getUserId() !== (int) $user->getId()) {
+            return $this->json(['ok' => false, 'message' => 'Not allowed.'], 403);
+        }
+
+        if (!$this->isCsrfTokenValid('dismiss_removed_post_' . $id, (string) $request->request->get('_token'))) {
+            return $this->json(['ok' => false, 'message' => 'Invalid token.'], 400);
+        }
+
+        $em->remove($post);
+        $em->flush();
+
+        return $this->json(['ok' => true, 'id' => $id]);
     }
 }

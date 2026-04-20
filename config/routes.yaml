@@ -3,3 +3,11 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+blog_admin_legacy_redirect:
+    path: /blog/admin
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController
+    defaults:
+        route: admin_blog
+        permanent: false
+        keepQueryParams: true

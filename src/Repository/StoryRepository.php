@@ -16,7 +16,7 @@ class StoryRepository extends ServiceEntityRepository
     /**
      * Returns non-expired stories ordered oldest->newest per user viewing sequence.
      */
-    public function findActive(?int $userId = null): array
+    public function findActive(?int $userId = null, bool $includeRemoved = false): array
     {
         $qb = $this->createQueryBuilder('s')
             ->leftJoin('s.user', 'u')
@@ -24,6 +24,11 @@ class StoryRepository extends ServiceEntityRepository
             ->where('s.expiresAt > :now')
             ->setParameter('now', new \DateTimeImmutable())
             ->orderBy('s.createdAt', 'ASC');
+
+        if (!$includeRemoved) {
+            $qb->andWhere('s.removedByAdmin = :notRemoved')
+                ->setParameter('notRemoved', false);
+        }
 
         if ($userId !== null) {
             $qb->andWhere('u.userId = :uid')
@@ -35,7 +40,7 @@ class StoryRepository extends ServiceEntityRepository
 
     public function findActiveForUser(int $userId): array
     {
-        return $this->findActive($userId);
+        return $this->findActive($userId, false);
     }
 
     public function findExpiredForUser(int $userId): array

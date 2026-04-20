@@ -1,0 +1,179 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ target.firstName }} {{ target.lastName }} - Profile{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .up-wrap { max-width: 980px; margin: 24px auto; padding: 0 16px; }
+    .up-head { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px; display: grid; grid-template-columns: 96px 1fr; gap: 16px; }
+    .up-av { width: 96px; height: 96px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; color: #111827; background: linear-gradient(135deg,#f59e0b,#ef4444); }
+    .up-name { font-size: 1.5rem; font-weight: 800; margin: 0; color: #111827; }
+    .up-handle { color: #6b7280; margin-top: 2px; }
+    .up-bio { margin-top: 8px; color: #374151; }
+    .up-stats { display: flex; gap: 16px; margin-top: 12px; color: #111827; }
+    .up-stats strong { font-size: 1.05rem; }
+    .up-actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+    .up-btn { border: 0; border-radius: 10px; padding: 10px 14px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+    .up-btn.primary { background: #111827; color: #fff; }
+    .up-btn.secondary { background: #f3f4f6; color: #111827; }
+    .up-tabs { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .up-tab { text-decoration: none; padding: 8px 12px; border-radius: 999px; background: #f3f4f6; color: #111827; font-weight: 700; }
+    .up-tab.active { background: #111827; color: #fff; }
+    .up-grid { margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 12px; }
+    .up-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 12px; }
+    .up-type { display: inline-block; font-size: .72rem; font-weight: 700; border-radius: 999px; padding: 3px 9px; background: #eef2ff; color: #3730a3; }
+    .up-type.ts { background: #eff6ff; color: #1d4ed8; }
+    .up-title { margin: 8px 0 4px; font-size: 1rem; font-weight: 800; color: #111827; text-decoration: none; display: block; }
+    .up-sn { color: #4b5563; font-size: .92rem; }
+    .up-meta { margin-top: 10px; color: #6b7280; font-size: .8rem; }
+    .up-empty { margin-top: 16px; color: #6b7280; text-align: center; padding: 24px; background: #fff; border: 1px dashed #d1d5db; border-radius: 14px; }
+  </style>
+{% endblock %}
+
+{% block body %}
+<div class="up-wrap">
+  <section class="up-head">
+    <div class="up-av">{{ target.firstName|first|upper }}</div>
+    <div>
+      <h1 class="up-name">{{ target.firstName }} {{ target.lastName }}</h1>
+      <div class="up-handle">@user{{ target.userId }}</div>
+      {% if target.bio %}<div class="up-bio">{{ target.bio }}</div>{% endif %}
+
+      <div class="up-stats">
+        <div><strong>{{ posts|length + travelStories|length }}</strong> posts</div>
+        <div><strong id="profile-followers-count">{{ followersCount }}</strong> followers</div>
+        <div><strong id="profile-following-count">{{ followingCount }}</strong> following</div>
+        <div><strong>{{ activeStoriesCount }}</strong> stories</div>
+      </div>
+
+      <div class="up-actions">
+        {% if isSelf %}
+          <a class="up-btn primary" href="{{ path('blog_profile_edit') }}">Edit profile</a>
+          <a class="up-btn secondary" href="{{ path('blog_user_archive', {id: target.userId}) }}">View archive</a>
+        {% else %}
+          {% if app.user %}
+            <form id="profile-follow-form" method="post" action="{{ path('follow_toggle', {id: target.userId}) }}" style="margin:0;">
+              <input type="hidden" name="_token" value="{{ csrf_token('follow_' ~ target.userId) }}">
+              <button id="profile-follow-btn" class="up-btn primary" type="submit">{{ isFollowing ? 'Unfollow' : 'Follow' }}</button>
+            </form>
+            <button class="up-btn secondary" type="button" onclick="alert('Messaging UI can be connected here.')">Message</button>
+          {% else %}
+            <a class="up-btn primary" href="{{ path('app_login') }}">Login to follow</a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <nav class="up-tabs">
+    <a class="up-tab {{ tab == 'posts' ? 'active' : '' }}" href="{{ path('blog_user_profile', {id: target.userId, tab: 'posts'}) }}">Posts</a>
+    <a class="up-tab {{ tab == 'travel_stories' ? 'active' : '' }}" href="{{ path('blog_user_profile', {id: target.userId, tab: 'travel_stories'}) }}">Travel Stories</a>
+    <a class="up-tab {{ tab == 'shared' ? 'active' : '' }}" href="{{ path('blog_user_profile', {id: target.userId, tab: 'shared'}) }}">Shared</a>
+  </nav>
+
+  {% set hasItems = false %}
+
+  {% if tab == 'posts' %}
+    {% if posts|length > 0 %}
+      {% set hasItems = true %}
+      <div class="up-grid">
+        {% for post in posts %}
+          <article class="up-card">
+            <span class="up-type">POST</span>
+            <a class="up-title" href="{{ path('post_show', {id: post.id}) }}">{{ post.title }}</a>
+            <div class="up-sn">{{ post.body|slice(0, 140) }}{% if post.body|length > 140 %}...{% endif %}</div>
+            <div class="up-meta">{{ post.createdAt ? post.createdAt|date('M d, Y H:i') : '' }}</div>
+          </article>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% elseif tab == 'travel_stories' %}
+    {% if travelStories|length > 0 %}
+      {% set hasItems = true %}
+      <div class="up-grid">
+        {% for ts in travelStories %}
+          <article class="up-card">
+            <span class="up-type ts">TRAVEL STORY</span>
+            <a class="up-title" href="{{ path('travel_story_show', {id: ts.id}) }}">{{ ts.title }}</a>
+            <div class="up-sn">{{ ts.summary|default('')|slice(0, 140) }}{% if ts.summary|default('')|length > 140 %}...{% endif %}</div>
+            <div class="up-meta">{{ ts.createdAt ? ts.createdAt|date('M d, Y H:i') : '' }}</div>
+          </article>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% else %}
+    {% if shared|length > 0 %}
+      {% set hasItems = true %}
+      <div class="up-grid">
+        {% for item in shared %}
+          {% if item.kind == 'post' %}
+            {% set post = item.entity %}
+            <article class="up-card">
+              <span class="up-type">POST</span>
+              <a class="up-title" href="{{ path('post_show', {id: post.id}) }}">{{ post.title }}</a>
+              <div class="up-sn">{{ post.body|slice(0, 140) }}{% if post.body|length > 140 %}...{% endif %}</div>
+              <div class="up-meta">{{ post.createdAt ? post.createdAt|date('M d, Y H:i') : '' }}</div>
+            </article>
+          {% else %}
+            {% set ts = item.entity %}
+            <article class="up-card">
+              <span class="up-type ts">TRAVEL STORY</span>
+              <a class="up-title" href="{{ path('travel_story_show', {id: ts.id}) }}">{{ ts.title }}</a>
+              <div class="up-sn">{{ ts.summary|default('')|slice(0, 140) }}{% if ts.summary|default('')|length > 140 %}...{% endif %}</div>
+              <div class="up-meta">{{ ts.createdAt ? ts.createdAt|date('M d, Y H:i') : '' }}</div>
+            </article>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endif %}
+
+  {% if not hasItems %}
+    <div class="up-empty">No content in this tab yet.</div>
+  {% endif %}
+</div>
+
+<script>
+(() => {
+  const form = document.getElementById('profile-follow-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const btn = document.getElementById('profile-follow-btn');
+    const followersEl = document.getElementById('profile-followers-count');
+    const followingEl = document.getElementById('profile-following-count');
+    if (!btn) return;
+
+    btn.disabled = true;
+
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+
+      const json = await res.json();
+      if (!res.ok || json.error) {
+        throw new Error(json.error || 'Could not update follow status');
+      }
+
+      btn.textContent = json.following ? 'Unfollow' : 'Follow';
+      if (followersEl && typeof json.followerCount !== 'undefined') {
+        followersEl.textContent = String(json.followerCount);
+      }
+      if (followingEl && typeof json.followingCount !== 'undefined') {
+        followingEl.textContent = String(json.followingCount);
+      }
+    } catch (err) {
+      alert(err.message || 'Could not update follow status');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
+{% endblock %}

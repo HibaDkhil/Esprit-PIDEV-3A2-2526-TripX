@@ -671,7 +671,7 @@ class FrameworkConfig implements \Symfony\Component\Config\Builder\ConfigBuilder
 
     /**
      * web links configuration
-     * @default {"enabled":false}
+     * @default {"enabled":true}
     */
     public function webLink(array $value = []): \Symfony\Config\Framework\WebLinkConfig
     {
@@ -1175,7 +1175,7 @@ class FrameworkConfig implements \Symfony\Component\Config\Builder\ConfigBuilder
 
         if (array_key_exists('web_link', $value)) {
             $this->_usedProperties['webLink'] = true;
-            $this->webLink = \is_array($value['web_link']) ? new \Symfony\Config\Framework\WebLinkConfig($value['web_link']) : $value['web_link'];
+            $this->webLink = new \Symfony\Config\Framework\WebLinkConfig($value['web_link']);
             unset($value['web_link']);
         }
 
@@ -1380,7 +1380,7 @@ class FrameworkConfig implements \Symfony\Component\Config\Builder\ConfigBuilder
             $output['exceptions'] = array_map(fn ($v) => $v instanceof \Symfony\Config\Framework\ExceptionConfig ? $v->toArray() : $v, $this->exceptions);
         }
         if (isset($this->_usedProperties['webLink'])) {
-            $output['web_link'] = $this->webLink instanceof \Symfony\Config\Framework\WebLinkConfig ? $this->webLink->toArray() : $this->webLink;
+            $output['web_link'] = $this->webLink->toArray();
         }
         if (isset($this->_usedProperties['lock'])) {
             $output['lock'] = $this->lock instanceof \Symfony\Config\Framework\LockConfig ? $this->lock->toArray() : $this->lock;

@@ -170,11 +170,14 @@
         {{ form_start(form, {
             'attr': {
                 'novalidate': 'novalidate',
-                'enctype': 'multipart/form-data'
+                'enctype': 'multipart/form-data',
+                'data-recaptcha-action': 'post_create'
             }
         }) }}
 
             {{ form_errors(form) }}
+            <input type="text" name="_hp" value="" tabindex="-1" autocomplete="off" style="display:none">
+            <input type="hidden" name="_recaptcha_token" value="">
 
             {# Title #}
             <div class="cp-field">

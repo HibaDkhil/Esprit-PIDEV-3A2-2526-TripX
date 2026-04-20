@@ -773,11 +773,14 @@
         {{ form_start(form, {
             'attr': {
                 'novalidate': 'novalidate',
-                'enctype': 'multipart/form-data'
+                'enctype': 'multipart/form-data',
+                'data-recaptcha-action': story is defined ? 'travel_story_edit' : 'travel_story_create'
             }
         }) }}
 
             {{ form_errors(form) }}
+            <input type="text" name="_hp" value="" tabindex="-1" autocomplete="off" style="display:none">
+            <input type="hidden" name="_recaptcha_token" value="">
 
             <div class="cp-grid">
                 <div class="cp-field cp-span-2">

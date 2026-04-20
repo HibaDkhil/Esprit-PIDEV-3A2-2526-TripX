@@ -39,6 +39,7 @@ return [
         '/admin/bookings' => [[['_route' => 'admin_pack_bookings', '_controller' => 'App\\Controller\\admin\\AdminPacksController::bookings'], null, null, null, false, false, null]],
         '/admin/loyalty' => [[['_route' => 'admin_loyalty', '_controller' => 'App\\Controller\\admin\\AdminPacksController::loyalty'], null, null, null, false, false, null]],
         '/admin/blog' => [[['_route' => 'admin_blog', '_controller' => 'App\\Controller\\admin\\BlogAdminController::index'], null, null, null, false, false, null]],
+        '/admin/blog/bulk-action' => [[['_route' => 'admin_blog_bulk_action', '_controller' => 'App\\Controller\\admin\\BlogAdminController::bulkAction'], null, ['POST' => 0], null, false, false, null]],
         '/admin/accommodations/bookings' => [[['_route' => 'admin_accommodations_bookings_index', '_controller' => 'App\\Controller\\admin\\BookingController::index'], null, ['GET' => 0], null, false, false, null]],
         '/admin/accommodations/bookings/export/dashboard' => [[['_route' => 'admin_accommodations_bookings_export_dashboard', '_controller' => 'App\\Controller\\admin\\BookingController::exportDashboard'], null, ['GET' => 0], null, false, false, null]],
         '/admin/accommodations/bookings/export/excel' => [[['_route' => 'admin_accommodations_bookings_export_excel', '_controller' => 'App\\Controller\\admin\\BookingController::exportExcel'], null, ['GET' => 0], null, false, false, null]],
@@ -95,11 +96,14 @@ return [
         '/packs' => [[['_route' => 'user_packs', '_controller' => 'App\\Controller\\user\\FrontPacksController::packsRedirect'], null, null, null, false, false, null]],
         '/pack-bookings' => [[['_route' => 'user_pack_bookings', '_controller' => 'App\\Controller\\user\\FrontPacksController::bookingsRedirect'], null, null, null, false, false, null]],
         '/my-loyalty' => [[['_route' => 'user_loyalty', '_controller' => 'App\\Controller\\user\\FrontPacksController::loyaltyRedirect'], null, null, null, false, false, null]],
+        '/blog/live/list' => [[['_route' => 'blog_live_list', '_controller' => 'App\\Controller\\user\\LiveController::list'], null, ['GET' => 0], null, false, false, null]],
+        '/blog/live/start' => [[['_route' => 'blog_live_start', '_controller' => 'App\\Controller\\user\\LiveController::start'], null, ['POST' => 0], null, false, false, null]],
         '/my-bookings' => [[['_route' => 'my_bookings', '_controller' => 'App\\Controller\\user\\MyBookingsController::index'], null, null, null, false, false, null]],
         '/post/create' => [[['_route' => 'post_create', '_controller' => 'App\\Controller\\user\\PostController::create'], null, null, null, false, false, null]],
         '/price-dashboard' => [[['_route' => 'price_dashboard', '_controller' => 'App\\Controller\\user\\PricePredictionController::dashboard'], null, null, null, false, false, null]],
         '/api/price-alert' => [[['_route' => 'api_price_alert', '_controller' => 'App\\Controller\\user\\PricePredictionController::createPriceAlert'], null, ['POST' => 0], null, false, false, null]],
         '/api/price-alerts/feed' => [[['_route' => 'api_price_alerts_feed', '_controller' => 'App\\Controller\\user\\PricePredictionController::feedAlerts'], null, ['GET' => 0], null, false, false, null]],
+        '/blog/legacy-profile/edit' => [[['_route' => 'legacy_blog_profile_edit', '_controller' => 'App\\Controller\\user\\ProfileController::edit'], null, ['GET' => 0, 'POST' => 1], null, false, false, null]],
         '/forgot-password' => [[['_route' => 'app_forgot_password', '_controller' => 'App\\Controller\\user\\ResetPasswordController::forgotPassword'], null, ['GET' => 0, 'POST' => 1], null, false, false, null]],
         '/blog/saved' => [[['_route' => 'blog_saved', '_controller' => 'App\\Controller\\user\\SavedPostController::saved'], null, null, null, false, false, null]],
         '/stories/create' => [[['_route' => 'story_create', '_controller' => 'App\\Controller\\user\\StoryController::create'], null, ['POST' => 0], null, false, false, null]],
@@ -124,6 +128,7 @@ return [
         '/profile/stats' => [[['_route' => 'profile_stats', '_controller' => 'App\\Controller\\user\\UserController::getStats'], null, ['GET' => 0], null, false, false, null]],
         '/profile/preferences' => [[['_route' => 'profile_preferences', '_controller' => 'App\\Controller\\user\\UserController::saveTravelPreferences'], null, ['POST' => 0], null, false, false, null]],
         '/profile/delete' => [[['_route' => 'profile_delete', '_controller' => 'App\\Controller\\user\\UserController::deleteAccount'], null, ['POST' => 0], null, false, false, null]],
+        '/blog/admin' => [[['_route' => 'blog_admin_legacy_redirect', 'route' => 'admin_blog', 'permanent' => false, 'keepQueryParams' => true, '_controller' => 'Symfony\\Bundle\\FrameworkBundle\\Controller\\RedirectController'], null, null, null, false, false, null]],
     ],
     [ // $regexpList
         0 => '{^(?'
@@ -201,133 +206,160 @@ return [
                                 .')'
                             .')'
                             .'|log/(?'
+                                .'|([^/]++)/approve(*:1060)'
+                                .'|ig\\-story/([^/]++)/delete(*:1094)'
+                                .'|live/([^/]++)/delete(*:1123)'
                                 .'|([^/]++)/(?'
-                                    .'|approve(*:1063)'
-                                    .'|reject(*:1078)'
-                                    .'|delete(*:1093)'
+                                    .'|reject(*:1150)'
+                                    .'|delete(*:1165)'
                                 .')'
-                                .'|story/([^/]++)/delete(*:1124)'
-                                .'|([^/]++)/show(*:1146)'
-                                .'|story/([^/]++)/show(*:1174)'
-                                .'|comment/([^/]++)/delete(*:1206)'
+                                .'|story/([^/]++)/delete(*:1196)'
+                                .'|([^/]++)/show(*:1218)'
+                                .'|story/([^/]++)/show(*:1246)'
+                                .'|comment/([^/]++)/delete(*:1278)'
                             .')'
                         .')'
                         .'|transport/(?'
-                            .'|edit/([^/]++)(*:1243)'
+                            .'|edit/([^/]++)(*:1315)'
                             .'|de(?'
-                                .'|lete/([^/]++)(*:1270)'
+                                .'|lete/([^/]++)(*:1342)'
                                 .'|stinations/(?'
-                                    .'|edit/([^/]++)(*:1306)'
-                                    .'|delete/([^/]++)(*:1330)'
+                                    .'|edit/([^/]++)(*:1378)'
+                                    .'|delete/([^/]++)(*:1402)'
                                 .')'
                             .')'
-                            .'|toggle/([^/]++)(*:1356)'
+                            .'|toggle/([^/]++)(*:1428)'
                             .'|schedules/(?'
-                                .'|edit/([^/]++)(*:1391)'
+                                .'|edit/([^/]++)(*:1463)'
                                 .'|del(?'
-                                    .'|ete/([^/]++)(*:1418)'
-                                    .'|ay/([^/]++)(*:1438)'
+                                    .'|ete/([^/]++)(*:1490)'
+                                    .'|ay/([^/]++)(*:1510)'
                                 .')'
-                                .'|cancel/([^/]++)(*:1463)'
+                                .'|cancel/([^/]++)(*:1535)'
                             .')'
                             .'|bookings/(?'
                                 .'|re(?'
-                                    .'|ceipt/([^/]++)(*:1504)'
-                                    .'|fund/([^/]++)(*:1526)'
+                                    .'|ceipt/([^/]++)(*:1576)'
+                                    .'|fund/([^/]++)(*:1598)'
                                 .')'
                                 .'|c(?'
-                                    .'|onfirm/([^/]++)(*:1555)'
-                                    .'|ancel/([^/]++)(*:1578)'
+                                    .'|onfirm/([^/]++)(*:1627)'
+                                    .'|ancel/([^/]++)(*:1650)'
                                 .')'
                                 .'|de(?'
-                                    .'|lete/([^/]++)(*:1606)'
-                                    .'|tails/([^/]++)(*:1629)'
+                                    .'|lete/([^/]++)(*:1678)'
+                                    .'|tails/([^/]++)(*:1701)'
                                 .')'
                             .')'
                         .')'
                     .')'
                     .'|c(?'
-                        .'|commodations/(\\d+)(*:1664)'
-                        .'|tivities/(\\d+)(*:1687)'
+                        .'|commodations/(\\d+)(*:1736)'
+                        .'|tivities/(\\d+)(*:1759)'
                     .')'
                     .'|pi/(?'
-                        .'|weather/([^/]++)(*:1719)'
-                        .'|flights/([^/]++)(*:1744)'
-                        .'|nearby/([^/]++)(*:1768)'
+                        .'|weather/([^/]++)(*:1791)'
+                        .'|flights/([^/]++)(*:1816)'
+                        .'|nearby/([^/]++)(*:1840)'
                         .'|i(?'
-                            .'|mages/([^/]++)(*:1795)'
-                            .'|tinerary/([^/]++)(*:1821)'
+                            .'|mages/([^/]++)(*:1867)'
+                            .'|tinerary/([^/]++)(*:1893)'
                         .')'
                         .'|r(?'
-                            .'|eviews/([^/]++)(*:1850)'
-                            .'|oom/images/([^/]++)(*:1878)'
+                            .'|eviews/([^/]++)(*:1922)'
+                            .'|oom/images/([^/]++)(*:1950)'
                         .')'
-                        .'|accommodation/rooms/([^/]++)(*:1916)'
+                        .'|accommodation/rooms/([^/]++)(*:1988)'
                     .')'
                 .')'
-                .'|/blog/profile/(?'
-                    .'|(\\d+)(*:1949)'
-                    .'|(\\d+)/archive(*:1971)'
+                .'|/blog/(?'
+                    .'|profile/(?'
+                        .'|(\\d+)(*:2024)'
+                        .'|(\\d+)/archive(*:2046)'
+                    .')'
+                    .'|l(?'
+                        .'|ive/(?'
+                            .'|(\\d+)/end(*:2076)'
+                            .'|(\\d+)/join(*:2095)'
+                            .'|(\\d+)/leave(*:2115)'
+                            .'|(\\d+)/comment(*:2137)'
+                            .'|(\\d+)/react/([^/]++)(*:2166)'
+                            .'|(\\d+)/state(*:2186)'
+                            .'|(\\d+)/token(*:2206)'
+                            .'|(\\d+)/recording(*:2230)'
+                            .'|(\\d+)/delete(*:2251)'
+                            .'|(\\d+)/dismiss\\-removed(*:2282)'
+                        .')'
+                        .'|egacy\\-profile/(?'
+                            .'|(\\d+)(*:2315)'
+                            .'|(\\d+)/archive(*:2337)'
+                        .')'
+                    .')'
                 .')'
                 .'|/comment/(?'
-                    .'|create/([^/]++)(*:2008)'
+                    .'|create/([^/]++)(*:2376)'
                     .'|([^/]++)/(?'
-                        .'|edit(*:2033)'
-                        .'|delete(*:2048)'
-                        .'|react/([^/]++)(*:2071)'
+                        .'|edit(*:2401)'
+                        .'|delete(*:2416)'
+                        .'|react/([^/]++)(*:2439)'
                     .')'
                 .')'
                 .'|/travel\\-stor(?'
                     .'|y/(?'
-                        .'|comment/create/([^/]++)(*:2126)'
-                        .'|([^/]++)/react/([^/]++)(*:2158)'
+                        .'|comment/create/([^/]++)(*:2494)'
+                        .'|([^/]++)/react/([^/]++)(*:2526)'
                     .')'
                     .'|ies/(?'
                         .'|([^/]++)(?'
-                            .'|(*:2186)'
+                            .'|(*:2554)'
                             .'|/(?'
-                                .'|edit(*:2203)'
-                                .'|delete(*:2218)'
+                                .'|edit(*:2571)'
+                                .'|d(?'
+                                    .'|elete(*:2589)'
+                                    .'|ismiss\\-removed(*:2613)'
+                                .')'
                             .')'
                         .')'
-                        .'|ai\\-assist(*:2239)'
+                        .'|ai\\-assist(*:2635)'
                     .')'
                 .')'
                 .'|/destinations/(?'
-                    .'|(\\d+)(*:2272)'
-                    .'|(\\d+)/book(*:2291)'
+                    .'|(\\d+)(*:2668)'
+                    .'|(\\d+)/book(*:2687)'
                 .')'
                 .'|/follow/([^/]++)(?'
-                    .'|(*:2320)'
-                    .'|/status(*:2336)'
+                    .'|(*:2716)'
+                    .'|/status(*:2732)'
                 .')'
                 .'|/p(?'
                     .'|ack(?'
-                        .'|s/([^/]++)(*:2367)'
-                        .'|\\-bookings/cancel/([^/]++)(*:2402)'
+                        .'|s/([^/]++)(*:2763)'
+                        .'|\\-bookings/cancel/([^/]++)(*:2798)'
                     .')'
                     .'|ost/(?'
-                        .'|(\\d+)(*:2424)'
-                        .'|(\\d+)/edit(*:2443)'
-                        .'|(\\d+)/delete(*:2464)'
+                        .'|(\\d+)(*:2820)'
+                        .'|(\\d+)/edit(*:2839)'
+                        .'|(\\d+)/delete(*:2860)'
+                        .'|(\\d+)/dismiss\\-removed(*:2891)'
                         .'|([^/]++)/(?'
-                            .'|react/([^/]++)(*:2499)'
-                            .'|save(*:2512)'
+                            .'|react/([^/]++)(*:2926)'
+                            .'|save(*:2939)'
                         .')'
                     .')'
                 .')'
                 .'|/stories/(?'
-                    .'|user/(\\d+)(*:2546)'
-                    .'|(\\d+)/delete(*:2567)'
-                    .'|(\\d+)/seen(*:2586)'
-                    .'|(\\d+)/viewers(*:2608)'
+                    .'|user/(\\d+)(*:2973)'
+                    .'|(\\d+)/delete(*:2994)'
+                    .'|(\\d+)/seen(*:3013)'
+                    .'|(\\d+)/viewers(*:3035)'
+                    .'|(\\d+)/dismiss\\-removed(*:3066)'
                 .')'
                 .'|/user/transport/(?'
-                    .'|browse/detail/([^/]++)(*:2659)'
+                    .'|browse/detail/([^/]++)(*:3117)'
                     .'|my\\-bookings/(?'
-                        .'|cancel/([^/]++)(*:2699)'
-                        .'|add\\-schedule/([^/]++)(*:2730)'
-                        .'|receipt/([^/]++)(*:2755)'
+                        .'|cancel/([^/]++)(*:3157)'
+                        .'|add\\-schedule/([^/]++)(*:3188)'
+                        .'|receipt/([^/]++)(*:3213)'
                     .')'
                 .')'
             .')/?$}sDu',
@@ -373,69 +405,86 @@ return [
         985 => [[['_route' => 'admin_bookings_des_confirm', '_controller' => 'App\\Controller\\admin\\BookingDesController::confirm'], ['id'], null, null, false, false, null]],
         1005 => [[['_route' => 'admin_bookings_des_reject', '_controller' => 'App\\Controller\\admin\\BookingDesController::reject'], ['id'], null, null, false, false, null]],
         1026 => [[['_route' => 'admin_bookings_des_delete', '_controller' => 'App\\Controller\\admin\\BookingDesController::delete'], ['id'], null, null, false, false, null]],
-        1063 => [[['_route' => 'admin_blog_approve', '_controller' => 'App\\Controller\\admin\\BlogAdminController::approve'], ['id'], ['POST' => 0], null, false, false, null]],
-        1078 => [[['_route' => 'admin_blog_reject', '_controller' => 'App\\Controller\\admin\\BlogAdminController::reject'], ['id'], ['POST' => 0], null, false, false, null]],
-        1093 => [[['_route' => 'admin_blog_delete', '_controller' => 'App\\Controller\\admin\\BlogAdminController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
-        1124 => [[['_route' => 'admin_story_delete', '_controller' => 'App\\Controller\\admin\\BlogAdminController::deleteStory'], ['id'], ['POST' => 0], null, false, false, null]],
-        1146 => [[['_route' => 'admin_blog_show', '_controller' => 'App\\Controller\\admin\\BlogAdminController::showPost'], ['id'], null, null, false, false, null]],
-        1174 => [[['_route' => 'admin_story_show', '_controller' => 'App\\Controller\\admin\\BlogAdminController::showStory'], ['id'], null, null, false, false, null]],
-        1206 => [[['_route' => 'admin_comment_delete', '_controller' => 'App\\Controller\\admin\\BlogAdminController::deleteComment'], ['id'], ['POST' => 0], null, false, false, null]],
-        1243 => [[['_route' => 'admin_transport_edit', '_controller' => 'App\\Controller\\admin\\TransportAdminController::editTransport'], ['id'], ['GET' => 0, 'POST' => 1], null, false, true, null]],
-        1270 => [[['_route' => 'admin_transport_delete', '_controller' => 'App\\Controller\\admin\\TransportAdminController::deleteTransport'], ['id'], null, null, false, true, null]],
-        1306 => [[['_route' => 'admin_trans_destination_edit', '_controller' => 'App\\Controller\\admin\\TransportAdminController::editDestination'], ['id'], null, null, false, true, null]],
-        1330 => [[['_route' => 'admin_trans_destination_delete', '_controller' => 'App\\Controller\\admin\\TransportAdminController::deleteDestination'], ['id'], null, null, false, true, null]],
-        1356 => [[['_route' => 'admin_transport_toggle', '_controller' => 'App\\Controller\\admin\\TransportAdminController::toggleTransport'], ['id'], null, null, false, true, null]],
-        1391 => [[['_route' => 'admin_schedule_edit', '_controller' => 'App\\Controller\\admin\\TransportAdminController::editSchedule'], ['id'], ['GET' => 0, 'POST' => 1], null, false, true, null]],
-        1418 => [[['_route' => 'admin_schedule_delete', '_controller' => 'App\\Controller\\admin\\TransportAdminController::deleteSchedule'], ['id'], null, null, false, true, null]],
-        1438 => [[['_route' => 'admin_schedule_delay', '_controller' => 'App\\Controller\\admin\\TransportAdminController::delaySchedule'], ['id'], ['POST' => 0], null, false, true, null]],
-        1463 => [[['_route' => 'admin_schedule_cancel', '_controller' => 'App\\Controller\\admin\\TransportAdminController::cancelSchedule'], ['id'], null, null, false, true, null]],
-        1504 => [[['_route' => 'admin_booking_receipt_pdf', '_controller' => 'App\\Controller\\admin\\TransportAdminController::exportReceiptPdf'], ['id'], null, null, false, true, null]],
-        1526 => [[['_route' => 'admin_booking_refund', '_controller' => 'App\\Controller\\admin\\TransportAdminController::refundBooking'], ['id'], null, null, false, true, null]],
-        1555 => [[['_route' => 'admin_booking_confirm', '_controller' => 'App\\Controller\\admin\\TransportAdminController::confirmBooking'], ['id'], null, null, false, true, null]],
-        1578 => [[['_route' => 'admin_booking_cancel', '_controller' => 'App\\Controller\\admin\\TransportAdminController::cancelBooking'], ['id'], ['POST' => 0], null, false, true, null]],
-        1606 => [[['_route' => 'admin_booking_delete', '_controller' => 'App\\Controller\\admin\\TransportAdminController::deleteBooking'], ['id'], null, null, false, true, null]],
-        1629 => [[['_route' => 'admin_booking_details', '_controller' => 'App\\Controller\\admin\\TransportAdminController::bookingDetails'], ['id'], null, null, false, true, null]],
-        1664 => [[['_route' => 'accommodation_details', '_controller' => 'App\\Controller\\user\\AccommodationDetailsController::show'], ['id'], ['GET' => 0], null, false, true, null]],
-        1687 => [[['_route' => 'activity_detail', '_controller' => 'App\\Controller\\user\\ActivityFrontController::detail'], ['id'], null, null, false, true, null]],
-        1719 => [[['_route' => 'api_weather', '_controller' => 'App\\Controller\\user\\AccommodationDetailsController::getWeather'], ['id'], ['GET' => 0], null, false, true, null]],
-        1744 => [[['_route' => 'api_flights', '_controller' => 'App\\Controller\\user\\AccommodationDetailsController::getFlights'], ['id'], ['GET' => 0], null, false, true, null]],
-        1768 => [[['_route' => 'api_nearby', '_controller' => 'App\\Controller\\user\\AccommodationDetailsController::getNearby'], ['id'], ['GET' => 0], null, false, true, null]],
-        1795 => [[['_route' => 'api_images', '_controller' => 'App\\Controller\\user\\AccommodationDetailsController::getImages'], ['id'], ['GET' => 0], null, false, true, null]],
-        1821 => [[['_route' => 'api_itinerary', '_controller' => 'App\\Controller\\user\\AccommodationDetailsController::generateItinerary'], ['id'], ['POST' => 0], null, false, true, null]],
-        1850 => [[['_route' => 'api_reviews', '_controller' => 'App\\Controller\\user\\AccommodationDetailsController::getReviews'], ['id'], ['GET' => 0], null, false, true, null]],
-        1878 => [[['_route' => 'api_room_images', '_controller' => 'App\\Controller\\user\\AccommodationDetailsController::getRoomImages'], ['id'], ['GET' => 0], null, false, true, null]],
-        1916 => [[['_route' => 'api_accommodation_rooms', '_controller' => 'App\\Controller\\user\\AccommodationDetailsController::getRooms'], ['id'], ['GET' => 0], null, false, true, null]],
-        1949 => [[['_route' => 'blog_user_profile', '_controller' => 'App\\Controller\\user\\BlogProfileController::show'], ['id'], ['GET' => 0], null, false, true, null]],
-        1971 => [[['_route' => 'blog_user_archive', '_controller' => 'App\\Controller\\user\\BlogProfileController::archive'], ['id'], ['GET' => 0], null, false, false, null]],
-        2008 => [[['_route' => 'comment_create', '_controller' => 'App\\Controller\\user\\CommentController::create'], ['id'], ['POST' => 0], null, false, true, null]],
-        2033 => [[['_route' => 'comment_edit', '_controller' => 'App\\Controller\\user\\CommentController::edit'], ['id'], ['POST' => 0], null, false, false, null]],
-        2048 => [[['_route' => 'comment_delete', '_controller' => 'App\\Controller\\user\\CommentController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
-        2071 => [[['_route' => 'comment_react', '_controller' => 'App\\Controller\\user\\ReactionController::reactToComment'], ['id', 'type'], ['POST' => 0], null, false, true, null]],
-        2126 => [[['_route' => 'travel_story_comment_create', '_controller' => 'App\\Controller\\user\\CommentController::createForTravelStory'], ['id'], ['POST' => 0], null, false, true, null]],
-        2158 => [[['_route' => 'travel_story_react', '_controller' => 'App\\Controller\\user\\ReactionController::reactToTravelStory'], ['id', 'type'], ['POST' => 0], null, false, true, null]],
-        2186 => [[['_route' => 'travel_story_show', '_controller' => 'App\\Controller\\user\\TravelStoryController::show'], ['id'], ['GET' => 0], null, false, true, null]],
-        2203 => [[['_route' => 'travel_story_edit', '_controller' => 'App\\Controller\\user\\TravelStoryController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
-        2218 => [[['_route' => 'travel_story_delete', '_controller' => 'App\\Controller\\user\\TravelStoryController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
-        2239 => [[['_route' => 'travel_story_ai_assist', '_controller' => 'App\\Controller\\user\\TravelStoryController::aiAssist'], [], ['POST' => 0], null, false, false, null]],
-        2272 => [[['_route' => 'destination_detail', '_controller' => 'App\\Controller\\user\\DestinationsController::detail'], ['id'], null, null, false, true, null]],
-        2291 => [[['_route' => 'booking_form', '_controller' => 'App\\Controller\\user\\DestinationsController::bookingForm'], ['destinationId'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
-        2320 => [[['_route' => 'follow_toggle', '_controller' => 'App\\Controller\\user\\FollowController::toggle'], ['id'], ['POST' => 0], null, false, true, null]],
-        2336 => [[['_route' => 'follow_status', '_controller' => 'App\\Controller\\user\\FollowController::status'], ['id'], ['GET' => 0], null, false, false, null]],
-        2367 => [[['_route' => 'user_pack_details', '_controller' => 'App\\Controller\\user\\FrontPacksController::packDetails'], ['id'], null, null, false, true, null]],
-        2402 => [[['_route' => 'user_pack_booking_cancel', '_controller' => 'App\\Controller\\user\\FrontPacksController::cancelBooking'], ['id'], null, null, false, true, null]],
-        2424 => [[['_route' => 'post_show', '_controller' => 'App\\Controller\\user\\PostController::show'], ['id'], null, null, false, true, null]],
-        2443 => [[['_route' => 'post_edit', '_controller' => 'App\\Controller\\user\\PostController::edit'], ['id'], null, null, false, false, null]],
-        2464 => [[['_route' => 'post_delete', '_controller' => 'App\\Controller\\user\\PostController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
-        2499 => [[['_route' => 'post_react', '_controller' => 'App\\Controller\\user\\ReactionController::reactToPost'], ['id', 'type'], ['POST' => 0], null, false, true, null]],
-        2512 => [[['_route' => 'post_save_toggle', '_controller' => 'App\\Controller\\user\\SavedPostController::toggle'], ['id'], ['POST' => 0], null, false, false, null]],
-        2546 => [[['_route' => 'story_user_list', '_controller' => 'App\\Controller\\user\\StoryController::listByUser'], ['id'], ['GET' => 0], null, false, true, null]],
-        2567 => [[['_route' => 'story_delete', '_controller' => 'App\\Controller\\user\\StoryController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
-        2586 => [[['_route' => 'story_seen_mark', '_controller' => 'App\\Controller\\user\\StoryController::markSeen'], ['id'], ['POST' => 0], null, false, false, null]],
-        2608 => [[['_route' => 'story_viewers_list', '_controller' => 'App\\Controller\\user\\StoryController::viewers'], ['id'], ['GET' => 0], null, false, false, null]],
-        2659 => [[['_route' => 'user_transport_detail', '_controller' => 'App\\Controller\\user\\TransportUserInterfaceController::transportDetail'], ['id'], null, null, false, true, null]],
-        2699 => [[['_route' => 'user_booking_cancel', '_controller' => 'App\\Controller\\user\\TransportUserInterfaceController::cancelBooking'], ['id'], ['POST' => 0], null, false, true, null]],
-        2730 => [[['_route' => 'user_booking_add_schedule', '_controller' => 'App\\Controller\\user\\TransportUserInterfaceController::addScheduleToBooking'], ['bookingId'], ['GET' => 0, 'POST' => 1], null, false, true, null]],
-        2755 => [
+        1060 => [[['_route' => 'admin_blog_approve', '_controller' => 'App\\Controller\\admin\\BlogAdminController::approve'], ['id'], ['POST' => 0], null, false, false, null]],
+        1094 => [[['_route' => 'admin_ig_story_delete', '_controller' => 'App\\Controller\\admin\\BlogAdminController::deleteIgStory'], ['id'], ['POST' => 0], null, false, false, null]],
+        1123 => [[['_route' => 'admin_live_delete', '_controller' => 'App\\Controller\\admin\\BlogAdminController::deleteLiveSession'], ['id'], ['POST' => 0], null, false, false, null]],
+        1150 => [[['_route' => 'admin_blog_reject', '_controller' => 'App\\Controller\\admin\\BlogAdminController::reject'], ['id'], ['POST' => 0], null, false, false, null]],
+        1165 => [[['_route' => 'admin_blog_delete', '_controller' => 'App\\Controller\\admin\\BlogAdminController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
+        1196 => [[['_route' => 'admin_story_delete', '_controller' => 'App\\Controller\\admin\\BlogAdminController::deleteStory'], ['id'], ['POST' => 0], null, false, false, null]],
+        1218 => [[['_route' => 'admin_blog_show', '_controller' => 'App\\Controller\\admin\\BlogAdminController::showPost'], ['id'], null, null, false, false, null]],
+        1246 => [[['_route' => 'admin_story_show', '_controller' => 'App\\Controller\\admin\\BlogAdminController::showStory'], ['id'], null, null, false, false, null]],
+        1278 => [[['_route' => 'admin_comment_delete', '_controller' => 'App\\Controller\\admin\\BlogAdminController::deleteComment'], ['id'], ['POST' => 0], null, false, false, null]],
+        1315 => [[['_route' => 'admin_transport_edit', '_controller' => 'App\\Controller\\admin\\TransportAdminController::editTransport'], ['id'], ['GET' => 0, 'POST' => 1], null, false, true, null]],
+        1342 => [[['_route' => 'admin_transport_delete', '_controller' => 'App\\Controller\\admin\\TransportAdminController::deleteTransport'], ['id'], null, null, false, true, null]],
+        1378 => [[['_route' => 'admin_trans_destination_edit', '_controller' => 'App\\Controller\\admin\\TransportAdminController::editDestination'], ['id'], null, null, false, true, null]],
+        1402 => [[['_route' => 'admin_trans_destination_delete', '_controller' => 'App\\Controller\\admin\\TransportAdminController::deleteDestination'], ['id'], null, null, false, true, null]],
+        1428 => [[['_route' => 'admin_transport_toggle', '_controller' => 'App\\Controller\\admin\\TransportAdminController::toggleTransport'], ['id'], null, null, false, true, null]],
+        1463 => [[['_route' => 'admin_schedule_edit', '_controller' => 'App\\Controller\\admin\\TransportAdminController::editSchedule'], ['id'], ['GET' => 0, 'POST' => 1], null, false, true, null]],
+        1490 => [[['_route' => 'admin_schedule_delete', '_controller' => 'App\\Controller\\admin\\TransportAdminController::deleteSchedule'], ['id'], null, null, false, true, null]],
+        1510 => [[['_route' => 'admin_schedule_delay', '_controller' => 'App\\Controller\\admin\\TransportAdminController::delaySchedule'], ['id'], ['POST' => 0], null, false, true, null]],
+        1535 => [[['_route' => 'admin_schedule_cancel', '_controller' => 'App\\Controller\\admin\\TransportAdminController::cancelSchedule'], ['id'], null, null, false, true, null]],
+        1576 => [[['_route' => 'admin_booking_receipt_pdf', '_controller' => 'App\\Controller\\admin\\TransportAdminController::exportReceiptPdf'], ['id'], null, null, false, true, null]],
+        1598 => [[['_route' => 'admin_booking_refund', '_controller' => 'App\\Controller\\admin\\TransportAdminController::refundBooking'], ['id'], null, null, false, true, null]],
+        1627 => [[['_route' => 'admin_booking_confirm', '_controller' => 'App\\Controller\\admin\\TransportAdminController::confirmBooking'], ['id'], null, null, false, true, null]],
+        1650 => [[['_route' => 'admin_booking_cancel', '_controller' => 'App\\Controller\\admin\\TransportAdminController::cancelBooking'], ['id'], ['POST' => 0], null, false, true, null]],
+        1678 => [[['_route' => 'admin_booking_delete', '_controller' => 'App\\Controller\\admin\\TransportAdminController::deleteBooking'], ['id'], null, null, false, true, null]],
+        1701 => [[['_route' => 'admin_booking_details', '_controller' => 'App\\Controller\\admin\\TransportAdminController::bookingDetails'], ['id'], null, null, false, true, null]],
+        1736 => [[['_route' => 'accommodation_details', '_controller' => 'App\\Controller\\user\\AccommodationDetailsController::show'], ['id'], ['GET' => 0], null, false, true, null]],
+        1759 => [[['_route' => 'activity_detail', '_controller' => 'App\\Controller\\user\\ActivityFrontController::detail'], ['id'], null, null, false, true, null]],
+        1791 => [[['_route' => 'api_weather', '_controller' => 'App\\Controller\\user\\AccommodationDetailsController::getWeather'], ['id'], ['GET' => 0], null, false, true, null]],
+        1816 => [[['_route' => 'api_flights', '_controller' => 'App\\Controller\\user\\AccommodationDetailsController::getFlights'], ['id'], ['GET' => 0], null, false, true, null]],
+        1840 => [[['_route' => 'api_nearby', '_controller' => 'App\\Controller\\user\\AccommodationDetailsController::getNearby'], ['id'], ['GET' => 0], null, false, true, null]],
+        1867 => [[['_route' => 'api_images', '_controller' => 'App\\Controller\\user\\AccommodationDetailsController::getImages'], ['id'], ['GET' => 0], null, false, true, null]],
+        1893 => [[['_route' => 'api_itinerary', '_controller' => 'App\\Controller\\user\\AccommodationDetailsController::generateItinerary'], ['id'], ['POST' => 0], null, false, true, null]],
+        1922 => [[['_route' => 'api_reviews', '_controller' => 'App\\Controller\\user\\AccommodationDetailsController::getReviews'], ['id'], ['GET' => 0], null, false, true, null]],
+        1950 => [[['_route' => 'api_room_images', '_controller' => 'App\\Controller\\user\\AccommodationDetailsController::getRoomImages'], ['id'], ['GET' => 0], null, false, true, null]],
+        1988 => [[['_route' => 'api_accommodation_rooms', '_controller' => 'App\\Controller\\user\\AccommodationDetailsController::getRooms'], ['id'], ['GET' => 0], null, false, true, null]],
+        2024 => [[['_route' => 'blog_user_profile', '_controller' => 'App\\Controller\\user\\BlogProfileController::show'], ['id'], ['GET' => 0], null, false, true, null]],
+        2046 => [[['_route' => 'blog_user_archive', '_controller' => 'App\\Controller\\user\\BlogProfileController::archive'], ['id'], ['GET' => 0], null, false, false, null]],
+        2076 => [[['_route' => 'blog_live_end', '_controller' => 'App\\Controller\\user\\LiveController::end'], ['id'], ['POST' => 0], null, false, false, null]],
+        2095 => [[['_route' => 'blog_live_join', '_controller' => 'App\\Controller\\user\\LiveController::join'], ['id'], ['POST' => 0], null, false, false, null]],
+        2115 => [[['_route' => 'blog_live_leave', '_controller' => 'App\\Controller\\user\\LiveController::leave'], ['id'], ['POST' => 0], null, false, false, null]],
+        2137 => [[['_route' => 'blog_live_comment', '_controller' => 'App\\Controller\\user\\LiveController::comment'], ['id'], ['POST' => 0], null, false, false, null]],
+        2166 => [[['_route' => 'blog_live_react', '_controller' => 'App\\Controller\\user\\LiveController::react'], ['id', 'type'], ['POST' => 0], null, false, true, null]],
+        2186 => [[['_route' => 'blog_live_state', '_controller' => 'App\\Controller\\user\\LiveController::state'], ['id'], ['GET' => 0], null, false, false, null]],
+        2206 => [[['_route' => 'blog_live_token', '_controller' => 'App\\Controller\\user\\LiveController::token'], ['id'], ['GET' => 0], null, false, false, null]],
+        2230 => [[['_route' => 'blog_live_recording_upload', '_controller' => 'App\\Controller\\user\\LiveController::uploadRecording'], ['id'], ['POST' => 0], null, false, false, null]],
+        2251 => [[['_route' => 'blog_live_delete', '_controller' => 'App\\Controller\\user\\LiveController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
+        2282 => [[['_route' => 'blog_live_dismiss_removed', '_controller' => 'App\\Controller\\user\\LiveController::dismissRemoved'], ['id'], ['POST' => 0], null, false, false, null]],
+        2315 => [[['_route' => 'legacy_blog_user_profile', '_controller' => 'App\\Controller\\user\\ProfileController::show'], ['id'], ['GET' => 0], null, false, true, null]],
+        2337 => [[['_route' => 'legacy_blog_user_archive', '_controller' => 'App\\Controller\\user\\ProfileController::archive'], ['id'], ['GET' => 0], null, false, false, null]],
+        2376 => [[['_route' => 'comment_create', '_controller' => 'App\\Controller\\user\\CommentController::create'], ['id'], ['POST' => 0], null, false, true, null]],
+        2401 => [[['_route' => 'comment_edit', '_controller' => 'App\\Controller\\user\\CommentController::edit'], ['id'], ['POST' => 0], null, false, false, null]],
+        2416 => [[['_route' => 'comment_delete', '_controller' => 'App\\Controller\\user\\CommentController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
+        2439 => [[['_route' => 'comment_react', '_controller' => 'App\\Controller\\user\\ReactionController::reactToComment'], ['id', 'type'], ['POST' => 0], null, false, true, null]],
+        2494 => [[['_route' => 'travel_story_comment_create', '_controller' => 'App\\Controller\\user\\CommentController::createForTravelStory'], ['id'], ['POST' => 0], null, false, true, null]],
+        2526 => [[['_route' => 'travel_story_react', '_controller' => 'App\\Controller\\user\\ReactionController::reactToTravelStory'], ['id', 'type'], ['POST' => 0], null, false, true, null]],
+        2554 => [[['_route' => 'travel_story_show', '_controller' => 'App\\Controller\\user\\TravelStoryController::show'], ['id'], ['GET' => 0], null, false, true, null]],
+        2571 => [[['_route' => 'travel_story_edit', '_controller' => 'App\\Controller\\user\\TravelStoryController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        2589 => [[['_route' => 'travel_story_delete', '_controller' => 'App\\Controller\\user\\TravelStoryController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
+        2613 => [[['_route' => 'travel_story_dismiss_removed', '_controller' => 'App\\Controller\\user\\TravelStoryController::dismissRemoved'], ['id'], ['POST' => 0], null, false, false, null]],
+        2635 => [[['_route' => 'travel_story_ai_assist', '_controller' => 'App\\Controller\\user\\TravelStoryController::aiAssist'], [], ['POST' => 0], null, false, false, null]],
+        2668 => [[['_route' => 'destination_detail', '_controller' => 'App\\Controller\\user\\DestinationsController::detail'], ['id'], null, null, false, true, null]],
+        2687 => [[['_route' => 'booking_form', '_controller' => 'App\\Controller\\user\\DestinationsController::bookingForm'], ['destinationId'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        2716 => [[['_route' => 'follow_toggle', '_controller' => 'App\\Controller\\user\\FollowController::toggle'], ['id'], ['POST' => 0], null, false, true, null]],
+        2732 => [[['_route' => 'follow_status', '_controller' => 'App\\Controller\\user\\FollowController::status'], ['id'], ['GET' => 0], null, false, false, null]],
+        2763 => [[['_route' => 'user_pack_details', '_controller' => 'App\\Controller\\user\\FrontPacksController::packDetails'], ['id'], null, null, false, true, null]],
+        2798 => [[['_route' => 'user_pack_booking_cancel', '_controller' => 'App\\Controller\\user\\FrontPacksController::cancelBooking'], ['id'], null, null, false, true, null]],
+        2820 => [[['_route' => 'post_show', '_controller' => 'App\\Controller\\user\\PostController::show'], ['id'], null, null, false, true, null]],
+        2839 => [[['_route' => 'post_edit', '_controller' => 'App\\Controller\\user\\PostController::edit'], ['id'], null, null, false, false, null]],
+        2860 => [[['_route' => 'post_delete', '_controller' => 'App\\Controller\\user\\PostController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
+        2891 => [[['_route' => 'post_dismiss_removed', '_controller' => 'App\\Controller\\user\\PostController::dismissRemoved'], ['id'], ['POST' => 0], null, false, false, null]],
+        2926 => [[['_route' => 'post_react', '_controller' => 'App\\Controller\\user\\ReactionController::reactToPost'], ['id', 'type'], ['POST' => 0], null, false, true, null]],
+        2939 => [[['_route' => 'post_save_toggle', '_controller' => 'App\\Controller\\user\\SavedPostController::toggle'], ['id'], ['POST' => 0], null, false, false, null]],
+        2973 => [[['_route' => 'story_user_list', '_controller' => 'App\\Controller\\user\\StoryController::listByUser'], ['id'], ['GET' => 0], null, false, true, null]],
+        2994 => [[['_route' => 'story_delete', '_controller' => 'App\\Controller\\user\\StoryController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
+        3013 => [[['_route' => 'story_seen_mark', '_controller' => 'App\\Controller\\user\\StoryController::markSeen'], ['id'], ['POST' => 0], null, false, false, null]],
+        3035 => [[['_route' => 'story_viewers_list', '_controller' => 'App\\Controller\\user\\StoryController::viewers'], ['id'], ['GET' => 0], null, false, false, null]],
+        3066 => [[['_route' => 'story_dismiss_removed', '_controller' => 'App\\Controller\\user\\StoryController::dismissRemoved'], ['id'], ['POST' => 0], null, false, false, null]],
+        3117 => [[['_route' => 'user_transport_detail', '_controller' => 'App\\Controller\\user\\TransportUserInterfaceController::transportDetail'], ['id'], null, null, false, true, null]],
+        3157 => [[['_route' => 'user_booking_cancel', '_controller' => 'App\\Controller\\user\\TransportUserInterfaceController::cancelBooking'], ['id'], ['POST' => 0], null, false, true, null]],
+        3188 => [[['_route' => 'user_booking_add_schedule', '_controller' => 'App\\Controller\\user\\TransportUserInterfaceController::addScheduleToBooking'], ['bookingId'], ['GET' => 0, 'POST' => 1], null, false, true, null]],
+        3213 => [
             [['_route' => 'user_booking_receipt_pdf', '_controller' => 'App\\Controller\\user\\TransportUserInterfaceController::exportReceiptPdf'], ['id'], null, null, false, true, null],
             [null, null, null, null, false, false, 0],
         ],

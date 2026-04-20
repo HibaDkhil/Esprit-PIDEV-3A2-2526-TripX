@@ -80,6 +80,36 @@ class BlogController extends AbstractController
         if ($showPosts) {
             $posts = $postRepository->findFiltered($search, '');
 
+            if ($currentUserId !== null) {
+                $removedOwnedPosts = array_values(array_filter(
+                    $postRepository->findByUser($currentUserId),
+                    static function ($post) use ($search): bool {
+                        if (!method_exists($post, 'isRemovedByAdmin') || !$post->isRemovedByAdmin()) {
+                            return false;
+                        }
+
+                        if ($search === '') {
+                            return true;
+                        }
+
+                        $haystack = mb_strtolower(trim((string) $post->getTitle() . ' ' . (string) $post->getBody()));
+                        return str_contains($haystack, mb_strtolower($search));
+                    }
+                ));
+
+                if ($removedOwnedPosts !== []) {
+                    $merged = [];
+                    foreach (array_merge($posts, $removedOwnedPosts) as $post) {
+                        $postId = (int) ($post->getId() ?? 0);
+                        if ($postId <= 0 || isset($merged[$postId])) {
+                            continue;
+                        }
+                        $merged[$postId] = $post;
+                    }
+                    $posts = array_values($merged);
+                }
+            }
+
             if ($typeFilter === 'my_posts') {
                 if ($currentUserId === null) {
                     $posts = [];
@@ -94,7 +124,18 @@ class BlogController extends AbstractController
 
         $stories = [];
         if ($showStories) {
-            $stories = $tsRepository->findFiltered($search);
+            $stories = $tsRepository->findFiltered($search, '', '', '', null, true);
+
+            $stories = array_values(array_filter(
+                $stories,
+                static function ($story) use ($currentUserId): bool {
+                    if (!$story->isRemovedByAdmin()) {
+                        return true;
+                    }
+
+                    return $currentUserId !== null && (int) $story->getUserId() === $currentUserId;
+                }
+            ));
 
             if ($typeFilter === 'my_travel_story') {
                 if ($currentUserId === null) {
@@ -126,9 +167,49 @@ class BlogController extends AbstractController
             ];
         }
 
-        usort($feed, fn($a, $b) => $b['createdAt'] <=> $a['createdAt']);
+        usort($feed, function (array $a, array $b): int {
+            $aPlaceholder = $this->isModerationPlaceholderFeedItem($a);
+            $bPlaceholder = $this->isModerationPlaceholderFeedItem($b);
+
+            if ($aPlaceholder !== $bPlaceholder) {
+                return $aPlaceholder ? -1 : 1;
+            }
+
+            $aTs = $this->getFeedItemPrimaryTimestamp($a);
+            $bTs = $this->getFeedItemPrimaryTimestamp($b);
+
+            return $bTs <=> $aTs;
+        });
 
         return $feed;
+    }
+
+    private function isModerationPlaceholderFeedItem(array $item): bool
+    {
+        $entity = $item['entity'] ?? null;
+        if (!is_object($entity) || !method_exists($entity, 'isRemovedByAdmin')) {
+            return false;
+        }
+
+        return (bool) $entity->isRemovedByAdmin();
+    }
+
+    private function getFeedItemPrimaryTimestamp(array $item): int
+    {
+        $entity = $item['entity'] ?? null;
+        if ($this->isModerationPlaceholderFeedItem($item) && is_object($entity) && method_exists($entity, 'getRemovedAt')) {
+            $removedAt = $entity->getRemovedAt();
+            if ($removedAt instanceof \DateTimeInterface) {
+                return $removedAt->getTimestamp();
+            }
+        }
+
+        $createdAt = $item['createdAt'] ?? null;
+        if ($createdAt instanceof \DateTimeInterface) {
+            return $createdAt->getTimestamp();
+        }
+
+        return 0;
     }
 
     private function buildFeedContext(
@@ -190,6 +271,10 @@ class BlogController extends AbstractController
                     'wow'  => 0, 'sad'  => 0, 'angry' => 0,
                 ];
 
+                if (method_exists($post, 'isRemovedByAdmin') && $post->isRemovedByAdmin()) {
+                    continue;
+                }
+
                 foreach ($reactionRepo->findBy(['post_id' => $pid]) as $reaction) {
                     $type = strtolower(trim((string) $reaction->getType()));
                     if (isset($reactionSummary[$pid][$type])) {
@@ -205,6 +290,17 @@ class BlogController extends AbstractController
 
             $story = $item['entity'];
             $sid = (int) $story->getId();
+
+            if ($story->isRemovedByAdmin()) {
+                $storyComments[$sid] = [];
+                $storyReactionSummary[$sid] = [
+                    'like' => 0, 'love' => 0, 'haha' => 0,
+                    'wow'  => 0, 'sad'  => 0, 'angry' => 0,
+                ];
+                $storyUserReactions[$sid] = '';
+                continue;
+            }
+
             $storyReactionSummary[$sid] = [
                 'like' => 0, 'love' => 0, 'haha' => 0,
                 'wow'  => 0, 'sad'  => 0, 'angry' => 0,
@@ -251,7 +347,7 @@ class BlogController extends AbstractController
         ?int $currentUserId
     ): array
     {
-        $activeStories = $storyRepository->findActive();
+        $activeStories = $storyRepository->findActive(null, true);
         $seenStoryIdsLookup = [];
 
         $allowedOwnerLookup = [];
@@ -302,6 +398,10 @@ class BlogController extends AbstractController
                 continue;
             }
 
+            if ($story->isRemovedByAdmin() && $uid !== $currentUserId) {
+                continue;
+            }
+
             if (!isset($storiesByUser[$uid])) {
                 $name = trim((string) $user->getFirstName() . ' ' . (string) $user->getLastName());
                 $storiesByUser[$uid] = [
@@ -317,6 +417,9 @@ class BlogController extends AbstractController
                 'caption' => (string) ($story->getCaption() ?? ''),
                 'createdAt' => $story->getCreatedAt()?->format(DATE_ATOM),
                 'expiresAt' => $story->getExpiresAt()?->format(DATE_ATOM),
+                'removedByAdmin' => $story->isRemovedByAdmin(),
+                'removalReason' => (string) ($story->getRemovalReason() ?? ''),
+                'removedAt' => $story->getRemovedAt()?->format(DATE_ATOM),
                 'isSeenByMe' => isset($seenStoryIdsLookup[(int) $story->getId()]),
             ];
         }

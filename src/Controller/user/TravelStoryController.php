@@ -6,6 +6,8 @@ use App\Entity\TravelStory;
 use App\Entity\User;
 use App\Form\TravelStoryType;
 use App\Repository\TravelStoryRepository;
+use App\service\BotProtectionService;
+use App\service\ContentModerationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
@@ -50,7 +52,9 @@ class TravelStoryController extends AbstractController
     public function new(
         Request $request,
         EntityManagerInterface $entityManager,
-        SluggerInterface $slugger
+        SluggerInterface $slugger,
+        BotProtectionService $botProtectionService,
+        ContentModerationService $contentModerationService
     ): Response {
         $user = $this->getAuthenticatedUser();
         if (!$user instanceof User) {
@@ -65,6 +69,33 @@ class TravelStoryController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $botIssue = $botProtectionService->validateRequest($request, 'travel_story_create');
+            if ($botIssue !== null) {
+                $this->addFlash('error', $botIssue);
+                return $this->redirectToRoute('travel_story_new');
+            }
+
+            $moderationIssue = $contentModerationService->validateContent(
+                [
+                    $form->get('title')->getData(),
+                    $form->get('destination')->getData(),
+                    $form->get('summary')->getData(),
+                    $form->get('tips')->getData(),
+                    $form->get('tagsText')->getData(),
+                    $form->get('mustVisitText')->getData(),
+                    $form->get('mustDoText')->getData(),
+                    $form->get('mustTryText')->getData(),
+                    $form->get('favoritePlacesText')->getData(),
+                ],
+                'travel_story',
+                $request,
+                $user
+            );
+            if ($moderationIssue !== null) {
+                $this->addFlash('error', $moderationIssue);
+                return $this->redirectToRoute('travel_story_new');
+            }
+
             $travelStory->setTagsJson($this->textToArray($form->get('tagsText')->getData()));
             $travelStory->setMustVisitJson($this->textToArray($form->get('mustVisitText')->getData()));
             $travelStory->setMustDoJson($this->textToArray($form->get('mustDoText')->getData()));
@@ -129,6 +160,10 @@ class TravelStoryController extends AbstractController
     #[Route('/{id}', name: 'travel_story_show', methods: ['GET'])]
     public function show(TravelStory $travelStory, EntityManagerInterface $entityManager): Response
     {
+        if ($travelStory->isRemovedByAdmin()) {
+            throw $this->createNotFoundException('Travel story not found.');
+        }
+
         $author = $entityManager->getRepository(User::class)->find($travelStory->getUserId());
         $authorName = $author instanceof User
             ? trim((string) $author->getFirstName() . ' ' . (string) $author->getLastName())
@@ -147,8 +182,14 @@ class TravelStoryController extends AbstractController
         Request $request,
         TravelStory $travelStory,
         EntityManagerInterface $entityManager,
-        SluggerInterface $slugger
+        SluggerInterface $slugger,
+        BotProtectionService $botProtectionService,
+        ContentModerationService $contentModerationService
     ): Response {
+        if ($travelStory->isRemovedByAdmin()) {
+            throw $this->createNotFoundException('Travel story not found.');
+        }
+
         $user = $this->getAuthenticatedUser();
         if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
@@ -162,6 +203,33 @@ class TravelStoryController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $botIssue = $botProtectionService->validateRequest($request, 'travel_story_edit');
+            if ($botIssue !== null) {
+                $this->addFlash('error', $botIssue);
+                return $this->redirectToRoute('travel_story_edit', ['id' => $travelStory->getId()]);
+            }
+
+            $moderationIssue = $contentModerationService->validateContent(
+                [
+                    $form->get('title')->getData(),
+                    $form->get('destination')->getData(),
+                    $form->get('summary')->getData(),
+                    $form->get('tips')->getData(),
+                    $form->get('tagsText')->getData(),
+                    $form->get('mustVisitText')->getData(),
+                    $form->get('mustDoText')->getData(),
+                    $form->get('mustTryText')->getData(),
+                    $form->get('favoritePlacesText')->getData(),
+                ],
+                'travel_story_edit',
+                $request,
+                $user
+            );
+            if ($moderationIssue !== null) {
+                $this->addFlash('error', $moderationIssue);
+                return $this->redirectToRoute('travel_story_edit', ['id' => $travelStory->getId()]);
+            }
+
             $travelStory->setTagsJson($this->textToArray($form->get('tagsText')->getData()));
             $travelStory->setMustVisitJson($this->textToArray($form->get('mustVisitText')->getData()));
             $travelStory->setMustDoJson($this->textToArray($form->get('mustDoText')->getData()));
@@ -228,6 +296,10 @@ class TravelStoryController extends AbstractController
         TravelStory $travelStory,
         EntityManagerInterface $entityManager
     ): Response {
+        if ($travelStory->isRemovedByAdmin()) {
+            throw $this->createNotFoundException('Travel story not found.');
+        }
+
         $user = $this->getAuthenticatedUser();
         if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
@@ -251,6 +323,35 @@ class TravelStoryController extends AbstractController
         $this->addFlash('success', 'Travel story deleted.');
 
         return $this->redirectToRoute('travel_story_index');
+    }
+
+    #[Route('/{id}/dismiss-removed', name: 'travel_story_dismiss_removed', methods: ['POST'])]
+    public function dismissRemoved(
+        Request $request,
+        TravelStory $travelStory,
+        EntityManagerInterface $entityManager
+    ): JsonResponse {
+        $user = $this->getAuthenticatedUser();
+        if (!$user instanceof User) {
+            return $this->json(['ok' => false, 'message' => 'Authentication required.'], 401);
+        }
+
+        if (!$travelStory->isRemovedByAdmin()) {
+            return $this->json(['ok' => false, 'message' => 'Story is not moderated.'], 422);
+        }
+
+        if (!$this->canManageStory($travelStory)) {
+            return $this->json(['ok' => false, 'message' => 'Not allowed.'], 403);
+        }
+
+        if (!$this->isCsrfTokenValid('dismiss_removed_travel_story_' . $travelStory->getId(), (string) $request->request->get('_token'))) {
+            return $this->json(['ok' => false, 'message' => 'Invalid token.'], 400);
+        }
+
+        $entityManager->remove($travelStory);
+        $entityManager->flush();
+
+        return $this->json(['ok' => true, 'id' => $travelStory->getId()]);
     }
 
     #[Route('/ai-assist', name: 'travel_story_ai_assist', methods: ['POST'])]

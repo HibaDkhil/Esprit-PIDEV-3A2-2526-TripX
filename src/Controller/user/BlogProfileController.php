@@ -6,6 +6,7 @@ use App\Entity\BlogProfile;
 use App\Entity\User;
 use App\Repository\BlogProfileRepository;
 use App\Repository\FollowingRepository;
+use App\Repository\LiveSessionRepository;
 use App\Repository\PostRepository;
 use App\Repository\StoryRepository;
 use App\Repository\TravelStoryRepository;
@@ -32,6 +33,7 @@ class BlogProfileController extends AbstractController
             'posts' => 'posts',
             'travel_stories' => 'travel_stories',
             'shared' => 'shared',
+            'lives' => 'lives',
             default => 'shared',
         };
     }
@@ -43,6 +45,7 @@ class BlogProfileController extends AbstractController
         EntityManagerInterface $em,
         PostRepository $postRepository,
         TravelStoryRepository $travelStoryRepository,
+        LiveSessionRepository $liveSessionRepository,
         FollowingRepository $followingRepository,
         StoryRepository $storyRepository,
         BlogProfileRepository $blogProfileRepository
@@ -76,6 +79,7 @@ class BlogProfileController extends AbstractController
 
         $posts = [];
         $travelStories = [];
+        $savedLives = [];
         $shared = [];
 
         if ($canViewContent) {
@@ -96,6 +100,8 @@ class BlogProfileController extends AbstractController
                     'createdAt' => $story->getCreatedAt() ?? new \DateTime('2000-01-01'),
                 ];
             }
+
+            $savedLives = $liveSessionRepository->findSavedEndedByHostUserId((int) $target->getUserId(), 48, $isSelf);
             usort($shared, static fn(array $a, array $b): int => $b['createdAt'] <=> $a['createdAt']);
         }
 
@@ -107,6 +113,7 @@ class BlogProfileController extends AbstractController
             'tab' => $tab,
             'posts' => $posts,
             'travelStories' => $travelStories,
+            'savedLives' => $savedLives,
             'shared' => $shared,
             'followersCount' => $followersCount,
             'followingCount' => $followingCount,
