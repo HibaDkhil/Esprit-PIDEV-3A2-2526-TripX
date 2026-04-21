@@ -16,6 +16,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticator;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Writer\PngWriter;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 
 class UserController extends AbstractController
@@ -256,6 +258,105 @@ class UserController extends AbstractController
     }
 
 
+    #[Route('/profile/report/generate', name: 'profile_report_generate', methods: ['GET'])]
+    public function generateReport(): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->json(['success' => false, 'error' => 'Unauthorized'], 401);
+        }
+
+        $profileData = $this->profileService->getProfileData($user);
+
+        $loyalty = $profileData['loyalty'] ?? null;
+        $loyaltyData = null;
+        if ($loyalty) {
+            $loyaltyData = [
+                'points' => $loyalty->getTotalPoints(),
+                'reward' => $loyalty->computeLevel() . ' Tier Benefits'
+            ];
+        }
+
+        return $this->json([
+            'success' => true,
+            'report' => [
+                'persona' => $profileData['travelPersona'],
+                'emoji' => '🌍',
+                'insights' => 'Based on your ' . $profileData['pageVisits'] . ' page visits and ' . $profileData['totalMinutes'] . ' minutes spent, we noticed you have a strong preference for ' . strtolower($profileData['travelPersona']) . ' experiences. Keep exploring to unlock more tailored recommendations.',
+                'stats' => [
+                    'engagement' => $profileData['engagementScore']
+                ],
+                'loyalty' => $loyaltyData,
+                'picks' => array_map(function($pick) {
+                    return [
+                        'name' => $pick['name'],
+                        'desc' => $pick['desc'],
+                        'emoji' => $pick['emoji'],
+                        'match' => $pick['match']
+                    ];
+                }, $profileData['ariaPicks'] ?? [])
+            ]
+        ]);
+    }
+
+    #[Route('/profile/report/export', name: 'profile_report_export', methods: ['GET'])]
+    public function exportReport(): Response
+    {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $profileData = $this->profileService->getProfileData($user);
+
+        $loyalty = $profileData['loyalty'] ?? null;
+        $loyaltyData = null;
+        if ($loyalty) {
+            $loyaltyData = [
+                'points' => $loyalty->getTotalPoints(),
+                'reward' => $loyalty->computeLevel() . ' Tier Benefits'
+            ];
+        }
+
+        $reportData = [
+            'userName' => $user->getFirstName() . ' ' . $user->getLastName(),
+            'generatedDate' => date('F j, Y'),
+            'persona' => $profileData['travelPersona'],
+            'stats' => [
+                'engagement' => $profileData['engagementScore'],
+                'minutes' => $profileData['totalMinutes'],
+                'visits' => $profileData['pageVisits'],
+                'aiChats' => $profileData['aiInteractions'],
+            ],
+            'insights' => 'Based on your ' . $profileData['pageVisits'] . ' page visits and ' . $profileData['totalMinutes'] . ' minutes spent, we noticed you have a strong preference for ' . strtolower($profileData['travelPersona']) . ' experiences. Keep exploring to unlock more tailored recommendations.',
+            'loyalty' => $loyaltyData,
+            'picks' => $profileData['ariaPicks'] ?? []
+        ];
+
+        // Using Dompdf
+        $pdfOptions = new Options();
+        $pdfOptions->set('defaultFont', 'Helvetica');
+        $pdfOptions->set('isHtml5ParserEnabled', true);
+        $pdfOptions->set('isRemoteEnabled', true);
+
+        $dompdf = new Dompdf($pdfOptions);
+
+        $html = $this->renderView('front/report/ai_fiche_pdf.html.twig', [
+            'report' => $reportData,
+            'user' => $user
+        ]);
+        
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $pdfOutput = $dompdf->output();
+
+        return new Response($pdfOutput, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="TripX_AI_Fiche_' . $user->getUserId() . '.pdf"'
+        ]);
+    }
 
     #[Route('/profile/2fa/setup', name: 'profile_2fa_setup')]
     public function setup2fa(Request $request, GoogleAuthenticator $googleAuthenticator): Response
