@@ -19,6 +19,9 @@ security:
       lazy: true
       provider: app_user_provider
 
+      custom_authenticator:
+        - App\Security\GoogleAuthenticator
+
       form_login:
         login_path:     app_login
         check_path:     app_login
@@ -44,5 +47,7 @@ security:
     - { path: ^/images,      roles: PUBLIC_ACCESS }
     - { path: ^/css,         roles: PUBLIC_ACCESS }
     - { path: ^/js,          roles: PUBLIC_ACCESS }
+    - { path: ^/face/login,  roles: PUBLIC_ACCESS }
+    - { path: ^/connect/google, roles: PUBLIC_ACCESS }
     - { path: ^/admin,       roles: [ROLE_ADMIN, ROLE_ADMIN_DESTINATION, ROLE_ADMIN_ACCOMODATION, ROLE_ADMIN_OFFERS, ROLE_ADMIN_BLOG, ROLE_ADMIN_TRANSPORT] }
     - { path: ^/,            roles: ROLE_USER }

@@ -142,9 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedImageMimeType = null;
 
     if (ariaOrb && ariaPanel && !window.__ariaChatInitialized) {
-        ariaOrb.textContent = '🤖';
         const ariaAvatar = ariaPanel.querySelector('.aria-avatar');
-        if (ariaAvatar) ariaAvatar.textContent = '🤖';
         const ariaStatus = ariaPanel.querySelector('.aria-status');
         if (ariaStatus) ariaStatus.textContent = 'AI Travel Assistant';
 
