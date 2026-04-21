@@ -6,26 +6,20 @@
 {{ parent() }}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
 <style>
 :root {
-  --accent: #00F5D4;
-  --accent2: #0ea5e9;
+  --accent: #a78bfa;
+  --accent2: #38bdf8;
   --gold: #fbbf24;
-  --transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-  --glow-accent: rgba(0, 245, 212, 0.35);
-  --glow-accent2: rgba(14, 165, 233, 0.25);
-  --glass-bg: rgba(7, 20, 40, 0.65);
-  --glass-border: rgba(0, 245, 212, 0.2);
-  --gradient-text: linear-gradient(135deg, #ffffff 0%, #00F5D4 50%, #0ea5e9 100%);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ── Hero ── */
 .hero-section {
   position: relative;
-  height: 55vh;
-  min-height: 450px;
-  background: linear-gradient(135deg, #020816, #063750);
+  height: 50vh;
+  min-height: 400px;
+  background: linear-gradient(135deg, #1e3a5f, #0a6587);
   overflow: hidden;
 }
 .hero-image { width: 100%; height: 100%; object-fit: cover; }
@@ -55,34 +49,17 @@
   margin: 40px auto;
   padding: 0 24px;
 }
-.details-main { display: flex; flex-direction: column; gap: 40px; }
-
-/* ── Sidebar ── */
-.details-sidebar {
-  position: sticky;
-  top: 100px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  max-height: calc(100vh - 120px);
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0,245,212,0.3) transparent;
-}
-.details-sidebar::-webkit-scrollbar { width: 4px; }
-.details-sidebar::-webkit-scrollbar-track { background: transparent; }
-.details-sidebar::-webkit-scrollbar-thumb { background: rgba(0,245,212,0.3); border-radius: 2px; }
+.details-main    { display: flex; flex-direction: column; gap: 40px; }
+.details-sidebar { position: sticky; top: 100px; display: flex; flex-direction: column; gap: 24px; }
 
 /* ── Section Cards ── */
 .section-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
+  background: linear-gradient(to right, rgb(20, 30, 48), rgb(36, 59, 85));
+  border: 1px solid rgba(167,139,250,0.15);
   border-radius: 15px;
   overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
-  transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+  box-shadow: rgba(0,0,0,0.7) 5px 10px 50px, rgba(0,0,0,0.4) -5px 0px 80px;
+  transition: all 0.3s ease-in-out;
   color: #e2e8f0;
 }
 .section-card:hover {
@@ -90,189 +67,92 @@
 }
 .section-header {
   padding: 20px 24px;
-  border-bottom: 1px solid rgba(0,245,212,0.15);
-  display: flex;
-  align-items: center;
+  border-bottom: 1px solid rgba(167,139,250,0.15);
+  display: flex; align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
+  flex-wrap: wrap; gap: 12px;
 }
 .section-header h2 {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 20px; font-weight: 700;
   font-family: 'Playfair Display', serif;
   color: #fff;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: flex; align-items: center; gap: 10px;
 }
 .section-content { padding: 24px; }
 
 /* ── Amenities ── */
 .amenities-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
 .amenity-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: flex; align-items: center; gap: 10px;
   padding: 10px 12px;
   background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(0,245,212,0.2);
-  border-radius: 12px;
-  font-size: 13px;
-  color: #cbd5e1;
+  border: 1px solid rgba(167,139,250,0.2);
+  border-radius: 12px; font-size: 13px; color: #cbd5e1;
 }
 
 /* ── Rooms ── */
 .rooms-grid { display: grid; gap: 16px; }
 .room-card {
   background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(0,245,212,0.2);
-  border-radius: 16px;
-  padding: 16px;
+  border: 1px solid rgba(167,139,250,0.2);
+  border-radius: 16px; padding: 16px;
   transition: var(--transition);
 }
 .room-card:hover {
   border-color: var(--accent);
   transform: translateY(-2px);
-  background: rgba(0,245,212,0.08);
+  background: rgba(167,139,250,0.08);
 }
-.room-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-.room-name { font-size: 18px; font-weight: 700; color: #fff; }
-.room-price { font-size: 20px; font-weight: 800; color: var(--accent); }
+.room-header   { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.room-name     { font-size: 18px; font-weight: 700; color: #fff; }
+.room-price    { font-size: 20px; font-weight: 800; color: var(--accent); }
 .room-price small { font-size: 12px; font-weight: normal; color: #94a3b8; }
-.room-details {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 12px;
-  font-size: 13px;
-  color: #94a3b8;
-}
-.room-amenities {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-.room-amenity {
-  padding: 4px 10px;
-  background: rgba(0,245,212,0.15);
-  border-radius: 20px;
-  font-size: 11px;
-  color: #c4b5fd;
-}
+.room-details  { display: flex; gap: 16px; margin-bottom: 12px; font-size: 13px; color: #94a3b8; }
+.room-amenities{ display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.room-amenity  { padding: 4px 10px; background: rgba(167,139,250,0.15); border-radius: 20px; font-size: 11px; color: #c4b5fd; }
 
 /* ── Empty state ── */
-.empty-state {
-  text-align: center;
-  padding: 40px;
-  color: #64748b;
-}
-.empty-state .icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-  opacity: 0.5;
-}
+.empty-state { text-align: center; padding: 40px; color: #64748b; }
+.empty-state .icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
 
 /* ── Nearby ── */
-.nearby-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-}
+.nearby-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
 .nearby-card {
-  display: flex;
-  gap: 12px;
-  padding: 12px;
+  display: flex; gap: 12px; padding: 12px;
   background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(0,245,212,0.15);
-  border-radius: 12px;
-  transition: var(--transition);
+  border: 1px solid rgba(167,139,250,0.15);
+  border-radius: 12px; transition: var(--transition);
 }
-.nearby-card:hover {
-  background: rgba(0,245,212,0.1);
-  transform: translateY(-2px);
-}
-.nearby-icon { font-size: 32px; }
-.nearby-info h4 {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: #e2e8f0;
-}
-.nearby-info p {
-  font-size: 12px;
-  color: #94a3b8;
-}
+.nearby-card:hover { background: rgba(167,139,250,0.1); transform: translateY(-2px); }
+.nearby-icon   { font-size: 32px; }
+.nearby-info h4{ font-size: 14px; font-weight: 600; margin-bottom: 4px; color: #e2e8f0; }
+.nearby-info p { font-size: 12px; color: #94a3b8; }
 
 /* ── Gallery ── */
 .gallery-stack-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0;
-  padding: 20px 0 10px;
+  display: flex; flex-wrap: wrap; gap: 0; padding: 20px 0 10px;
 }
 .gallery-card {
-  display: flex;
-  height: 220px;
-  width: 160px;
-  border-radius: 10px;
-  box-shadow: -1rem 0 3rem rgba(0,0,0,0.6);
-  margin-left: -60px;
-  transition: 0.4s ease-out;
-  position: relative;
-  left: 0;
-  overflow: hidden;
-  cursor: pointer;
-  flex-shrink: 0;
+  display: flex; height: 220px; width: 160px;
+  border-radius: 10px; box-shadow: -1rem 0 3rem rgba(0,0,0,0.6);
+  margin-left: -60px; transition: 0.4s ease-out;
+  position: relative; left: 0; overflow: hidden; cursor: pointer; flex-shrink: 0;
 }
 .gallery-card:first-child { margin-left: 0; }
-.gallery-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: 0.4s ease-out;
-}
-.gallery-card:hover {
-  transform: translateY(-20px);
-  box-shadow: 0 20px 40px rgba(0,245,212,0.3);
-  z-index: 10;
-}
-.gallery-card:hover ~ .gallery-card {
-  position: relative;
-  left: 50px;
-  transition: 0.4s ease-out;
-}
+.gallery-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.4s ease-out; }
+.gallery-card:hover { transform: translateY(-20px); box-shadow: 0 20px 40px rgba(167,139,250,0.3); z-index: 10; }
+.gallery-card:hover ~ .gallery-card { position: relative; left: 50px; transition: 0.4s ease-out; }
 .gallery-card .gallery-overlay {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
-  opacity: 0;
-  transition: 0.3s ease-out;
+  opacity: 0; transition: 0.3s ease-out;
 }
 .gallery-card:hover .gallery-overlay { opacity: 1; }
-.gallery-card .gallery-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-}
-.gallery-card .gallery-bar-empty {
-  background: rgba(255,255,255,0.1);
-  width: 100%;
-  height: 100%;
-}
+.gallery-card .gallery-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 4px; }
+.gallery-card .gallery-bar-empty { background: rgba(255,255,255,0.1); width: 100%; height: 100%; }
 .gallery-card .gallery-bar-fill {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0;
-  height: 100%;
+  position: absolute; top: 0; left: 0;
+  width: 0; height: 100%;
   background: linear-gradient(90deg, #6831cfab, #a777ff 100%);
   transition: 0.4s ease-out;
 }
@@ -280,312 +160,158 @@
 
 /* ── Reviews ── */
 .reviews-summary {
-  text-align: center;
-  padding: 20px;
-  background: linear-gradient(135deg, rgba(0,245,212,0.1), rgba(56,189,248,0.1));
-  border-radius: 20px;
-  margin-bottom: 24px;
+  text-align: center; padding: 20px;
+  background: linear-gradient(135deg, rgba(167,139,250,0.1), rgba(56,189,248,0.1));
+  border-radius: 20px; margin-bottom: 24px;
 }
-.average-rating {
-  font-size: 48px;
-  font-weight: 800;
-  color: var(--gold);
-}
-.stars {
-  color: var(--gold);
-  font-size: 20px;
-  letter-spacing: 2px;
-}
-.reviews-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  max-height: 400px;
-  overflow-y: auto;
-}
-.review-item {
-  padding: 16px;
-  border-bottom: 1px solid rgba(0,245,212,0.15);
-}
-.review-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-.review-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  color: white;
-}
+.average-rating { font-size: 48px; font-weight: 800; color: var(--gold); }
+.stars  { color: var(--gold); font-size: 20px; letter-spacing: 2px; }
+.reviews-list { display: flex; flex-direction: column; gap: 20px; max-height: 400px; overflow-y: auto; }
+.review-item   { padding: 16px; border-bottom: 1px solid rgba(167,139,250,0.15); }
+.review-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.review-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; }
 .review-author { font-weight: 600; color: #fff; }
 .review-rating { color: var(--gold); font-size: 12px; }
-.review-text {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #94a3b8;
-}
+.review-text   { font-size: 14px; line-height: 1.5; color: #94a3b8; }
 
-/* ══════════════════════════════════════════
-   WEATHER CARD
-══════════════════════════════════════════ */
-.wx-card {
-  border-radius: 15px;
-  overflow: hidden;
-  background: linear-gradient(135deg, #1a1040 0%, #2d1b69 50%, #1a2744 100%);
-  border: 1px solid rgba(0,245,212,0.2);
-  box-shadow: rgba(0,0,0,0.7) 5px 10px 50px;
-  color: #fff;
-  flex-shrink: 0;
-}
-.wx-main {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 20px 16px;
-  position: relative;
-}
-.wx-main::before {
-  content: '';
-  position: absolute;
-  top: -60px; right: -60px;
-  width: 180px; height: 180px;
-  border-radius: 50%;
-  background: rgba(138,79,248,0.25);
-  pointer-events: none;
-}
-.wx-main::after {
-  content: '';
-  position: absolute;
-  top: -30px; right: -20px;
-  width: 90px; height: 90px;
-  border-radius: 50%;
-  background: rgba(0,245,212,0.35);
-  pointer-events: none;
-}
-.wx-left { position: relative; z-index: 1; }
-.wx-location {
-  font-size: 13px;
-  font-weight: 700;
-  color: #c4b5fd;
-  margin-bottom: 4px;
-}
-.wx-condition {
-  font-size: 12px;
-  color: #94a3b8;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.wx-condition img {
-  width: 28px;
-  height: 28px;
-}
-.wx-meta {
-  display: flex;
-  gap: 14px;
-  font-size: 11px;
-  color: #94a3b8;
-}
-.wx-right {
-  text-align: right;
-  position: relative;
-  z-index: 1;
-}
-.wx-temp {
-  font-size: 52px;
-  font-weight: 700;
-  line-height: 1;
-  color: #fff;
-  letter-spacing: -2px;
-}
-.wx-temp sup {
-  font-size: 20px;
-  font-weight: 400;
-  vertical-align: super;
-  color: #c4b5fd;
-}
-.wx-range {
-  font-size: 11px;
-  color: #94a3b8;
-  margin-top: 4px;
-}
-.wx-forecast {
-  display: flex;
-  border-top: 1px solid rgba(0,245,212,0.15);
-}
-.wx-day {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 4px;
-  gap: 3px;
-  background: rgba(0,0,0,0.2);
-  border-right: 1px solid rgba(0,245,212,0.08);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.wx-day:last-child { border-right: none; }
-.wx-day:hover { background: rgba(0,245,212,0.12); }
-.wx-day-label {
-  font-size: 9px;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.wx-day img {
-  width: 22px;
-  height: 22px;
-}
-.wx-day-temp {
-  font-size: 12px;
-  font-weight: 700;
-  color: #a78bfa;
-}
-
-/* ── Mini Map — sidebar card ── */
-.map-sidebar-card {
+/* ── Weather ── */
+.weather-card {
+  display: flex; flex-direction: column;
+  width: 100%; border-radius: 15px;
   background: linear-gradient(to right, rgb(20, 30, 48), rgb(36, 59, 85));
-  border: 1px solid rgba(0,245,212,0.15);
-  border-radius: 15px;
   overflow: hidden;
   box-shadow: rgba(0,0,0,0.7) 5px 10px 50px, rgba(0,0,0,0.4) -5px 0px 80px;
-  flex-shrink: 0;
-  min-height: 260px;
+  cursor: pointer; transition: all 0.3s ease-in-out; color: white;
 }
-.map-sidebar-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(0,245,212,0.15);
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.weather-card:hover { box-shadow: rgba(0,0,0,0.9) 5px 10px 50px, rgba(0,0,0,0.7) -5px 0px 120px; }
+.info-section {
+  position: relative; display: flex; align-items: center;
+  justify-content: space-between; width: 100%;
+  padding: 20px 0; min-height: 180px;
 }
-.map-sidebar-header h2 {
-  font-size: 18px;
-  font-weight: 700;
-  font-family: 'Playfair Display', serif;
-  color: #fff;
-  margin: 0;
+.left-side  { display: flex; flex-direction: column; justify-content: space-around; height: 100%; z-index: 1; padding-left: 18px; gap: 8px; }
+.right-side { display: flex; flex-direction: column; align-items: flex-end; justify-content: space-around; height: 100%; padding-right: 18px; z-index: 1; gap: 8px; }
+.right-side > div { display: flex; flex-direction: column; align-items: flex-end; }
+.weather      { display: flex; align-items: center; gap: 8px; }
+.temperature  { font-size: 42px; font-weight: 600; line-height: 1; }
+.range        { font-size: 14px; opacity: 0.8; }
+.hour         { font-size: 20px; font-weight: 500; line-height: 1.2; }
+.date         { font-size: 13px; opacity: 0.8; }
+.city         { font-weight: 600; font-size: 14px; }
+.background-design { position: absolute; height: 100%; width: 100%; background-color: #3b1f6e; overflow: hidden; border-radius: 15px; }
+.circle { background-color: #6831cf; }
+.circle:nth-child(1) { position: absolute; top: -80%; right: -50%; width: 300px; height: 300px; opacity: 0.3; border-radius: 50%; }
+.circle:nth-child(2) { position: absolute; top: -70%; right: -30%; width: 210px; height: 210px; opacity: 0.3; border-radius: 50%; }
+.circle:nth-child(3) { position: absolute; top: -35%; right:  -8%; width: 100px; height: 100px; opacity: 0.7; border-radius: 50%; }
+.days-section { display: flex; align-items: center; justify-content: space-between; width: 100%; background: rgba(0,0,0,0.3); gap: 1px; }
+.days-section button { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70px; width: 100%; background: rgba(255,255,255,0.05); border: none; cursor: pointer; transition: 100ms ease; gap: 5px; color: white; }
+.days-section button:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); }
+.days-section .day { font-size: 12px; font-weight: 500; }
+.days-section .forecast-temp { font-size: 14px; font-weight: 600; }
+.forecast-icon { width: 24px; height: 24px; }
+
+/* ── Booking Panel ── */
+.booking-panel {
+  background: linear-gradient(to right, rgb(20, 30, 48), rgb(36, 59, 85));
+  border: 1px solid rgba(167,139,250,0.2);
+  border-radius: 15px; padding: 24px;
+  box-shadow: rgba(0,0,0,0.7) 5px 10px 50px;
+  color: #e2e8f0; transition: all 0.3s ease-in-out;
 }
-.mini-map {
-  height: 220px;
-  width: 100%;
-  display: block;
-  background: rgba(0,0,0,0.2);
+.booking-panel:hover { box-shadow: rgba(0,0,0,0.9) 5px 10px 50px, rgba(0,0,0,0.5) -5px 0px 80px; }
+.booking-price { font-size: 28px; font-weight: 800; color: var(--accent); margin-bottom: 20px; }
+.booking-price small { font-size: 14px; font-weight: normal; color: #94a3b8; }
+.date-input {
+  width: 100%; padding: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(167,139,250,0.2);
+  border-radius: 12px; margin-bottom: 12px; color: #e2e8f0;
 }
-.leaflet-container {
-  background: #1a2035 !important;
-  width: 100% !important;
-  height: 100% !important;
+.date-input option { background: #1a2035; }
+.book-btn {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, #4a2f7c, #8a4ff8);
+  border: none; border-radius: 50px;
+  color: white; font-weight: 700; font-size: 16px;
+  cursor: pointer; transition: 0.4s ease-out; margin-top: 16px;
 }
-.leaflet-control-attribution {
-  background: rgba(0,0,0,0.5) !important;
-  color: #94a3b8 !important;
-  font-size: 9px !important;
+.book-btn:hover {
+  background: linear-gradient(135deg, #8a4ff8, #38bdf8);
+  box-shadow: 0px 0px 20px rgba(157,71,255,0.5), 0px 5px 5px -1px rgba(163,58,233,0.25), inset 4px 4px 8px rgba(219,175,255,0.5), inset -4px -4px 8px rgba(137,19,216,0.35);
+  transform: translateY(-2px);
 }
-.leaflet-popup-content-wrapper {
-  background: #1e2a3e;
-  color: #e2e8f0;
-  border-radius: 8px;
-}
-.leaflet-popup-tip { background: #1e2a3e; }
+
+/* ── Mini Map ── */
+.mini-map { height: 200px; border-radius: 12px; overflow: hidden; }
 
 /* ── Itinerary ── */
-.itinerary-content {
-  font-family: monospace;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  font-size: 14px;
-  color: #94a3b8;
-}
+.itinerary-content { font-family: monospace; line-height: 1.6; white-space: pre-wrap; font-size: 14px; color: #94a3b8; }
 .generate-itinerary {
   padding: 10px 20px;
   background: linear-gradient(135deg, #4a2f7c, #8a4ff8);
-  border: none;
-  border-radius: 50px;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.4s ease-out;
+  border: none; border-radius: 50px;
+  color: white; font-weight: 600; cursor: pointer; transition: 0.4s ease-out;
 }
-.generate-itinerary:hover {
-  box-shadow: 0px 0px 20px rgba(157,71,255,0.5), inset 4px 4px 8px rgba(219,175,255,0.5), inset -4px -4px 8px rgba(137,19,216,0.35);
-}
+.generate-itinerary:hover { box-shadow: 0px 0px 20px rgba(157,71,255,0.5), inset 4px 4px 8px rgba(219,175,255,0.5), inset -4px -4px 8px rgba(137,19,216,0.35); }
 select#itinerary-days, select#nearby-category {
-  padding: 8px 12px;
-  border-radius: 12px;
+  padding: 8px 12px; border-radius: 12px;
   background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(0,245,212,0.2);
-  color: #e2e8f0;
-  margin-right: 8px;
+  border: 1px solid rgba(167,139,250,0.2);
+  color: #e2e8f0; margin-right: 8px;
 }
 select#itinerary-days option, select#nearby-category option { background: #1a2035; }
 
 /* ── Skeleton ── */
 .skeleton {
-  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(0,245,212,0.08) 50%, rgba(255,255,255,0.04) 75%);
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(167,139,250,0.08) 50%, rgba(255,255,255,0.04) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 12px;
 }
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
 /* ── Image Modal ── */
 .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.95);
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  cursor: pointer;
+  position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+  z-index: 2000; display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden; transition: all 0.3s ease; cursor: pointer;
 }
 .modal-overlay.open { opacity: 1; visibility: visible; }
 .modal-content { max-width: 90vw; max-height: 90vh; cursor: default; }
 .modal-content img { max-width: 100%; max-height: 90vh; border-radius: 12px; }
 
-/* ── Booking Drawer ── */
+/* ═══════════════════════════════════════════
+   BOOKING DRAWER
+═══════════════════════════════════════════ */
 .drawer-backdrop {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0);
+  background: rgba(0, 0, 0, 0);
   backdrop-filter: blur(0px);
   z-index: 3000;
   pointer-events: none;
   transition: background 0.5s ease, backdrop-filter 0.5s ease;
 }
 .drawer-backdrop.open {
-  background: rgba(0,0,0,0.65);
+  background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(6px);
   pointer-events: all;
 }
 .booking-drawer {
-  position: fixed; top: 0; right: 0;
-  width: 520px; height: 100vh;
+  position: fixed;
+  top: 0; right: 0;
+  width: 520px;
+  height: 100vh;
   z-index: 3001;
   background: linear-gradient(160deg, #0d1b2e 0%, #14243e 40%, #1a1a3e 100%);
-  border-left: 1px solid rgba(0,245,212,0.2);
-  box-shadow: -20px 0 80px rgba(0,0,0,0.8), -2px 0 30px rgba(0,245,212,0.05);
+  border-left: 1px solid rgba(167, 139, 250, 0.2);
+  box-shadow: -20px 0 80px rgba(0,0,0,0.8), -2px 0 30px rgba(167,139,250,0.05);
   transform: translateX(100%);
-  transition: transform 0.55s cubic-bezier(0.32,0.72,0,1);
-  display: flex; flex-direction: column; overflow: hidden;
-  font-family: 'DM Sans', sans-serif; color: #e2e8f0;
+  transition: transform 0.55s cubic-bezier(0.32, 0.72, 0, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'DM Sans', sans-serif;
+  color: #e2e8f0;
 }
 .booking-drawer.open { transform: translateX(0); }
 .drawer-close {
@@ -593,9 +319,12 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
   width: 36px; height: 36px;
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 50%; color: #94a3b8; cursor: pointer;
+  border-radius: 50%;
+  color: #94a3b8;
+  cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  font-size: 18px; transition: all 0.2s;
+  font-size: 18px;
+  transition: all 0.2s;
   backdrop-filter: blur(10px);
 }
 .drawer-close:hover {
@@ -605,17 +334,23 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
   transform: rotate(90deg);
 }
 .drawer-progress {
-  display: flex; align-items: center; gap: 0;
-  padding: 64px 28px 16px; position: relative; z-index: 5; flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 64px 28px 16px;
+  position: relative;
+  z-index: 5;
+  flex-shrink: 0;
 }
 .progress-step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
 .progress-dot {
-  width: 32px; height: 32px; border-radius: 50%;
+  width: 32px; height: 32px;
+  border-radius: 50%;
   background: rgba(255,255,255,0.06);
-  border: 2px solid rgba(0,245,212,0.2);
+  border: 2px solid rgba(167,139,250,0.2);
   display: flex; align-items: center; justify-content: center;
   font-size: 13px; font-weight: 700; color: #64748b;
-  transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative; z-index: 2;
 }
 .progress-dot.active {
@@ -629,35 +364,42 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
   box-shadow: 0 0 12px rgba(16,185,129,0.4);
 }
 .progress-label {
-  font-size: 10px; font-weight: 600; color: #475569;
-  letter-spacing: 0.5px; text-transform: uppercase; transition: color 0.3s;
+  font-size: 10px; font-weight: 600;
+  color: #475569; letter-spacing: 0.5px; text-transform: uppercase;
+  transition: color 0.3s;
 }
 .progress-step.active .progress-label { color: #a78bfa; }
-.progress-step.done .progress-label { color: #10b981; }
+.progress-step.done .progress-label   { color: #10b981; }
 .progress-line {
   flex: 1; height: 2px;
-  background: rgba(0,245,212,0.12);
-  position: relative; margin-bottom: 22px; max-width: 60px;
+  background: rgba(167,139,250,0.12);
+  position: relative; margin-bottom: 22px;
+  max-width: 60px;
 }
 .progress-line-fill {
-  position: absolute; top: 0; left: 0; height: 100%; width: 0%;
+  position: absolute; top: 0; left: 0;
+  height: 100%; width: 0%;
   background: linear-gradient(90deg, #4a2f7c, #8a4ff8);
-  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .drawer-steps { flex: 1; overflow: hidden; position: relative; min-height: 0; }
 .drawer-step {
-  position: absolute; inset: 0; overflow-y: auto;
+  position: absolute; inset: 0;
+  overflow-y: auto;
   padding: 24px 28px 28px;
-  transform: translateX(100%); opacity: 0;
-  transition: transform 0.45s cubic-bezier(0.32,0.72,0,1), opacity 0.3s ease;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: transform 0.45s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
   scrollbar-width: thin;
-  scrollbar-color: rgba(0,245,212,0.3) transparent;
+  scrollbar-color: rgba(167,139,250,0.3) transparent;
 }
 .drawer-step::-webkit-scrollbar { width: 4px; }
 .drawer-step::-webkit-scrollbar-track { background: transparent; }
-.drawer-step::-webkit-scrollbar-thumb { background: rgba(0,245,212,0.3); border-radius: 2px; }
-.drawer-step.active { transform: translateX(0); opacity: 1; }
+.drawer-step::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.3); border-radius: 2px; }
+.drawer-step.active  { transform: translateX(0); opacity: 1; }
 .drawer-step.exiting { transform: translateX(-40px); opacity: 0; }
+
+/* ── Step 0: Room Preview ── */
 .room-carousel {
   position: relative; height: 240px; border-radius: 16px;
   overflow: hidden; margin-bottom: 24px;
@@ -675,246 +417,451 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
   position: absolute; top: 50%; transform: translateY(-50%);
   width: 36px; height: 36px;
   background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.15); border-radius: 50%;
-  color: white; cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50%; color: white; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   font-size: 16px; transition: all 0.2s; z-index: 5;
 }
-.carousel-btn:hover { background: rgba(138,79,248,0.6); border-color: rgba(0,245,212,0.5); }
+.carousel-btn:hover { background: rgba(138,79,248,0.6); border-color: rgba(167,139,250,0.5); }
 .carousel-btn.prev { left: 12px; }
 .carousel-btn.next { right: 12px; }
-.carousel-dots {
-  position: absolute; bottom: 10px; left: 50%;
-  transform: translateX(-50%);
-  display: flex; gap: 6px; z-index: 5;
-}
+.carousel-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 5; }
 .carousel-dot {
   width: 6px; height: 6px; border-radius: 50%;
   background: rgba(255,255,255,0.4); transition: all 0.3s; cursor: pointer;
 }
 .carousel-dot.active { width: 20px; border-radius: 3px; background: #a78bfa; }
 .room-preview-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-.room-preview-name { font-size: 22px; font-weight: 700; color: #fff; font-family: 'Playfair Display', serif; }
+.room-preview-name  { font-size: 22px; font-weight: 700; color: #fff; font-family: 'Playfair Display', serif; }
 .room-preview-badge {
   padding: 4px 12px;
-  background: rgba(0,245,212,0.15);
-  border: 1px solid rgba(0,245,212,0.3);
+  background: rgba(167,139,250,0.15);
+  border: 1px solid rgba(167,139,250,0.3);
   border-radius: 20px; font-size: 11px; font-weight: 600;
   color: #c4b5fd; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
 }
-.room-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+.room-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
 .room-stat {
   padding: 12px;
   background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(0,245,212,0.12);
+  border: 1px solid rgba(167,139,250,0.12);
   border-radius: 12px; text-align: center;
 }
-.room-stat-icon { font-size: 20px; margin-bottom: 4px; }
+.room-stat-icon  { font-size: 20px; margin-bottom: 4px; }
 .room-stat-value { font-size: 15px; font-weight: 700; color: #fff; }
 .room-stat-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
 .preview-price-tag { display: flex; align-items: baseline; gap: 6px; margin-bottom: 20px; }
 .preview-price-amount { font-size: 36px; font-weight: 800; color: #a78bfa; }
-.preview-price-per { font-size: 14px; color: #64748b; }
+.preview-price-per    { font-size: 14px; color: #64748b; }
 .drawer-amenities { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
 .drawer-amenity {
   padding: 6px 12px;
   background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(0,245,212,0.15);
+  border: 1px solid rgba(167,139,250,0.15);
   border-radius: 20px; font-size: 12px; color: #94a3b8;
 }
+
+/* ── Step 1: Stay Details ── */
 .stay-section-title {
-  font-size: 12px; font-weight: 700; color: #64748b;
-  text-transform: uppercase; letter-spacing: 1px;
+  font-size: 12px; font-weight: 700;
+  color: #64748b; text-transform: uppercase; letter-spacing: 1px;
   margin-bottom: 10px; margin-top: 20px;
 }
 .stay-section-title:first-child { margin-top: 0; }
 .date-range-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px; }
 .date-field { display: flex; flex-direction: column; gap: 6px; }
-.date-field label {
-  font-size: 11px; font-weight: 600; color: #64748b;
-  text-transform: uppercase; letter-spacing: 0.5px;
-}
+.date-field label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
 .drawer-input {
   width: 100%; padding: 12px 14px;
   background: rgba(255,255,255,0.06);
-  border: 1.5px solid rgba(0,245,212,0.15);
-  border-radius: 12px; color: #e2e8f0; font-size: 14px;
+  border: 1.5px solid rgba(167,139,250,0.15);
+  border-radius: 12px;
+  color: #e2e8f0; font-size: 14px;
   transition: all 0.2s; outline: none;
-  font-family: 'DM Sans', sans-serif; box-sizing: border-box;
+  font-family: 'DM Sans', sans-serif;
+  box-sizing: border-box;
 }
 .drawer-input:focus {
-  border-color: rgba(0,245,212,0.6);
-  background: rgba(0,245,212,0.08);
-  box-shadow: 0 0 0 3px rgba(0,245,212,0.1);
+  border-color: rgba(167,139,250,0.6);
+  background: rgba(167,139,250,0.08);
+  box-shadow: 0 0 0 3px rgba(167,139,250,0.1);
 }
 .drawer-input option { background: #1a2035; }
 .nights-pill {
   text-align: center; padding: 8px;
   background: linear-gradient(135deg, rgba(74,47,124,0.3), rgba(56,189,248,0.1));
-  border: 1px solid rgba(0,245,212,0.2);
+  border: 1px solid rgba(167,139,250,0.2);
   border-radius: 30px; margin: 12px 0;
-  font-size: 13px; font-weight: 600; color: #a78bfa; transition: all 0.3s;
+  font-size: 13px; font-weight: 600; color: #a78bfa;
+  transition: all 0.3s;
 }
 .guest-stepper {
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 16px;
   background: rgba(255,255,255,0.04);
-  border: 1.5px solid rgba(0,245,212,0.15);
+  border: 1.5px solid rgba(167,139,250,0.15);
   border-radius: 12px; margin-bottom: 12px;
 }
 .stepper-label { display: flex; flex-direction: column; gap: 2px; }
 .stepper-label span:first-child { font-size: 14px; font-weight: 600; color: #e2e8f0; }
-.stepper-label span:last-child { font-size: 11px; color: #64748b; }
+.stepper-label span:last-child  { font-size: 11px; color: #64748b; }
 .stepper-controls { display: flex; align-items: center; gap: 12px; }
 .stepper-btn {
   width: 32px; height: 32px;
-  background: rgba(0,245,212,0.12);
-  border: 1px solid rgba(0,245,212,0.25);
-  border-radius: 8px; color: #a78bfa; cursor: pointer;
-  font-size: 18px; font-weight: 700;
+  background: rgba(167,139,250,0.12);
+  border: 1px solid rgba(167,139,250,0.25);
+  border-radius: 8px; color: #a78bfa;
+  cursor: pointer; font-size: 18px; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
   transition: all 0.2s; line-height: 1;
 }
 .stepper-btn:hover:not(:disabled) {
-  background: rgba(0,245,212,0.25);
-  border-color: rgba(0,245,212,0.5);
+  background: rgba(167,139,250,0.25);
+  border-color: rgba(167,139,250,0.5);
   transform: scale(1.1);
 }
 .stepper-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 .stepper-count { font-size: 18px; font-weight: 700; color: #fff; min-width: 20px; text-align: center; }
 .price-breakdown {
   background: linear-gradient(135deg, rgba(74,47,124,0.2), rgba(56,189,248,0.08));
-  border: 1px solid rgba(0,245,212,0.2);
+  border: 1px solid rgba(167,139,250,0.2);
   border-radius: 16px; padding: 16px; margin-top: 20px;
 }
-.price-row {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 6px 0; font-size: 14px; color: #94a3b8;
-}
+.price-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 14px; color: #94a3b8; }
 .price-row.total {
-  border-top: 1px solid rgba(0,245,212,0.2);
+  border-top: 1px solid rgba(167,139,250,0.2);
   margin-top: 8px; padding-top: 14px;
   font-size: 18px; font-weight: 800; color: #fff;
 }
 .price-row.total span:last-child { color: #a78bfa; }
+
+/* ══════════════════════════════════════════════════════
+   STEP 2: PAYMENT WALLET
+══════════════════════════════════════════════════════ */
 .booking-recap {
   background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(0,245,212,0.15);
+  border: 1px solid rgba(167,139,250,0.15);
   border-radius: 14px; padding: 14px; margin-bottom: 20px;
   display: flex; justify-content: space-between; align-items: center;
 }
-.recap-label { font-size: 11px; color: #64748b; margin-bottom: 2px; }
-.recap-value { font-size: 13px; font-weight: 600; color: #e2e8f0; }
-.recap-price { font-size: 22px; font-weight: 800; color: #a78bfa; }
+.recap-label  { font-size: 11px; color: #64748b; margin-bottom: 2px; }
+.recap-value  { font-size: 13px; font-weight: 600; color: #e2e8f0; }
+.recap-price  { font-size: 22px; font-weight: 800; color: #a78bfa; }
 .wallet-section-label {
-  font-size: 11px; font-weight: 700; color: #64748b;
-  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;
+  font-size: 11px; font-weight: 700;
+  color: #64748b; text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 14px;
 }
-.pay-wallet-outer { display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; }
+.pay-wallet-outer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
 .pay-wallet {
-  position: relative; width: 100%; max-width: 380px; height: 220px;
-  cursor: pointer; perspective: 1000px;
-  display: flex; justify-content: center; align-items: flex-end;
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  height: 220px;
+  cursor: pointer;
+  perspective: 1000px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
   transition: transform 0.4s ease;
 }
 .pay-wallet-back {
-  position: absolute; bottom: 0; width: 100%; max-width: 380px; height: 185px;
-  background: #1e2a1e; border-radius: 22px 22px 55px 55px; z-index: 5;
-  box-shadow: inset 0 25px 35px rgba(0,0,0,0.5), inset 0 5px 15px rgba(0,0,0,0.6);
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  max-width: 380px;
+  height: 185px;
+  background: #1e2a1e;
+  border-radius: 22px 22px 55px 55px;
+  z-index: 5;
+  box-shadow:
+    inset 0 25px 35px rgba(0,0,0,0.5),
+    inset 0 5px 15px rgba(0,0,0,0.6);
 }
 @keyframes pwSlideIn {
-  0% { transform: translateY(-90px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
+  0%   { transform: translateY(-90px); opacity: 0; }
+  100% { transform: translateY(0);     opacity: 1; }
 }
 .pay-card {
-  position: absolute; width: calc(100% - 20px); max-width: 360px; height: 130px; left: 10px;
-  border-radius: 16px; padding: 16px 18px; color: white;
-  box-shadow: inset 0 1px 1px rgba(255,255,255,0.25), 0 -4px 15px rgba(0,0,0,0.15);
-  transition: transform 0.6s cubic-bezier(0.34,1.56,0.64,1);
-  animation: pwSlideIn 0.8s cubic-bezier(0.2,0.8,0.2,1) backwards;
-  cursor: pointer; user-select: none; overflow: hidden;
+  position: absolute;
+  width: calc(100% - 20px);
+  max-width: 360px;
+  height: 130px;
+  left: 10px;
+  border-radius: 16px;
+  padding: 16px 18px;
+  color: white;
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.25),
+    0 -4px 15px rgba(0,0,0,0.15);
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: pwSlideIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
 }
 .pay-card::before {
-  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
   background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%);
   pointer-events: none;
 }
-.pay-card-inner { display: flex; flex-direction: column; justify-content: space-between; height: 100%; position: relative; z-index: 1; }
-.pay-card-top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
-.pay-chip { width: 28px; height: 21px; background: rgba(255,255,255,0.18); border-radius: 4px; border: 1px solid rgba(255,255,255,0.12); }
-.pay-card-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
-.pay-card-label { font-size: 8px; opacity: 0.65; text-transform: uppercase; margin-bottom: 2px; display: block; letter-spacing: 0.5px; }
+.pay-card-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+.pay-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.pay-chip {
+  width: 28px;
+  height: 21px;
+  background: rgba(255,255,255,0.18);
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.pay-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.pay-card-label {
+  font-size: 8px;
+  opacity: 0.65;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+  display: block;
+  letter-spacing: 0.5px;
+}
 .pay-card-value { font-size: 10px; font-weight: 600; }
 .pay-card-num-wrap { text-align: right; }
 .pay-card-stars { font-size: 14px; letter-spacing: 3px; opacity: 0.8; }
-.pay-visa { background: linear-gradient(135deg, #1a3a6f 0%, #1565c0 70%, #0d47a1 100%); bottom: 88px; z-index: 10; animation-delay: 0.08s; }
-.pay-mc { background: linear-gradient(135deg, #6a0000 0%, #b71c1c 55%, #c62828 100%); bottom: 60px; z-index: 20; animation-delay: 0.18s; }
-.pay-amex { background: linear-gradient(135deg, #1b3a20 0%, #2e7d32 55%, #388e3c 100%); bottom: 32px; z-index: 30; animation-delay: 0.28s; }
-.pay-pocket { position: absolute; bottom: 0; width: 100%; max-width: 380px; height: 155px; z-index: 40; filter: drop-shadow(0 12px 22px rgba(10,20,10,0.55)); }
-.pay-pocket-content { position: absolute; top: 38px; width: 100%; text-align: center; z-index: 50; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-.pay-balance-stars { color: #5a7a53; font-size: 20px; letter-spacing: 4px; transition: opacity 0.3s, transform 0.3s; }
-.pay-balance-real { color: #8dc880; font-size: 19px; font-weight: 700; opacity: 0; position: absolute; top: 0; left: 50%; transform: translate(-50%, 8px); transition: opacity 0.3s, transform 0.3s; white-space: nowrap; }
-.pay-eye-wrap { margin-top: 6px; height: 18px; width: 18px; position: relative; opacity: 0.3; transition: opacity 0.3s; }
-.pay-eye { position: absolute; top: 0; left: 0; stroke: #4ade80; transition: opacity 0.3s, transform 0.3s; }
+.pay-network-badge { font-size: 11px; font-weight: 800; letter-spacing: 0.5px; opacity: 0.9; }
+.pay-visa {
+  background: linear-gradient(135deg, #1a3a6f 0%, #1565c0 70%, #0d47a1 100%);
+  bottom: 88px; z-index: 10; animation-delay: 0.08s;
+}
+.pay-mc {
+  background: linear-gradient(135deg, #6a0000 0%, #b71c1c 55%, #c62828 100%);
+  bottom: 60px; z-index: 20; animation-delay: 0.18s;
+}
+.pay-amex {
+  background: linear-gradient(135deg, #1b3a20 0%, #2e7d32 55%, #388e3c 100%);
+  bottom: 32px; z-index: 30; animation-delay: 0.28s;
+}
+.pay-pocket {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  max-width: 380px;
+  height: 155px;
+  z-index: 40;
+  filter: drop-shadow(0 12px 22px rgba(10,20,10,0.55));
+}
+.pay-pocket-content {
+  position: absolute;
+  top: 38px;
+  width: 100%;
+  text-align: center;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.pay-balance-stars {
+  color: #5a7a53; font-size: 20px; letter-spacing: 4px;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.pay-balance-real {
+  color: #8dc880; font-size: 19px; font-weight: 700;
+  opacity: 0; position: absolute; top: 0; left: 50%;
+  transform: translate(-50%, 8px);
+  transition: opacity 0.3s, transform 0.3s;
+  white-space: nowrap;
+}
+.pay-eye-wrap {
+  margin-top: 6px; height: 18px; width: 18px;
+  position: relative; opacity: 0.3; transition: opacity 0.3s;
+}
+.pay-eye {
+  position: absolute; top: 0; left: 0;
+  stroke: #4ade80; transition: opacity 0.3s, transform 0.3s;
+}
 .pay-wallet:hover { transform: translateY(-4px); }
 .pay-wallet:hover .pay-eye-wrap { opacity: 1; }
-.pay-wallet:hover .pay-visa { transform: translateY(-72px) rotate(-3.5deg); }
-.pay-wallet:hover .pay-mc { transform: translateY(-44px) rotate(2deg); }
+.pay-wallet:hover .pay-visa  { transform: translateY(-72px) rotate(-3.5deg); }
+.pay-wallet:hover .pay-mc   { transform: translateY(-44px) rotate(2deg); }
 .pay-wallet:hover .pay-amex { transform: translateY(-10px); }
 .pay-card:hover { z-index: 100 !important; }
-.pay-wallet:hover .pay-visa:hover { transform: translateY(-62px) scale(1.04) rotate(0deg); }
-.pay-wallet:hover .pay-mc:hover { transform: translateY(-70px) scale(1.04) rotate(0deg); }
-.pay-wallet:hover .pay-amex:hover { transform: translateY(-62px) scale(1.04) rotate(0deg); }
+.pay-wallet:hover .pay-visa:hover  { transform: translateY(-62px) scale(1.04) rotate(0deg); }
+.pay-wallet:hover .pay-mc:hover    { transform: translateY(-70px) scale(1.04) rotate(0deg); }
+.pay-wallet:hover .pay-amex:hover  { transform: translateY(-62px) scale(1.04) rotate(0deg); }
 .pay-wallet:hover .pay-balance-stars { opacity: 0; transform: translateY(-4px); }
-.pay-wallet:hover .pay-balance-real { opacity: 1; transform: translate(-50%, 0); }
+.pay-wallet:hover .pay-balance-real  { opacity: 1; transform: translate(-50%, 0); }
 .pay-wallet:hover .pay-eye-slash { opacity: 0; transform: scale(0.5); }
-.pay-wallet:hover .pay-eye-open { opacity: 1; transform: scale(1.1); }
+.pay-wallet:hover .pay-eye-open  { opacity: 1; transform: scale(1.1); }
 .pay-card.selected { outline: none; z-index: 200 !important; }
-.pay-card.selected::after { content: '✓'; position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; line-height: 20px; text-align: center; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.3); }
-.pay-visa.selected { box-shadow: 0 0 0 2px #5b9bd5, 0 8px 30px rgba(21,101,192,0.5); }
-.pay-mc.selected { box-shadow: 0 0 0 2px #e57373, 0 8px 30px rgba(198,40,40,0.5); }
-.pay-amex.selected { box-shadow: 0 0 0 2px #81c784, 0 8px 30px rgba(56,142,60,0.5); }
-.pay-wallet-hint { font-size: 11px; color: #4a5568; margin-top: 10px; font-style: italic; text-align: center; transition: color 0.3s; }
+.pay-card.selected::after {
+  content: '✓'; position: absolute; top: 8px; right: 8px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; line-height: 20px; text-align: center;
+  backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.3);
+}
+.pay-visa.selected  { box-shadow: 0 0 0 2px #5b9bd5, 0 8px 30px rgba(21,101,192,0.5); }
+.pay-mc.selected    { box-shadow: 0 0 0 2px #e57373, 0 8px 30px rgba(198,40,40,0.5); }
+.pay-amex.selected  { box-shadow: 0 0 0 2px #81c784, 0 8px 30px rgba(56,142,60,0.5); }
+.pay-wallet-hint {
+  font-size: 11px; color: #4a5568; margin-top: 10px;
+  font-style: italic; text-align: center; transition: color 0.3s;
+}
 .pay-wallet-hint.selected-hint { color: #a78bfa; font-style: normal; font-weight: 600; }
-.pay-format-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; background: rgba(0,245,212,0.1); border: 1px solid rgba(0,245,212,0.2); border-radius: 20px; font-size: 11px; font-weight: 600; color: #a78bfa; margin-bottom: 14px; transition: all 0.3s; }
+.pay-format-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px;
+  background: rgba(167,139,250,0.1);
+  border: 1px solid rgba(167,139,250,0.2);
+  border-radius: 20px; font-size: 11px; font-weight: 600; color: #a78bfa;
+  margin-bottom: 14px; transition: all 0.3s;
+}
 .pay-format-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .payment-field { margin-bottom: 14px; }
-.payment-field label { display: block; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.payment-field label {
+  display: block; font-size: 11px; font-weight: 700;
+  color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+}
 .payment-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.secure-badge { display: flex; align-items: center; gap: 8px; justify-content: center; padding: 10px 16px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); border-radius: 30px; margin: 16px 0; font-size: 12px; font-weight: 600; color: #34d399; }
+.secure-badge {
+  display: flex; align-items: center; gap: 8px; justify-content: center;
+  padding: 10px 16px;
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.2);
+  border-radius: 30px; margin: 16px 0;
+  font-size: 12px; font-weight: 600; color: #34d399;
+}
 .demo-notice { text-align: center; font-size: 11px; color: #475569; margin-top: 8px; line-height: 1.5; }
-.confirmation-wrapper { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 20px 0; }
-.confirm-checkmark { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #065f46, #10b981); display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 20px; animation: pulse-success 2s ease-in-out infinite; }
-@keyframes pulse-success { 0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50% { box-shadow: 0 0 0 20px rgba(16,185,129,0); } }
-@keyframes pop-in { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
-.confirm-checkmark.animate { animation: pop-in 0.6s cubic-bezier(0.175,0.885,0.32,1.275) forwards, pulse-success 2s 0.6s ease-in-out infinite; }
-.confirm-title { font-size: 28px; font-weight: 800; color: #fff; font-family: 'Playfair Display', serif; margin-bottom: 8px; }
+
+/* ── Step 3: Confirmation ── */
+.confirmation-wrapper {
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center; padding: 20px 0;
+}
+.confirm-checkmark {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: linear-gradient(135deg, #065f46, #10b981);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px; margin-bottom: 20px;
+  animation: pulse-success 2s ease-in-out infinite;
+}
+@keyframes pulse-success {
+  0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+  50%      { box-shadow: 0 0 0 20px rgba(16,185,129,0); }
+}
+@keyframes pop-in {
+  0%   { transform: scale(0.5); opacity: 0; }
+  70%  { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.confirm-checkmark.animate {
+  animation: pop-in 0.6s cubic-bezier(0.175,0.885,0.32,1.275) forwards, pulse-success 2s 0.6s ease-in-out infinite;
+}
+.confirm-title {
+  font-size: 28px; font-weight: 800; color: #fff;
+  font-family: 'Playfair Display', serif; margin-bottom: 8px;
+}
 .confirm-subtitle { font-size: 14px; color: #64748b; margin-bottom: 24px; }
-.booking-reference { padding: 12px 24px; background: linear-gradient(135deg, rgba(74,47,124,0.3), rgba(56,189,248,0.1)); border: 1px solid rgba(0,245,212,0.3); border-radius: 30px; margin-bottom: 24px; font-family: monospace; font-size: 18px; font-weight: 700; color: #a78bfa; letter-spacing: 2px; }
-.confirm-summary { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(0,245,212,0.12); border-radius: 16px; overflow: hidden; }
-.confirm-row { display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid rgba(0,245,212,0.08); font-size: 14px; }
+.booking-reference {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, rgba(74,47,124,0.3), rgba(56,189,248,0.1));
+  border: 1px solid rgba(167,139,250,0.3);
+  border-radius: 30px; margin-bottom: 24px;
+  font-family: monospace; font-size: 18px; font-weight: 700;
+  color: #a78bfa; letter-spacing: 2px;
+}
+.confirm-summary {
+  width: 100%; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(167,139,250,0.12);
+  border-radius: 16px; overflow: hidden;
+}
+.confirm-row {
+  display: flex; justify-content: space-between;
+  padding: 12px 16px; border-bottom: 1px solid rgba(167,139,250,0.08); font-size: 14px;
+}
 .confirm-row:last-child { border-bottom: none; }
 .confirm-row span:first-child { color: #64748b; }
-.confirm-row span:last-child { color: #e2e8f0; font-weight: 600; }
-.drawer-footer { padding: 16px 28px 24px; border-top: 1px solid rgba(0,245,212,0.1); background: rgba(0,0,0,0.2); backdrop-filter: blur(10px); flex-shrink: 0; }
-.drawer-cta { width: 100%; padding: 15px; background: linear-gradient(135deg, #4a2f7c, #8a4ff8); border: none; border-radius: 14px; color: white; font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.35s ease-out; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'DM Sans', sans-serif; letter-spacing: 0.3px; }
-.drawer-cta:hover:not(:disabled) { background: linear-gradient(135deg, #8a4ff8, #38bdf8); box-shadow: 0 8px 30px rgba(138,79,248,0.4), inset 0 1px 0 rgba(255,255,255,0.2); transform: translateY(-2px); }
+.confirm-row span:last-child  { color: #e2e8f0; font-weight: 600; }
+
+/* ── Drawer Footer ── */
+.drawer-footer {
+  padding: 16px 28px 24px;
+  border-top: 1px solid rgba(167,139,250,0.1);
+  background: rgba(0,0,0,0.2);
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
+}
+.drawer-cta {
+  width: 100%; padding: 15px;
+  background: linear-gradient(135deg, #4a2f7c, #8a4ff8);
+  border: none; border-radius: 14px;
+  color: white; font-weight: 700; font-size: 15px;
+  cursor: pointer; transition: all 0.35s ease-out;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: 'DM Sans', sans-serif; letter-spacing: 0.3px;
+}
+.drawer-cta:hover:not(:disabled) {
+  background: linear-gradient(135deg, #8a4ff8, #38bdf8);
+  box-shadow: 0 8px 30px rgba(138,79,248,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+  transform: translateY(-2px);
+}
 .drawer-cta:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-.drawer-cta.loading { pointer-events: none; }
-.drawer-cta .spinner { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; animation: spin 0.8s linear infinite; display: none; }
-.drawer-cta.loading .spinner { display: block; }
+.drawer-cta.loading  { pointer-events: none; }
+.drawer-cta .spinner {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
+  animation: spin 0.8s linear infinite; display: none;
+}
+.drawer-cta.loading .spinner   { display: block; }
 .drawer-cta.loading .cta-label { display: none; }
-.drawer-back { display: flex; align-items: center; gap: 6px; background: none; border: none; color: #64748b; cursor: pointer; font-size: 13px; font-weight: 500; padding: 8px 0; margin-bottom: 10px; transition: color 0.2s; font-family: 'DM Sans', sans-serif; }
+.drawer-back {
+  display: flex; align-items: center; gap: 6px;
+  background: none; border: none; color: #64748b;
+  cursor: pointer; font-size: 13px; font-weight: 500;
+  padding: 8px 0; margin-bottom: 10px;
+  transition: color 0.2s; font-family: 'DM Sans', sans-serif;
+}
 .drawer-back:hover { color: #a78bfa; }
 .drawer-back svg { width: 16px; height: 16px; }
 @keyframes spin { to { transform: rotate(360deg); } }
-#confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 3500; opacity: 0; transition: opacity 0.5s; }
+
+#confetti-canvas {
+  position: fixed; inset: 0; pointer-events: none;
+  z-index: 3500; opacity: 0; transition: opacity 0.5s;
+}
 #confetti-canvas.active { opacity: 1; }
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
   .details-grid { grid-template-columns: 1fr; }
-  .details-sidebar { position: static; max-height: none; overflow-y: visible; }
+  .details-sidebar { position: static; }
   .hero-content h1 { font-size: 32px; }
 }
 @media (max-width: 768px) {
@@ -925,388 +872,7 @@ select#itinerary-days option, select#nearby-category option { background: #1a203
   .section-header { flex-direction: column; align-items: flex-start; }
   .nearby-grid { grid-template-columns: 1fr; }
   .gallery-card { width: 120px; height: 160px; margin-left: -40px; }
-  .booking-drawer { width: 100vw; border-left: none; border-top: 1px solid rgba(0,245,212,0.2); }
-  .wx-temp { font-size: 40px; }
-}
-/* ═══════════════════════════════════════════════════════
-   PREMIUM DESIGN OVERHAUL — Animations, Glass, Glow
-═══════════════════════════════════════════════════════ */
-
-/* Keyframes */
-@keyframes fadeSlideUp {
-  from { opacity: 0; transform: translateY(32px) scale(0.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes glowPulse {
-  0%, 100% { box-shadow: rgba(0,0,0,0.7) 5px 10px 50px, 0 0 0 rgba(0,245,212,0); }
-  50%      { box-shadow: rgba(0,0,0,0.7) 5px 10px 50px, 0 0 30px var(--glow-accent); }
-}
-@keyframes borderGlow {
-  0%, 100% { border-color: var(--glass-border); }
-  50%      { border-color: rgba(0,245,212,0.35); }
-}
-@keyframes heroFloat {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50%      { transform: translate(-25px, 15px) scale(1.05); }
-}
-@keyframes shineSwipe {
-  0%   { transform: translateX(-100%) skewX(-15deg); }
-  100% { transform: translateX(200%) skewX(-15deg); }
-}
-@keyframes subtleBreathe {
-  0%, 100% { opacity: 0.7; }
-  50%      { opacity: 1; }
-}
-
-/* ── Icon Badges ── */
-.icon-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, rgba(0,245,212,0.18), rgba(56,189,248,0.12));
-  border: 1px solid rgba(0,245,212,0.22);
-  box-shadow: 0 0 18px rgba(0,245,212,0.12);
-  flex-shrink: 0;
-  transition: all 0.3s;
-}
-.icon-badge i {
-  font-size: 17px;
-  background: linear-gradient(135deg, #c4b5fd, #7dd3fc);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.section-header:hover .icon-badge {
-  box-shadow: 0 0 24px rgba(0,245,212,0.3);
-  transform: scale(1.08);
-}
-
-/* ── Section Cards — Glass + Entrance ── */
-.section-card {
-  animation: fadeSlideUp 0.65s cubic-bezier(0.22,1,0.36,1) both;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  background: linear-gradient(135deg, var(--glass-bg), rgba(36,59,85,0.88)) !important;
-  border: 1px solid var(--glass-border) !important;
-  position: relative;
-}
-.section-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 5%, rgba(0,245,212,0.45) 30%, rgba(56,189,248,0.4) 70%, transparent 95%);
-  z-index: 1;
-}
-.section-card:nth-child(1) { animation-delay: 0.05s; }
-.section-card:nth-child(2) { animation-delay: 0.12s; }
-.section-card:nth-child(3) { animation-delay: 0.19s; }
-.section-card:nth-child(4) { animation-delay: 0.26s; }
-.section-card:nth-child(5) { animation-delay: 0.33s; }
-.section-card:nth-child(6) { animation-delay: 0.40s; }
-.section-card:hover {
-  border-color: rgba(0,245,212,0.32) !important;
-  box-shadow: rgba(0,0,0,0.8) 5px 10px 50px, 0 0 40px var(--glow-accent);
-}
-
-/* ── Section Headers — Gradient Title ── */
-.section-header h2 {
-  background: var(--gradient-text);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-size: 21px;
-  letter-spacing: 0.3px;
-}
-
-/* ── Hero Enhancements ── */
-.hero-section::after {
-  content: '';
-  position: absolute;
-  top: -40%; right: -20%;
-  width: 550px; height: 550px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(0,245,212,0.18) 0%, transparent 65%);
-  z-index: 1;
-  animation: heroFloat 10s ease-in-out infinite;
-  pointer-events: none;
-}
-.hero-content h1 {
-  background: linear-gradient(135deg, #ffffff 20%, #e0d4ff 60%, #c4b5fd 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: none !important;
-  filter: drop-shadow(0 4px 15px rgba(0,245,212,0.25));
-}
-.hero-meta span {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 6px 16px;
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 30px;
-  border: 1px solid rgba(255,255,255,0.12);
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
-}
-.hero-meta span:hover {
-  background: rgba(0,245,212,0.18);
-  border-color: rgba(0,245,212,0.4);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-}
-.hero-meta span i {
-  font-size: 15px;
-  color: #c4b5fd;
-}
-
-/* ── Amenity Items ── */
-.amenity-item {
-  backdrop-filter: blur(8px);
-  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-  position: relative;
-  overflow: hidden;
-}
-.amenity-item:hover {
-  background: rgba(0,245,212,0.1);
-  border-color: rgba(0,245,212,0.35);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0,245,212,0.12);
-}
-
-/* ── Room Cards ── */
-.room-card {
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(8px);
-}
-.room-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(0,245,212,0.4), transparent);
-  opacity: 0;
-  transition: opacity 0.4s;
-}
-.room-card:hover::before { opacity: 1; }
-
-/* ── Book Button ── */
-.book-btn {
-  width: 100%;
-  background: linear-gradient(135deg, #6c3ce0, #8b5cf6);
-  border: none;
-  border-radius: 14px;
-  color: white;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
-  position: relative;
-  overflow: hidden;
-  letter-spacing: 0.4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-family: 'DM Sans', sans-serif;
-}
-.book-btn::after {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
-  transition: left 0.5s;
-}
-.book-btn:hover {
-  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
-  box-shadow: 0 8px 32px rgba(139,92,246,0.4);
-  transform: translateY(-2px);
-}
-.book-btn:hover::after { left: 120%; }
-
-/* ── Generate / Action Buttons ── */
-.generate-itinerary {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(135deg, #6c3ce0, #8b5cf6, #a78bfa) !important;
-  border-radius: 14px !important;
-  letter-spacing: 0.3px;
-  font-size: 13px;
-  font-family: 'DM Sans', sans-serif;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.generate-itinerary::after {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-  transition: left 0.6s;
-}
-.generate-itinerary:hover::after { left: 140%; }
-
-/* ── Nearby Cards ── */
-.nearby-card {
-  backdrop-filter: blur(8px);
-  position: relative;
-  overflow: hidden;
-}
-.nearby-card::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #a78bfa, #38bdf8);
-  transform: scaleX(0);
-  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
-  transform-origin: left;
-}
-.nearby-card:hover::after { transform: scaleX(1); }
-
-/* ── Reviews ── */
-.reviews-summary {
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(12px);
-}
-.reviews-summary::before {
-  content: '';
-  position: absolute;
-  top: -80px; right: -80px;
-  width: 200px; height: 200px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(251,191,36,0.08) 0%, transparent 70%);
-  pointer-events: none;
-}
-.review-avatar {
-  background: linear-gradient(135deg, #a78bfa, #8b5cf6) !important;
-  box-shadow: 0 0 16px rgba(0,245,212,0.25);
-}
-.review-item {
-  transition: background 0.3s;
-  border-radius: 12px;
-  padding: 16px !important;
-}
-.review-item:hover {
-  background: rgba(0,245,212,0.04);
-}
-
-/* ── Empty State ── */
-.empty-state .icon {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 16px;
-  background: linear-gradient(135deg, rgba(0,245,212,0.08), rgba(56,189,248,0.06));
-  border: 1px solid rgba(0,245,212,0.15);
-  font-size: 28px !important;
-  opacity: 0.8 !important;
-}
-
-/* ── Map Sidebar ── */
-.map-sidebar-card {
-  backdrop-filter: blur(12px);
-  position: relative;
-}
-.map-sidebar-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 5%, rgba(0,245,212,0.4) 50%, transparent 95%);
-  z-index: 1;
-}
-
-/* ── Weather Card ── */
-.wx-card {
-  backdrop-filter: blur(16px);
-  animation: fadeSlideUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.2s both;
-}
-
-/* ── Info Items in About ── */
-.info-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 0;
-}
-.info-row i {
-  font-size: 16px;
-  background: linear-gradient(135deg, #c4b5fd, #7dd3fc);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  width: 20px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-/* ── Select Dropdowns ── */
-select#itinerary-days, select#nearby-category {
-  backdrop-filter: blur(8px);
-  transition: all 0.3s !important;
-  font-family: 'DM Sans', sans-serif;
-}
-select#itinerary-days:hover, select#nearby-category:hover {
-  border-color: rgba(0,245,212,0.45);
-  box-shadow: 0 0 18px rgba(0,245,212,0.1);
-}
-
-/* ── Sidebar Entrance ── */
-.details-sidebar {
-  animation: fadeSlideUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.25s both;
-}
-
-/* ── Gallery Hover Glow ── */
-.gallery-card:hover {
-  box-shadow: 0 20px 40px rgba(0,245,212,0.35) !important;
-}
-
-/* ── Toast Enhancement ── */
-#toast {
-  backdrop-filter: blur(14px) !important;
-  border: 1px solid rgba(255,255,255,0.12) !important;
-}
-
-/* ── Drawer Enhancement ── */
-.booking-drawer {
-  backdrop-filter: blur(20px);
-}
-
-/* ── Room Stat Icons ── */
-.room-stat-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, rgba(0,245,212,0.12), rgba(56,189,248,0.08));
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 6px;
-  font-size: 18px;
-}
-.room-stat-icon i {
-  font-size: 17px;
-  background: linear-gradient(135deg, #c4b5fd, #7dd3fc);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  .booking-drawer { width: 100vw; border-left: none; border-top: 1px solid rgba(167,139,250,0.2); }
 }
 </style>
 {% endblock %}
@@ -1318,15 +884,15 @@ select#itinerary-days:hover, select#nearby-category:hover {
   {% if accommodation.imagePath %}
     <img class="hero-image" src="/{{ accommodation.imagePath }}" alt="{{ accommodation.name }}">
   {% else %}
-    <div class="hero-image" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a2035,#243b55);font-size:64px;"><i class="ri-building-4-line" style="background:linear-gradient(135deg,#c4b5fd,#7dd3fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;"></i></div>
+    <div class="hero-image" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a2035,#243b55);font-size:64px;">🏨</div>
   {% endif %}
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <h1>{{ accommodation.name }}</h1>
     <div class="hero-meta">
-      <span><i class="ri-map-pin-2-fill"></i> {{ accommodation.city }}{% if accommodation.country %}, {{ accommodation.country }}{% endif %}</span>
-      <span><i class="ri-star-fill" style="color:#fbbf24;"></i> {{ accommodation.stars }} stars</span>
-      {% if accommodation.rating %}<span><i class="ri-trophy-fill" style="color:#fbbf24;"></i> {{ accommodation.rating }}/5 guest rating</span>{% endif %}
+      <span>📍 {{ accommodation.city }}{% if accommodation.country %}, {{ accommodation.country }}{% endif %}</span>
+      <span>⭐ {{ accommodation.stars }} stars</span>
+      {% if accommodation.rating %}<span>🌟 {{ accommodation.rating }}/5 guest rating</span>{% endif %}
     </div>
   </div>
 </div>
@@ -1336,7 +902,7 @@ select#itinerary-days:hover, select#nearby-category:hover {
 
     {# About #}
     <div class="section-card">
-      <div class="section-header"><h2><span class="icon-badge"><i class="ri-file-list-3-line"></i></span> About This Property</h2></div>
+      <div class="section-header"><h2>📋 About This Property</h2></div>
       <div class="section-content">
         <p style="line-height:1.6;margin-bottom:20px;color:#cbd5e1;">{{ accommodation.description ?: 'No description available.' }}</p>
         {% if accommodation.accommodationAmenities %}
@@ -1348,18 +914,18 @@ select#itinerary-days:hover, select#nearby-category:hover {
           </div>
         {% endif %}
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:20px;color:#94a3b8;">
-          {% if accommodation.phone %}<div class="info-row"><i class="ri-phone-line"></i> {{ accommodation.phone }}</div>{% endif %}
-          {% if accommodation.email %}<div class="info-row"><i class="ri-mail-line"></i> {{ accommodation.email }}</div>{% endif %}
-          <div class="info-row"><i class="ri-building-4-line"></i> {{ accommodation.type ?: 'Not specified' }}</div>
-          <div class="info-row"><i class="ri-star-fill"></i> {{ accommodation.stars }}/5 stars</div>
-          {% if accommodation.rating %}<div class="info-row"><i class="ri-trophy-line"></i> {{ accommodation.rating }}/5 guest rating</div>{% endif %}
+          {% if accommodation.phone %}<div>📞 {{ accommodation.phone }}</div>{% endif %}
+          {% if accommodation.email %}<div>✉️ {{ accommodation.email }}</div>{% endif %}
+          <div>🏨 {{ accommodation.type ?: 'Not specified' }}</div>
+          <div>⭐ {{ accommodation.stars }}/5 stars</div>
+          {% if accommodation.rating %}<div>🌟 {{ accommodation.rating }}/5 guest rating</div>{% endif %}
         </div>
       </div>
     </div>
 
     {# Rooms #}
     <div class="section-card">
-      <div class="section-header"><h2><span class="icon-badge"><i class="ri-hotel-bed-line"></i></span> Available Rooms</h2></div>
+      <div class="section-header"><h2>🛏️ Available Rooms</h2></div>
       <div class="section-content">
         <div class="rooms-grid" id="rooms-container">
           <div class="skeleton" style="height:100px;"></div>
@@ -1367,79 +933,49 @@ select#itinerary-days:hover, select#nearby-category:hover {
       </div>
     </div>
 
-    {# Nearby - LAZY LOAD with "See Nearby Places" button #}
+    {# Nearby #}
     <div class="section-card">
       <div class="section-header">
-        <h2><span class="icon-badge"><i class="ri-compass-3-line"></i></span> What's Nearby</h2>
-        <div style="display: flex; gap: 8px;">
-          <select id="nearby-category" style="padding: 8px 12px; border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(0,245,212,0.2); color: #e2e8f0;">
-            <option value="restaurants">Restaurants</option>
-            <option value="attractions">Attractions</option>
-            <option value="shopping">Shopping</option>
-            <option value="transport">Transport</option>
-          </select>
-          <button id="load-nearby-btn" class="generate-itinerary" onclick="loadNearby()">
-            <i class="ri-map-pin-line"></i> Discover Places
-          </button>
-        </div>
+        <h2>🏙️ What's Nearby</h2>
+        <select id="nearby-category">
+          <option value="restaurants">🍽️ Restaurants</option>
+          <option value="attractions">🏛️ Attractions</option>
+          <option value="shopping">🛍️ Shopping</option>
+          <option value="transport">🚇 Transport</option>
+        </select>
       </div>
       <div class="section-content">
-        <div id="nearby-container">
-          <div class="empty-state">
-            <div class="icon"><i class="ri-map-pin-line" style="font-size:28px;color:#a78bfa;"></i></div>
-            <p>Select a category and click "See Nearby Places" to discover attractions</p>
-          </div>
-        </div>
+        <div id="nearby-container"><div class="skeleton" style="height:100px;"></div></div>
       </div>
     </div>
 
-    {# Gallery - LAZY LOAD with "See Gallery" button #}
+    {# Gallery #}
     <div class="section-card">
-      <div class="section-header">
-        <h2><span class="icon-badge"><i class="ri-camera-lens-line"></i></span> {{ accommodation.city }} Gallery</h2>
-        <button id="load-gallery-btn" class="generate-itinerary" onclick="loadGallery()">
-          <i class="ri-gallery-line"></i> View Gallery
-        </button>
-      </div>
+      <div class="section-header"><h2>📸 {{ accommodation.city }} Gallery</h2></div>
       <div class="section-content">
-        <div id="gallery-container">
-          <div class="empty-state">
-            <div class="icon"><i class="ri-camera-lens-line" style="font-size:28px;color:#a78bfa;"></i></div>
-            <p>Click "See Gallery" to view beautiful photos of {{ accommodation.city }}</p>
-          </div>
-        </div>
+        <div id="gallery-container"><div class="skeleton" style="height:220px;"></div></div>
       </div>
     </div>
 
-    {# Reviews - LAZY LOAD with "See Reviews" button #}
+    {# Reviews #}
     <div class="section-card">
-      <div class="section-header">
-        <h2><span class="icon-badge"><i class="ri-chat-smile-2-line"></i></span> Guest Reviews</h2>
-        <button id="load-reviews-btn" class="generate-itinerary" onclick="loadReviews()">
-          <i class="ri-chat-quote-line"></i> Read Reviews
-        </button>
-      </div>
+      <div class="section-header"><h2>⭐ Guest Reviews</h2></div>
       <div class="section-content">
-        <div id="reviews-container">
-          <div class="empty-state">
-            <div class="icon"><i class="ri-star-smile-line" style="font-size:28px;color:#fbbf24;"></i></div>
-            <p>Click "See Reviews" to read what guests are saying</p>
-          </div>
-        </div>
+        <div id="reviews-container"><div class="skeleton" style="height:150px;"></div></div>
       </div>
     </div>
 
-    {# Itinerary #}
+    {# Itinerary — FIX: onclick directly on the button #}
     <div class="section-card">
       <div class="section-header">
-        <h2><span class="icon-badge"><i class="ri-sparkling-2-fill"></i></span> AI-Powered Itinerary</h2>
+        <h2>🤖 AI-Powered Itinerary</h2>
         <div>
           <select id="itinerary-days">
             <option value="3">3 Days</option>
             <option value="5">5 Days</option>
             <option value="7">7 Days</option>
           </select>
-          <button id="generate-itinerary-btn" class="generate-itinerary" onclick="generateItinerary()"><i class="ri-sparkling-line"></i> Generate</button>
+          <button id="generate-itinerary-btn" class="generate-itinerary" onclick="generateItinerary()">Generate</button>
         </div>
       </div>
       <div class="section-content">
@@ -1451,32 +987,47 @@ select#itinerary-days:hover, select#nearby-category:hover {
 
   </div>
 
-  {# ── Sidebar: Weather + Map only ── #}
   <div class="details-sidebar">
-
-    {# Weather - AUTO LOAD (fast, single API) #}
+    {# Weather #}
     <div id="weather-container">
-      <div class="skeleton" style="height:180px;border-radius:15px;"></div>
+      <div class="skeleton" style="height:280px;border-radius:15px;"></div>
     </div>
 
-    {# Mini Map #}
-    <div class="map-sidebar-card">
-      <div class="map-sidebar-header">
-        <h2><span class="icon-badge"><i class="ri-map-pin-2-fill"></i></span> Location</h2>
+    {# Booking panel #}
+    <div class="booking-panel">
+      <div class="booking-price">From <span id="min-price">---</span><small>/night</small></div>
+      <input type="date" id="checkin-date"  class="date-input">
+      <input type="date" id="checkout-date" class="date-input">
+      <select id="guest-count" class="date-input">
+        <option value="1">1 Guest</option>
+        <option value="2">2 Guests</option>
+        <option value="3">3 Guests</option>
+        <option value="4">4 Guests</option>
+      </select>
+      <button class="book-btn" onclick="showToast('Browse available rooms below ↓', 'info')">💰 View Rooms</button>
+    </div>
+
+    {# Map #}
+    <div class="section-card">
+      <div class="section-header"><h2>📍 Location</h2></div>
+      <div class="section-content" style="padding:0;">
+        <div id="mini-map" class="mini-map"></div>
       </div>
-      <div id="mini-map" class="mini-map"></div>
     </div>
-
   </div>
 </div>
 
-{# Booking Drawer #}
+{# ══════════════════════════════════════════
+   BOOKING DRAWER
+══════════════════════════════════════════ #}
 <div class="drawer-backdrop" id="drawer-backdrop"></div>
 <canvas id="confetti-canvas"></canvas>
 
 <div class="booking-drawer" id="booking-drawer">
+
   <button class="drawer-close" id="drawer-close-btn" onclick="closeDrawer()">✕</button>
 
+  {# Progress bar #}
   <div class="drawer-progress">
     <div class="progress-step active" id="prog-0">
       <div class="progress-dot active" id="dot-0">1</div>
@@ -1501,11 +1052,11 @@ select#itinerary-days:hover, select#nearby-category:hover {
 
   <div class="drawer-steps">
 
-    {# Step 0: Room Preview #}
+    {# ── STEP 0: Room Preview ── #}
     <div class="drawer-step active" id="step-0">
       <div class="room-carousel">
         <div class="carousel-slides" id="carousel-slides">
-          <div class="carousel-slide-placeholder"><i class="ri-building-4-line" style="background:linear-gradient(135deg,#c4b5fd,#7dd3fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;"></i></div>
+          <div class="carousel-slide-placeholder">🏨</div>
         </div>
         <button class="carousel-btn prev" onclick="carouselPrev()">‹</button>
         <button class="carousel-btn next" onclick="carouselNext()">›</button>
@@ -1517,17 +1068,17 @@ select#itinerary-days:hover, select#nearby-category:hover {
       </div>
       <div class="room-stats">
         <div class="room-stat">
-          <div class="room-stat-icon"><i class="ri-team-line"></i></div>
+          <div class="room-stat-icon">👥</div>
           <div class="room-stat-value" id="preview-capacity">—</div>
           <div class="room-stat-label">Guests</div>
         </div>
         <div class="room-stat">
-          <div class="room-stat-icon"><i class="ri-ruler-line"></i></div>
+          <div class="room-stat-icon">📐</div>
           <div class="room-stat-value" id="preview-size">—</div>
           <div class="room-stat-label">m² Size</div>
         </div>
         <div class="room-stat">
-          <div class="room-stat-icon"><i class="ri-hotel-bed-line"></i></div>
+          <div class="room-stat-icon">🛏️</div>
           <div class="room-stat-value" id="preview-beds">1</div>
           <div class="room-stat-label">Bed(s)</div>
         </div>
@@ -1540,13 +1091,13 @@ select#itinerary-days:hover, select#nearby-category:hover {
       <div class="drawer-amenities" id="preview-amenities"></div>
     </div>
 
-    {# Step 1: Stay Details #}
+    {# ── STEP 1: Stay Details ── #}
     <div class="drawer-step" id="step-1">
       <button class="drawer-back" onclick="goToStep(0)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         Back to room
       </button>
-      <div class="stay-section-title">Check-in &amp; Check-out</div>
+      <div class="stay-section-title">Check-in & Check-out</div>
       <div class="date-range-grid">
         <div class="date-field">
           <label>Check-in</label>
@@ -1567,7 +1118,7 @@ select#itinerary-days:hover, select#nearby-category:hover {
         <div class="stepper-controls">
           <button class="stepper-btn" id="guest-minus" onclick="adjustGuests(-1)">−</button>
           <span class="stepper-count" id="guest-count-display">1</span>
-          <button class="stepper-btn" id="guest-plus" onclick="adjustGuests(1)">+</button>
+          <button class="stepper-btn" id="guest-plus"  onclick="adjustGuests(1)">+</button>
         </div>
       </div>
       <div class="stay-section-title">Estimated Arrival Time</div>
@@ -1584,9 +1135,15 @@ select#itinerary-days:hover, select#nearby-category:hover {
         <option value="00:00">After midnight</option>
       </select>
       <div class="stay-section-title">Phone Number</div>
-      <input type="tel" id="d-phone" class="drawer-input" placeholder="+1 234 567 8900" maxlength="16" oninput="sanitizePhone(this)" style="margin-bottom:12px;">
-      <div class="stay-section-title">Special Requests <span style="color:#475569;font-weight:400;text-transform:none;">(optional)</span></div>
-      <textarea id="d-requests" class="drawer-input" rows="3" placeholder="Early check-in, high floor, quiet room..." style="resize:none;line-height:1.5;"></textarea>
+<input type="tel" id="d-phone" class="drawer-input"
+       placeholder="+1 234 567 8900"
+       maxlength="16"
+       oninput="sanitizePhone(this)"
+       style="margin-bottom:12px;">
+<div class="stay-section-title">Special Requests <span style="color:#475569;font-weight:400;text-transform:none;">(optional)</span></div>
+<textarea id="d-requests" class="drawer-input" rows="3"
+  placeholder="Early check-in, high floor, quiet room..."
+  style="resize:none;line-height:1.5;"></textarea>
       <div class="price-breakdown" id="price-breakdown">
         <div class="price-row">
           <span id="price-row-label">€— × — nights</span>
@@ -1603,12 +1160,13 @@ select#itinerary-days:hover, select#nearby-category:hover {
       </div>
     </div>
 
-    {# Step 2: Payment #}
+    {# ── STEP 2: PAYMENT ── #}
     <div class="drawer-step" id="step-2">
       <button class="drawer-back" onclick="goToStep(1)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         Back to stay details
       </button>
+
       <div class="booking-recap">
         <div>
           <div class="recap-label">Room</div>
@@ -1623,88 +1181,135 @@ select#itinerary-days:hover, select#nearby-category:hover {
           <div class="recap-price" id="recap-total">€—</div>
         </div>
       </div>
+
       <div class="wallet-section-label">Choose your card</div>
+
       <div class="pay-wallet-outer">
         <div class="pay-wallet" id="pay-wallet">
+
           <div class="pay-wallet-back"></div>
+
           <div class="pay-card pay-visa" id="pw-visa" onclick="selectPayCard('visa')">
             <div class="pay-card-inner">
-              <div class="pay-card-top"><span>Visa</span><div class="pay-chip"></div></div>
+              <div class="pay-card-top">
+                <span>Visa</span>
+                <div class="pay-chip"></div>
+              </div>
               <div class="pay-card-bottom">
-                <div><span class="pay-card-label">Holder</span><span class="pay-card-value" id="pw-visa-name">YOUR NAME</span></div>
-                <div class="pay-card-num-wrap"><span class="pay-card-stars">**** 4242</span></div>
+                <div>
+                  <span class="pay-card-label">Holder</span>
+                  <span class="pay-card-value" id="pw-visa-name">YOUR NAME</span>
+                </div>
+                <div class="pay-card-num-wrap">
+                  <span class="pay-card-stars">**** 4242</span>
+                </div>
               </div>
             </div>
           </div>
+
           <div class="pay-card pay-mc" id="pw-mc" onclick="selectPayCard('mc')">
             <div class="pay-card-inner">
-              <div class="pay-card-top"><span>Mastercard</span><div class="pay-chip"></div></div>
+              <div class="pay-card-top">
+                <span>Mastercard</span>
+                <div class="pay-chip"></div>
+              </div>
               <div class="pay-card-bottom">
-                <div><span class="pay-card-label">Holder</span><span class="pay-card-value" id="pw-mc-name">YOUR NAME</span></div>
-                <div class="pay-card-num-wrap"><span class="pay-card-stars">**** 5500</span></div>
+                <div>
+                  <span class="pay-card-label">Holder</span>
+                  <span class="pay-card-value" id="pw-mc-name">YOUR NAME</span>
+                </div>
+                <div class="pay-card-num-wrap">
+                  <span class="pay-card-stars">**** 5500</span>
+                </div>
               </div>
             </div>
           </div>
+
           <div class="pay-card pay-amex" id="pw-amex" onclick="selectPayCard('amex')">
             <div class="pay-card-inner">
-              <div class="pay-card-top"><span>Amex</span><div class="pay-chip"></div></div>
+              <div class="pay-card-top">
+                <span>Amex</span>
+                <div class="pay-chip"></div>
+              </div>
               <div class="pay-card-bottom">
-                <div><span class="pay-card-label">Holder</span><span class="pay-card-value" id="pw-amex-name">YOUR NAME</span></div>
-                <div class="pay-card-num-wrap"><span class="pay-card-stars">**** 3714</span></div>
+                <div>
+                  <span class="pay-card-label">Holder</span>
+                  <span class="pay-card-value" id="pw-amex-name">YOUR NAME</span>
+                </div>
+                <div class="pay-card-num-wrap">
+                  <span class="pay-card-stars">**** 3714</span>
+                </div>
               </div>
             </div>
           </div>
+
           <div class="pay-pocket">
-            <svg viewBox="0 0 380 155" fill="none" style="width:100%;height:100%;">
+            <svg class="pay-pocket-svg" viewBox="0 0 380 155" fill="none" style="width:100%;height:100%;">
               <path d="M 0 20 C 0 10, 5 10, 10 10 C 20 10, 25 25, 40 25 L 340 25 C 355 25, 360 10, 370 10 C 375 10, 380 10, 380 20 L 380 115 C 380 150, 360 155, 340 155 L 40 155 C 20 155, 0 150, 0 115 Z" fill="#1e2a1e"></path>
               <path d="M 8 22 C 8 16, 12 16, 15 16 C 23 16, 27 29, 40 29 L 340 29 C 353 29, 357 16, 365 16 C 368 16, 372 16, 372 22 L 372 115 C 372 148, 355 149, 340 149 L 40 149 C 25 149, 8 149, 8 115 Z" stroke="#2e4a2e" stroke-width="1.5" stroke-dasharray="6 4"></path>
             </svg>
             <div class="pay-pocket-content">
               <div style="position:relative;height:22px;width:100%;">
                 <div class="pay-balance-stars" id="pay-bal-stars">******</div>
-                <div class="pay-balance-real" id="pay-bal-real">€—</div>
+                <div class="pay-balance-real"  id="pay-bal-real">€—</div>
               </div>
               <div style="color:#4a6a44;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Total Due</div>
               <div class="pay-eye-wrap">
                 <svg class="pay-eye pay-eye-slash" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle><line x1="3" y1="3" x2="21" y2="21"></line>
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <line x1="3" y1="3" x2="21" y2="21"></line>
                 </svg>
                 <svg class="pay-eye pay-eye-open" style="opacity:0;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
                 </svg>
               </div>
             </div>
           </div>
+
         </div>
         <div class="pay-wallet-hint" id="pay-wallet-hint">Hover to fan cards · click one to select</div>
       </div>
+
       <div class="pay-format-pill" id="pay-format-pill" style="display:none;">
         <span class="dot"></span>
         <span id="pay-format-text">16 digits · XXXX XXXX XXXX XXXX</span>
       </div>
+
       <div class="payment-field">
         <label>Card Number</label>
-        <input type="text" id="card-number" class="drawer-input" placeholder="Select a card type above first" maxlength="19" oninput="formatCardNumber(this)" autocomplete="cc-number">
+        <input type="text" id="card-number" class="drawer-input"
+          placeholder="Select a card type above first"
+          maxlength="19" oninput="formatCardNumber(this)" autocomplete="cc-number">
       </div>
       <div class="payment-field">
         <label>Cardholder Name</label>
-        <input type="text" id="card-holder" class="drawer-input" placeholder="FIRST LAST" oninput="syncCardHolderToWallet()" autocomplete="cc-name" style="text-transform:uppercase;">
+        <input type="text" id="card-holder" class="drawer-input"
+          placeholder="FIRST LAST" oninput="syncCardHolderToWallet()"
+          autocomplete="cc-name" style="text-transform:uppercase;">
       </div>
       <div class="payment-row">
         <div class="payment-field">
           <label>Expiry Date</label>
-          <input type="text" id="card-expiry" class="drawer-input" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)" autocomplete="cc-exp">
+          <input type="text" id="card-expiry" class="drawer-input"
+            placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)" autocomplete="cc-exp">
         </div>
         <div class="payment-field">
           <label>CVV</label>
-          <input type="text" id="card-cvv" class="drawer-input" placeholder="•••" maxlength="4" oninput="this.value=this.value.replace(/\D/g,'')" autocomplete="cc-csc">
+          <input type="text" id="card-cvv" class="drawer-input"
+            placeholder="•••" maxlength="4"
+            oninput="this.value=this.value.replace(/\D/g,'')" autocomplete="cc-csc">
         </div>
       </div>
+
       <div class="secure-badge">🔒 Secured by TripX Payments &nbsp;·&nbsp; 256-bit SSL</div>
-      <div class="demo-notice">🎓 University project demo — no actual charge will be made.<br>Use any card number to complete your booking.</div>
+      <div class="demo-notice">
+        🎓 University project demo — no actual charge will be made.<br>Use any card number to complete your booking.
+      </div>
     </div>
 
-    {# Step 3: Confirmation #}
+    {# ── STEP 3: Confirmation ── #}
     <div class="drawer-step" id="step-3">
       <div class="confirmation-wrapper">
         <div class="confirm-checkmark" id="confirm-checkmark">✓</div>
@@ -1730,6 +1335,7 @@ select#itinerary-days:hover, select#nearby-category:hover {
       <div class="spinner"></div>
     </button>
   </div>
+
 </div>
 
 {# Image modal #}
@@ -1750,32 +1356,16 @@ select#itinerary-days:hover, select#nearby-category:hover {
 const accommodationId = {{ accommodation.id }};
 const CURRENT_USER_NAME = {{ userName|json_encode|raw }};
 
-// Real accommodation data for the mini-map
-const ACCOMMODATION = {
-    id: {{ accommodation.id|json_encode|raw }},
-    name: {{ accommodation.name|json_encode|raw }},
-    latitude: {{ accommodation.latitude|json_encode|raw }},
-    longitude: {{ accommodation.longitude|json_encode|raw }},
-    city: {{ accommodation.city|json_encode|raw }},
-    country: {{ accommodation.country|json_encode|raw }}
-};
-
-let map = null;
-let miniMapInstance = null;
-let galleryImages = [];
-let roomsMap = {};
-let currentRoom = null;
-let currentStep = 0;
-let carouselIndex = 0;
-let guestCount = 1;
-let bookingResult = null;
-let carouselInterval = null;
+let map             = null;
+let galleryImages   = [];
+let roomsMap        = {};
+let currentRoom     = null;
+let currentStep     = 0;
+let carouselIndex   = 0;
+let guestCount      = 1;
+let bookingResult   = null;
+let carouselInterval= null;
 let selectedNetwork = null;
-
-// Track loaded state to prevent duplicate loads
-let galleryLoaded = false;
-let reviewsLoaded = false;
-let nearbyLoaded = false;
 
 // ── Toast ──────────────────────────────────────────────────
 function showToast(msg, type = 'success') {
@@ -1797,307 +1387,42 @@ function openModal(url) {
   document.getElementById('modal-image').src = url;
   document.getElementById('image-modal').classList.add('open');
 }
-
 function closeModal() { document.getElementById('image-modal').classList.remove('open'); }
-
-// ══════════════════════════════════════════════════════════
-// WEATHER - AUTO LOAD
-// ══════════════════════════════════════════════════════════
-async function loadWeather() {
-  const container = document.getElementById('weather-container');
-  if (!container) return;
-  try {
-    const response = await fetch(`/api/weather/${accommodationId}`);
-    const data = await response.json();
-    if (data.error || !data.current) {
-      container.innerHTML = `
-        <div class="wx-card" style="padding:20px;text-align:center;color:#64748b;">
-          ⚠️ Weather unavailable
-        </div>`;
-      return;
-    }
-    const c = data.current;
-    const forecast = data.forecast || [];
-    const iconUrl = c.icon
-      ? `https://openweathermap.org/img/wn/${c.icon}@2x.png`
-      : null;
-    let forecastHtml = '';
-    if (forecast.length > 0) {
-      forecastHtml = '<div class="wx-forecast">';
-      forecast.slice(0, 5).forEach(day => {
-        const dayIcon = day.icon
-          ? `<img src="https://openweathermap.org/img/wn/${day.icon}.png" alt="${escapeHtml(day.condition)}">`
-          : `<span style="font-size:16px;">—</span>`;
-        forecastHtml += `
-          <div class="wx-day" onclick="showToast('${escapeHtml(day.condition)} · ${day.temp}°C', 'info')">
-            <span class="wx-day-label">${escapeHtml(day.day)}</span>
-            ${dayIcon}
-            <span class="wx-day-temp">${day.temp}°</span>
-          </div>`;
-      });
-      forecastHtml += '</div>';
-    }
-    container.innerHTML = `
-      <div class="wx-card">
-        <div class="wx-main">
-          <div class="wx-left">
-            <div class="wx-location">${escapeHtml(c.city)}, ${escapeHtml(c.country)}</div>
-            <div class="wx-condition">
-              ${iconUrl ? `<img src="${iconUrl}" alt="${escapeHtml(c.condition)}">` : ''}
-              ${escapeHtml(c.description || c.condition)}
-            </div>
-            <div class="wx-meta">
-              <span>💧 ${c.humidity}%</span>
-              ${c.wind_speed ? `<span>💨 ${c.wind_speed} m/s</span>` : ''}
-              ${c.feels_like !== undefined ? `<span>🌡 feels ${c.feels_like}°</span>` : ''}
-            </div>
-          </div>
-          <div class="wx-right">
-            <div class="wx-temp">${c.temp}<sup>°C</sup></div>
-            <div class="wx-range">↓${c.temp_min}° &nbsp; ↑${c.temp_max}°</div>
-          </div>
-        </div>
-        ${forecastHtml}
-      </div>`;
-  } catch (error) {
-    console.error('Weather error:', error);
-    container.innerHTML = `
-      <div class="wx-card" style="padding:20px;text-align:center;color:#64748b;">
-        ❌ Failed to load weather
-      </div>`;
-  }
-}
-
-// ══════════════════════════════════════════════════════════
-// NEARBY PLACES - LAZY LOAD
-// ══════════════════════════════════════════════════════════
-async function loadNearby() {
-  const container = document.getElementById('nearby-container');
-  const categorySelect = document.getElementById('nearby-category');
-  const category = categorySelect ? categorySelect.value : 'restaurants';
-  if (!container) return;
-  
-  // Show loading state
-  container.innerHTML = '<div class="skeleton" style="height:100px;"></div>';
-  
-  try {
-    const response = await fetch(`/api/nearby/${accommodationId}`);
-    const data = await response.json();
-    const places = data[category];
-    if (places && places.places && places.places.length > 0) {
-      const icons = { restaurants:'🍽️', attractions:'🏛️', shopping:'🛍️', transport:'🚇' };
-      container.innerHTML = `
-        <div class="nearby-grid">
-          ${places.places.map(place => `
-            <div class="nearby-card" onclick="showToast('${escapeHtml(place.name)}', 'info')">
-              <div class="nearby-icon">${icons[category] || '📍'}</div>
-              <div class="nearby-info">
-                <h4>${escapeHtml(place.name)}</h4>
-                ${place.rating ? `<p>⭐ ${place.rating} ${place.reviews ? `(${place.reviews})` : ''}</p>` : ''}
-                ${place.distance ? `<p>📏 ${place.distance}</p>` : ''}
-                ${place.price ? `<p>💰 ${place.price}</p>` : ''}
-              </div>
-            </div>`).join('')}
-        </div>`;
-      showToast(`Found ${places.places.length} ${category} nearby!`, 'success');
-    } else {
-      container.innerHTML = '<div class="empty-state"><div class="icon">📍</div><p>No places found nearby for this category</p></div>';
-    }
-  } catch (error) {
-    console.error('Nearby error:', error);
-    container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Unable to load nearby places</p></div>';
-    showToast('Failed to load nearby places', 'error');
-  }
-}
-
-// ══════════════════════════════════════════════════════════
-// GALLERY - LAZY LOAD
-// ══════════════════════════════════════════════════════════
-async function loadGallery() {
-  const container = document.getElementById('gallery-container');
-  if (!container) return;
-  
-  if (galleryLoaded) {
-    showToast('Gallery already loaded', 'info');
-    return;
-  }
-  
-  // Show loading state
-  container.innerHTML = '<div class="skeleton" style="height:220px;"></div>';
-  
-  try {
-    const response = await fetch(`/api/images/${accommodationId}`);
-    const data = await response.json();
-    if (data && data.images && data.images.length > 0) {
-      galleryImages = data.images;
-      container.innerHTML = `
-        <div class="gallery-stack-wrapper">
-          ${data.images.slice(0, 8).map(img => `
-            <div class="gallery-card" onclick="openModal('${img.url}')">
-              <img src="${img.thumbnail || img.url}" alt="${escapeHtml(img.title || 'Gallery image')}" loading="lazy">
-              <div class="gallery-overlay"></div>
-              <div class="gallery-bar">
-                <div class="gallery-bar-empty"></div>
-                <div class="gallery-bar-fill"></div>
-              </div>
-            </div>`).join('')}
-        </div>
-        ${data.images.length > 8 ? `<p style="text-align:center;margin-top:16px;color:#64748b;">+${data.images.length - 8} more images</p>` : ''}`;
-      galleryLoaded = true;
-      showToast(`Loaded ${data.images.length} beautiful images!`, 'success');
-    } else {
-      container.innerHTML = '<div class="empty-state"><div class="icon">📸</div><p>No gallery images available for this destination</p></div>';
-    }
-  } catch (error) {
-    console.error('Gallery error:', error);
-    container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Unable to load gallery</p></div>';
-    showToast('Failed to load gallery', 'error');
-  }
-}
-
-// ══════════════════════════════════════════════════════════
-// REVIEWS - LAZY LOAD
-// ══════════════════════════════════════════════════════════
-async function loadReviews() {
-  const container = document.getElementById('reviews-container');
-  if (!container) return;
-  
-  if (reviewsLoaded) {
-    showToast('Reviews already loaded', 'info');
-    return;
-  }
-  
-  // Show loading state
-  container.innerHTML = '<div class="skeleton" style="height:150px;"></div>';
-  
-  try {
-    const response = await fetch(`/api/reviews/${accommodationId}`);
-    const data = await response.json();
-    if (data && data.reviews && data.reviews.length > 0) {
-      const stars = (r) => '★'.repeat(Math.floor(r)) + '☆'.repeat(5 - Math.floor(r));
-      container.innerHTML = `
-        <div class="reviews-summary">
-          <div class="average-rating">${data.average_rating || 4.5}</div>
-          <div class="stars">${stars(data.average_rating || 4.5)}</div>
-          <div>Based on ${data.total_reviews || data.reviews.length} reviews</div>
-        </div>
-        <div class="reviews-list">
-          ${data.reviews.slice(0, 5).map(review => `
-            <div class="review-item">
-              <div class="review-header">
-                <div class="review-avatar">${(review.author || 'G')[0].toUpperCase()}</div>
-                <div>
-                  <div class="review-author">${escapeHtml(review.author || 'Guest')}</div>
-                  <div class="review-rating">${stars(review.rating || 4)}</div>
-                </div>
-                ${review.date ? `<div style="margin-left:auto;font-size:11px;color:#64748b;">${review.date}</div>` : ''}
-              </div>
-              <div class="review-text">${escapeHtml(review.text || 'No review text available.')}</div>
-            </div>`).join('')}
-        </div>
-        ${data.reviews.length > 5 ? `<p style="text-align:center;margin-top:16px;color:#64748b;">+${data.reviews.length - 5} more reviews</p>` : ''}`;
-      reviewsLoaded = true;
-      showToast(`Loaded ${data.reviews.length} guest reviews!`, 'success');
-    } else {
-      container.innerHTML = '<div class="empty-state"><div class="icon">⭐</div><p>No reviews available for this property</p></div>';
-    }
-  } catch (error) {
-    console.error('Reviews error:', error);
-    container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Unable to load reviews</p></div>';
-    showToast('Failed to load reviews', 'error');
-  }
-}
-
-// ══════════════════════════════════════════════════════════
-// MINI MAP
-// ══════════════════════════════════════════════════════════
-function initMiniMap() {
-  const container = document.getElementById('mini-map');
-  if (!container) return;
-
-  if (miniMapInstance) {
-    miniMapInstance.remove();
-    miniMapInstance = null;
-  }
-
-  const lat = parseFloat(ACCOMMODATION.latitude);
-  const lng = parseFloat(ACCOMMODATION.longitude);
-
-  if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-    console.warn('No valid coordinates for accommodation');
-    container.innerHTML = '<div style="padding:40px;text-align:center;color:#64748b;">📍 Location map not available</div>';
-    return;
-  }
-
-  miniMapInstance = L.map('mini-map', { 
-    zoomControl: true, 
-    scrollWheelZoom: false,
-    attributionControl: false 
-  }).setView([lat, lng], 16);
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors',
-    maxZoom: 19
-  }).addTo(miniMapInstance);
-
-  const iconHtml = `
-    <div style="background:linear-gradient(135deg,#a78bfa,#c026d3); width:40px; height:40px;
-                border-radius:50% 50% 50% 0; transform:rotate(-45deg); display:flex;
-                align-items:center; justify-content:center; box-shadow:0 0 20px rgba(0,245,212,0.8);
-                border:3px solid #1e2a3e;">
-      <span style="transform:rotate(45deg); font-size:22px; color:white;">🏨</span>
-    </div>`;
-
-  const customIcon = L.divIcon({
-    className: 'custom-pin',
-    html: iconHtml,
-    iconSize: [40, 52],
-    iconAnchor: [20, 52],
-    popupAnchor: [0, -40]
-  });
-
-  L.marker([lat, lng], { icon: customIcon })
-    .addTo(miniMapInstance)
-    .bindPopup(`
-      <div style="font-family:DM Sans,sans-serif; min-width:180px;">
-        <strong style="color:#a78bfa;">${escapeHtml(ACCOMMODATION.name)}</strong><br>
-        <small style="color:#94a3b8;">${escapeHtml(ACCOMMODATION.city)}, ${escapeHtml(ACCOMMODATION.country)}</small>
-      </div>
-    `, { closeButton: false })
-    .openPopup();
-
-  miniMapInstance.invalidateSize();
-  setTimeout(() => { if (miniMapInstance) miniMapInstance.invalidateSize(); }, 300);
-  setTimeout(() => { if (miniMapInstance) miniMapInstance.invalidateSize(); }, 800);
-}
 
 // ══════════════════════════════════════════════════════════
 // ITINERARY
 // ══════════════════════════════════════════════════════════
 async function generateItinerary() {
-  const btn = document.getElementById('generate-itinerary-btn');
+  const btn       = document.getElementById('generate-itinerary-btn');
   const container = document.getElementById('itinerary-container');
-  const days = document.getElementById('itinerary-days').value;
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Generating...'; }
+  const days      = document.getElementById('itinerary-days').value;
+
+  if (btn) {
+    btn.disabled    = true;
+    btn.textContent = '⏳ Generating...';
+  }
+
   container.innerHTML = '<div class="skeleton" style="height:200px;border-radius:12px;"></div>';
+
   try {
-    const res = await fetch(`/api/itinerary/${accommodationId}`, {
-      method: 'POST',
+    const res  = await fetch(`/api/itinerary/${accommodationId}`, {
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ days: parseInt(days) })
+      body:    JSON.stringify({ days: parseInt(days) })
     });
     const data = await res.json();
     if (data.itinerary) {
-      container.innerHTML = `<div style="font-family:monospace;line-height:1.6;white-space:pre-wrap;">${escapeHtml(data.itinerary)}</div>`;
-      showToast('✨ Itinerary generated successfully!', 'success');
+      container.textContent = data.itinerary;
     } else {
       container.innerHTML = '<p style="color:#ef4444;text-align:center;">Failed to generate itinerary. Please try again.</p>';
     }
   } catch (e) {
-    console.error('Itinerary error:', e);
     container.innerHTML = '<p style="color:#ef4444;text-align:center;">Network error. Please try again.</p>';
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Generate'; }
+    if (btn) {
+      btn.disabled    = false;
+      btn.textContent = 'Generate';
+    }
   }
 }
 
@@ -2105,9 +1430,24 @@ async function generateItinerary() {
 // PAYMENT WALLET
 // ══════════════════════════════════════════════════════════
 const NETWORK_CONFIG = {
-  visa: { id:'pw-visa', label:'Visa', maxLength:19, format:'16 digits · XXXX XXXX XXXX XXXX', cvvLen:3, placeholder:'4242 4242 4242 4242', cvvPlaceholder:'•••', startDigit:'4', pillColor:'#5b9bd5' },
-  mc: { id:'pw-mc', label:'Mastercard', maxLength:19, format:'16 digits · XXXX XXXX XXXX XXXX', cvvLen:3, placeholder:'5500 0000 0000 0004', cvvPlaceholder:'•••', startDigit:'5', pillColor:'#e57373' },
-  amex: { id:'pw-amex', label:'American Express', maxLength:17, format:'15 digits · XXXX XXXXXX XXXXX', cvvLen:4, placeholder:'3714 496353 98431', cvvPlaceholder:'••••', startDigit:'3', pillColor:'#81c784' },
+  visa: {
+    id: 'pw-visa', label: 'Visa', maxLength: 19,
+    format: '16 digits · XXXX XXXX XXXX XXXX', cvvLen: 3,
+    placeholder: '4242 4242 4242 4242', cvvPlaceholder: '•••',
+    startDigit: '4', pillColor: '#5b9bd5',
+  },
+  mc: {
+    id: 'pw-mc', label: 'Mastercard', maxLength: 19,
+    format: '16 digits · XXXX XXXX XXXX XXXX', cvvLen: 3,
+    placeholder: '5500 0000 0000 0004', cvvPlaceholder: '•••',
+    startDigit: '5', pillColor: '#e57373',
+  },
+  amex: {
+    id: 'pw-amex', label: 'American Express', maxLength: 17,
+    format: '15 digits · XXXX XXXXXX XXXXX', cvvLen: 4,
+    placeholder: '3714 496353 98431', cvvPlaceholder: '••••',
+    startDigit: '3', pillColor: '#81c784',
+  },
 };
 
 function selectPayCard(network) {
@@ -2118,7 +1458,7 @@ function selectPayCard(network) {
   const hint = document.getElementById('pay-wallet-hint');
   hint.textContent = cfg.label + ' selected ✓';
   hint.className = 'pay-wallet-hint selected-hint';
-  const pill = document.getElementById('pay-format-pill');
+  const pill     = document.getElementById('pay-format-pill');
   const pillText = document.getElementById('pay-format-text');
   pill.style.display = 'inline-flex';
   pill.style.borderColor = cfg.pillColor + '44';
@@ -2183,7 +1523,7 @@ function populatePaymentStep() {
 // ══════════════════════════════════════════════════════════
 function updateCarouselWithImages(images) {
   const slidesEl = document.getElementById('carousel-slides');
-  const dotsEl = document.getElementById('carousel-dots');
+  const dotsEl   = document.getElementById('carousel-dots');
   if (!slidesEl) return;
   if (!images || images.length === 0) {
     slidesEl.innerHTML = '<div class="carousel-slide-placeholder">🏨</div>';
@@ -2209,8 +1549,8 @@ function updateCarouselWithImages(images) {
 
 function updateCarousel() {
   const slides = document.getElementById('carousel-slides');
-  const dots = document.querySelectorAll('.carousel-dot');
-  const count = slides.children.length;
+  const dots   = document.querySelectorAll('.carousel-dot');
+  const count  = slides.children.length;
   if (count === 0) return;
   slides.style.transform = `translateX(-${carouselIndex * 100}%)`;
   dots.forEach((d, i) => d.classList.toggle('active', i === carouselIndex));
@@ -2222,14 +1562,12 @@ function carouselNext() {
   carouselIndex = (carouselIndex + 1) % count;
   updateCarousel();
 }
-
 function carouselPrev() {
   const count = document.getElementById('carousel-slides').children.length;
   if (!count) return;
   carouselIndex = (carouselIndex - 1 + count) % count;
   updateCarousel();
 }
-
 function carouselGoTo(i) {
   const count = document.getElementById('carousel-slides').children.length;
   if (!count) return;
@@ -2247,13 +1585,15 @@ function startCarouselAutoSlide() {
     }
   }, 4000);
 }
-
 function stopCarouselAutoSlide() {
   if (carouselInterval) { clearInterval(carouselInterval); carouselInterval = null; }
 }
 
 async function loadRoomImages(roomId) {
-  if (currentRoom?.images?.length > 0) { updateCarouselWithImages(currentRoom.images); return; }
+  if (currentRoom?.images?.length > 0) {
+    updateCarouselWithImages(currentRoom.images);
+    return;
+  }
   try {
     const data = await fetch(`/api/room/images/${roomId}`).then(r => r.json());
     currentRoom.images = data.images || [];
@@ -2270,7 +1610,8 @@ async function loadRoomImages(roomId) {
 function openBookingDrawer(roomId) {
   currentRoom = roomsMap[roomId];
   if (!currentRoom) return;
-  guestCount = 1; carouselIndex = 0;
+  guestCount    = 1;
+  carouselIndex = 0;
   goToStep(0);
   populateStep0();
   loadRoomImages(roomId);
@@ -2286,7 +1627,6 @@ function closeDrawer() {
   if (currentStep > 0 && !confirm('Close booking? Your progress will be lost.')) return;
   _closeDrawer();
 }
-
 function _closeDrawer() {
   document.getElementById('booking-drawer').classList.remove('open');
   document.getElementById('drawer-backdrop').classList.remove('open');
@@ -2320,15 +1660,15 @@ function goToStep(step) {
 
 function updateProgress() {
   for (let i = 0; i <= 3; i++) {
-    const dot = document.getElementById('dot-' + i);
+    const dot  = document.getElementById('dot-'  + i);
     const prog = document.getElementById('prog-' + i);
-    if (dot) dot.classList.remove('active','done');
+    if (dot)  dot.classList.remove('active','done');
     if (prog) prog.classList.remove('active','done');
     if (i < currentStep) {
-      if (dot) dot.classList.add('done');
+      if (dot)  dot.classList.add('done');
       if (prog) prog.classList.add('done');
     } else if (i === currentStep) {
-      if (dot) dot.classList.add('active');
+      if (dot)  dot.classList.add('active');
       if (prog) prog.classList.add('active');
     }
   }
@@ -2339,18 +1679,18 @@ function updateProgress() {
 }
 
 function updateCTA() {
-  const btn = document.getElementById('drawer-cta-btn');
-  const label = document.getElementById('cta-label');
+  const btn    = document.getElementById('drawer-cta-btn');
+  const label  = document.getElementById('cta-label');
   const footer = document.getElementById('drawer-footer');
   if (btn) { btn.disabled = false; btn.classList.remove('loading'); btn.onclick = drawerCTAClick; }
   if (footer) footer.style.display = '';
-  const labels = ['Reserve This Room →','Continue to Payment →','🔐 Complete Booking','✓ Close — All Done!'];
+  const labels = ['Reserve This Room →', 'Continue to Payment →', '🔐 Complete Booking', '✓ Close — All Done!'];
   if (label) label.textContent = labels[currentStep] || '';
   if (currentStep === 3 && btn) btn.onclick = _closeDrawer;
 }
 
 function drawerCTAClick() {
-  if (currentStep === 0) { goToStep(1); }
+  if      (currentStep === 0) { goToStep(1); }
   else if (currentStep === 1) { if (!validateStay()) return; populatePaymentRecap(); goToStep(2); }
   else if (currentStep === 2) { submitBooking(); }
   else if (currentStep === 3) { _closeDrawer(); }
@@ -2362,17 +1702,17 @@ function drawerCTAClick() {
 function populateStep0() {
   const r = currentRoom;
   if (!r) return;
-  document.getElementById('preview-name').textContent = r.room_name || 'Standard Room';
-  document.getElementById('preview-type').textContent = r.room_type || 'Standard';
-  document.getElementById('preview-capacity').textContent = r.capacity || '—';
-  document.getElementById('preview-size').textContent = r.size || '—';
-  document.getElementById('preview-beds').textContent = Math.ceil((r.capacity || 2) / 2);
-  document.getElementById('preview-price').textContent = '€' + r.price_per_night;
+  document.getElementById('preview-name').textContent     = r.room_name || 'Standard Room';
+  document.getElementById('preview-type').textContent     = r.room_type || 'Standard';
+  document.getElementById('preview-capacity').textContent = r.capacity  || '—';
+  document.getElementById('preview-size').textContent     = r.size      || '—';
+  document.getElementById('preview-beds').textContent     = Math.ceil((r.capacity || 2) / 2);
+  document.getElementById('preview-price').textContent    = '€' + r.price_per_night;
   document.getElementById('guest-capacity-hint').textContent = 'Max ' + (r.capacity || 4) + ' guests';
   const amenWrap = document.getElementById('preview-amenities');
   const icons = { wifi:'📶','air conditioning':'❄️',breakfast:'🍳',gym:'💪',spa:'🧖',pool:'🏊',parking:'🅿️',tv:'📺',minibar:'🍸',safe:'🔒',balcony:'🌅',sea:'🌊' };
   amenWrap.innerHTML = (r.amenities || 'WiFi, Air Conditioning').split(',').map(a => {
-    const key = a.trim().toLowerCase();
+    const key  = a.trim().toLowerCase();
     const icon = Object.keys(icons).find(k => key.includes(k));
     return `<div class="drawer-amenity">${icon ? icons[icon] + ' ' : ''}${escapeHtml(a.trim())}</div>`;
   }).join('');
@@ -2382,13 +1722,13 @@ function populateStep0() {
 // STEP 1 — Stay Details
 // ══════════════════════════════════════════════════════════
 function setDefaultDates() {
-  const today = new Date();
-  const checkin = new Date(today); checkin.setDate(today.getDate() + 1);
+  const today    = new Date();
+  const checkin  = new Date(today); checkin.setDate(today.getDate() + 1);
   const checkout = new Date(today); checkout.setDate(today.getDate() + 4);
   const ci = document.getElementById('d-checkin');
   const co = document.getElementById('d-checkout');
   if (ci) { ci.value = checkin.toISOString().split('T')[0]; ci.min = today.toISOString().split('T')[0]; }
-  if (co) co.value = checkout.toISOString().split('T')[0];
+  if (co)   co.value = checkout.toISOString().split('T')[0];
   guestCount = 1;
   const gd = document.getElementById('guest-count-display');
   if (gd) gd.textContent = 1;
@@ -2403,13 +1743,12 @@ function adjustGuests(delta) {
   if (gd) gd.textContent = guestCount;
   updateGuestButtons();
 }
-
 function updateGuestButtons() {
-  const max = currentRoom ? (currentRoom.capacity || 4) : 4;
+  const max   = currentRoom ? (currentRoom.capacity || 4) : 4;
   const minus = document.getElementById('guest-minus');
-  const plus = document.getElementById('guest-plus');
+  const plus  = document.getElementById('guest-plus');
   if (minus) minus.disabled = (guestCount <= 1);
-  if (plus) plus.disabled = (guestCount >= max);
+  if (plus)  plus.disabled  = (guestCount >= max);
 }
 
 function getNights() {
@@ -2424,24 +1763,24 @@ function getNights() {
 
 function recalcPrice() {
   const nights = getNights();
-  const price = currentRoom ? currentRoom.price_per_night : 0;
-  const ci = document.getElementById('d-checkin');
-  const co = document.getElementById('d-checkout');
+  const price  = currentRoom ? currentRoom.price_per_night : 0;
+  const ci     = document.getElementById('d-checkin');
+  const co     = document.getElementById('d-checkout');
   if (ci && co && ci.value) co.min = ci.value;
-  const pill = document.getElementById('nights-pill');
+  const pill   = document.getElementById('nights-pill');
   const setRow = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   if (nights <= 0) {
     if (pill) pill.textContent = 'Select valid dates';
     setRow('price-row-label','—'); setRow('price-row-sub','€—'); setRow('price-row-tax','€—'); setRow('price-row-total','€—');
     return;
   }
-  const sub = price * nights;
-  const tax = Math.round(sub * 0.10 * 100) / 100;
+  const sub   = price * nights;
+  const tax   = Math.round(sub * 0.10 * 100) / 100;
   const total = Math.round((sub + tax) * 100) / 100;
   if (pill) pill.textContent = `🌙 ${nights} night${nights !== 1 ? 's' : ''}`;
   setRow('price-row-label', `€${price} × ${nights} night${nights !== 1 ? 's' : ''}`);
-  setRow('price-row-sub', `€${sub.toFixed(2)}`);
-  setRow('price-row-tax', `€${tax.toFixed(2)}`);
+  setRow('price-row-sub',   `€${sub.toFixed(2)}`);
+  setRow('price-row-tax',   `€${tax.toFixed(2)}`);
   setRow('price-row-total', `€${total.toFixed(2)}`);
 }
 
@@ -2461,16 +1800,17 @@ function validateStay() {
 // ══════════════════════════════════════════════════════════
 function populatePaymentRecap() {
   const nights = getNights();
-  const price = currentRoom ? currentRoom.price_per_night : 0;
-  const sub = price * nights;
-  const tax = Math.round(sub * 0.10 * 100) / 100;
-  const total = Math.round((sub + tax) * 100) / 100;
-  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  set('recap-room', currentRoom.room_name || 'Room');
+  const price  = currentRoom ? currentRoom.price_per_night : 0;
+  const sub    = price * nights;
+  const tax    = Math.round(sub * 0.10 * 100) / 100;
+  const total  = Math.round((sub + tax) * 100) / 100;
+  const set    = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('recap-room',   currentRoom.room_name || 'Room');
   set('recap-nights', nights + 'n');
-  set('recap-total', '€' + total.toFixed(2));
+  set('recap-total',  '€' + total.toFixed(2));
 }
 
+// ── Phone sanitizer ────────────────────────────────────────
 function sanitizePhone(input) {
   let val = input.value.replace(/[^\d\s\+\-\(\)]/g, '');
   const digits = val.replace(/\D/g, '');
@@ -2478,14 +1818,15 @@ function sanitizePhone(input) {
   input.value = val;
 }
 
+// ── Card number formatter ──────────────────────────────────
 function formatCardNumber(input) {
   const isAmex = selectedNetwork === 'amex';
   let raw = input.value.replace(/\D/g, '');
   if (isAmex) {
     raw = raw.substring(0, 15);
     let parts = [];
-    if (raw.length > 0) parts.push(raw.substring(0, 4));
-    if (raw.length > 4) parts.push(raw.substring(4, 10));
+    if (raw.length > 0)  parts.push(raw.substring(0, 4));
+    if (raw.length > 4)  parts.push(raw.substring(4, 10));
     if (raw.length > 10) parts.push(raw.substring(10, 15));
     input.value = parts.join(' ');
   } else {
@@ -2494,40 +1835,32 @@ function formatCardNumber(input) {
   }
 }
 
+// ── Expiry formatter + live validator ─────────────────────
 function formatExpiry(input) {
   let val = input.value.replace(/\D/g, '').substring(0, 4);
   if (val.length >= 2) {
     let month = parseInt(val.substring(0, 2), 10);
-    if (month < 1) month = 1;
+    if (month < 1)  month = 1;
     if (month > 12) month = 12;
     val = String(month).padStart(2, '0') + '/' + val.substring(2);
   }
   input.value = val;
+
   if (val.length === 5) {
     const month = parseInt(val.substring(0, 2), 10);
-    const year = parseInt('20' + val.substring(3), 10);
-    const now = new Date();
-    const el = document.getElementById('card-expiry');
+    const year  = parseInt('20' + val.substring(3), 10);
+    const now   = new Date();
+    const el    = document.getElementById('card-expiry');
     if (year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth() + 1)) {
-      el.style.borderColor = '#ef4444'; el.style.borderWidth = '2px'; el.title = 'This card has expired';
+      el.style.borderColor = '#ef4444';
+      el.style.borderWidth = '2px';
+      el.title = 'This card has expired';
     } else {
-      el.style.borderColor = ''; el.style.borderWidth = ''; el.title = '';
+      el.style.borderColor = '';
+      el.style.borderWidth = '';
+      el.title = '';
     }
   }
-}
-
-function markError(id) { const el = document.getElementById(id); if (el) { el.style.borderColor = '#ef4444'; el.style.borderWidth = '2px'; } }
-function clearError(id) { const el = document.getElementById(id); if (el) { el.style.borderColor = ''; el.style.borderWidth = ''; } }
-
-function getFieldElement(fieldName) {
-  const mapping = {
-    'check_in':'d-checkin','check_out':'d-checkout',
-    'phone':'d-phone','phone_number':'d-phone',
-    'estimated_arrival':'d-arrival','special_requests':'d-requests',
-    'dates':'d-checkin','nights':'d-checkin',
-  };
-  const id = mapping[fieldName];
-  return id ? document.getElementById(id) : null;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -2536,34 +1869,53 @@ function getFieldElement(fieldName) {
 async function submitBooking() {
   const btn = document.getElementById('drawer-cta-btn');
   document.querySelectorAll('.drawer-input').forEach(el => { el.style.borderColor = ''; el.style.borderWidth = ''; });
+
   if (!selectedNetwork) { showToast('❌ Please select a card type from your wallet', 'error'); return; }
-  const cfg = NETWORK_CONFIG[selectedNetwork];
+
+  const cfg    = NETWORK_CONFIG[selectedNetwork];
   const rawNum = document.getElementById('card-number').value.replace(/\s/g,'');
   const minLen = selectedNetwork === 'amex' ? 15 : 13;
   if (rawNum.length < minLen) { showToast(`❌ Enter a valid ${cfg.label} card number`, 'error'); markError('card-number'); return; }
+
   const expiry = document.getElementById('card-expiry').value;
-  if (!expiry || expiry.length < 5) { showToast('❌ Enter a valid expiry date (MM/YY)', 'error'); markError('card-expiry'); return; }
+  if (!expiry || expiry.length < 5) {
+    showToast('❌ Enter a valid expiry date (MM/YY)', 'error');
+    markError('card-expiry');
+    return;
+  }
   const expMonth = parseInt(expiry.substring(0, 2), 10);
-  const expYear = parseInt('20' + expiry.substring(3), 10);
-  const now = new Date();
-  if (expMonth < 1 || expMonth > 12) { showToast('❌ Expiry month must be between 01 and 12', 'error'); markError('card-expiry'); return; }
-  if (expYear < now.getFullYear() || (expYear === now.getFullYear() && expMonth < now.getMonth() + 1)) { showToast('❌ This card has expired', 'error'); markError('card-expiry'); return; }
+  const expYear  = parseInt('20' + expiry.substring(3), 10);
+  const now      = new Date();
+  if (expMonth < 1 || expMonth > 12) {
+    showToast('❌ Expiry month must be between 01 and 12', 'error');
+    markError('card-expiry');
+    return;
+  }
+  if (expYear < now.getFullYear() || (expYear === now.getFullYear() && expMonth < now.getMonth() + 1)) {
+    showToast('❌ This card has expired', 'error');
+    markError('card-expiry');
+    return;
+  }
+
   const cvv = document.getElementById('card-cvv').value;
   if (!cvv || cvv.length < cfg.cvvLen) { showToast(`❌ Enter your ${cfg.cvvLen}-digit CVV`, 'error'); markError('card-cvv'); return; }
+
   const holder = document.getElementById('card-holder').value.trim();
   if (!holder) { showToast('❌ Enter the cardholder name', 'error'); markError('card-holder'); return; }
+
   if (btn) { btn.classList.add('loading'); btn.disabled = true; }
+
   try {
     const payload = {
-      room_id: currentRoom.id,
-      check_in: document.getElementById('d-checkin').value,
-      check_out: document.getElementById('d-checkout').value,
-      guests: guestCount,
-      phone: document.getElementById('d-phone').value.trim(),
-      special_requests: document.getElementById('d-requests').value.trim(),
+      room_id:           currentRoom.id,
+      check_in:          document.getElementById('d-checkin').value,
+      check_out:         document.getElementById('d-checkout').value,
+      guests:            guestCount,
+      phone:             document.getElementById('d-phone').value.trim(),
+      special_requests:  document.getElementById('d-requests').value.trim(),
       estimated_arrival: document.getElementById('d-arrival').value
     };
-    const res = await fetch('/api/book', {
+    const res  = await fetch('/api/book', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -2596,14 +1948,34 @@ async function submitBooking() {
   }
 }
 
+function markError(id) {
+  const el = document.getElementById(id);
+  if (el) { el.style.borderColor = '#ef4444'; el.style.borderWidth = '2px'; }
+}
+function clearError(id) {
+  const el = document.getElementById(id);
+  if (el) { el.style.borderColor = ''; el.style.borderWidth = ''; }
+}
+
+function getFieldElement(fieldName) {
+  const mapping = {
+    'check_in': 'd-checkin', 'check_out': 'd-checkout',
+    'phone': 'd-phone', 'phone_number': 'd-phone',
+    'estimated_arrival': 'd-arrival', 'special_requests': 'd-requests',
+    'dates': 'd-checkin', 'nights': 'd-checkin',
+  };
+  const id = mapping[fieldName];
+  return id ? document.getElementById(id) : null;
+}
+
 function populateConfirmation(data) {
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  set('booking-ref', data.reference || 'TRX-' + Date.now());
-  set('conf-room', currentRoom.room_name || 'Room');
-  set('conf-checkin', formatDate(document.getElementById('d-checkin').value));
+  set('booking-ref',   data.reference || 'TRX-' + Date.now());
+  set('conf-room',     currentRoom.room_name || 'Room');
+  set('conf-checkin',  formatDate(document.getElementById('d-checkin').value));
   set('conf-checkout', formatDate(document.getElementById('d-checkout').value));
-  set('conf-guests', guestCount + (guestCount === 1 ? ' Guest' : ' Guests'));
-  set('conf-total', '€' + (data.total || 0).toFixed(2));
+  set('conf-guests',   guestCount + (guestCount === 1 ? ' Guest' : ' Guests'));
+  set('conf-total',    '€' + (data.total || 0).toFixed(2));
   setTimeout(() => {
     const chk = document.getElementById('confirm-checkmark');
     if (chk) chk.classList.add('animate');
@@ -2680,6 +2052,7 @@ async function loadRooms() {
             🛏️ Book This Room
           </button>
         </div>`).join('');
+      document.getElementById('min-price').textContent = `€${minPrice}`;
     } else {
       container.innerHTML = '<div class="empty-state"><div class="icon">🛏️</div><p>No rooms available.</p></div>';
     }
@@ -2692,30 +2065,15 @@ async function loadRooms() {
 // INIT
 // ══════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  // Auto-load: rooms (fast, DB) + weather (1 API) + map
   loadRooms();
   loadWeather();
+  loadNearby();
+  loadGallery();
+  loadReviews();
   initMiniMap();
-  
-  // Lazy load handlers (buttons only - no auto calls)
+
   const nearbyCategory = document.getElementById('nearby-category');
-  if (nearbyCategory) {
-    // Note: loadNearby is called only when button is clicked, not on category change
-    // Category change just updates the select, user must click "See Nearby Places"
-  }
-
-  // Re-invalidate map size when sidebar scrolls
-  const sidebar = document.querySelector('.details-sidebar');
-  if (sidebar) {
-    sidebar.addEventListener('scroll', () => { 
-      if (miniMapInstance) miniMapInstance.invalidateSize(); 
-    }, { passive: true });
-  }
-
-  // Re-invalidate on window resize
-  window.addEventListener('resize', () => { 
-    if (miniMapInstance) miniMapInstance.invalidateSize(); 
-  }, { passive: true });
+  if (nearbyCategory) nearbyCategory.addEventListener('change', loadNearby);
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && document.getElementById('booking-drawer').classList.contains('open')) {
@@ -2724,22 +2082,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// Expose globals
-window.showToast = showToast;
-window.openModal = openModal;
-window.closeModal = closeModal;
-window.openBookingDrawer = openBookingDrawer;
-window.closeDrawer = closeDrawer;
-window.carouselPrev = carouselPrev;
-window.carouselNext = carouselNext;
-window.carouselGoTo = carouselGoTo;
-window.selectPayCard = selectPayCard;
+// ── Expose globals ─────────────────────────────────────────
+window.showToast              = showToast;
+window.openModal              = openModal;
+window.closeModal             = closeModal;
+window.openBookingDrawer      = openBookingDrawer;
+window.closeDrawer            = closeDrawer;
+window.carouselPrev           = carouselPrev;
+window.carouselNext           = carouselNext;
+window.carouselGoTo           = carouselGoTo;
+window.selectPayCard          = selectPayCard;
 window.syncCardHolderToWallet = syncCardHolderToWallet;
-window.generateItinerary = generateItinerary;
-window.sanitizePhone = sanitizePhone;
-window.loadNearby = loadNearby;
-window.loadGallery = loadGallery;
-window.loadReviews = loadReviews;
-
+window.generateItinerary      = generateItinerary;
+window.sanitizePhone          = sanitizePhone;
 </script>
 {% endblock %}

@@ -2,8 +2,6 @@
 
 {% block title %}Admin — TripX{% endblock %}
 
-{% block aria_chat %}{% endblock %}
-
 {% block stylesheets %}
   <link rel="stylesheet" href="/assets.php?f=css/main.css">
   <link rel="stylesheet" href="/assets.php?f=css/animations.css">
@@ -220,7 +218,7 @@
     }
     .sidebar.collapsed .nav-item:hover::after { opacity: 1; }
 
-    /* ── Collapsible nav group ── */
+    /* ── Collapsible nav group (accommodations) ── */
     .nav-group { display: flex; flex-direction: column; }
     .nav-group-toggle {
       display: flex; align-items: center; gap: 12px; padding: 10px 12px;
@@ -243,7 +241,9 @@
       padding-left: 12px;
     }
     .nav-sub.open { max-height: 300px; }
-    .nav-sub .nav-item { font-size: 13px; padding: 8px 10px; }
+    .nav-sub .nav-item {
+      font-size: 13px; padding: 8px 10px;
+    }
     .nav-sub .nav-item .nav-icon { font-size: 15px; }
     .sidebar.collapsed .nav-group-arrow { display: none; }
     .sidebar.collapsed .nav-sub { display: none; padding-left: 0; }
@@ -312,7 +312,6 @@
       color: var(--text-muted);
       transition: background 0.2s, color 0.2s, border-color 0.2s;
       text-decoration: none;
-      position: relative;
     }
     .topbar-btn:hover {
       background: rgba(0,166,237,0.1);
@@ -353,112 +352,6 @@
       transition: background 0.2s, border-color 0.2s;
     }
     .logout-btn:hover { background: rgba(239,68,68,0.15); border-color: #ef4444; }
-
-    /* ══════════════════════════════════════
-       NOTIFICATION SYSTEM (from File 1)
-    ══════════════════════════════════════ */
-    .notification-dropdown {
-      position: relative;
-    }
-    .notification-badge {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background: #ef4444;
-      color: white;
-      border-radius: 50%;
-      padding: 2px 6px;
-      font-size: 10px;
-      font-weight: bold;
-      min-width: 18px;
-      display: none;
-    }
-    .notification-panel {
-      display: none;
-      position: absolute;
-      right: 0;
-      top: 45px;
-      width: 380px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      z-index: 1000;
-      max-height: 500px;
-      overflow-y: auto;
-    }
-    .notification-header {
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      background: var(--bg-card);
-      z-index: 1;
-    }
-    .notification-header h4 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 600;
-    }
-    .mark-all-read {
-      background: none;
-      border: none;
-      color: var(--accent-primary);
-      cursor: pointer;
-      font-size: 12px;
-    }
-    .notification-item {
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border-color);
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .notification-item.unread {
-      background: rgba(0,166,237,0.05);
-    }
-    .notification-item:hover {
-      background: rgba(0,166,237,0.1) !important;
-    }
-    .notification-content {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-    }
-    .notification-icon {
-      font-size: 24px;
-    }
-    .notification-details {
-      flex: 1;
-    }
-    .notification-title {
-      font-weight: 600;
-      margin-bottom: 4px;
-      color: var(--text-main);
-    }
-    .notification-message {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
-    .notification-time {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-    .notification-unread-dot {
-      width: 8px;
-      height: 8px;
-      background: #00a6ed;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .empty-notifications {
-      padding: 40px;
-      text-align: center;
-      color: var(--text-muted);
-    }
 
     /* ══════════════════════════════════════
        MAIN CONTENT AREA
@@ -509,11 +402,8 @@
 
       <span class="nav-section-label">Content</span>
       {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_DESTINATION') %}
-
-      {# ── ONLY CHANGE FROM FILE 2: added 'admin_reviews_index' to desRoutes and admin_reviews_ to desOpen ── #}
-      {% set desRoutes = ['admin_destinations', 'admin_activities', 'admin_bookings_des_index', 'admin_reviews_index'] %}
-      {% set desOpen = app.request.get('_route') in desRoutes or app.request.get('_route') starts with 'admin_bookings_des_' or app.request.get('_route') starts with 'admin_reviews_' %}
-
+      {% set desRoutes = ['admin_destinations', 'admin_activities', 'admin_bookings_des_index'] %}
+      {% set desOpen = app.request.get('_route') in desRoutes or app.request.get('_route') starts with 'admin_bookings_des_' %}
       <div class="nav-group">
         <button class="nav-group-toggle {{ desOpen ? 'open' : '' }}" data-label="Destinations">
           <span class="nav-icon">🌍</span>
@@ -529,10 +419,6 @@
           </a>
           <a href="{{ path('admin_bookings_des_index') }}" class="nav-item {% if app.request.get('_route') starts with 'admin_bookings_des_' %}active{% endif %}" data-label="Bookings">
             <span class="nav-icon">📅</span><span class="nav-label">Bookings</span>
-          </a>
-          {# ── NEW: Reviews nav item ── #}
-          <a href="{{ path('admin_reviews_index') }}" class="nav-item {% if app.request.get('_route') starts with 'admin_reviews_' %}active{% endif %}" data-label="Reviews">
-            <span class="nav-icon">⭐</span><span class="nav-label">Reviews</span>
           </a>
         </div>
       </div>
@@ -624,61 +510,10 @@
           <span class="crumb active">Dashboard</span>
         {% endblock %}
       </nav>
-
       <div class="topbar-actions">
-
-        <!-- ① Chat button -->
-        <a href="{{ path('admin_chat') }}" class="topbar-btn" title="Admin Chat"
-           style="color: var(--accent-primary); border-color: rgba(0,166,237,0.3); background: rgba(0,166,237,0.08);">💬</a>
-
-        <!-- ② Settings dropdown -->
-        <div class="dropdown-container" style="position: relative; display: inline-block;">
-          <button class="topbar-btn" onclick="toggleDropdown('settingsDropdown')" title="Settings">⚙️</button>
-          <div id="settingsDropdown" class="admin-dropdown"
-               style="display: none; position: absolute; top: calc(100% + 10px); right: 0;
-                      background: var(--bg-card); padding: 20px; border: 1px solid var(--border-color);
-                      border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-                      width: 280px; z-index: 9999;">
-            <h4 style="margin-bottom: 12px; color: var(--text-primary); font-family: var(--font-display); font-size: 1.1rem;">🌟 The TripX Team</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
-              Developed with passion to redefine the future of travel. Proudly created by:
-            </p>
-            <ul style="list-style: none; padding: 0; margin-bottom: 16px; color: var(--text-secondary); font-size: 0.9rem; display: grid; gap: 4px;">
-              <li>• Hiba Dkhil</li>
-              <li>• Seif Meddeb</li>
-              <li>• Raghed Selmi</li>
-              <li>• Fatma Mdaghi</li>
-              <li>• Islem Medfai</li>
-              <li>• Nour Mourali</li>
-            </ul>
-            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px;">For support or inquiries:</div>
-            <a href="mailto:claim@tripx.com"
-               style="color: var(--accent-primary); font-weight: bold; text-decoration: none; display: flex; align-items: center; gap: 6px;">
-              <i class="fas fa-envelope"></i> claim@tripx.com
-            </a>
-          </div>
-        </div>
-
-        <!-- ③ Notification bell -->
-        <div class="notification-dropdown">
-          <button class="topbar-btn" id="notificationBell" title="Notifications">
-            🔔
-            <span id="notificationBadge" class="notification-badge">0</span>
-          </button>
-          <div id="notificationPanel" class="notification-panel">
-            <div class="notification-header">
-              <h4>Notifications</h4>
-              <button id="markAllRead" class="mark-all-read">Mark all as read</button>
-            </div>
-            <div id="notificationList">
-              <div class="empty-notifications">Loading...</div>
-            </div>
-          </div>
-        </div>
-
+        <a href="#" class="topbar-btn" title="Settings">⚙️</a>
+        <a href="#" class="topbar-btn" title="Notifications">🔔</a>
         <div class="topbar-divider"></div>
-
-        <!-- ④ Profile -->
         <a href="{{ path('admin_profile') }}" class="profile-btn" style="text-decoration:none; color:inherit;">
           <div class="profile-avatar">{{ app.user.firstName|first|upper }}</div>
           <div>
@@ -695,316 +530,130 @@
             </div>
           </div>
         </a>
-
-        <!-- ⑤ Logout -->
-        <a href="{{ path('app_logout') }}" class="logout-btn">
-          <div class="sign">
-            <svg viewBox="0 0 512 512" width="18" height="18">
-              <path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"/>
-            </svg>
-          </div>
+        <a href="{{ path('app_logout') }}" class="Btn-logout" style="margin-left: 8px;">
+          <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" /></svg></div>
           <div class="text">Logout</div>
         </a>
-
       </div>
     </header>
 
     <!-- PAGE CONTENT -->
     <main class="admin-main">
       {% for label, messages in app.flashes %}
-        <div class="flash-container" style="position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px;">
-          {% for message in messages %}
-            <div class="flash-message {{ label }}"
-                 style="background: {{ label == 'success' ? '#10b981' : '#ef4444' }}; color: white; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; font-family: var(--font-display, sans-serif); font-size: 14px; transition: opacity 0.3s ease, margin-top 0.3s ease;">
-              <i class="fas {{ label == 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' }}"></i>
-              {{ message }}
-            </div>
-          {% endfor %}
-        </div>
+          <div class="flash-container" style="position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px;">
+              {% for message in messages %}
+                  <div class="flash-message {{ label }}" style="background: {{ label == 'success' ? '#10b981' : '#ef4444' }}; color: white; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; font-family: var(--font-display, sans-serif); font-size: 14px; transition: opacity 0.3s ease, margin-top 0.3s ease;">
+                      <i class="fas {{ label == 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' }}"></i>
+                      {{ message }}
+                  </div>
+              {% endfor %}
+          </div>
       {% endfor %}
       {% block content %}{% endblock %}
     </main>
 
-    <!-- ════════ CONFIRM MODAL ════════ -->
-    <div id="customConfirmModal" class="modal-overlay"
-         style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-                background:rgba(0,0,0,0.5); z-index:10000; justify-content:center;
-                align-items:center; opacity:0; transition:opacity 0.3s ease;">
-      <div class="modal-content"
-           style="background:var(--bg-card); padding:24px; border-radius:12px; width:400px;
-                  max-width:90%; box-shadow:0 10px 30px rgba(0,0,0,0.3);
-                  transform:translateY(20px); transition:transform 0.3s ease; text-align:center;">
-        <div style="font-size:36px; margin-bottom:16px;">⚠️</div>
-        <h3 style="margin-bottom:8px; font-family:var(--font-display); font-size:20px; color:var(--text-main);">Confirm Action</h3>
-        <p id="customConfirmMessage" style="color:var(--text-muted); margin-bottom:24px; font-size:14px;">Are you sure you want to proceed?</p>
-        <div style="display:flex; justify-content:center; gap:12px;">
-          <button id="customConfirmCancel" class="btn btn-secondary">Cancel</button>
-          <a id="customConfirmOk" href="#" class="btn btn-primary" style="background:#ef4444; border-color:#ef4444;">Yes, confirm</a>
-        </div>
+    <div id="customConfirmModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; justify-content:center; align-items:center; opacity:0; transition:opacity 0.3s ease;">
+    <div class="modal-content" style="background:var(--bg-card); padding:24px; border-radius:12px; width:400px; max-width:90%; box-shadow:0 10px 30px rgba(0,0,0,0.3); transform:translateY(20px); transition:transform 0.3s ease; text-align:center;">
+      <div style="font-size:36px; margin-bottom:16px;">⚠️</div>
+      <h3 style="margin-bottom:8px; font-family:var(--font-display); font-size:20px; color:var(--text-main);">Confirm Action</h3>
+      <p id="customConfirmMessage" style="color:var(--text-muted); margin-bottom:24px; font-size:14px;">Are you sure you want to proceed?</p>
+      <div style="display:flex; justify-content:center; gap:12px;">
+        <button id="customConfirmCancel" class="btn btn-secondary">Cancel</button>
+        <a id="customConfirmOk" href="#" class="btn btn-primary" style="background:#ef4444; border-color:#ef4444;">Yes, confirm</a>
       </div>
     </div>
-
-  </div>{# /.admin-right #}
-</div>{# /.admin-shell #}
-
-<script src="/assets.php?f=js/main.js"></script>
-<script>
-// ─── Notification System ─────────────────────────────────────────────────────
-class NotificationSystem {
-    constructor() {
-        this.bell   = document.getElementById('notificationBell');
-        this.panel  = document.getElementById('notificationPanel');
-        this.badge  = document.getElementById('notificationBadge');
-        this.list   = document.getElementById('notificationList');
-        this.interval = null;
-        this.isOpen = false;
-        this.init();
-    }
-
-    init() {
-        if (!this.bell) return;
-
-        this.bell.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.togglePanel();
-        });
-
-        document.addEventListener('click', (e) => {
-            if (this.isOpen && this.panel && !this.panel.contains(e.target) && !this.bell.contains(e.target)) {
-                this.closePanel();
-            }
-        });
-
-        this.startPolling();
-        this.updateUnreadCount();
-
-        const markAllBtn = document.getElementById('markAllRead');
-        if (markAllBtn) {
-            markAllBtn.addEventListener('click', () => this.markAllAsRead());
-        }
-    }
-
-    startPolling() {
-        this.updateUnreadCount();
-        this.interval = setInterval(() => {
-            this.updateUnreadCount();
-            if (this.isOpen) this.loadNotifications();
-        }, 10000);
-    }
-
-    togglePanel() { this.isOpen ? this.closePanel() : this.openPanel(); }
-
-    openPanel() {
-        this.isOpen = true;
-        if (this.panel) this.panel.style.display = 'block';
-        this.loadNotifications();
-    }
-
-    closePanel() {
-        this.isOpen = false;
-        if (this.panel) this.panel.style.display = 'none';
-    }
-
-    async updateUnreadCount() {
-        try {
-            const response = await fetch('/admin/notifications/unread-count');
-            const data = await response.json();
-            if (this.badge) {
-                if (data.count > 0) {
-                    this.badge.style.display = 'inline-block';
-                    this.badge.textContent = data.count > 99 ? '99+' : data.count;
-                } else {
-                    this.badge.style.display = 'none';
-                }
-            }
-        } catch (error) { console.error('Error fetching notification count:', error); }
-    }
-
-    async loadNotifications() {
-        if (!this.list) return;
-        try {
-            const response = await fetch('/admin/notifications/recent');
-            const notifications = await response.json();
-
-            if (notifications.length === 0) {
-                this.list.innerHTML = '<div class="empty-notifications">No notifications</div>';
-                return;
-            }
-
-            this.list.innerHTML = notifications.map(notif => `
-                <div class="notification-item ${!notif.isRead ? 'unread' : ''}"
-                     data-id="${notif.id}"
-                     data-read="${notif.isRead}"
-                     data-redirect-url="${notif.redirectUrl || '/admin/accommodations/bookings'}">
-                    <div class="notification-content">
-                        <div class="notification-icon">${this.getIcon(notif.type)}</div>
-                        <div class="notification-details">
-                            <div class="notification-title">${this.escapeHtml(notif.title)}</div>
-                            <div class="notification-message">${this.escapeHtml(notif.message)}</div>
-                            <div class="notification-time">${notif.timeAgo}</div>
-                        </div>
-                        ${!notif.isRead ? '<div class="notification-unread-dot"></div>' : ''}
-                    </div>
-                </div>
-            `).join('');
-
-            document.querySelectorAll('.notification-item').forEach(item => {
-                item.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    const id = item.dataset.id;
-                    const isRead = item.dataset.read === 'true';
-                    const redirectUrl = item.dataset.redirectUrl;
-                    if (!isRead) await this.markAsRead(id);
-                    window.location.href = redirectUrl || '/admin/accommodations/bookings';
-                });
-            });
-        } catch (error) {
-            console.error('Error loading notifications:', error);
-            this.list.innerHTML = '<div class="empty-notifications" style="color:#ef4444;">Error loading notifications</div>';
-        }
-    }
-
-    async markAsRead(id) {
-        try {
-            await fetch(`/admin/notifications/mark-read/${id}`, { method: 'POST' });
-            this.updateUnreadCount();
-            this.loadNotifications();
-        } catch (error) { console.error('Error marking notification as read:', error); }
-    }
-
-    async markAllAsRead() {
-        try {
-            await fetch('/admin/notifications/mark-all-read', { method: 'POST' });
-            this.updateUnreadCount();
-            this.loadNotifications();
-        } catch (error) { console.error('Error marking all as read:', error); }
-    }
-
-    getIcon(type) {
-        const icons = { 'booking': '🏨', 'user': '👤', 'system': '⚙️' };
-        return icons[type] || '🔔';
-    }
-
-    escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => { window.notificationSystem = new NotificationSystem(); });
-} else {
-    window.notificationSystem = new NotificationSystem();
-}
-
-// ─── Settings dropdown ───────────────────────────────────────────────────────
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.dropdown-container')) {
-        document.querySelectorAll('.admin-dropdown').forEach(d => d.style.display = 'none');
-    }
-});
-
-function toggleDropdown(id) {
-    document.querySelectorAll('.admin-dropdown').forEach(d => {
-        if (d.id !== id) d.style.display = 'none';
-    });
-    const el = document.getElementById(id);
-    if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
-}
-
-// ─── Confirm Modal ───────────────────────────────────────────────────────────
-function openConfirmModal(msg, url) {
-    const modal = document.getElementById('customConfirmModal');
-    document.getElementById('customConfirmMessage').innerText = msg;
-    document.getElementById('customConfirmOk').href = url;
-    modal.style.display = 'flex';
-    void modal.offsetWidth;
-    modal.style.opacity = '1';
-    modal.querySelector('.modal-content').style.transform = 'translateY(0)';
-
-    document.getElementById('customConfirmCancel').onclick = function() {
+  </div>
+  <script>
+    function openConfirmModal(msg, url) {
+      const modal = document.getElementById('customConfirmModal');
+      document.getElementById('customConfirmMessage').innerText = msg;
+      document.getElementById('customConfirmOk').href = url;
+      modal.style.display = 'flex';
+      void modal.offsetWidth; // trigger reflow
+      modal.style.opacity = '1';
+      modal.querySelector('.modal-content').style.transform = 'translateY(0)';
+      
+      document.getElementById('customConfirmCancel').onclick = function() {
         modal.style.opacity = '0';
         modal.querySelector('.modal-content').style.transform = 'translateY(20px)';
         setTimeout(() => modal.style.display = 'none', 300);
-    };
-}
+      };
+    }
+  </script>
 
-// ─── Sidebar toggle ──────────────────────────────────────────────────────────
-const sidebar   = document.getElementById('admin-sidebar');
-const toggleBtn = document.getElementById('sidebar-toggle');
+  </div>
+</div>
 
-if (toggleBtn) {
-    toggleBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-        localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-    });
-}
+<script src="/assets.php?f=js/main.js"></script>
+<script>
+  const sidebar   = document.getElementById('admin-sidebar');
+  const toggleBtn = document.getElementById('sidebar-toggle');
 
-if (localStorage.getItem('sidebarCollapsed') === 'true') {
+  toggleBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+  });
+
+  if (localStorage.getItem('sidebarCollapsed') === 'true') {
     sidebar.classList.add('collapsed');
-}
+  }
 
-// ─── Theme toggle ────────────────────────────────────────────────────────────
-const themeBtn = document.getElementById('theme-toggle-dash');
-if (themeBtn) {
-    themeBtn.addEventListener('click', () => {
-        const html = document.documentElement;
-        const isLight = html.getAttribute('data-theme') === 'light';
-        html.setAttribute('data-theme', isLight ? 'dark' : 'light');
-        themeBtn.querySelector('.nav-icon').textContent = isLight ? '☀️' : '🌙';
-    });
-}
+  const themeBtn = document.getElementById('theme-toggle-dash');
+  themeBtn?.addEventListener('click', () => {
+    const html = document.documentElement;
+    const isLight = html.getAttribute('data-theme') === 'light';
+    html.setAttribute('data-theme', isLight ? 'dark' : 'light');
+    themeBtn.querySelector('.nav-icon').textContent = isLight ? '☀️' : '🌙';
+  });
 
-// ─── Nav Group Toggles ───────────────────────────────────────────────────────
-document.querySelectorAll('.nav-group-toggle').forEach(btn => {
+  // ─── Nav Group Toggles ───
+  document.querySelectorAll('.nav-group-toggle').forEach(btn => {
     btn.addEventListener('click', function () {
-        if (sidebar.classList.contains('collapsed')) return;
-        this.classList.toggle('open');
-        const sub = this.nextElementSibling;
-        if (sub && sub.classList.contains('nav-sub')) {
-            sub.classList.toggle('open');
-        }
+      if (sidebar.classList.contains('collapsed')) return;
+      this.classList.toggle('open');
+      const sub = this.nextElementSibling;
+      if (sub && sub.classList.contains('nav-sub')) {
+        sub.classList.toggle('open');
+      }
     });
-});
+  });
 
-// ─── Instant Search ──────────────────────────────────────────────────────────
-const searchInput = document.querySelector('.input-search');
-const tableRows   = document.querySelectorAll('.dest-table tbody tr');
-
-if (searchInput && tableRows.length > 0) {
+  // ─── Instant Search ───
+  const searchInput = document.querySelector('.input-search');
+  const tableRows = document.querySelectorAll('.dest-table tbody tr');
+  
+  if (searchInput && tableRows.length > 0) {
     searchInput.addEventListener('input', (e) => {
-        const q = e.target.value.toLowerCase();
-        tableRows.forEach(row => {
-            row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
-        });
+      const q = e.target.value.toLowerCase();
+      tableRows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(q) ? '' : 'none';
+      });
     });
-}
+  }
 
-// ─── Table Sorting ───────────────────────────────────────────────────────────
-document.querySelectorAll('.dest-table th').forEach((th, index) => {
+  // ─── Table Sorting ───
+  document.querySelectorAll('.dest-table th').forEach((th, index) => {
     if (th.innerText === 'Actions') return;
     th.style.cursor = 'pointer';
     th.title = 'Click to sort';
     th.addEventListener('click', () => {
-        const tbody = th.closest('table').querySelector('tbody');
-        const rows  = Array.from(tbody.querySelectorAll('tr'));
-        const isAsc = th.classList.contains('sort-asc');
-
-        rows.sort((a, b) => {
-            const aVal = a.cells[index].innerText.trim();
-            const bVal = b.cells[index].innerText.trim();
-            return isAsc
-                ? bVal.localeCompare(aVal, undefined, { numeric: true })
-                : aVal.localeCompare(bVal, undefined, { numeric: true });
-        });
-
-        th.classList.toggle('sort-asc', !isAsc);
-        th.classList.toggle('sort-desc', isAsc);
-        rows.forEach(row => tbody.appendChild(row));
+      const table = th.closest('table');
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      const isAsc = th.classList.contains('sort-asc');
+      
+      rows.sort((a, b) => {
+        const aVal = a.cells[index].innerText.trim();
+        const bVal = b.cells[index].innerText.trim();
+        return isAsc ? bVal.localeCompare(aVal, undefined, {numeric: true}) : aVal.localeCompare(bVal, undefined, {numeric: true});
+      });
+      
+      th.classList.toggle('sort-asc', !isAsc);
+      th.classList.toggle('sort-desc', isAsc);
+      rows.forEach(row => tbody.appendChild(row));
     });
-});
+  });
 </script>
-
 {% block page_scripts %}{% endblock %}
 {% endblock %}

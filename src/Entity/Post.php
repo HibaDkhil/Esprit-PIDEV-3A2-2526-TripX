@@ -49,6 +49,15 @@ class Post
     #[ORM\Column(name: 'is_confirmed', type: 'boolean', nullable: true)]
     private ?bool $is_confirmed = null;
 
+    #[ORM\Column(name: 'removed_by_admin', type: 'boolean', options: ['default' => false])]
+    private bool $removed_by_admin = false;
+
+    #[ORM\Column(name: 'removal_reason', type: 'text', nullable: true)]
+    private ?string $removal_reason = null;
+
+    #[ORM\Column(name: 'removed_at', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $removed_at = null;
+
     #[ORM\OneToMany(mappedBy: 'post', targetEntity: Comment::class, cascade: ['remove'])]
     private Collection $comments;
 
@@ -158,6 +167,39 @@ class Post
     public function setIsConfirmed(?bool $is_confirmed): static
     {
         $this->is_confirmed = $is_confirmed;
+        return $this;
+    }
+
+    public function isRemovedByAdmin(): bool
+    {
+        return $this->removed_by_admin;
+    }
+
+    public function setRemovedByAdmin(bool $removed_by_admin): static
+    {
+        $this->removed_by_admin = $removed_by_admin;
+        return $this;
+    }
+
+    public function getRemovalReason(): ?string
+    {
+        return $this->removal_reason;
+    }
+
+    public function setRemovalReason(?string $removal_reason): static
+    {
+        $this->removal_reason = $removal_reason;
+        return $this;
+    }
+
+    public function getRemovedAt(): ?\DateTimeInterface
+    {
+        return $this->removed_at;
+    }
+
+    public function setRemovedAt(?\DateTimeInterface $removed_at): static
+    {
+        $this->removed_at = $removed_at;
         return $this;
     }
 

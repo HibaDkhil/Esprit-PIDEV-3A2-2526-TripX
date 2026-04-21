@@ -1,240 +1,228 @@
 {% extends 'base.html.twig' %}
 {% block title %}Edit Post — TripX{% endblock %}
 
-{% block stylesheets %}
-  {{ parent() }}
-  <link rel="stylesheet" href="{{ asset('css/blog.css') }}">
-{% endblock %}
-
 {% block body %}
-<div class="blog-page">
-<div class="cp-wrap">
+<style>
+.edit-wrap        { max-width: 780px; margin: 40px auto; padding: 0 16px 60px; }
+.back-link        { color:#2563eb; text-decoration:none; font-size:14px; font-weight:600;
+                     display:inline-flex; align-items:center; gap:6px; margin-bottom:24px; }
+.form-card        { background:#fff; border:1px solid #e5e7eb; border-radius:18px;
+                     padding:32px; box-shadow:0 2px 12px rgba(0,0,0,.05); }
+.form-card h1     { font-size:26px; font-weight:900; margin:0 0 24px; }
+.form-card label  { display:block; font-weight:700; font-size:14px; margin-bottom:6px; color:#333; }
+.form-card input,
+.form-card textarea,
+.form-card select { width:100%; padding:11px 14px; border:1px solid #ddd; border-radius:12px;
+                     font-size:14px; margin-bottom:18px; background:#fafafa; }
+.form-card textarea { min-height:160px; resize:vertical; }
+.pending-note     { background:#fef3c7; color:#92400e; padding:10px 14px; border-radius:10px;
+                     font-size:13px; margin-bottom:20px; }
+.actions-row      { display:flex; gap:12px; align-items:center; margin-top:8px; }
+.btn-primary      { padding:11px 24px; background:#2563eb; color:#fff; border:none;
+                     border-radius:50px; font-weight:700; cursor:pointer; font-size:15px; }
+.btn-secondary    { text-decoration:none; color:#666; font-weight:600; font-size:14px; }
 
-  <span class="cp-eyebrow">✏️ Edit</span>
-  <h1 class="cp-title">Edit your <span>Post</span></h1>
-  <p class="cp-subtitle">Update your post details below. It will be re-submitted for review.</p>
+/* ── Magic Enhancer Styles ── */
+.magic-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(37,99,235,.1); color: #2563eb;
+    border: 2px solid #2563eb; border-radius: 12px;
+    padding: 8px 16px; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: all .2s; margin-top: -10px; margin-bottom: 20px;
+}
+.magic-btn:hover { background: #2563eb; color: #fff; transform: translateY(-1px); }
 
-  {% for msg in app.flashes('error') %}
-    <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:16px;padding:14px 18px;margin-bottom:20px;color:#fca5a5;font-size:14px;">❌ {{ msg }}</div>
-  {% endfor %}
-  {% for msg in app.flashes('success') %}
-    <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:16px;padding:14px 18px;margin-bottom:20px;color:#6ee7b7;font-size:14px;">✅ {{ msg }}</div>
-  {% endfor %}
+#enhancer-modal {
+    display: none; position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 16px;
+}
+.modal-content {
+    background: #fff; border-radius: 24px;
+    width: 100%; max-width: 500px; padding: 32px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.3);
+}
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.modal-title { font-size: 22px; font-weight: 900; }
+.modal-close { border: none; background: none; font-size: 24px; cursor: pointer; color: #666; }
+.tool-group { margin-bottom: 20px; }
+.tool-label { display: block; font-size: 12px; font-weight: 700; color: #666; margin-bottom: 10px; text-transform: uppercase; }
+.action-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.action-btn {
+    padding: 12px; border: 1px solid #e5e7eb; border-radius: 12px;
+    background: #fafafa; cursor: pointer; text-align: center;
+    transition: all .2s; font-size: 14px; font-weight: 600;
+}
+.action-btn.active { border-color: #2563eb; background: rgba(37,99,235,.05); color: #2563eb; }
+.process-btn {
+    width: 100%; padding: 14px; border: none; border-radius: 50px;
+    background: #2563eb; color: #fff; font-weight: 700;
+    cursor: pointer; transition: transform .2s; margin-top: 10px;
+}
+.process-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+#enhance-preview {
+    width: 100%; aspect-ratio: 16/9; border-radius: 12px;
+    background: #fafafa; margin-top: 20px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; border: 1px solid #e5e7eb;
+}
+#enhance-preview img { width: 100%; height: 100%; object-fit: contain; }
+.upload-zone {
+    display: block; border: 2px dashed #e5e7eb;
+    border-radius: 16px; padding: 20px;
+    text-align: center; cursor: pointer;
+}
+</style>
 
-  <div class="cp-card">
-    <div class="cp-notice">⚠️ Editing will re-submit this post for admin approval.</div>
+<div class="edit-wrap">
+    <a href="{{ path('blog') }}" class="back-link">← Back to Blog</a>
 
-    {{ form_start(form, {
-      'attr': {
-        'novalidate': 'novalidate',
-        'enctype': 'multipart/form-data',
-        'id': 'post-edit-form'
-      }
-    }) }}
+    <div class="form-card">
+        <h1>✏️ Edit Post</h1>
 
-      {# Title #}
-      <div class="cp-field">
-        <label class="cp-field-label" for="edit-title-input">📝 Post Title</label>
-        {{ form_widget(form.title, {
-          'attr': {
-            'class': 'cp-input',
-            'id': 'edit-title-input',
-            'placeholder': 'Give your post a clear, catchy title…'
-          }
-        }) }}
-        <span class="field-error" id="err-title"></span>
-      </div>
-
-      {# Body #}
-      <div class="cp-field">
-        <label class="cp-field-label" for="edit-body-input">📖 Content</label>
-        {{ form_widget(form.body, {
-          'attr': {
-            'class': 'cp-textarea',
-            'id': 'edit-body-input',
-            'placeholder': 'Tell your story…'
-          }
-        }) }}
-        <span class="field-error" id="err-body"></span>
-        <div style="text-align:right;font-size:11px;color:var(--text-3);margin-top:4px;" id="body-count">0 chars</div>
-      </div>
-
-      {# Type #}
-      <div class="cp-field">
-        <label class="cp-field-label" for="edit-type-select">🏷️ Post Type</label>
-        <div class="select-wrap">
-          {{ form_widget(form.type, {
-            'attr': {
-              'class': 'cp-select',
-              'id': 'edit-type-select'
-            }
-          }) }}
+        <div class="pending-note">
+            ⚠️ After editing, your post will be re-submitted for admin approval before it reappears publicly.
         </div>
-        <span class="field-error" id="err-type"></span>
-      </div>
 
-      {# Current image #}
-      {% if post.imageUrl %}
-        <div class="cp-field">
-          <span class="cp-field-label">🖼️ Current Image(s)</span>
-          <div class="preview-grid">
-            {% for img in post.imageUrl|split(',') %}
-              {% if img|trim %}
-                <div class="preview-item">
-                  <img src="{{ img|trim }}" alt="current" onerror="this.parentElement.style.display='none'">
-                </div>
-              {% endif %}
-            {% endfor %}
-          </div>
-          <p style="font-size:12px;color:var(--text-3);margin-top:8px;">Upload new images below to replace them.</p>
-        </div>
-      {% endif %}
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+            {{ form_errors(form) }}
+            {{ form_row(form.title) }}
+            {{ form_row(form.body) }}
+            {{ form_row(form.type) }}
+            {{ form_row(form.imageFile) }}
+            <button type="button" class="magic-btn" onclick="openEnhancer()">✨ Magic AI Enhancer Tool</button>
 
-      {# New Images #}
-      <div class="cp-field">
-        <span class="cp-field-label">🖼️ Replace Images (optional)</span>
-        {% set fileInputId = form.imageFile.vars.id %}
-        <div style="position:absolute;width:0;height:0;overflow:hidden;">
-          {{ form_widget(form.imageFile, {'attr': {'multiple': 'multiple', 'id': fileInputId}}) }}
-        </div>
-        <label for="{{ fileInputId }}" class="upload-zone" id="upload-zone"
-               ondragover="handleDragOver(event)"
-               ondragleave="handleDragLeave(event)"
-               ondrop="handleDrop(event)">
-          <span class="upload-icon">📷</span>
-          <div class="upload-zone-text">Click to add photos — or drag & drop</div>
-          <div class="upload-zone-sub">JPG · PNG · WebP · GIF &nbsp;·&nbsp; max 5 MB each</div>
-        </label>
-        <div class="preview-grid" id="preview-grid"></div>
-        <span class="field-error" id="err-images"></span>
-      </div>
-
-      <div class="cp-actions">
-        <button type="button" class="cp-submit" onclick="validateAndSubmit()">
-          💾 Save Changes
-        </button>
-        <a href="{{ path('blog') }}" class="cp-back">← Back to blog</a>
-      </div>
-
-    {{ form_end(form) }}
-  </div>
+            <div class="actions-row">
+                <button type="submit" class="btn-primary">Save Changes</button>
+                <a href="{{ path('post_show', {id: post.id}) }}" class="btn-secondary">Cancel</a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+    </div>
 </div>
+
+<!-- Magic Enhancer Modal -->
+<div id="enhancer-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">AI Magic Tool</h2>
+            <button class="modal-close" onclick="closeEnhancer()">✕</button>
+        </div>
+
+        <div class="tool-group">
+            <span class="tool-label">Select Image</span>
+            <input type="file" id="magic-input" accept="image/*" style="display: none" onchange="previewMagic(this)">
+            <label for="magic-input" class="upload-zone">
+                <span id="magic-filename" style="font-size: 14px; font-weight: 600; color: #666;">Choose a photo to enhance...</span>
+            </label>
+        </div>
+
+        <div class="tool-group">
+            <span class="tool-label">What should we do?</span>
+            <div class="action-options">
+                <button type="button" class="action-btn active" data-action="enhance" onclick="setAction(this)">✨ Enhance</button>
+                <button type="button" class="action-btn" data-action="remove-bg" onclick="setAction(this)">✂️ Remove BG</button>
+            </div>
+        </div>
+
+        <button type="button" id="apply-magic" class="process-btn" onclick="applyMagic()">Apply Magic AI</button>
+
+        <div id="enhance-preview">
+            <span style="color: #666; font-size: 13px;">Result will appear here</span>
+        </div>
+
+        <div id="magic-actions" style="display: none; margin-top: 20px; gap: 10px;">
+            <button type="button" class="process-btn" style="background: #10b981" onclick="useMagicResult()">✅ Use this image</button>
+        </div>
+    </div>
 </div>
 
 <script>
-const fileInput   = document.querySelector('input[type="file"][multiple]');
-const previewGrid = document.getElementById('preview-grid');
-const uploadZone  = document.getElementById('upload-zone');
-let selectedFiles = [];
-const MAX_FILES   = 5;
-const MAX_SIZE    = 5 * 1024 * 1024;
-const ALLOWED_TYPES = ['image/jpeg','image/png','image/webp','image/gif'];
+let currentAction = 'enhance';
+let magicFile = null;
+let magicResultUrl = null;
 
-function syncFilesToInput() {
-  const dt = new DataTransfer();
-  selectedFiles.forEach(f => dt.items.add(f));
-  fileInput.files = dt.files;
+function openEnhancer() {
+    document.getElementById('enhancer-modal').style.display = 'flex';
+}
+function closeEnhancer() {
+    document.getElementById('enhancer-modal').style.display = 'none';
+}
+function setAction(btn) {
+    document.querySelectorAll('.action-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentAction = btn.dataset.action;
+}
+function previewMagic(input) {
+    if (input.files && input.files[0]) {
+        magicFile = input.files[0];
+        document.getElementById('magic-filename').textContent = magicFile.name;
+    }
 }
 
-function renderPreviews() {
-  previewGrid.innerHTML = '';
-  selectedFiles.forEach((file, idx) => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const item = document.createElement('div');
-      item.className = 'preview-item';
-      item.innerHTML = `<img src="${e.target.result}" alt="${file.name}">
-        <button type="button" class="preview-remove" onclick="removeFile(${idx})">✕</button>`;
-      previewGrid.appendChild(item);
-    };
-    reader.readAsDataURL(file);
-  });
+async function applyMagic() {
+    if (!magicFile) return alert('Please select an image first');
+    
+    const btn = document.getElementById('apply-magic');
+    const preview = document.getElementById('enhance-preview');
+    btn.disabled = true;
+    btn.textContent = 'Processing... 🪄';
+    preview.innerHTML = '⏳';
+
+    const formData = new FormData();
+    formData.append('image', magicFile);
+    formData.append('action', currentAction);
+
+    try {
+        const resp = await fetch('{{ path('post_ajax_enhance') }}', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await resp.json();
+
+        if (data.ok) {
+            magicResultUrl = data.url;
+            preview.innerHTML = `<img src="${data.url}?t=${Date.now()}" alt="Result">`;
+            document.getElementById('magic-actions').style.display = 'flex';
+        } else {
+            alert(data.error || 'Magic failed');
+            preview.innerHTML = '<span style="color: #ef4444">Processing failed</span>';
+        }
+    } catch (e) {
+        alert('Network error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Apply Magic AI';
+    }
 }
 
-function removeFile(idx) {
-  selectedFiles.splice(idx, 1);
-  syncFilesToInput();
-  renderPreviews();
-}
+async function useMagicResult() {
+    if (!magicResultUrl) return;
+    
+    try {
+        const resp = await fetch(magicResultUrl);
+        const blob = await resp.blob();
+        const filename = magicResultUrl.split('/').pop() || 'enhanced.png';
+        const file = new File([blob], filename, { type: blob.type });
 
-function addFiles(files) {
-  const errEl = document.getElementById('err-images');
-  errEl.textContent = '';
-  const arr   = Array.from(files);
-  const valid = [];
-  for (const f of arr) {
-    if (!ALLOWED_TYPES.includes(f.type)) { errEl.textContent = `"${f.name}" is not a valid image.`; continue; }
-    if (f.size > MAX_SIZE)              { errEl.textContent = `"${f.name}" exceeds 5 MB.`; continue; }
-    valid.push(f);
-  }
-  selectedFiles = [...selectedFiles, ...valid].slice(0, MAX_FILES);
-  syncFilesToInput();
-  renderPreviews();
-}
+        // For edit page, we need to sync with the real file input
+        const fileInput = document.querySelector('input[type="file"]');
+        const dt = new DataTransfer();
+        
+        // Keep existing files if any (though usually only one in simple forms)
+        if (fileInput.files.length > 0) {
+            for (let i = 0; i < fileInput.files.length; i++) {
+                dt.items.add(fileInput.files[i]);
+            }
+        }
+        dt.items.add(file);
+        fileInput.files = dt.files;
 
-fileInput.addEventListener('change', () => addFiles(fileInput.files));
-function handleDragOver(e) { e.preventDefault(); uploadZone.classList.add('dragover'); }
-function handleDragLeave()  { uploadZone.classList.remove('dragover'); }
-function handleDrop(e) {
-  e.preventDefault();
-  uploadZone.classList.remove('dragover');
-  if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
-}
-
-/* char count */
-const bodyEl  = document.getElementById('edit-body-input');
-const bodyCnt = document.getElementById('body-count');
-if (bodyEl && bodyCnt) {
-  bodyEl.addEventListener('input', () => { bodyCnt.textContent = bodyEl.value.length + ' chars'; });
-  bodyCnt.textContent = (bodyEl.value || '').length + ' chars';
-}
-
-function setFieldError(inputId, errId, msg) {
-  const el  = document.getElementById(inputId);
-  const err = document.getElementById(errId);
-  if (el)  el.classList.toggle('err', !!msg);
-  if (err) err.textContent = msg || '';
-  return !msg;
-}
-
-function validateAndSubmit() {
-  let valid = true;
-  const titleEl = document.getElementById('edit-title-input');
-  const bodyEl = document.getElementById('edit-body-input');
-  const typeEl = document.getElementById('edit-type-select');
-
-  if (titleEl) titleEl.addEventListener('input', () => {
-    setFieldError('edit-title-input', 'err-title', '');
-  });
-
-  if (bodyEl) bodyEl.addEventListener('input', () => {
-    setFieldError('edit-body-input', 'err-body', '');
-  });
-
-  if (typeEl) typeEl.addEventListener('change', () => {
-    setFieldError('edit-type-select', 'err-type', '');
-  });
-
-  const title = titleEl?.value.trim() || '';
-  valid = setFieldError('edit-title-input', 'err-title',
-    title === '' ? 'Title is required.' :
-    title.length < 3 ? 'Title must be at least 3 characters.' :
-    title.length > 255 ? 'Title must not exceed 255 characters.' : '') && valid;
-
-  const body = bodyEl?.value.trim() || '';
-  valid = setFieldError('edit-body-input', 'err-body',
-    body === '' ? 'Content is required.' :
-    body.length < 10 ? 'Content must be at least 10 characters.' : '') && valid;
-
-  const type = typeEl?.value || '';
-  valid = setFieldError('edit-type-select', 'err-type',
-    type === '' ? 'Please select a post type.' : '') && valid;
-
-  if (valid) {
-    const btn = document.querySelector('.cp-submit');
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ Saving…'; }
-    document.getElementById('post-edit-form').submit();
-  }
+        closeEnhancer();
+        alert('Enhanced image added!');
+    } catch (e) {
+        alert('Could not use the result: ' + e.message);
+    }
 }
 </script>
 {% endblock %}

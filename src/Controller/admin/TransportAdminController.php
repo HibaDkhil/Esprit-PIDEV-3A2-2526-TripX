@@ -9,7 +9,6 @@ use App\service\ScheduleService;
 use App\service\BookingtransService;
 use App\service\ValidationService;
 use App\service\DestinationTransService;
-use App\service\AnomalyDetectionService;
 use App\Entity\DestinationTrans;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +16,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Knp\Component\Pager\PaginatorInterface;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
@@ -31,8 +29,6 @@ class TransportAdminController extends AbstractController
     private ScheduleService $scheduleService;
     private BookingtransService $bookingService;
     private ValidationService $validation;
-    private PaginatorInterface $paginator;
-    private AnomalyDetectionService $anomalyService;
 
     public function __construct(
         TransportService $transportService,
@@ -40,9 +36,7 @@ class TransportAdminController extends AbstractController
         BookingtransService $bookingService,
         ValidationService $validation,
         ValidatorInterface $validator,
-        DestinationTransService $destService,
-        PaginatorInterface $paginator,
-        AnomalyDetectionService $anomalyService
+        DestinationTransService $destService
     ) {
         $this->transportService = $transportService;
         $this->scheduleService  = $scheduleService;
@@ -50,8 +44,6 @@ class TransportAdminController extends AbstractController
         $this->validation       = $validation;
         $this->validator        = $validator;
         $this->destService      = $destService;
-        $this->paginator        = $paginator;
-        $this->anomalyService   = $anomalyService;
     }
     // ════════════════════════════════
 
@@ -104,50 +96,16 @@ class TransportAdminController extends AbstractController
         ]);
     }
 
-    #[Route('/health', name: 'admin_transport_health')]
-    public function healthStatus(\Liip\MonitorBundle\Runner $runner): Response
-    {
-        $collection = $runner->run();
-        $results = [];
-
-        foreach ($collection as $check) {
-            $result = $collection[$check];
-            
-            $status = 'FAIL';
-            if ($result instanceof \Laminas\Diagnostics\Result\SuccessInterface) {
-                $status = 'PASS';
-            } elseif ($result instanceof \Laminas\Diagnostics\Result\WarningInterface) {
-                $status = 'WARNING';
-            }
-
-            $results[] = [
-                'label'   => $check->getLabel(),
-                'status'  => $status,
-                'message' => $result->getMessage(),
-            ];
-        }
-        
-        return $this->render('admin/health.html.twig', [
-            'results' => $results,
-        ]);
-    }
-
     // ════════════════════════════════
     // TRANSPORT CRUD
     // ════════════════════════════════
 
     #[Route('/list', name: 'admin_transport_list')]
-    public function transportList(Request $request): Response
+    public function transportList(): Response
     {
-        $pagination = $this->paginator->paginate(
-            $this->transportService->getAllTransports(),
-            $request->query->getInt('page', 1),
-            10
-        );
-
         return $this->render('admin/transportadmindashboard.html.twig', [
             'tab'        => 'transport',
-            'transports' => $pagination,
+            'transports' => $this->transportService->getAllTransports(),
             'schedules'  => [],
             'bookings'   => [],
             'stats'      => $this->getStats('transport'),
@@ -412,18 +370,12 @@ class TransportAdminController extends AbstractController
     // ════════════════════════════════
 
     #[Route('/schedules', name: 'admin_schedule_list')]
-    public function scheduleList(Request $request): Response
+    public function scheduleList(): Response
     {
-        $pagination = $this->paginator->paginate(
-            $this->scheduleService->getAllSchedules(),
-            $request->query->getInt('page', 1),
-            8
-        );
-
         return $this->render('admin/transportadmindashboard.html.twig', [
             'tab'          => 'schedule',
             'transports'   => $this->transportService->getAllTransports(),
-            'schedules'    => $pagination,
+            'schedules'    => $this->scheduleService->getAllSchedules(),
             'destinations' => $this->getDestinations(),
             'bookings'     => [],
             'stats'        => $this->getStats('schedule'),
@@ -866,36 +818,14 @@ class TransportAdminController extends AbstractController
     // ════════════════════════════════
 
     #[Route('/bookings', name: 'admin_booking_list')]
-    public function bookingList(Request $request): Response
+    public function bookingList(): Response
     {
-        $allBookings = $this->bookingService->getAllBookings();
-        $anomalyMap = [];
-        $suspiciousCount = 0;
-
-        foreach ($allBookings as $b) {
-            $check = $this->anomalyService->isAnomalous($b);
-            $anomalyMap[$b->getBookingId()] = $check;
-            if ($check['suspicious']) {
-                $suspiciousCount++;
-            }
-        }
-
-        $pagination = $this->paginator->paginate(
-            $allBookings,
-            $request->query->getInt('page', 1),
-            15
-        );
-
-        $stats = $this->getStats('booking');
-        $stats['suspiciousCount'] = $suspiciousCount;
-
         return $this->render('admin/transportadmindashboard.html.twig', [
             'tab'        => 'booking',
             'transports' => $this->transportService->getAllTransports(),
             'schedules'  => [],
-            'bookings'   => $pagination,
-            'stats'      => $stats,
-            'anomalyMap' => $anomalyMap,
+            'bookings'   => $this->bookingService->getAllBookings(),
+            'stats'      => $this->getStats('booking'),
         ]);
     }
 
@@ -1018,11 +948,8 @@ class TransportAdminController extends AbstractController
 
     private function getStats(string $tab): array
     {
-        $fromTransCache = false;
-        $fromSchedCache = false;
-
-        $transports  = $this->transportService->getAllTransports($fromTransCache);
-        $schedules   = $this->scheduleService->getAllSchedules($fromSchedCache);
+        $transports  = $this->transportService->getAllTransports();
+        $schedules   = $this->scheduleService->getAllSchedules();
         $bookings    = $this->bookingService->getAllBookings();
 
         $activeTrans = 0;
@@ -1040,10 +967,6 @@ class TransportAdminController extends AbstractController
             }
         }
 
-        $fromCache = false;
-        if ($tab === 'transport') $fromCache = $fromTransCache;
-        if ($tab === 'schedule') $fromCache = $fromSchedCache;
-
         return [
             'totalTransports'   => count($transports),
             'activeTransports'  => $activeTrans,
@@ -1051,8 +974,7 @@ class TransportAdminController extends AbstractController
             'activeSchedules'   => $onTimeSched,
             'totalBookings'     => count($bookings),
             'confirmedBookings' => $confirmed,
-            'revenue'           => $revenue,
-            'fromCache'         => $fromCache
+            'revenue'           => $revenue
         ];
     }
 }

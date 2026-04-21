@@ -86,6 +86,19 @@
     resize: vertical;
     line-height: 1.7;
 }
+.cp-card input[type="date"].story-date-input {
+    min-height: 48px;
+    font-weight: 600;
+    letter-spacing: .01em;
+    cursor: pointer;
+}
+.cp-card input[type="date"].story-date-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: .7;
+}
+.cp-card input[type="date"].story-date-input:focus::-webkit-calendar-picker-indicator {
+    opacity: 1;
+}
 .cp-field {
     margin-bottom: 22px;
 }
@@ -124,6 +137,397 @@
 .select-wrap select {
     padding-right: 40px;
     cursor: pointer;
+}
+.country-picker {
+    position: relative;
+}
+.country-picker-btn {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.country-picker-btn:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+}
+.country-picker-btn-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+.country-picker-btn-label img {
+    width: 20px;
+    height: 14px;
+    object-fit: cover;
+    border-radius: 2px;
+    border: 1px solid rgba(0,0,0,.12);
+}
+.country-picker-btn-caret {
+    color: var(--text-muted);
+    font-size: 12px;
+    flex: 0 0 auto;
+}
+.country-picker-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: 0 14px 30px rgba(0,0,0,.12);
+    overflow: hidden;
+    display: none;
+}
+.country-picker.open .country-picker-panel {
+    display: block;
+}
+.country-search {
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 0;
+    padding: 12px 14px;
+    background: var(--bg-surface);
+}
+.country-options {
+    max-height: 260px;
+    overflow: auto;
+}
+.country-option {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: var(--text-primary);
+    text-align: left;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+.country-option:hover,
+.country-option:focus {
+    background: rgba(99,102,241,.08);
+    outline: none;
+}
+.country-option img {
+    width: 22px;
+    height: 15px;
+    object-fit: cover;
+    border-radius: 2px;
+    border: 1px solid rgba(0,0,0,.12);
+}
+.country-empty {
+    padding: 12px 14px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+.country-fallback-input {
+    margin-top: 10px;
+}
+.currency-picker {
+    position: relative;
+}
+.currency-picker-btn {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.currency-picker-btn:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+}
+.currency-picker-btn-label {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+}
+.currency-picker-btn-caret {
+    color: var(--text-muted);
+    font-size: 12px;
+    flex: 0 0 auto;
+}
+.currency-picker-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: 0 14px 30px rgba(0,0,0,.12);
+    overflow: hidden;
+    display: none;
+}
+.currency-picker.open .currency-picker-panel {
+    display: block;
+}
+.currency-search {
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 0;
+    padding: 12px 14px;
+    background: var(--bg-surface);
+}
+.currency-options {
+    max-height: 260px;
+    overflow: auto;
+}
+.currency-option {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: var(--text-primary);
+    text-align: left;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    cursor: pointer;
+}
+.currency-option:hover,
+.currency-option:focus {
+    background: rgba(99,102,241,.08);
+    outline: none;
+}
+.currency-option-code {
+    font-family: var(--font-mono, 'Space Mono');
+    font-weight: 700;
+    font-size: 12px;
+}
+.currency-option-name {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-left: 8px;
+}
+.currency-option-symbol {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.currency-empty {
+    padding: 12px 14px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+.currency-fallback-input {
+    margin-top: 10px;
+}
+.rating-picker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.rating-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.rating-star-btn {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+    color: #d1d5db;
+    transition: transform .12s ease, color .12s ease;
+}
+.rating-star-btn:hover,
+.rating-star-btn:focus-visible {
+    transform: translateY(-1px) scale(1.06);
+    outline: none;
+}
+.rating-star-btn.active {
+    color: #f59e0b;
+}
+.rating-value {
+    font-family: var(--font-mono, 'Space Mono');
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+.cp-field-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 7px;
+}
+.cp-field-head label {
+    margin-bottom: 0;
+}
+.ai-tools {
+    position: relative;
+}
+.ai-tools-btn {
+    border: 0;
+    border-radius: 14px;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    line-height: 1;
+    color: #ffffff;
+    background: linear-gradient(to right, #3498db, #e74c3c);
+    box-shadow: 0 10px 24px rgba(52, 152, 219, .24), 0 6px 18px rgba(231, 76, 60, .22);
+    transition: transform .18s ease, box-shadow .2s ease, filter .2s ease;
+    position: relative;
+    overflow: hidden;
+}
+.ai-tools-btn:hover {
+    transform: translateY(-1px) scale(1.03);
+    filter: saturate(1.08);
+    box-shadow: 0 14px 28px rgba(52, 152, 219, .3), 0 8px 20px rgba(231, 76, 60, .28);
+}
+.ai-tools-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(145deg, rgba(255,255,255,.28), rgba(255,255,255,0) 44%);
+    pointer-events: none;
+}
+.ai-tools-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, .25), 0 14px 28px rgba(52, 152, 219, .3), 0 8px 20px rgba(231, 76, 60, .28);
+}
+.ai-tools-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 35;
+    width: 300px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    border: 1px solid #dbe7fb;
+    border-radius: 16px;
+    box-shadow: 0 18px 38px rgba(15, 23, 42, .16), 0 2px 10px rgba(15, 23, 42, .06);
+    overflow: hidden;
+    display: none;
+    transform: translateY(4px) scale(.98);
+    transform-origin: top right;
+    opacity: 0;
+    transition: opacity .16s ease, transform .16s ease;
+}
+.ai-tools.open .ai-tools-menu {
+    display: block;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+.ai-tools-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-bottom: 1px solid #e7eefb;
+    background: linear-gradient(90deg, rgba(99,102,241,.08), rgba(59,130,246,.06));
+}
+.ai-tools-title {
+    font-size: 11px;
+    font-family: var(--font-mono, 'Space Mono');
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-weight: 700;
+    color: #475569;
+}
+.ai-tools-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #e0ecff;
+    color: #1d4ed8;
+    font-weight: 700;
+    letter-spacing: .02em;
+}
+.ai-tools-item {
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid #e7eefb;
+    background: transparent;
+    color: #0f172a;
+    text-align: left;
+    padding: 12px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    transition: background-color .14s ease, color .14s ease, padding-left .14s ease;
+}
+.ai-tools-item:last-child {
+    border-bottom: 0;
+}
+.ai-tools-item:hover,
+.ai-tools-item:focus-visible {
+    background: rgba(59,130,246,.09);
+    color: #1d4ed8;
+    padding-left: 16px;
+    outline: none;
+}
+.ai-tools-item-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.ai-tools-item-kbd {
+    font-size: 10px;
+    font-family: var(--font-mono, 'Space Mono');
+    color: #64748b;
+    border: 1px solid #dbe7fb;
+    background: #ffffff;
+    border-radius: 6px;
+    padding: 2px 6px;
+    line-height: 1.2;
+}
+.ai-tools-hint {
+    padding: 9px 12px 10px;
+    border-top: 1px solid #e7eefb;
+    background: rgba(248, 250, 252, .7);
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.45;
+}
+.ai-tools-status {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    min-height: 18px;
 }
 
 .cp-card .story-title-input {
@@ -314,7 +718,7 @@
 
 @media (max-width: 768px) {
     .cp-wrap {
-        padding: calc(var(--nav-height, 70px) + 24px) 12px 50px;
+        padding: 50px 12px 50px;
     }
     .cp-card {
         padding: 24px 18px;
@@ -369,27 +773,40 @@
         {{ form_start(form, {
             'attr': {
                 'novalidate': 'novalidate',
-                'enctype': 'multipart/form-data'
+                'enctype': 'multipart/form-data',
+                'data-recaptcha-action': story is defined ? 'travel_story_edit' : 'travel_story_create'
             }
         }) }}
 
             {{ form_errors(form) }}
+            <input type="text" name="_hp" value="" tabindex="-1" autocomplete="off" style="display:none">
+            <input type="hidden" name="_recaptcha_token" value="">
 
             <div class="cp-grid">
                 <div class="cp-field cp-span-2">
                     {{ form_label(form.title, 'Title') }}
                     {{ form_widget(form.title, {'attr': {
                         'class': 'story-title-input',
-                        'placeholder': 'Give your travel story a clear, catchy title…'
+                        'placeholder': 'Give your travel story a clear, catchy title…',
+                        'spellcheck': 'true',
+                        'lang': 'en'
                     }}) }}
                     {{ form_errors(form.title) }}
                 </div>
 
                 <div class="cp-field">
                     {{ form_label(form.destination, 'Destination') }}
-                    <div class="select-wrap">
-                        {{ form_widget(form.destination) }}
+                    <div class="country-picker" id="country-picker">
+                        <button type="button" class="country-picker-btn" id="country-picker-btn" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="country-picker-btn-label" id="country-picker-label">Select a country</span>
+                            <span class="country-picker-btn-caret">▾</span>
+                        </button>
+                        <div class="country-picker-panel" id="country-picker-panel">
+                            <input type="text" id="country-search" class="country-search" placeholder="Search country..." autocomplete="off">
+                            <div id="country-options" class="country-options" role="listbox" aria-label="Countries"></div>
+                        </div>
                     </div>
+                    {{ form_widget(form.destination, {'attr': {'style': 'display:none;'}}) }}
                     {{ form_errors(form.destination) }}
                 </div>
 
@@ -402,11 +819,34 @@
                 </div>
 
                 <div class="cp-field cp-span-2">
-                    {{ form_label(form.summary, 'Summary') }}
+                    <div class="cp-field-head">
+                        {{ form_label(form.summary, 'Summary') }}
+                        <div class="ai-tools" id="ai-tools">
+                            <button type="button" class="ai-tools-btn" id="ai-tools-btn" aria-label="AI Assist" title="AI Assist">✨</button>
+                            <div class="ai-tools-menu" id="ai-tools-menu">
+                                <div class="ai-tools-head">
+                                    <span class="ai-tools-title">AI Writing Tools</span>
+                                    <span class="ai-tools-badge">Beta</span>
+                                </div>
+                                <button type="button" class="ai-tools-item" data-ai-action="spelling">
+                                    <span class="ai-tools-item-label">📝 Correct spelling</span>
+                                    <span class="ai-tools-item-kbd">Fix</span>
+                                </button>
+                                <button type="button" class="ai-tools-item" data-ai-action="summary">
+                                    <span class="ai-tools-item-label">✨ Generate summary</span>
+                                    <span class="ai-tools-item-kbd">Auto</span>
+                                </button>
+                                <div class="ai-tools-hint">Tip: set title and destination first for higher-quality summary suggestions.</div>
+                            </div>
+                        </div>
+                    </div>
                     {{ form_widget(form.summary, {'attr': {
                         'class': 'story-summary',
-                        'placeholder': 'Tell the story of your trip, what stood out, what readers should know…'
+                        'placeholder': 'Tell the story of your trip, what stood out, what readers should know…',
+                        'spellcheck': 'true',
+                        'lang': 'en'
                     }}) }}
+                    <div class="ai-tools-status" id="ai-tools-status"></div>
                     {{ form_errors(form.summary) }}
                 </div>
 
@@ -414,7 +854,9 @@
                     {{ form_label(form.tips, 'Tips') }}
                     {{ form_widget(form.tips, {'attr': {
                         'class': 'story-tips',
-                        'placeholder': 'Practical advice, things to avoid, budget tips, best times, local recommendations…'
+                        'placeholder': 'Practical advice, things to avoid, budget tips, best times, local recommendations…',
+                        'spellcheck': 'true',
+                        'lang': 'en'
                     }}) }}
                     {{ form_errors(form.tips) }}
                 </div>
@@ -455,13 +897,13 @@
             <div class="cp-grid">
                 <div class="cp-field">
                     {{ form_label(form.startDate, 'Start Date') }}
-                    {{ form_widget(form.startDate) }}
+                    {{ form_widget(form.startDate, {'attr': {'class': 'story-date-input'}}) }}
                     {{ form_errors(form.startDate) }}
                 </div>
 
                 <div class="cp-field">
                     {{ form_label(form.endDate, 'End Date') }}
-                    {{ form_widget(form.endDate) }}
+                    {{ form_widget(form.endDate, {'attr': {'class': 'story-date-input'}}) }}
                     {{ form_errors(form.endDate) }}
                 </div>
 
@@ -475,9 +917,17 @@
 
                 <div class="cp-field">
                     {{ form_label(form.overallRating, 'Rating') }}
-                    <div class="select-wrap">
-                        {{ form_widget(form.overallRating) }}
+                    <div class="rating-picker" id="rating-picker">
+                        <div class="rating-stars" role="radiogroup" aria-label="Rating">
+                            <button type="button" class="rating-star-btn" data-rating-value="1" aria-label="1 star" title="1 star">★</button>
+                            <button type="button" class="rating-star-btn" data-rating-value="2" aria-label="2 stars" title="2 stars">★</button>
+                            <button type="button" class="rating-star-btn" data-rating-value="3" aria-label="3 stars" title="3 stars">★</button>
+                            <button type="button" class="rating-star-btn" data-rating-value="4" aria-label="4 stars" title="4 stars">★</button>
+                            <button type="button" class="rating-star-btn" data-rating-value="5" aria-label="5 stars" title="5 stars">★</button>
+                        </div>
+                        <span class="rating-value" id="rating-value">0/5</span>
                     </div>
+                    {{ form_widget(form.overallRating, {'attr': {'style': 'display:none;'}}) }}
                     {{ form_errors(form.overallRating) }}
                 </div>
             </div>
@@ -505,7 +955,17 @@
                 <div class="cp-grid">
                     <div class="cp-field">
                         {{ form_label(form.currency, 'Currency') }}
-                        {{ form_widget(form.currency, {'attr': {'placeholder': 'TND'}}) }}
+                        <div class="currency-picker" id="currency-picker">
+                            <button type="button" class="currency-picker-btn" id="currency-picker-btn" aria-haspopup="listbox" aria-expanded="false">
+                                <span class="currency-picker-btn-label" id="currency-picker-label">Select currency</span>
+                                <span class="currency-picker-btn-caret">▾</span>
+                            </button>
+                            <div class="currency-picker-panel" id="currency-picker-panel">
+                                <input type="text" id="currency-search" class="currency-search" placeholder="Search code, name, or symbol..." autocomplete="off">
+                                <div id="currency-options" class="currency-options" role="listbox" aria-label="Currencies"></div>
+                            </div>
+                        </div>
+                        {{ form_widget(form.currency, {'attr': {'style': 'display:none;'}}) }}
                         {{ form_errors(form.currency) }}
                     </div>
 
@@ -566,7 +1026,495 @@
 const fileInput = document.querySelector('input[type="file"][multiple]');
 const previewGrid = document.getElementById('preview-grid');
 const uploadZone = document.getElementById('upload-zone');
+const startDateInput = document.getElementById('{{ form.startDate.vars.id }}');
+const endDateInput = document.getElementById('{{ form.endDate.vars.id }}');
+const destinationInput = document.getElementById('{{ form.destination.vars.id }}');
+const titleInput = document.getElementById('{{ form.title.vars.id }}');
+const summaryInput = document.getElementById('{{ form.summary.vars.id }}');
+const tipsInput = document.getElementById('{{ form.tips.vars.id }}');
+const countryPicker = document.getElementById('country-picker');
+const countryPickerBtn = document.getElementById('country-picker-btn');
+const countryPickerLabel = document.getElementById('country-picker-label');
+const countryPickerPanel = document.getElementById('country-picker-panel');
+const countrySearch = document.getElementById('country-search');
+const countryOptions = document.getElementById('country-options');
+const currencyInput = document.getElementById('{{ form.currency.vars.id }}');
+const currencyPicker = document.getElementById('currency-picker');
+const currencyPickerBtn = document.getElementById('currency-picker-btn');
+const currencyPickerLabel = document.getElementById('currency-picker-label');
+const currencyPickerPanel = document.getElementById('currency-picker-panel');
+const currencySearch = document.getElementById('currency-search');
+const currencyOptions = document.getElementById('currency-options');
+const overallRatingInput = document.getElementById('{{ form.overallRating.vars.id }}');
+const ratingPicker = document.getElementById('rating-picker');
+const ratingValue = document.getElementById('rating-value');
+const aiTools = document.getElementById('ai-tools');
+const aiToolsBtn = document.getElementById('ai-tools-btn');
+const aiToolsMenu = document.getElementById('ai-tools-menu');
+const aiToolsStatus = document.getElementById('ai-tools-status');
+const aiAssistUrl = '{{ path('travel_story_ai_assist') }}';
 let selectedFiles = [];
+
+function setupAiTools() {
+    if (!aiTools || !aiToolsBtn || !aiToolsMenu || !aiToolsStatus || !titleInput || !destinationInput || !summaryInput || !tipsInput) {
+        return;
+    }
+
+    const setStatus = (message, isError = false) => {
+        aiToolsStatus.textContent = message || '';
+        aiToolsStatus.style.color = isError ? '#b91c1c' : 'var(--text-muted)';
+    };
+
+    const closeMenu = () => {
+        aiTools.classList.remove('open');
+    };
+
+    aiToolsBtn.addEventListener('click', () => {
+        aiTools.classList.toggle('open');
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!aiTools.contains(event.target)) {
+            closeMenu();
+        }
+    });
+
+    aiToolsMenu.addEventListener('click', async (event) => {
+        const actionButton = event.target.closest('[data-ai-action]');
+        if (!actionButton) {
+            return;
+        }
+
+        closeMenu();
+
+        const mode = actionButton.getAttribute('data-ai-action');
+        if (mode === 'summary' && (!titleInput.value.trim() || !destinationInput.value.trim())) {
+            setStatus('Please set title and destination first.', true);
+            return;
+        }
+
+        aiToolsBtn.disabled = true;
+        setStatus('Working...');
+
+        try {
+            const response = await fetch(aiAssistUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    mode,
+                    title: titleInput.value,
+                    destination: destinationInput.value,
+                    summary: summaryInput.value,
+                    tips: tipsInput.value
+                })
+            });
+
+            const data = await response.json();
+            if (!response.ok || !data.ok) {
+                throw new Error(data.message || 'AI request failed.');
+            }
+
+            if (data.mode === 'spelling') {
+                const before = {
+                    title: titleInput.value,
+                    summary: summaryInput.value,
+                    tips: tipsInput.value,
+                };
+
+                if (typeof data.title === 'string') titleInput.value = data.title;
+                if (typeof data.summary === 'string') summaryInput.value = data.summary;
+                if (typeof data.tips === 'string') tipsInput.value = data.tips;
+
+                let changedCount = 0;
+                if (titleInput.value !== before.title) changedCount++;
+                if (summaryInput.value !== before.summary) changedCount++;
+                if (tipsInput.value !== before.tips) changedCount++;
+
+                if (changedCount > 0) {
+                    setStatus(`Spelling corrected. Updated ${changedCount} field${changedCount > 1 ? 's' : ''}.`);
+                } else {
+                    setStatus('Checked spelling. No changes were needed.');
+                }
+                return;
+            }
+
+            if (data.mode === 'summary' && typeof data.summary === 'string') {
+                summaryInput.value = data.summary;
+                setStatus('Summary generated.');
+                return;
+            }
+
+            throw new Error('Unexpected AI response.');
+        } catch (error) {
+            setStatus(error.message || 'Could not process AI action.', true);
+        } finally {
+            aiToolsBtn.disabled = false;
+        }
+    });
+}
+
+function setupRatingPicker() {
+    if (!overallRatingInput || !ratingPicker || !ratingValue) {
+        return;
+    }
+
+    const stars = Array.from(ratingPicker.querySelectorAll('[data-rating-value]'));
+    if (!stars.length) {
+        return;
+    }
+
+    const parseRating = (value) => {
+        const n = Number(value);
+        return Number.isFinite(n) && n >= 1 && n <= 5 ? Math.floor(n) : 0;
+    };
+
+    let selected = parseRating(overallRatingInput.value);
+    let hover = 0;
+
+    const paint = () => {
+        const active = hover || selected;
+        stars.forEach(star => {
+            const value = Number(star.dataset.ratingValue);
+            star.classList.toggle('active', value <= active);
+            star.setAttribute('aria-checked', String(value === selected));
+        });
+        ratingValue.textContent = `${selected || 0}/5`;
+    };
+
+    const setSelected = (value) => {
+        selected = value;
+        overallRatingInput.value = selected ? String(selected) : '';
+        paint();
+    };
+
+    stars.forEach(star => {
+        const value = Number(star.dataset.ratingValue);
+
+        star.addEventListener('mouseenter', () => {
+            hover = value;
+            paint();
+        });
+
+        star.addEventListener('click', () => {
+            hover = 0;
+            setSelected(value);
+        });
+
+        star.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                hover = 0;
+                setSelected(value);
+            }
+        });
+    });
+
+    ratingPicker.addEventListener('mouseleave', () => {
+        hover = 0;
+        paint();
+    });
+
+    paint();
+}
+
+function setupCountryDropdown() {
+    if (!destinationInput || !countryPicker || !countryPickerBtn || !countryPickerLabel || !countryPickerPanel || !countrySearch || !countryOptions) {
+        return;
+    }
+
+    const selectedDestination = (destinationInput.value || '').trim();
+    let countriesCache = [];
+
+    const closePanel = () => {
+        countryPicker.classList.remove('open');
+        countryPickerBtn.setAttribute('aria-expanded', 'false');
+    };
+
+    const openPanel = () => {
+        countryPicker.classList.add('open');
+        countryPickerBtn.setAttribute('aria-expanded', 'true');
+        countrySearch.focus();
+    };
+
+    const setButtonLabel = (country) => {
+        if (!country) {
+            countryPickerLabel.textContent = 'Select a country';
+            return;
+        }
+
+        if (country.flagUrl) {
+            countryPickerLabel.innerHTML = `<img src="${country.flagUrl}" alt="${country.name} flag" loading="lazy"><span>${country.name}</span>`;
+            return;
+        }
+
+        countryPickerLabel.innerHTML = `<span>${country.name}</span>`;
+    };
+
+    const selectCountry = (country) => {
+        destinationInput.value = country.name;
+        setButtonLabel(country);
+        closePanel();
+    };
+
+    const renderOptions = (term = '') => {
+        const q = term.trim().toLowerCase();
+        const filtered = countriesCache.filter(country => country.name.toLowerCase().includes(q));
+
+        if (!filtered.length) {
+            countryOptions.innerHTML = '<div class="country-empty">No countries found</div>';
+            return;
+        }
+
+        countryOptions.innerHTML = filtered.map(country => (
+            `<button type="button" class="country-option" data-country="${country.name}" role="option">` +
+            `<img src="${country.flagUrl}" alt="${country.name} flag" loading="lazy">` +
+            `<span>${country.name}</span>` +
+            `</button>`
+        )).join('');
+    };
+
+    fetch('https://restcountries.com/v3.1/all?fields=name,flags')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch countries');
+            }
+
+            return response.json();
+        })
+        .then(countries => {
+            const sortedCountries = countries
+                .filter(c => c && c.name && c.name.common && c.flags && (c.flags.svg || c.flags.png))
+                .sort((a, b) => a.name.common.localeCompare(b.name.common));
+
+            countriesCache = sortedCountries.map(country => ({
+                name: country.name.common,
+                flagUrl: country.flags.svg || country.flags.png
+            }));
+
+            renderOptions();
+
+            if (selectedDestination) {
+                const matchingCountry = countriesCache.find(
+                    country => country.name.toLowerCase() === selectedDestination.toLowerCase()
+                );
+
+                if (matchingCountry) {
+                    destinationInput.value = matchingCountry.name;
+                    setButtonLabel(matchingCountry);
+                } else {
+                    setButtonLabel({
+                        name: selectedDestination,
+                        flagUrl: ''
+                    });
+                }
+            }
+        })
+        .catch(() => {
+            countryPicker.style.display = 'none';
+            destinationInput.style.display = 'block';
+            destinationInput.classList.add('country-fallback-input');
+            destinationInput.placeholder = 'Enter destination country';
+        });
+
+    countryPickerBtn.addEventListener('click', () => {
+        if (countryPicker.classList.contains('open')) {
+            closePanel();
+            return;
+        }
+
+        openPanel();
+    });
+
+    countrySearch.addEventListener('input', () => {
+        renderOptions(countrySearch.value);
+    });
+
+    countryOptions.addEventListener('click', (event) => {
+        const button = event.target.closest('.country-option');
+        if (!button) {
+            return;
+        }
+
+        const name = button.getAttribute('data-country');
+        const country = countriesCache.find(item => item.name === name);
+        if (country) {
+            selectCountry(country);
+        }
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!countryPicker.contains(event.target)) {
+            closePanel();
+        }
+    });
+
+    destinationInput.addEventListener('invalid', () => {
+        if (!destinationInput.value) {
+            countryPickerBtn.focus();
+        }
+    });
+}
+
+function setupCurrencyDropdown() {
+    if (!currencyInput || !currencyPicker || !currencyPickerBtn || !currencyPickerLabel || !currencyPickerPanel || !currencySearch || !currencyOptions) {
+        return;
+    }
+
+    const selectedCode = (currencyInput.value || '').trim().toUpperCase();
+    let currenciesCache = [];
+
+    const closePanel = () => {
+        currencyPicker.classList.remove('open');
+        currencyPickerBtn.setAttribute('aria-expanded', 'false');
+    };
+
+    const openPanel = () => {
+        currencyPicker.classList.add('open');
+        currencyPickerBtn.setAttribute('aria-expanded', 'true');
+        currencySearch.focus();
+    };
+
+    const formatLabel = (currency) => {
+        const code = currency.code || '';
+        const name = currency.name || '';
+        const symbol = currency.symbol ? ` (${currency.symbol})` : '';
+        return `${code}${name ? ' - ' + name : ''}${symbol}`;
+    };
+
+    const setButtonLabel = (currency) => {
+        if (!currency) {
+            currencyPickerLabel.textContent = 'Select currency';
+            return;
+        }
+
+        currencyPickerLabel.textContent = formatLabel(currency);
+    };
+
+    const selectCurrency = (currency) => {
+        currencyInput.value = currency.code;
+        setButtonLabel(currency);
+        closePanel();
+    };
+
+    const renderOptions = (term = '') => {
+        const q = term.trim().toLowerCase();
+        const filtered = currenciesCache.filter(item => {
+            const symbol = (item.symbol || '').toLowerCase();
+            return item.code.toLowerCase().includes(q)
+                || item.name.toLowerCase().includes(q)
+                || symbol.includes(q);
+        });
+
+        if (!filtered.length) {
+            currencyOptions.innerHTML = '<div class="currency-empty">No currencies found</div>';
+            return;
+        }
+
+        currencyOptions.innerHTML = filtered.map(item => (
+            `<button type="button" class="currency-option" data-currency-code="${item.code}" role="option">` +
+            `<span><span class="currency-option-code">${item.code}</span><span class="currency-option-name">${item.name}</span></span>` +
+            `<span class="currency-option-symbol">${item.symbol || ''}</span>` +
+            `</button>`
+        )).join('');
+    };
+
+    fetch('https://restcountries.com/v3.1/all?fields=currencies')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch currencies');
+            }
+
+            return response.json();
+        })
+        .then(rows => {
+            const byCode = new Map();
+
+            rows.forEach(country => {
+                if (!country || !country.currencies || typeof country.currencies !== 'object') {
+                    return;
+                }
+
+                Object.entries(country.currencies).forEach(([code, data]) => {
+                    if (!code || !data || typeof data !== 'object') {
+                        return;
+                    }
+
+                    const normalizedCode = String(code).toUpperCase().trim();
+                    if (!normalizedCode) {
+                        return;
+                    }
+
+                    if (!byCode.has(normalizedCode)) {
+                        byCode.set(normalizedCode, {
+                            code: normalizedCode,
+                            name: String(data.name || normalizedCode),
+                            symbol: String(data.symbol || '')
+                        });
+                    }
+                });
+            });
+
+            currenciesCache = Array.from(byCode.values()).sort((a, b) => a.code.localeCompare(b.code));
+            renderOptions();
+
+            if (selectedCode) {
+                const existing = currenciesCache.find(item => item.code === selectedCode);
+                if (existing) {
+                    currencyInput.value = existing.code;
+                    setButtonLabel(existing);
+                } else {
+                    setButtonLabel({ code: selectedCode, name: '', symbol: '' });
+                }
+            }
+        })
+        .catch(() => {
+            currencyPicker.style.display = 'none';
+            currencyInput.style.display = 'block';
+            currencyInput.classList.add('currency-fallback-input');
+            currencyInput.placeholder = 'Currency code (e.g. USD)';
+        });
+
+    currencyPickerBtn.addEventListener('click', () => {
+        if (currencyPicker.classList.contains('open')) {
+            closePanel();
+            return;
+        }
+
+        openPanel();
+    });
+
+    currencySearch.addEventListener('input', () => {
+        renderOptions(currencySearch.value);
+    });
+
+    currencyOptions.addEventListener('click', (event) => {
+        const button = event.target.closest('.currency-option');
+        if (!button) {
+            return;
+        }
+
+        const code = (button.getAttribute('data-currency-code') || '').toUpperCase();
+        const currency = currenciesCache.find(item => item.code === code);
+        if (currency) {
+            selectCurrency(currency);
+        }
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!currencyPicker.contains(event.target)) {
+            closePanel();
+        }
+    });
+
+    currencyInput.addEventListener('invalid', () => {
+        if (!currencyInput.value) {
+            currencyPickerBtn.focus();
+        }
+    });
+}
 
 function syncFilesToInput() {
     const dt = new DataTransfer();
@@ -631,5 +1579,50 @@ function toggleAdvancedFields(el) {
     box.classList.toggle('open');
     el.textContent = box.classList.contains('open') ? 'Hide advanced fields' : 'Advanced fields';
 }
+
+function setupDateConstraints() {
+    if (!startDateInput || !endDateInput) {
+        return;
+    }
+
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+
+    startDateInput.max = todayStr;
+    endDateInput.max = todayStr;
+
+    const syncDateBounds = () => {
+        if (startDateInput.value) {
+            endDateInput.min = startDateInput.value;
+            if (endDateInput.value && endDateInput.value < startDateInput.value) {
+                endDateInput.value = startDateInput.value;
+            }
+        } else {
+            endDateInput.removeAttribute('min');
+        }
+
+        if (endDateInput.value) {
+            startDateInput.max = endDateInput.value < todayStr ? endDateInput.value : todayStr;
+            if (startDateInput.value && startDateInput.value > endDateInput.value) {
+                startDateInput.value = endDateInput.value;
+            }
+        } else {
+            startDateInput.max = todayStr;
+        }
+    };
+
+    startDateInput.addEventListener('change', syncDateBounds);
+    endDateInput.addEventListener('change', syncDateBounds);
+    syncDateBounds();
+}
+
+setupDateConstraints();
+setupCountryDropdown();
+setupCurrencyDropdown();
+setupRatingPicker();
+setupAiTools();
 </script>
 {% endblock %}

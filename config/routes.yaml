@@ -4,9 +4,10 @@ controllers:
         namespace: App\Controller
     type: attribute
 
-2fa_login:
-    path: /2fa
-    defaults: { _controller: "scheb_two_factor.form_controller::form" }
-
-2fa_login_check:
-    path: /2fa_check
+blog_admin_legacy_redirect:
+    path: /blog/admin
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController
+    defaults:
+        route: admin_blog
+        permanent: false
+        keepQueryParams: true

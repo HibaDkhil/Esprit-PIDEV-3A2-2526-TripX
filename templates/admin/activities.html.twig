@@ -84,47 +84,6 @@
       </tbody>
     </table>
   </div>
-
-  {# ── Pagination Controls ── #}
-  {% if items.pageCount|default(0) > 1 or currentLimit is defined %}
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:12px;">
-    {# Items per page selector #}
-    <div style="display:flex; align-items:center; gap:8px;">
-      <span style="font-size:13px; color:var(--text-muted); font-family:var(--font-mono);">Show</span>
-      {% for size in [5, 10, 25, 50] %}
-        <a href="{{ path('admin_activities', {q: currentQuery, limit: size, page: 1}) }}"
-           class="btn btn-sm {{ currentLimit == size ? 'btn-primary' : 'btn-secondary' }}"
-           style="min-width:40px; text-align:center; font-size:12px;">{{ size }}</a>
-      {% endfor %}
-      <span style="font-size:13px; color:var(--text-muted); font-family:var(--font-mono);">per page</span>
-    </div>
-
-    {# Page navigation #}
-    {% if items.pageCount|default(0) > 1 %}
-    <div style="display:flex; align-items:center; gap:8px;">
-      {% if items.currentPageNumber > 1 %}
-        <a href="{{ path('admin_activities', {page: items.currentPageNumber - 1, q: currentQuery, limit: currentLimit}) }}" class="btn btn-secondary btn-sm">← Prev</a>
-      {% endif %}
-
-      {% set startPage = max(1, items.currentPageNumber - 2) %}
-      {% set endPage = min(items.pageCount, items.currentPageNumber + 2) %}
-      {% for p in startPage..endPage %}
-        <a href="{{ path('admin_activities', {page: p, q: currentQuery, limit: currentLimit}) }}"
-           class="btn btn-sm {{ p == items.currentPageNumber ? 'btn-primary' : 'btn-secondary' }}"
-           style="min-width:36px; text-align:center;">{{ p }}</a>
-      {% endfor %}
-
-      {% if items.currentPageNumber < items.pageCount %}
-        <a href="{{ path('admin_activities', {page: items.currentPageNumber + 1, q: currentQuery, limit: currentLimit}) }}" class="btn btn-secondary btn-sm">Next →</a>
-      {% endif %}
-
-      <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono); margin-left:8px;">
-        Page {{ items.currentPageNumber }} of {{ items.pageCount }}
-      </span>
-    </div>
-    {% endif %}
-  </div>
-  {% endif %}
 </div>
 
 <script>

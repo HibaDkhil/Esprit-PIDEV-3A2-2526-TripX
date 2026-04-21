@@ -1,6 +1,6 @@
 <?php
 
-namespace App\form;
+namespace App\Form;
 
 use App\Entity\Booking;
 use Symfony\Component\Form\AbstractType;

@@ -26,8 +26,6 @@ use App\service\TransportService;
 use App\service\TransportOptimalRouteService;
 use App\service\ValidationService;
 use App\service\DestinationTransService;
-use App\service\PricePredictionService;
-use App\service\RouteRecommendationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,8 +47,6 @@ class TransportUserInterfaceController extends AbstractController
     private ValidationService $validation;
     private ValidatorInterface $validator;
     private DestinationTransService $destService;
-    private PricePredictionService $pricePredictionService;
-    private \App\service\TravelInsightAiService $aiService;
 
     public function __construct(
         TransportService $transportService,
@@ -59,21 +55,15 @@ class TransportUserInterfaceController extends AbstractController
         TransportOptimalRouteService $routeService,
         ValidationService $validation,
         ValidatorInterface $validator,
-        DestinationTransService $destService,
-        PricePredictionService $pricePredictionService,
-        RouteRecommendationService $recommendationService,
-        \App\service\TravelInsightAiService $aiService
+        DestinationTransService $destService
     ) {
         $this->transportService = $transportService;
-        $this->scheduleService = $scheduleService;
-        $this->bookingService = $bookingService;
-        $this->routeService = $routeService;
-        $this->validation = $validation;
-        $this->validator = $validator;
-        $this->destService = $destService;
-        $this->pricePredictionService = $pricePredictionService;
-        $this->recommendationService = $recommendationService;
-        $this->aiService = $aiService;
+        $this->scheduleService  = $scheduleService;
+        $this->bookingService   = $bookingService;
+        $this->routeService     = $routeService;
+        $this->validation       = $validation;
+        $this->validator        = $validator;
+        $this->destService      = $destService;
     }
 
     /**
@@ -133,7 +123,7 @@ class TransportUserInterfaceController extends AbstractController
     private function isVehicleScheduleUnavailable(int $scheduleId): bool
     {
         foreach ($this->bookingService->getAllBookings() as $b) {
-            if ($b->getScheduleId() == $scheduleId && $b->getBookingStatus() !== 'CANCELLED') {
+           if ($b->getScheduleId() == $scheduleId && $b->getBookingStatus() !== 'CANCELLED') {
                 return true;
             }
         }
@@ -142,11 +132,11 @@ class TransportUserInterfaceController extends AbstractController
 
     private function classMultiplier(string $cls): float
     {
-        return match ($cls) {
-            'PREMIUM' => 1.5,
+        return match($cls) {
+            'PREMIUM'  => 1.5,
             'BUSINESS' => 2.2,
-            'FIRST' => 3.0,
-            default => 1.0,
+            'FIRST'    => 3.0,
+            default    => 1.0,
         };
     }
 
@@ -158,44 +148,6 @@ class TransportUserInterfaceController extends AbstractController
     private function isValidCoordinates(float $lat, float $lon): bool
     {
         return $lat >= -90 && $lat <= 90 && $lon >= -180 && $lon <= 180;
-    }
-
-    private function calculateUserEcoMetrics(): array
-    {
-        try {
-            $userId = $this->getCurrentUserId();
-            $bookings = $this->bookingService->getBookingsByUserId($userId);
-            
-            $totalEcoScore = 0.0;
-            $activeBookingCount = 0;
-
-            foreach ($bookings as $b) {
-                if ($b->getBookingStatus() !== 'CANCELLED') {
-                    $transport = $this->transportService->findById($b->getTransportId());
-                    if ($transport) {
-                        $totalEcoScore += $transport->getSustainabilityRating();
-                        $activeBookingCount++;
-                    }
-                }
-            }
-
-            $targetScore = 50.0; // User specified 50 cumulative points
-            $percentage = $totalEcoScore > 0 ? min(100, round(($totalEcoScore / $targetScore) * 100)) : 0;
-
-            return [
-                'totalEcoScore' => round($totalEcoScore, 1),
-                'activeBookingCount' => $activeBookingCount,
-                'ecoPercentage' => $percentage,
-                'targetScore' => $targetScore
-            ];
-        } catch (\Exception $e) {
-            return [
-                'totalEcoScore' => 0.0,
-                'activeBookingCount' => 0,
-                'ecoPercentage' => 0,
-                'targetScore' => 50.0
-            ];
-        }
     }
     // ════════════════════════════════════════
 
@@ -209,51 +161,50 @@ class TransportUserInterfaceController extends AbstractController
     #[Route('/schedules/search', name: 'user_transport_schedules_search', methods: ['GET'])]
 
     public function schedulesSearch(Request $request): JsonResponse
+
     {
 
-        $type = $request->query->get('type', 'all');
+        $type    = $request->query->get('type', 'all');
 
-        $cls = $request->query->get('cls', 'any');
+        $cls     = $request->query->get('cls',  'any');
 
         $depDate = $request->query->get('depDate', '');
 
         $rsStart = $request->query->get('rsStart', '');
 
-        $rsEnd = $request->query->get('rsEnd', '');
+        $rsEnd   = $request->query->get('rsEnd',   '');
 
 
         // Build maps of transport IDs by type
 
-        $flightIds = [];
+        $flightIds  = [];
 
         $vehicleIds = [];
 
-        $tMap = [];
+        $tMap       = [];
 
         foreach ($this->transportService->getAllTransports() as $t) {
 
-            if (!$t->isActive())
-                continue;
+            if (!$t->isActive()) continue;
 
             $tMap[$t->getTransportId()] = $t;
 
-            if ($t->getTransportType() === 'FLIGHT')
-                $flightIds[] = $t->getTransportId();
-            else
-                $vehicleIds[] = $t->getTransportId();
+            if ($t->getTransportType() === 'FLIGHT')  $flightIds[]  = $t->getTransportId();
+
+            else                                         $vehicleIds[] = $t->getTransportId();
 
         }
 
 
         // Determine which IDs to query
 
-        $ids = match ($type) {
+        $ids = match($type) {
 
-            'flight' => $flightIds,
+            'flight'  => $flightIds,
 
             'vehicle' => $vehicleIds,
 
-            default => array_merge($flightIds, $vehicleIds),
+            default   => array_merge($flightIds, $vehicleIds),
 
         };
 
@@ -262,11 +213,7 @@ class TransportUserInterfaceController extends AbstractController
 
         $schedules = $this->scheduleService->searchSchedulesByType(
 
-            $ids,
-            $cls,
-            $depDate,
-            $rsStart,
-            $rsEnd
+            $ids, $cls, $depDate, $rsStart, $rsEnd
 
         );
 
@@ -279,14 +226,13 @@ class TransportUserInterfaceController extends AbstractController
 
             $t = $tMap[$s->getTransportId()] ?? null;
 
-            if (!$t)
-                continue;
+            if (!$t) continue;
 
-            $isFlight = $t->getTransportType() === 'FLIGHT';
+            $isFlight  = $t->getTransportType() === 'FLIGHT';
 
-            $classMult = match ($s->getTravelClass()) {
+            $classMult = match($s->getTravelClass()) {
 
-                'PREMIUM' => 1.5, 'BUSINESS' => 2.2, 'FIRST' => 3.0, default => 1.0
+                'PREMIUM'  => 1.5, 'BUSINESS' => 2.2, 'FIRST' => 3.0, default => 1.0
 
             };
 
@@ -296,66 +242,66 @@ class TransportUserInterfaceController extends AbstractController
             $isBookableStatus = in_array($status, ['ON_TIME', 'DELAYED']);
 
             if ($isFlight) {
-                $rem = $t->getCapacity() - $this->getBookedSeatsForSchedule($s->getScheduleId());
-                $un = $rem <= 0 || !$isBookableStatus;
+                $rem   = $t->getCapacity() - $this->getBookedSeatsForSchedule($s->getScheduleId());
+                $un    = $rem <= 0 || !$isBookableStatus;
                 $avail = [
                     'unavailable' => $un,
-                    'text' => !$isBookableStatus ? $status : ($rem <= 0 ? 'Fully Booked' : $rem . ' seat(s) left'),
-                    'color' => $un ? '#c0392b' : ($rem <= 5 ? '#E07020' : '#27ae60'),
+                    'text'        => !$isBookableStatus ? $status : ($rem <= 0 ? 'Fully Booked' : $rem . ' seat(s) left'),
+                    'color'       => $un ? '#c0392b' : ($rem <= 5 ? '#E07020' : '#27ae60'),
                 ];
             } else {
                 $isBooked = $this->isVehicleScheduleUnavailable($s->getScheduleId());
-                $un = $isBooked || !$isBookableStatus;
-                $avail = [
+                $un       = $isBooked || !$isBookableStatus;
+                $avail    = [
                     'unavailable' => $un,
-                    'text' => !$isBookableStatus ? $status : ($un ? 'Unavailable' : 'Available'),
-                    'color' => $un ? '#c0392b' : '#27ae60'
+                    'text'        => !$isBookableStatus ? $status : ($un ? 'Unavailable' : 'Available'),
+                    'color'       => $un ? '#c0392b' : '#27ae60'
                 ];
             }
 
             $result[] = [
 
-                'scheduleId' => $s->getScheduleId(),
+                'scheduleId'              => $s->getScheduleId(),
 
-                'transportId' => $t->getTransportId(),
+                'transportId'             => $t->getTransportId(),
 
-                'transportType' => $t->getTransportType(),
+                'transportType'           => $t->getTransportType(),
 
-                'providerName' => $t->getProviderName(),
+                'providerName'            => $t->getProviderName(),
 
-                'vehicleModel' => $t->getVehicleModel(),
+                'vehicleModel'            => $t->getVehicleModel(),
 
-                'travelClass' => $s->getTravelClass(),
+                'travelClass'             => $s->getTravelClass(),
 
-                'status' => $s->getStatus() ?: 'ON_TIME',
+                'status'                  => $s->getStatus() ?: 'ON_TIME',
 
-                'departureDestinationId' => $s->getDepartureDestinationId(),
-                'departureDestinationName' => $destMap[$s->getDepartureDestinationId()] ?? 'Unknown',
+                'departureDestinationId'  => $s->getDepartureDestinationId(),
+                'departureDestinationName'=> $destMap[$s->getDepartureDestinationId()] ?? 'Unknown',
 
-                'arrivalDestinationId' => $s->getArrivalDestinationId(),
-                'arrivalDestinationName' => $destMap[$s->getArrivalDestinationId()] ?? 'Unknown',
+                'arrivalDestinationId'    => $s->getArrivalDestinationId(),
+                'arrivalDestinationName'  => $destMap[$s->getArrivalDestinationId()] ?? 'Unknown',
 
-                'departureDatetime' => $s->getDepartureDatetime()?->format('d M Y H:i'),
+                'departureDatetime'       => $s->getDepartureDatetime()?->format('d M Y H:i'),
 
-                'arrivalDatetime' => $s->getArrivalDatetime()?->format('H:i'),
+                'arrivalDatetime'         => $s->getArrivalDatetime()?->format('H:i'),
 
-                'rentalStart' => $s->getRentalStart()?->format('d M Y'),
+                'rentalStart'             => $s->getRentalStart()?->format('d M Y'),
 
-                'rentalEnd' => $s->getRentalEnd()?->format('d M Y'),
+                'rentalEnd'               => $s->getRentalEnd()?->format('d M Y'),
 
-                'price' => $t->getBasePrice() * $s->getPriceMultiplier() * $classMult,
+                'price'                   => $t->getBasePrice() * $s->getPriceMultiplier() * $classMult,
 
-                'sustainabilityRating' => $t->getSustainabilityRating(),
+                'sustainabilityRating'    => $t->getSustainabilityRating(),
 
-                'delayMinutes' => $s->getDelayMinutes(),
+                'delayMinutes'            => $s->getDelayMinutes(),
 
-                'availability' => $avail,
+                'availability'            => $avail,
 
-                'bookUrl' => $this->generateUrl('user_transport_book_form', [
+                'bookUrl'                 => $this->generateUrl('user_transport_book_form', [
 
                     'transportId' => $t->getTransportId(),
 
-                    'scheduleId' => $s->getScheduleId(),
+                    'scheduleId'  => $s->getScheduleId(),
 
                 ]),
 
@@ -388,23 +334,23 @@ class TransportUserInterfaceController extends AbstractController
         $type = $request->query->get('type', 'all');
 
         if ($type === 'flight') {
-            $schedules = array_filter($schedules, function ($s) use ($transportMap) {
+            $schedules = array_filter($schedules, function($s) use ($transportMap) {
                 $t = $transportMap[$s->getTransportId()] ?? null;
                 return $t && $t->getTransportType() === 'FLIGHT';
             });
         } elseif ($type === 'vehicle') {
-            $schedules = array_filter($schedules, function ($s) use ($transportMap) {
+            $schedules = array_filter($schedules, function($s) use ($transportMap) {
                 $t = $transportMap[$s->getTransportId()] ?? null;
                 return $t && $t->getTransportType() === 'VEHICLE';
             });
         }
 
-        $from = $request->query->get('from', '');
-        $cls = $request->query->get('cls', 'any');
+        $from    = $request->query->get('from', '');
+        $cls     = $request->query->get('cls', 'any');
         $depDate = $request->query->get('depDate', '');
         $rsStart = $request->query->get('rsStart', '');
-        $rsEnd = $request->query->get('rsEnd', '');
-        $to = $request->query->get('to', '');
+        $rsEnd   = $request->query->get('rsEnd', '');
+        $to      = $request->query->get('to', '');
 
         $destMap = $this->buildDestinationMap();
 
@@ -418,25 +364,22 @@ class TransportUserInterfaceController extends AbstractController
         }
         if ($depDate) {
             $depD = new DateTime($depDate);
-            $schedules = array_filter($schedules, function ($s) use ($depD) {
-                if (!$s->getDepartureDatetime())
-                    return false;
+            $schedules = array_filter($schedules, function($s) use ($depD) {
+                if (!$s->getDepartureDatetime()) return false;
                 return $s->getDepartureDatetime()->format('Y-m-d') === $depD->format('Y-m-d');
             });
         }
         if ($rsStart) {
             $rsS = new DateTime($rsStart);
-            $schedules = array_filter($schedules, function ($s) use ($rsS) {
-                if (!$s->getRentalStart())
-                    return true;
+            $schedules = array_filter($schedules, function($s) use ($rsS) {
+                if (!$s->getRentalStart()) return true;
                 return $s->getRentalStart() <= $rsS;
             });
         }
         if ($rsEnd) {
             $rsE = new DateTime($rsEnd);
-            $schedules = array_filter($schedules, function ($s) use ($rsE) {
-                if (!$s->getRentalEnd())
-                    return true;
+            $schedules = array_filter($schedules, function($s) use ($rsE) {
+                if (!$s->getRentalEnd()) return true;
                 return $s->getRentalEnd() >= $rsE;
             });
         }
@@ -444,46 +387,38 @@ class TransportUserInterfaceController extends AbstractController
         $availability = [];
         foreach ($schedules as $s) {
             $t = $transportMap[$s->getTransportId()] ?? null;
-            if (!$t)
-                continue;
+            if (!$t) continue;
             $status = $s->getStatus();
             $isBookableStatus = in_array($status, ['ON_TIME', 'DELAYED']);
 
             if ($t->getTransportType() === 'FLIGHT') {
-                $booked = $this->getBookedSeatsForSchedule($s->getScheduleId());
+                $booked    = $this->getBookedSeatsForSchedule($s->getScheduleId());
                 $remaining = $t->getCapacity() - $booked;
-                $un = $remaining <= 0 || !$isBookableStatus;
+                $un        = $remaining <= 0 || !$isBookableStatus;
                 $availability[$s->getScheduleId()] = [
                     'unavailable' => $un,
-                    'text' => !$isBookableStatus ? $status : ($remaining <= 0 ? 'Fully Booked' : $remaining . ' seat(s) left'),
-                    'color' => $un ? '#c0392b' : ($remaining <= 5 ? '#E07020' : '#27ae60'),
+                    'text'        => !$isBookableStatus ? $status : ($remaining <= 0 ? 'Fully Booked' : $remaining . ' seat(s) left'),
+                    'color'       => $un ? '#c0392b' : ($remaining <= 5 ? '#E07020' : '#27ae60'),
                 ];
             } else {
                 $isBooked = $this->isVehicleScheduleUnavailable($s->getScheduleId());
-                $un = $isBooked || !$isBookableStatus;
+                $un       = $isBooked || !$isBookableStatus;
                 $availability[$s->getScheduleId()] = [
                     'unavailable' => $un,
-                    'text' => !$isBookableStatus ? $status : ($un ? 'Unavailable' : 'Available'),
-                    'color' => $un ? '#c0392b' : '#27ae60',
+                    'text'        => !$isBookableStatus ? $status : ($un ? 'Unavailable' : 'Available'),
+                    'color'       => $un ? '#c0392b' : '#27ae60',
                 ];
             }
         }
 
-        $recommendations = [];
-        try {
-            $recommendations = $this->recommendationService->getRecommendations($this->getCurrentUserId(), 3);
-        } catch (\Exception $e) {}
-
         return $this->render('front/TransportUserInterface.html.twig', [
-            'tab' => 'schedules',
-            'schedules' => array_values($schedules),
+            'tab'          => 'schedules',
+            'schedules'    => array_values($schedules),
             'transportMap' => $transportMap,
-            'destMap' => $destMap,
+            'destMap'      => $destMap,
             'availability' => $availability,
-            'type' => $type,
-            'filters' => compact('from', 'cls', 'depDate', 'rsStart', 'rsEnd', 'to'),
-            'recommendations' => $recommendations,
-            'ecoMetrics' => $this->calculateUserEcoMetrics(),
+            'type'         => $type,
+            'filters'      => compact('from', 'cls', 'depDate', 'rsStart', 'rsEnd', 'to'),
         ]);
     }
 
@@ -497,15 +432,15 @@ class TransportUserInterfaceController extends AbstractController
     {
         $transportType = $request->query->get('transportType', '');
 
-        $from = $request->query->get('from', '');
-        $to = $request->query->get('to', '');
+        $from    = $request->query->get('from', '');
+        $to      = $request->query->get('to', '');
         $depDate = $request->query->get('depDate', '');
-        $rsEnd = $request->query->get('rsEnd', '');
+        $rsEnd   = $request->query->get('rsEnd', '');
 
         if (!$transportType) {
             return $this->render('front/TransportUserInterface.html.twig', [
-                'tab' => 'transport',
-                'view' => 'type_select',
+                'tab'     => 'transport',
+                'view'    => 'type_select',
                 'filters' => compact('from', 'to', 'depDate', 'rsEnd'),
             ]);
         }
@@ -517,11 +452,9 @@ class TransportUserInterfaceController extends AbstractController
 
         $transports = array_filter(
             $this->transportService->getAllTransports(),
-            function ($t) use ($transportType, $from, $to) {
-                if ($t->getTransportType() !== $transportType || !$t->isActive())
-                    return false;
-                if ($from && stripos($t->getProviderName() . ' ' . $t->getVehicleModel(), $from) === false)
-                    return false;
+            function($t) use ($transportType, $from, $to) {
+                if ($t->getTransportType() !== $transportType || !$t->isActive()) return false;
+                if ($from && stripos($t->getProviderName() . ' ' . $t->getVehicleModel(), $from) === false) return false;
                 return true;
             }
         );
@@ -529,17 +462,16 @@ class TransportUserInterfaceController extends AbstractController
         $providers = [];
         foreach ($transports as $t) {
             $prov = $t->getProviderName();
-            if (!isset($providers[$prov]))
-                $providers[$prov] = 0;
+            if (!isset($providers[$prov])) $providers[$prov] = 0;
             $providers[$prov]++;
         }
 
         return $this->render('front/TransportUserInterface.html.twig', [
-            'tab' => 'transport',
-            'view' => 'providers',
+            'tab'           => 'transport',
+            'view'          => 'providers',
             'transportType' => $transportType,
-            'providers' => $providers,
-            'filters' => compact('from', 'to', 'depDate', 'rsEnd'),
+            'providers'     => $providers,
+            'filters'       => compact('from', 'to', 'depDate', 'rsEnd'),
         ]);
     }
 
@@ -548,36 +480,34 @@ class TransportUserInterfaceController extends AbstractController
     public function providerTransports(Request $request): Response
     {
         $transportType = $request->query->get('transportType', '');
-        $provider = $request->query->get('provider', '');
+        $provider      = $request->query->get('provider', '');
 
         if (empty($provider) || !in_array($transportType, ['FLIGHT', 'VEHICLE'])) {
             $this->addFlash('error', 'Invalid provider or transport type.');
             return $this->redirectToRoute('user_transport_browse');
         }
 
-        $from = $request->query->get('from', '');
-        $to = $request->query->get('to', '');
+        $from    = $request->query->get('from', '');
+        $to      = $request->query->get('to', '');
         $depDate = $request->query->get('depDate', '');
-        $rsEnd = $request->query->get('rsEnd', '');
+        $rsEnd   = $request->query->get('rsEnd', '');
 
         $transports = array_filter(
             $this->transportService->getAllTransports(),
-            function ($t) use ($transportType, $provider, $from, $to) {
-                if ($t->getTransportType() !== $transportType || $t->getProviderName() !== $provider || !$t->isActive())
-                    return false;
-                if ($from && stripos($t->getVehicleModel(), $from) === false)
-                    return false;
+            function($t) use ($transportType, $provider, $from, $to) {
+                if ($t->getTransportType() !== $transportType || $t->getProviderName() !== $provider || !$t->isActive()) return false;
+                if ($from && stripos($t->getVehicleModel(), $from) === false) return false;
                 return true;
             }
         );
 
         return $this->render('front/TransportUserInterface.html.twig', [
-            'tab' => 'transport',
-            'view' => 'transport_cards',
+            'tab'           => 'transport',
+            'view'          => 'transport_cards',
             'transportType' => $transportType,
-            'provider' => $provider,
-            'transports' => array_values($transports),
-            'filters' => compact('from', 'to', 'depDate', 'rsEnd'),
+            'provider'      => $provider,
+            'transports'    => array_values($transports),
+            'filters'       => compact('from', 'to', 'depDate', 'rsEnd'),
         ]);
     }
 
@@ -608,28 +538,28 @@ class TransportUserInterfaceController extends AbstractController
 
             if ($transport->getTransportType() === 'FLIGHT') {
                 $rem = $transport->getCapacity() - $this->getBookedSeatsForSchedule($s->getScheduleId());
-                $un = $rem <= 0 || !$isBookable;
+                $un  = $rem <= 0 || !$isBookable;
                 $availability[$s->getScheduleId()] = [
                     'unavailable' => $un,
-                    'text' => !$isBookable ? $status : ($rem <= 0 ? 'Full' : $rem . ' seats left'),
+                    'text'        => !$isBookable ? $status : ($rem <= 0 ? 'Full' : $rem . ' seats left'),
                 ];
             } else {
                 $isBooked = $this->isVehicleScheduleUnavailable($s->getScheduleId());
-                $un = $isBooked || !$isBookable;
+                $un       = $isBooked || !$isBookable;
                 $availability[$s->getScheduleId()] = [
                     'unavailable' => $un,
-                    'text' => !$isBookable ? $status : ($un ? 'Booked' : 'Available'),
+                    'text'        => !$isBookable ? $status : ($un ? 'Booked' : 'Available'),
                 ];
             }
         }
 
         return $this->render('front/TransportUserInterface.html.twig', [
-            'tab' => 'transport',
-            'view' => 'detail',
-            'transport' => $transport,
-            'schedules' => array_values($schedules),
+            'tab'          => 'transport',
+            'view'         => 'detail',
+            'transport'    => $transport,
+            'schedules'    => array_values($schedules),
             'availability' => $availability,
-            'destMap' => $this->buildDestinationMap(),
+            'destMap'      => $this->buildDestinationMap(),
         ]);
     }
 
@@ -639,13 +569,10 @@ class TransportUserInterfaceController extends AbstractController
 
     /** Booking wizard: requires transportId; scheduleId optional but recommended. */
     #[Route('/book', name: 'user_transport_book_form', methods: ['GET'])]
-    public function bookForm(Request $request, \App\service\AccessibilitySpeechService $speechService, \App\service\TravelInsightAiService $aiService): Response
+    public function bookForm(Request $request): Response
     {
         $transportId = (int) $request->query->get('transportId');
-        $scheduleId = (int) $request->query->get('scheduleId', 0);
-        $adults = (int) $request->query->get('adults', 1);
-        $children = (int) $request->query->get('children', 0);
-        $seatCount = $adults + $children;
+        $scheduleId  = (int) $request->query->get('scheduleId', 0);
 
         if ($transportId <= 0) {
             $this->addFlash('error', 'Invalid transport ID.');
@@ -687,25 +614,11 @@ class TransportUserInterfaceController extends AbstractController
             }
         }
 
-        $predictedPrice = $this->pricePredictionService->predictPrice(
-            $transport,
-            $schedule ?: new \App\Entity\Schedule(),
-            1,
-            'ECONOMY',
-            false
-        );
-
-        $audioMessage = $speechService->speakTransportDetails($transport, $schedule, $seatCount ?: 1, 'ECONOMY');
-        $aiInsight = $aiService->predictInsight($transport, $seatCount);
-
         return $this->render('front/TransportUserInterface.html.twig', [
-            'tab' => 'booking_form',
+            'tab'       => 'booking_form',
             'transport' => $transport,
-            'schedule' => $schedule,
-            'destMap' => $this->buildDestinationMap(),
-            'predictedPrice' => $predictedPrice,
-            'audioMessage' => $audioMessage,
-            'aiInsight' => $aiInsight,
+            'schedule'  => $schedule,
+            'destMap'   => $this->buildDestinationMap(),
         ]);
     }
 
@@ -720,11 +633,11 @@ class TransportUserInterfaceController extends AbstractController
         }
 
         $transportId = (int) $request->request->get('transportId');
-        $scheduleId = (int) $request->request->get('scheduleId', 0);
-        $adults = (int) $request->request->get('adults', 1);
-        $children = (int) $request->request->get('children', 0);
-        $cls = $request->request->get('travelClass', 'ECONOMY');
-        $insurance = (bool) $request->request->get('insurance', false);
+        $scheduleId  = (int) $request->request->get('scheduleId', 0);
+        $adults      = (int) $request->request->get('adults', 1);
+        $children    = (int) $request->request->get('children', 0);
+        $cls         = $request->request->get('travelClass', 'ECONOMY');
+        $insurance   = (bool) $request->request->get('insurance', false);
 
         // ── VALIDATION ──
         if ($transportId <= 0) {
@@ -742,7 +655,7 @@ class TransportUserInterfaceController extends AbstractController
             $this->addFlash('error', 'At least 1 adult is required.');
             return $this->redirectToRoute('user_transport_book_form', [
                 'transportId' => $transportId,
-                'scheduleId' => $scheduleId,
+                'scheduleId'  => $scheduleId,
             ]);
         }
 
@@ -750,7 +663,7 @@ class TransportUserInterfaceController extends AbstractController
             $this->addFlash('error', 'Children count cannot be negative.');
             return $this->redirectToRoute('user_transport_book_form', [
                 'transportId' => $transportId,
-                'scheduleId' => $scheduleId,
+                'scheduleId'  => $scheduleId,
             ]);
         }
 
@@ -758,7 +671,7 @@ class TransportUserInterfaceController extends AbstractController
             $this->addFlash('error', 'Invalid travel class selected.');
             return $this->redirectToRoute('user_transport_book_form', [
                 'transportId' => $transportId,
-                'scheduleId' => $scheduleId,
+                'scheduleId'  => $scheduleId,
             ]);
         }
 
@@ -767,17 +680,16 @@ class TransportUserInterfaceController extends AbstractController
             $this->addFlash('error', 'Total seats must be at least 1.');
             return $this->redirectToRoute('user_transport_book_form', [
                 'transportId' => $transportId,
-                'scheduleId' => $scheduleId,
+                'scheduleId'  => $scheduleId,
             ]);
         }
         // ── END VALIDATION ──
 
-        $schedule = null;
+        $schedule  = null;
         $schedMult = 1.0;
         if ($scheduleId > 0) {
             $schedule = $this->scheduleService->findById($scheduleId);
-            if ($schedule)
-                $schedMult = $schedule->getPriceMultiplier();
+            if ($schedule) $schedMult = $schedule->getPriceMultiplier();
         }
 
         // Re-check availability at moment of submit
@@ -788,7 +700,7 @@ class TransportUserInterfaceController extends AbstractController
                     $this->addFlash('error', 'Not enough seats! Requested: ' . $seats . ' | Available: ' . $rem);
                     return $this->redirectToRoute('user_transport_book_form', [
                         'transportId' => $transportId,
-                        'scheduleId' => $scheduleId,
+                        'scheduleId'  => $scheduleId,
                     ]);
                 }
             } else {
@@ -805,7 +717,7 @@ class TransportUserInterfaceController extends AbstractController
             $this->addFlash('error', 'Calculated price is invalid. Please try again.');
             return $this->redirectToRoute('user_transport_book_form', [
                 'transportId' => $transportId,
-                'scheduleId' => $scheduleId,
+                'scheduleId'  => $scheduleId,
             ]);
         }
 
@@ -820,16 +732,8 @@ class TransportUserInterfaceController extends AbstractController
         $booking->setBookingStatus('PENDING');
         $booking->setPaymentStatus('UNPAID');
         $booking->setInsuranceIncluded($insurance);
-
-        $predictedPrice = $this->pricePredictionService->predictPrice(
-            $transport,
-            $schedule ?: new \App\Entity\Schedule(),
-            $seats,
-            $cls,
-            $insurance
-        );
-        $booking->setAiPricePrediction($predictedPrice);
         $booking->setBookingDate(new DateTime());
+        $booking->setAiPricePrediction(0.0);
         $booking->setComparisonScore(0.0);
         // ★ Symfony Validator on booking entity (uses Assert on Bookingtrans)
 
@@ -846,12 +750,12 @@ class TransportUserInterfaceController extends AbstractController
             }
 
             return $this->render('front/TransportUserInterface.html.twig', [
-                'tab' => 'booking_form',
+                'tab'       => 'booking_form',
                 'transport' => $transport,
-                'schedule' => $schedule,
-                'errors' => $errors,       // ★ pass errors to Twig for inline display
-                'formData' => $request->request->all(),
-                'destMap' => $this->buildDestinationMap(),
+                'schedule'  => $schedule,
+                'errors'    => $errors,       // ★ pass errors to Twig for inline display
+                'formData'  => $request->request->all(),
+                'destMap'   => $this->buildDestinationMap(),
             ]);
         }
 
@@ -859,8 +763,8 @@ class TransportUserInterfaceController extends AbstractController
 
         // ── VEHICLE COORDINATES WITH RANGE VALIDATION ──
         if ($transport->getTransportType() === 'VEHICLE') {
-            $pickupLat = $request->request->get('pickupLat') !== '' ? (float) $request->request->get('pickupLat') : null;
-            $pickupLon = $request->request->get('pickupLon') !== '' ? (float) $request->request->get('pickupLon') : null;
+            $pickupLat  = $request->request->get('pickupLat')  !== '' ? (float) $request->request->get('pickupLat')  : null;
+            $pickupLon  = $request->request->get('pickupLon')  !== '' ? (float) $request->request->get('pickupLon')  : null;
             $dropoffLat = $request->request->get('dropoffLat') !== '' ? (float) $request->request->get('dropoffLat') : null;
             $dropoffLon = $request->request->get('dropoffLon') !== '' ? (float) $request->request->get('dropoffLon') : null;
 
@@ -868,7 +772,7 @@ class TransportUserInterfaceController extends AbstractController
                 $this->addFlash('error', 'Pickup and drop-off coordinates are required for vehicle booking.');
                 return $this->redirectToRoute('user_transport_book_form', [
                     'transportId' => $transportId,
-                    'scheduleId' => $scheduleId,
+                    'scheduleId'  => $scheduleId,
                 ]);
             }
 
@@ -876,7 +780,7 @@ class TransportUserInterfaceController extends AbstractController
                 $this->addFlash('error', 'Pickup coordinates are out of valid range. Latitude: -90 to 90, Longitude: -180 to 180.');
                 return $this->redirectToRoute('user_transport_book_form', [
                     'transportId' => $transportId,
-                    'scheduleId' => $scheduleId,
+                    'scheduleId'  => $scheduleId,
                 ]);
             }
 
@@ -884,18 +788,18 @@ class TransportUserInterfaceController extends AbstractController
                 $this->addFlash('error', 'Drop-off coordinates are out of valid range. Latitude: -90 to 90, Longitude: -180 to 180.');
                 return $this->redirectToRoute('user_transport_book_form', [
                     'transportId' => $transportId,
-                    'scheduleId' => $scheduleId,
+                    'scheduleId'  => $scheduleId,
                 ]);
             }
 
-            $pickupAddress = $request->request->get('pickupAddress', '');
+            $pickupAddress  = $request->request->get('pickupAddress', '');
             $dropoffAddress = $request->request->get('dropoffAddress', '');
 
             if (empty($pickupAddress)) {
                 $this->addFlash('error', 'Pickup address is required. Please resolve it using the map.');
                 return $this->redirectToRoute('user_transport_book_form', [
                     'transportId' => $transportId,
-                    'scheduleId' => $scheduleId,
+                    'scheduleId'  => $scheduleId,
                 ]);
             }
 
@@ -903,7 +807,7 @@ class TransportUserInterfaceController extends AbstractController
                 $this->addFlash('error', 'Drop-off address is required. Please resolve it using the map.');
                 return $this->redirectToRoute('user_transport_book_form', [
                     'transportId' => $transportId,
-                    'scheduleId' => $scheduleId,
+                    'scheduleId'  => $scheduleId,
                 ]);
             }
 
@@ -932,24 +836,24 @@ class TransportUserInterfaceController extends AbstractController
     #[Route('/my-bookings', name: 'user_transport_mybookings')]
     public function myBookings(): Response
     {
-        $userId = $this->getCurrentUserId();
-        $bookings = $this->bookingService->getBookingsByUserId($userId);
+        $userId       = $this->getCurrentUserId();
+        $bookings     = $this->bookingService->getBookingsByUserId($userId);
         $transportMap = $this->buildTransportMap();
 
         $total = count($bookings);
-        $conf = count(array_filter($bookings, fn($b) => $b->getBookingStatus() === 'CONFIRMED'));
-        $pend = count(array_filter($bookings, fn($b) => $b->getBookingStatus() === 'PENDING'));
+        $conf  = count(array_filter($bookings, fn($b) => $b->getBookingStatus() === 'CONFIRMED'));
+        $pend  = count(array_filter($bookings, fn($b) => $b->getBookingStatus() === 'PENDING'));
         $spent = array_sum(array_map(
             fn($b) => $b->getBookingStatus() !== 'CANCELLED' ? $b->getTotalPrice() : 0,
             $bookings
         ));
 
         return $this->render('front/TransportUserInterface.html.twig', [
-            'tab' => 'my_bookings',
-            'bookings' => $bookings,
+            'tab'          => 'my_bookings',
+            'bookings'     => $bookings,
             'transportMap' => $transportMap,
-            'stats' => compact('total', 'conf', 'pend', 'spent'),
-            'destMap' => $this->buildDestinationMap(),
+            'stats'        => compact('total', 'conf', 'pend', 'spent'),
+            'destMap'      => $this->buildDestinationMap(),
         ]);
     }
 
@@ -965,10 +869,7 @@ class TransportUserInterfaceController extends AbstractController
 
         $booking = null;
         foreach ($this->bookingService->getBookingsByUserId($this->getCurrentUserId()) as $b) {
-            if ($b->getBookingId() === $id) {
-                $booking = $b;
-                break;
-            }
+            if ($b->getBookingId() === $id) { $booking = $b; break; }
         }
 
         if (!$booking) {
@@ -993,14 +894,11 @@ class TransportUserInterfaceController extends AbstractController
     #[Route('/my-bookings/add-schedule/{bookingId}', name: 'user_booking_add_schedule', methods: ['GET', 'POST'])]
     public function addScheduleToBooking(int $bookingId, Request $request): Response
     {
-        $booking = null;
+        $booking      = null;
         $transportMap = $this->buildTransportMap();
 
         foreach ($this->bookingService->getBookingsByUserId($this->getCurrentUserId()) as $b) {
-            if ($b->getBookingId() === $bookingId) {
-                $booking = $b;
-                break;
-            }
+            if ($b->getBookingId() === $bookingId) { $booking = $b; break; }
         }
 
         if (!$booking) {
@@ -1020,7 +918,7 @@ class TransportUserInterfaceController extends AbstractController
         }
 
         $transport = $transportMap[$booking->getTransportId()] ?? null;
-        $isFlight = $transport && $transport->getTransportType() === 'FLIGHT';
+        $isFlight  = $transport && $transport->getTransportType() === 'FLIGHT';
 
         if ($request->isMethod('POST')) {
 
@@ -1064,13 +962,11 @@ class TransportUserInterfaceController extends AbstractController
 
         $schedules = array_filter(
             $this->scheduleService->getAllSchedules(),
-            function ($s) use ($booking, $isFlight, $transportMap) {
-                if ($s->getTransportId() !== $booking->getTransportId())
-                    return false;
-                if ($s->getStatus() === 'CANCELLED')
-                    return false;
+            function($s) use ($booking, $isFlight, $transportMap) {
+                if ($s->getTransportId() !== $booking->getTransportId()) return false;
+                if ($s->getStatus() === 'CANCELLED') return false;
                 if ($isFlight) {
-                    $t = $transportMap[$s->getTransportId()] ?? null;
+                    $t   = $transportMap[$s->getTransportId()] ?? null;
                     $rem = $t ? ($t->getCapacity() - $this->getBookedSeatsForSchedule($s->getScheduleId())) : 0;
                     return $rem >= $booking->getTotalSeats();
                 } else {
@@ -1080,15 +976,15 @@ class TransportUserInterfaceController extends AbstractController
         );
 
         return $this->render('front/TransportUserInterface.html.twig', [
-            'tab' => 'my_bookings',
-            'view' => 'add_schedule',
-            'booking' => $booking,
-            'transport' => $transport,
-            'schedules' => array_values($schedules),
+            'tab'          => 'my_bookings',
+            'view'         => 'add_schedule',
+            'booking'      => $booking,
+            'transport'    => $transport,
+            'schedules'    => array_values($schedules),
             'transportMap' => $transportMap,
-            'bookings' => $this->bookingService->getBookingsByUserId($this->getCurrentUserId()),
-            'stats' => ['total' => 0, 'conf' => 0, 'pend' => 0, 'spent' => 0],
-            'destMap' => $this->buildDestinationMap(),
+            'bookings'     => $this->bookingService->getBookingsByUserId($this->getCurrentUserId()),
+            'stats'        => ['total' => 0, 'conf' => 0, 'pend' => 0, 'spent' => 0],
+            'destMap'      => $this->buildDestinationMap(),
         ]);
     }
 
@@ -1098,11 +994,11 @@ class TransportUserInterfaceController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        $pickupLat = (float) ($data['pickupLat'] ?? 0);
-        $pickupLon = (float) ($data['pickupLon'] ?? 0);
-        $dropoffLat = (float) ($data['dropoffLat'] ?? 0);
-        $dropoffLon = (float) ($data['dropoffLon'] ?? 0);
-        $pickupAddr = $data['pickupAddress'] ?? '';
+        $pickupLat   = (float) ($data['pickupLat']   ?? 0);
+        $pickupLon   = (float) ($data['pickupLon']   ?? 0);
+        $dropoffLat  = (float) ($data['dropoffLat']  ?? 0);
+        $dropoffLon  = (float) ($data['dropoffLon']  ?? 0);
+        $pickupAddr  = $data['pickupAddress']  ?? '';
         $dropoffAddr = $data['dropoffAddress'] ?? '';
 
         // ── VALIDATION ──
@@ -1118,12 +1014,7 @@ class TransportUserInterfaceController extends AbstractController
 
         try {
             $result = $this->routeService->generateTransportOptimalRouteReport(
-                $pickupLat,
-                $pickupLon,
-                $dropoffLat,
-                $dropoffLon,
-                $pickupAddr,
-                $dropoffAddr
+                $pickupLat, $pickupLon, $dropoffLat, $dropoffLon, $pickupAddr, $dropoffAddr
             );
             return new JsonResponse(['success' => true, 'result' => $result]);
         } catch (\Exception $e) {
@@ -1136,9 +1027,8 @@ class TransportUserInterfaceController extends AbstractController
     public function exportReceiptPdf(int $id): Response
     {
         $booking = $this->bookingService->findById($id);
-        if (!$booking)
-            throw $this->createNotFoundException('Booking not found.');
-
+        if (!$booking) throw $this->createNotFoundException('Booking not found.');
+        
         // Security: ensure user only downloads their own receipt
         if ($booking->getUserId() !== $this->getCurrentUserId()) {
             throw $this->createAccessDeniedException('You do not have access to this receipt.');
@@ -1174,41 +1064,8 @@ class TransportUserInterfaceController extends AbstractController
 
         return new Response($dompdf->output(), 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="TripX_Receipt_#' . $id . '.pdf"',
+            'Content-Disposition' => 'attachment; filename="TripX_Receipt_#'. $id .'.pdf"',
         ]);
     }
-
-    #[Route('/predict-price-ajax', name: 'user_transport_predict_ajax', methods: ['POST'])]
-    public function predictPriceAjax(Request $request): JsonResponse
-    {
-        $payload = json_decode($request->getContent(), true);
-        if (!$payload) return new JsonResponse(['error' => 'Invalid JSON'], 400);
-
-        $transportId = (int) ($payload['transportId'] ?? 0);
-        $scheduleId = (int) ($payload['scheduleId'] ?? 0);
-        $seats = (int) ($payload['seats'] ?? 1);
-        $cls = $payload['cls'] ?? 'ECONOMY';
-        $insurance = (bool) ($payload['insurance'] ?? false);
-        $actualPrice = (float) ($payload['actualPrice'] ?? 0);
-
-        $transport = $this->transportService->findById($transportId);
-        if (!$transport) return new JsonResponse(['error' => 'Transport not found'], 404);
-
-        $schedule = $scheduleId > 0 ? $this->scheduleService->findById($scheduleId) : new \App\Entity\Schedule();
-
-        $predictedPrice = $this->pricePredictionService->predictPrice($transport, $schedule, $seats, $cls, $insurance);
-        $metrics = $this->pricePredictionService->getAdvancedPredictionMetrics($actualPrice, $predictedPrice);
-
-        // State-of-the-art AI insight based on updated parameters
-        $aiInsight = $this->aiService->predictInsight($transport, $seats);
-
-        return new JsonResponse([
-            'predictedPrice' => $predictedPrice,
-            'label' => $metrics['label'],
-            'color' => $metrics['color'],
-            'fairnessScore' => $metrics['fairnessScore'],
-            'marketComparison' => $metrics['marketComparison'],
-            'aiInsight' => $aiInsight
-        ]);
-    }
+    
 }

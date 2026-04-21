@@ -1,0 +1,21 @@
+{# Blog moderation notifications list partial #}
+<ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px;">
+{% if notifications is empty %}
+    <li style="color:var(--text-muted); font-size:13px; padding:8px 0;">No new notifications.</li>
+{% else %}
+    {% for n in notifications %}
+    <li style="background:var(--bg-surface); border:1px solid var(--border-color); border-radius:10px; padding:10px 14px;">
+        <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:
+            {% if n.type == 'moderation' %}#dc2626
+            {% else %}var(--text-muted){% endif %};
+            margin-bottom:4px;">
+            {% if n.type == 'moderation' %}🛡 Moderation{% else %}ℹ️ {{ n.type|title }}{% endif %}
+        </div>
+        <div style="font-size:13px; line-height:1.5;">{{ n.message }}</div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">
+            {{ n.createdAt|date('d M Y, H:i') }}
+        </div>
+    </li>
+    {% endfor %}
+{% endif %}
+</ul>

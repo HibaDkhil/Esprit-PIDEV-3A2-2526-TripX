@@ -1,9 +1,0 @@
-liip_imagine:
-    driver: gd
-    
-    filter_sets:
-        # Simple resize only (test this first)
-        room_carousel:
-            quality: 85
-            filters:
-                thumbnail: { size: [680, 440], mode: outbound }

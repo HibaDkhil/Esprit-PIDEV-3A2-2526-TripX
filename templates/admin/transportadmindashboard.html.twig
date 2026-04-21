@@ -165,14 +165,6 @@
     border-color: #ef4444 !important;
     background: rgba(239,68,68,0.05) !important;
 }
-
-/* Pagination Styling */
-.pagination { display:flex; list-style:none; padding:0; margin:0; justify-content:center; gap:8px; }
-.pagination li { display:inline-block; }
-.pagination li a, .pagination li span { display:flex; align-items:center; justify-content:center; min-width:32px; height:32px; padding:0 12px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary); font-size:14px; font-weight:600; text-decoration:none; transition:all 0.2s; }
-.pagination li a:hover { border-color:var(--accent-primary); color:var(--accent-primary); background:rgba(0,166,237,0.05); }
-.pagination li.active span { background:var(--accent-primary); color:#fff; border-color:var(--accent-primary); }
-.pagination li.disabled span { opacity:0.5; cursor:not-allowed; }
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -214,7 +206,6 @@
             </p>
         </div>
         <div style="display:flex; gap:12px;">
-            <a href="{{ path('admin_transport_health') }}" class="btn btn-secondary ripple-btn" style="background:#f8fafc; color:#1e293b; border-color:#e2e8f0;">🏥 Health Status</a>
             {% if tab == 'transport' %}
                 <a href="{{ path('admin_transport_export_pdf') }}" class="btn btn-secondary ripple-btn">Export PDF</a>
                 <a href="{{ path('admin_transport_add') }}" class="btn btn-primary ripple-btn">+ Add Transport</a>
@@ -249,17 +240,10 @@
         <div class="kpi-card kpi-card-total">
             <div class="kpi-top">
                 <div class="kpi-icon">✈</div>
-                <div class="kpi-label" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <span>
+                <div class="kpi-label">
                     {% if tab == 'transport' %}Total Fleet
                     {% elseif tab == 'schedule' %}Total Schedules
                     {% else %}Total Bookings
-                    {% endif %}
-                    </span>
-                    {% if stats.fromCache is defined and stats.fromCache %}
-                        <span style="background:rgba(255,255,255,0.9); border:1px solid rgba(245, 158, 11, 0.3); color:#E07020; padding:2px 6px; border-radius:6px; font-size:10px; text-transform:uppercase; font-weight:800; display:flex; align-items:center; letter-spacing:0.04em;">
-                            ⚡ Cached
-                        </span>
                     {% endif %}
                 </div>
             </div>
@@ -289,21 +273,10 @@
         </div>
         <div class="kpi-card kpi-card-inactive reveal-delay-2">
             <div class="kpi-top">
-                {% if tab == 'booking' %}
-                    <div class="kpi-icon">⚠</div>
-                    <div class="kpi-label">Anomaly Watch</div>
-                {% else %}
-                    <div class="kpi-icon">🗓</div>
-                    <div class="kpi-label">System Hub</div>
-                {% endif %}
+                <div class="kpi-icon">🗓</div>
+                <div class="kpi-label">System Hub</div>
             </div>
-            <div class="kpi-val" style="font-size: 1.5rem;">
-                {% if tab == 'booking' %}
-                    <span style="color:#ef4444; font-weight:700;">{{ stats.suspiciousCount|default(0) }} Suspicious</span>
-                {% else %}
-                    {{ stats.hub|default('Central Hub') }}
-                {% endif %}
-            </div>
+            <div class="kpi-val" style="font-size: 1.5rem;">{{ stats.hub|default('Central Hub') }}</div>
         </div>
         <div class="kpi-card kpi-card-total reveal-delay-3" style="background:linear-gradient(135deg, #e6fffa 0%, #ebf8ff 100%);">
             <div class="kpi-top">
@@ -392,7 +365,7 @@
                         </div>
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label class="form-label">Amenities</label>
-                            <textarea name="amenities" id="amenities_editor" rows="4" class="form-control {{ errors is defined and errors.amenities is defined ? 'has-error' : '' }}" placeholder="WiFi, Air Conditioning, Breakfast...">{{ formData.amenities ?? (transport ? transport.amenities : '') }}</textarea>
+                            <textarea name="amenities" rows="2" class="form-control {{ errors is defined and errors.amenities is defined ? 'has-error' : '' }}" placeholder="WiFi, Air Conditioning, Breakfast... (comma separated)">{{ formData.amenities ?? (transport ? transport.amenities : '') }}</textarea>
                             {% if errors is defined and errors.amenities is defined %}
                                 <div class="field-error">⚠ {{ errors.amenities|join(' ') }}</div>
                             {% endif %}
@@ -465,11 +438,6 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <div style="padding: 16px; border-top: 1px solid var(--border-color);">
-                    {% if transports is iterable and transports.paginationData is defined %}
-                        {{ knp_pagination_render(transports) }}
-                    {% endif %}
-                </div>
             </div>
 
         {# ══════════════ DESTINATION TAB ══════════════ #}
@@ -751,11 +719,6 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <div style="padding: 16px; border-top: 1px solid var(--border-color);">
-                    {% if schedules is iterable and schedules.paginationData is defined %}
-                        {{ knp_pagination_render(schedules) }}
-                    {% endif %}
-                </div>
             </div>
 
         {# ══════════════ BOOKING TAB ══════════════ #}
@@ -815,13 +778,8 @@
                     </thead>
                     <tbody>
                         {% for b in bookings %}
-                        <tr {% if anomalyMap is defined and anomalyMap[b.bookingId] is defined and anomalyMap[b.bookingId].suspicious %}style="background:rgba(239, 68, 68, 0.05);"{% endif %}>
-                            <td style="font-family:var(--font-mono); font-size:12px;">
-                                <span style="opacity:0.6;">#{{ b.bookingId }}</span>
-                                {% if anomalyMap is defined and anomalyMap[b.bookingId] is defined and anomalyMap[b.bookingId].suspicious %}
-                                    <span title="{{ anomalyMap[b.bookingId].reason }} (Risk: {{ anomalyMap[b.bookingId].riskScore }})" style="cursor:help; font-size:16px; margin-left:4px;" data-toggle="tooltip">🚨</span>
-                                {% endif %}
-                            </td>
+                        <tr>
+                            <td style="font-family:var(--font-mono); font-size:12px; opacity:0.6">#{{ b.bookingId }}</td>
                             <td style="font-weight:600">UID: {{ b.userId }}</td>
                             <td>TID: {{ b.transportId }}</td>
                             <td>{{ b.totalSeats }}</td>
@@ -862,21 +820,10 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <div style="padding: 16px; border-top: 1px solid var(--border-color);">
-                    {% if bookings is iterable and bookings.paginationData is defined %}
-                        {{ knp_pagination_render(bookings) }}
-                    {% endif %}
-                </div>
             </div>
         {% endif %}
 
     </div>{# end main card #}
 
 </div>
-{% block page_scripts %}
-  <script src="https://cdn.ckeditor.com/4.22.1/standard-all/ckeditor.js"></script>
-  <script>
-    {{ ckeditor_widget('amenities_editor', { config_name: 'basic_config' })|raw }}
-  </script>
-{% endblock %}
 {% endblock %}

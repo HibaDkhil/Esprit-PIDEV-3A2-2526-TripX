@@ -12,13 +12,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\service\UserProfileService;
-use App\Entity\Offer;
 
 class ChatController extends AbstractController
 {
     #[Route('/api/chat', name: 'api_chat', methods: ['POST'])]
-    public function chat(Request $request, GeminiService $gemini, EntityManagerInterface $em, UserProfileService $profileService): JsonResponse
+    public function chat(Request $request, GeminiService $gemini, EntityManagerInterface $em): JsonResponse
     {
         /** @var User|null $user */
         $user = $this->getUser();
@@ -65,34 +63,12 @@ class ChatController extends AbstractController
 
         $accommodationNames = $this->getAccommodationOptions($em, $preferences);
 
-        // Get Offers for recommendations
-        //$offers = $em->getRepository(Offer::class)->findAll();
-        //$offersData = [];
-        //foreach ($offers as $offer) {
-            //$offersData[] = [
-              //  'title' => $offer->getTitle(),
-                //'discount' => $offer->getDiscountPercentage(),
-                //'originalPrice' => $offer->getOriginalPrice(),
-            //];
-        //}
-
-        // Get User Booking History
-        // Use getProfileData to access the private getTripHistory data
-        $profileData = $profileService->getProfileData($user);
-        $tripHistory = $profileData['trips'] ?? [];
-
-        $pageContext = $data['pageContext'] ?? null;
-        $history = $data['history'] ?? [];
-
         $context = [
-            'page' => $pageContext,
-            'history' => $history,
             'user' => [
                 'firstName' => $user->getFirstName(),
                 'gender' => $user->getGender(),
                 'birthYear' => $user->getBirthYear(),
             ],
-
             'preferences' => $preferences ? [
                 'budgetMinPerNight' => $preferences->getBudgetMinPerNight(),
                 'budgetMaxPerNight' => $preferences->getBudgetMaxPerNight(),
@@ -105,8 +81,6 @@ class ChatController extends AbstractController
             'destinations' => $destinationsData,
             'activities' => $activitiesData,
             'accommodations' => $accommodationNames,
-            //'offers' => $offersData,
-            'bookingHistory' => $tripHistory,
         ];
 
         try {
@@ -137,23 +111,31 @@ class ChatController extends AbstractController
         }
     }
 
+    /**
+     * Short, human reply when Gemini is unavailable — never repeat the full DB dump.
+     */
     private function buildBriefOfflineReply(string $reason, array $destinationsData, array $accommodationNames): string
     {
-        $hint = 'Based on our latest trends, I have some tailored recommendations that might catch your eye! ';
+        $hint = 'Add a valid GEMINI_API_KEY in `.env` and run `php bin/console cache:clear` if chat stays offline.';
+        if (str_contains($reason, 'API key')) {
+            $hint = 'Set GEMINI_API_KEY in your `.env` file (Google AI Studio), then clear cache.';
+        }
 
         $place = '';
         if ($destinationsData !== []) {
             $d = $destinationsData[array_rand($destinationsData)];
-            $place = sprintf('For instance, we have some breathtaking stays in **%s** (%s) right now. ', $d['name'], $d['country']);
+            $place = sprintf(' For example, **%s** (%s) is in our catalogue.', $d['name'], $d['country']);
         }
 
         $acc = '';
         if ($accommodationNames !== []) {
             $sample = array_slice($accommodationNames, 0, 3);
-            $acc = 'Some of our top-rated options include: **' . implode('**, **', $sample) . '**.';
+            $acc = ' Sample hotel names on TripX: ' . implode(', ', $sample) . '.';
         }
 
-        return $hint . $place . $acc . "\n\nFeel free to explore the platform menus to discover even more about these incredible experiences!";
+        return "I can’t reach the AI service right now, so I’m giving you a quick note instead of a long list.\n\n"
+            . $hint . $place . $acc
+            . "\n\nOnce the API is connected, we can chat normally — just like texting.";
     }
 
     private function getAccommodationOptions(EntityManagerInterface $em, ?Preference $preferences): array

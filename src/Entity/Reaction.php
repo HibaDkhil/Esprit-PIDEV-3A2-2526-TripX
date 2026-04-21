@@ -26,6 +26,9 @@ class Reaction
     #[ORM\Column(nullable: true)]
     private ?int $comment_id = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $live_session_id = null;
+
     #[ORM\Column(length: 20)]
     private ?string $type = null;
 
@@ -83,6 +86,17 @@ class Reaction
     public function setCommentId(?int $comment_id): static
     {
         $this->comment_id = $comment_id;
+        return $this;
+    }
+
+    public function getLiveSessionId(): ?int
+    {
+        return $this->live_session_id;
+    }
+
+    public function setLiveSessionId(?int $live_session_id): static
+    {
+        $this->live_session_id = $live_session_id;
         return $this;
     }
 

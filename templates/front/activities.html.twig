@@ -1,195 +1,48 @@
-{% extends 'base.html.twig' %}
-
-{% block title %}Activities — TripX{% endblock %}
-
-{% block stylesheets %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Browse thousands of activities worldwide — thrilling, serene, cultural, culinary, and more.">
+  <title>Activities — TripX</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Montserrat:wght@100..900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/assets.php?f=css/main.css">
+  <link rel="stylesheet" href="/assets.php?f=css/animations.css">
   <style>
-    :root {
-      --ocean-teal: #00F5D4;
-      --ocean-blue: #0ea5e9;
-      --glass-bg: rgba(7, 20, 40, 0.65);
-      --glass-border: rgba(0, 245, 212, 0.2);
-    }
-
-    /* ══════════════════════════════════════════════════════════
-       HERO HEADER — Cinematic full-bleed
-    ══════════════════════════════════════════════════════════ */
-    .hero-header {
-      position: relative;
-      height: 580px;
-      overflow: hidden;
-      background: #060c14;
-    }
-
-    .hero-bg-img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center 40%;
-      filter: brightness(0.68) saturate(0.9);
-      transform: scale(1.05);
-      transition: transform 10s ease;
-    }
-
-    .hero-header:hover .hero-bg-img { transform: scale(1.0); }
-
-    .hero-header::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(
-          to bottom,
-          rgba(0,0,0,0.15) 0%,
-          rgba(0,0,0,0.04) 20%,
-          rgba(0,0,0,0.40) 62%,
-          rgba(0,0,0,0.88) 85%,
-          rgba(0,0,0,1.00) 100%
-        ),
-        linear-gradient(
-          to right,
-          rgba(0,0,0,0.38) 0%,
-          transparent 38%,
-          transparent 62%,
-          rgba(0,0,0,0.22) 100%
-        );
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .hero-content {
-      position: absolute;
-      bottom: 80px;
-      left: 0; right: 0;
-      z-index: 2;
-      padding: 0 52px;
-    }
-
-    .hero-eyebrow {
-      font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.5);
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .hero-eyebrow-dot {
-      display: inline-block;
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--accent-primary);
-      flex-shrink: 0;
-    }
-
-    .hero-title {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(46px, 6.5vw, 82px);
-      font-weight: 900;
-      color: #fff;
-      line-height: 1.0;
-      letter-spacing: -0.025em;
-      text-shadow: 0 4px 28px rgba(0,0,0,0.4);
-      margin-bottom: 18px;
-      display: block;
-    }
-
-    .hero-title-accent {
-      color: transparent;
-      background: linear-gradient(90deg, #fff 0%, var(--ocean-teal) 50%, #fff 100%); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; animation: text-shimmer 4s linear infinite;
-    }
-
-    .hero-subtitle {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 14px;
-      font-weight: 300;
-      color: rgba(255,255,255,0.62);
-      max-width: 440px;
-      line-height: 1.75;
-      letter-spacing: 0.02em;
-      margin: 0;
-    }
-
-    .hero-stats {
-      position: absolute;
-      bottom: 80px;
-      right: 52px;
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      align-items: flex-end;
-    }
-
-    .hero-stat { text-align: right; }
-
-    .hero-stat-num {
-      font-family: 'Space Mono', monospace;
-      font-size: 24px;
-      font-weight: 700;
-      color: #fff;
-      line-height: 1;
-    }
-
-    .hero-stat-label {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 10px;
-      font-weight: 500;
-      color: rgba(255,255,255,0.38);
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      margin-top: 3px;
-    }
-
-    .hero-stat-divider {
-      width: 40px; height: 1px;
-      background: rgba(255,255,255,0.13);
-      margin-left: auto;
-    }
-
-    /* ── Activity card ── */
+    .page-top { padding-top: calc(var(--nav-height) + 60px); padding-bottom: 40px; }
+    /* Activity card */
     .activity-card {
-      background: var(--glass-bg); backdrop-filter: blur(16px);
-      border: 1px solid var(--glass-border);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       border-radius: var(--border-radius-lg);
       overflow: hidden;
-      transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+      transition: all var(--transition-smooth);
       position: relative;
     }
-
     .activity-card:hover {
       transform: translateY(-6px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(0, 245, 212, 0.15);
-      border-color: rgba(0, 245, 212, 0.4);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--accent-primary);
     }
-
     .act-icon-wrap {
       height: 140px;
       display: flex; align-items: center; justify-content: center;
       font-size: 60px;
       position: relative;
     }
+    .act-body { padding: 20px; }
+    .act-title { font-weight: 700; font-size: 1rem; margin-bottom: 6px; }
+    .act-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px; }
+    .act-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .act-meta-item { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
+    .act-price { font-family: var(--font-display); font-size: 22px; color: var(--accent-primary); }
+    .act-footer { display: flex; justify-content: space-between; align-items: center; }
 
-    .act-body        { padding: 20px; }
-    .act-title       { font-weight: 700; font-size: 1rem; margin-bottom: 6px; }
-    .act-desc        { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px; }
-    .act-meta        { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-    .act-meta-item   { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
-    .act-price       { font-family: var(--font-display); font-size: 22px; color: var(--accent-primary); }
-    .act-footer      { display: flex; justify-content: space-between; align-items: center; }
-
-    /* ── Map ── */
+    /* Map view placeholder */
     .map-view {
       height: 480px;
-      background:
+      background: 
         radial-gradient(ellipse 60% 70% at 30% 40%, rgba(0,245,212,0.1), transparent 60%),
         radial-gradient(ellipse 50% 50% at 70% 60%, rgba(255,77,109,0.08), transparent 60%),
         var(--bg-surface);
@@ -199,7 +52,13 @@
       overflow: hidden;
       display: flex; align-items: center; justify-content: center;
     }
-
+    .map-grid {
+      position: absolute; inset: 0;
+      background-image: 
+        linear-gradient(rgba(107,127,163,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(107,127,163,0.08) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
     .map-label {
       font-family: var(--font-display);
       font-size: 48px;
@@ -208,91 +67,68 @@
       opacity: 0.3;
       position: relative; z-index: 1;
     }
-
-    #activity-map {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
-      border-radius: var(--border-radius-xl);
-      z-index: 2;
-    }
-
-    .leaflet-popup-content-wrapper {
-      background: var(--bg-card);
-      color: var(--text-primary);
-      border: 1px solid var(--border-color);
-      backdrop-filter: blur(10px);
-      border-radius: 12px;
-    }
-
-    .leaflet-popup-tip { background: var(--bg-card); }
-
-    .custom-marker {
-      width: 12px; height: 12px;
-      background: var(--accent-primary);
-      border: 2px solid white;
-      border-radius: 50%;
-      box-shadow: 0 0 10px var(--accent-primary);
-    }
-
-    .custom-marker.teal {
-      background: #00f5d4;
-      box-shadow: 0 0 10px #00f5d4;
-    }
-
-    /* Responsive */
-    @media (max-width: 1024px) {
-      .hero-header { height: 480px; }
-      .hero-stats  { display: none; }
-    }
-
-    @media (max-width: 768px) {
-      .hero-header  { height: 400px; }
-      .hero-content { bottom: 56px; padding: 0 24px; }
-    }
   </style>
-{% endblock %}
+</head>
+<body>
+    <div id="cursor-dot"></div><div id="cursor-halo"></div>
 
-{% block body %}
 
-{# ══ HERO HEADER ══════════════════════════════════════════════════════
-   📁 PUT YOUR HERO IMAGE HERE:
-      public/images/activities-hero.jpg
-   (recommended: action shot — surfing, hiking, city tour, adventure)
-   The onerror fallback uses an Unsplash photo if the file is missing.
-═══════════════════════════════════════════════════════════════════════ #}
-<div class="hero-header">
-  <img
-    class="hero-bg-img"
-    src="/images/activities-hero.jpg"
-    alt="Activities hero"
-    onerror="this.src='https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=1800&q=80'"
-  >
 
-  {# Text — bottom left #}
-  <div class="hero-content">
-    <div class="hero-eyebrow">
-      <span class="hero-eyebrow-dot"></span>
-      TripX &nbsp;·&nbsp; Activities
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="{{ path('index') }}" class="nav-logo">Trip<span>X</span></a>
+    <div class="nav-links">
+      <a href="{{ path('index') }}"          class="nav-link">Home</a>
+      <a href="{{ path('destinations') }}"   class="nav-link">Destinations</a>
+      <a href="{{ path('activities') }}"     class="nav-link active">Activities</a>
+      <a href="{{ path('accommodations') }}" class="nav-link">Accommodations</a>
+      <a href="{{ path('transport') }}"      class="nav-link">Transport</a>
+      <a href="{{ path('offers') }}"         class="nav-link">Offers</a>
+      <a href="{{ path('blog') }}" class="nav-link">Blog</a><a href="#" class="nav-link">My Bookings</a>
     </div>
-    <h1 class="hero-title">
-      Live More,<br>
-      <span class="hero-title-accent">Experience Everything</span>
-    </h1>
-    <p class="hero-subtitle">
-      From sunrise surfing to midnight culinary tours — your next memory starts here.
-    </p>
+    <div class="nav-actions">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+        <span class="toggle-icon icon-sun">☀️</span>
+        <span class="toggle-icon icon-moon">🌙</span>
+      </button>
+      <a href="{{ path('users') }}" class="btn-nav-primary ripple-btn">My Profile</a><a href="{{ path('app_logout') }}" class="Btn-logout" style="margin-left: 8px;">
+        <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" /></svg></div>
+        <div class="text">Logout</div>
+      </a>
+    </div>
   </div>
+</nav>
 
-  {# Stats — bottom right #}
-  <div class="hero-stats">
-    <div class="hero-stat">
-      <div class="hero-stat-num">3,200+</div>
-      <div class="hero-stat-label">Experiences</div>
-    </div>
-    <div class="hero-stat-divider"></div>
-    <div class="hero-stat">
-      <div class="hero-stat-num">80+</div>
-      <div class="hero-stat-label">Categories</div>
+<div class="page-top">
+  <div class="container">
+    <div class="section-label reveal"><span>3,200+ Experiences</span></div>
+    <h1 class="display-md reveal" style="margin-bottom:8px">Live More, <span class="gradient-text">Experience Everything</span></h1>
+    <p class="serif-mood text-muted reveal reveal-delay-1">From sunrise surfing to midnight culinary tours — your next memory starts here.</p>
+
+    <!-- Filter -->
+    <div style="display:flex;gap:16px;margin-top:32px;flex-wrap:wrap" class="reveal reveal-delay-2">
+      <div class="filter-pills">
+        <button class="filter-pill active">All</button>
+        <button class="filter-pill">⚡ Thrilling</button>
+        <button class="filter-pill">🧘 Serene</button>
+        <button class="filter-pill">🎭 Cultural</button>
+        <button class="filter-pill">🍜 Culinary</button>
+        <button class="filter-pill">🌙 Nightlife</button>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
+        <select class="input" style="width:auto;padding:8px 14px">
+          <option>Any Duration</option>
+          <option>Under 2 hours</option>
+          <option>Half Day</option>
+          <option>Full Day</option>
+        </select>
+        <select class="input" style="width:auto;padding:8px 14px">
+          <option>Any Budget</option>
+          <option>Under €30</option>
+          <option>€30–€80</option>
+          <option>€80+</option>
+        </select>
+      </div>
     </div>
   </div>
 </div>
@@ -303,15 +139,24 @@
     <div class="section-label reveal"><span>Activity Map</span></div>
     <h2 class="display-md reveal" style="margin-bottom:24px">Activities <span class="text-teal">Worldwide</span></h2>
     <div class="map-view reveal">
-      <div id="activity-map"></div>
-      <div class="map-label" style="z-index: 0;">World Activity Map</div>
+      <div class="map-grid"></div>
+      <!-- Map pins -->
+      <div class="map-pin" style="top:35%;left:48%;" title="Eiffel Tower Tour"></div>
+      <div class="map-pin teal" style="top:60%;left:75%;" title="Bali Surf Lesson"></div>
+      <div class="map-pin" style="top:45%;left:22%;" title="NYC Food Tour"></div>
+      <div class="map-pin teal" style="top:55%;left:58%;" title="Serengeti Safari"></div>
+      <div class="map-pin" style="top:28%;left:68%;" title="Kyoto Temple Walk"></div>
+      <div class="map-pin teal" style="top:70%;left:35%;" title="Amazon Canopy Tour"></div>
+      <div class="map-pin" style="top:42%;left:82%;" title="Great Wall Hike"></div>
+      <div class="map-label">World Activity Map</div>
     </div>
   </div>
 </section>
 
-<!-- Activity Cards -->
+<!-- Activity Cards by Category -->
 <section class="section">
   <div class="container">
+
     <div class="section-label reveal"><span>All Experiences</span></div>
     <h2 class="display-md reveal" style="margin-bottom:24px">Discover <span class="text-coral">Your Next Adventure</span></h2>
     <div class="grid-4 stagger" style="margin-bottom:60px">
@@ -343,44 +188,6 @@
       {% endfor %}
     </div>
 
-    {# ── Pagination Controls ── #}
-    {% if activities.pageCount|default(0) > 1 or currentLimit is defined %}
-    <div style="display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:48px;">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono); letter-spacing:0.05em; text-transform:uppercase;">Show</span>
-        {% for size in [8, 16, 32, 64] %}
-          <a href="{{ path('activities', {limit: size, page: 1}) }}"
-             class="btn btn-sm {{ currentLimit == size ? 'btn-primary' : 'btn-secondary' }} ripple-btn"
-             style="min-width:42px; text-align:center; font-size:12px; border-radius:50px;">{{ size }}</a>
-        {% endfor %}
-        <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono); letter-spacing:0.05em; text-transform:uppercase;">per page</span>
-      </div>
-
-      {% if activities.pageCount|default(0) > 1 %}
-      <div style="display:flex; align-items:center; gap:8px;">
-        {% if activities.currentPageNumber > 1 %}
-          <a href="{{ path('activities', {page: activities.currentPageNumber - 1, limit: currentLimit}) }}" class="btn btn-secondary ripple-btn" style="border-radius:50px; padding:10px 20px; font-size:13px;">← Previous</a>
-        {% endif %}
-
-        {% set startPage = max(1, activities.currentPageNumber - 2) %}
-        {% set endPage   = min(activities.pageCount, activities.currentPageNumber + 2) %}
-        {% for p in startPage..endPage %}
-          <a href="{{ path('activities', {page: p, limit: currentLimit}) }}"
-             class="btn {{ p == activities.currentPageNumber ? 'btn-primary' : 'btn-secondary' }} ripple-btn"
-             style="min-width:42px; text-align:center; border-radius:50px; padding:10px 16px; font-size:13px;">{{ p }}</a>
-        {% endfor %}
-
-        {% if activities.currentPageNumber < activities.pageCount %}
-          <a href="{{ path('activities', {page: activities.currentPageNumber + 1, limit: currentLimit}) }}" class="btn btn-secondary ripple-btn" style="border-radius:50px; padding:10px 20px; font-size:13px;">Next →</a>
-        {% endif %}
-      </div>
-      <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono);">
-        Page {{ activities.currentPageNumber }} of {{ activities.pageCount }}
-      </span>
-      {% endif %}
-    </div>
-    {% endif %}
-
   </div>
 </section>
 
@@ -408,79 +215,6 @@
     <button class="aria-send" id="aria-send">➤</button>
   </div>
 </div>
-
-{% block javascripts %}
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const activityData = [
-        {% for act in activities %}
-          {% set dest = act.destination %}
-          {% if dest and dest.latitude and dest.longitude %}
-            {
-                id: "{{ act.activityId|escape('js') }}",
-                name: "{{ act.name|escape('js') }}",
-                category: "{{ act.category|escape('js') }}",
-                price: "{{ act.price|escape('js') }}",
-                lat: {{ dest.latitude|default(0) }},
-                lng: {{ dest.longitude|default(0) }},
-                destination: "{{ dest.name|escape('js') }}",
-                country: "{{ dest.country|escape('js') }}"
-            },
-          {% endif %}
-        {% endfor %}
-    ];
-
-    const map = L.map('activity-map', { scrollWheelZoom: false, zoomControl: false }).setView([20, 0], 2);
-    L.control.zoom({ position: 'bottomright' }).addTo(map);
-
-    const isDark  = document.documentElement.getAttribute('data-theme') === 'dark';
-    const tileUrl = isDark
-        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-        : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-
-    L.tileLayer(tileUrl, { attribution: '&copy; CartoDB' }).addTo(map);
-
-    if (activityData.length > 0) {
-        const markers = [];
-        activityData.forEach(act => {
-            const markerIcon = L.divIcon({
-                className: 'marker-container',
-                html: `<div class="custom-marker ${act.category?.toLowerCase().includes('thrill') ? 'teal' : ''}"></div>`,
-                iconSize: [12, 12], iconAnchor: [6, 6]
-            });
-            L.marker([act.lat, act.lng], { icon: markerIcon })
-                .bindPopup(`
-                    <div style="font-family:'Montserrat',sans-serif;min-width:150px;">
-                        <strong style="color:var(--accent-primary);display:block;margin-bottom:4px;font-size:14px;">${act.name}</strong>
-                        <div style="font-size:11px;margin-bottom:2px;color:var(--text-muted);">📍 ${act.destination}, ${act.country}</div>
-                        <div style="font-size:11px;margin-bottom:8px;color:var(--text-muted);">🏷️ ${act.category}</div>
-                        <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <span style="font-weight:700;color:var(--accent-primary);font-size:14px;">€${act.price}</span>
-                            <a href="/activities/${act.id}" style="color:var(--accent-primary);font-size:10px;text-decoration:none;text-transform:uppercase;font-weight:700;border:1px solid var(--accent-primary);padding:2px 6px;border-radius:4px;">Details</a>
-                        </div>
-                    </div>
-                `)
-                .addTo(map);
-            markers.push([act.lat, act.lng]);
-        });
-        map.fitBounds(L.latLngBounds(markers), { padding: [50, 50], maxZoom: 12 });
-    }
-
-    const themeBtn = document.getElementById('theme-toggle');
-    if (themeBtn) {
-        themeBtn.addEventListener('click', () => {
-            setTimeout(() => {
-                const newTheme  = document.documentElement.getAttribute('data-theme');
-                const newTileUrl = newTheme === 'dark'
-                    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-                    : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-                map.eachLayer(layer => { if (layer instanceof L.TileLayer) map.removeLayer(layer); });
-                L.tileLayer(newTileUrl, { attribution: '&copy; CartoDB' }).addTo(map);
-            }, 100);
-        });
-    }
-});
-</script>
-{% endblock %}
-{% endblock %}
+<script src="/assets.php?f=js/main.js"></script>
+</body>
+</html>

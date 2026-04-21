@@ -1,3 +1,0 @@
-knp_paginator:
-    template:
-        pagination: 'pagination/sliding.html.twig'

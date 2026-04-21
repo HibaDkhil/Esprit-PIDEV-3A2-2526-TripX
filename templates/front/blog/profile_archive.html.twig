@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Story Archive - {{ target.firstName }} {{ target.lastName }}{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .arc-wrap { max-width: 980px; margin: 24px auto; padding: 0 16px; }
+    .arc-top { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; }
+    .arc-back { text-decoration:none; font-weight:700; color:#111827; background:#f3f4f6; padding:8px 12px; border-radius:10px; }
+    .arc-grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap:12px; }
+    .arc-card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; overflow:hidden; }
+    .arc-img { width:100%; height:280px; object-fit:cover; background:#111; }
+    .arc-meta { padding:10px; color:#374151; font-size:.86rem; }
+    .arc-cap { font-weight:600; color:#111827; margin-bottom:6px; }
+    .arc-empty { background:#fff; border:1px dashed #d1d5db; border-radius:14px; padding:24px; text-align:center; color:#6b7280; }
+  </style>
+{% endblock %}
+
+{% block body %}
+<div class="arc-wrap">
+  <div class="arc-top">
+    <h1>Story Archive</h1>
+    <a class="arc-back" href="{{ path('blog_user_profile', {id: target.userId}) }}">Back to profile</a>
+  </div>
+
+  {% if expiredStories|length > 0 %}
+    <div class="arc-grid">
+      {% for story in expiredStories %}
+        <article class="arc-card">
+          <img class="arc-img" src="{{ story.imageUrl }}" alt="Archived story">
+          <div class="arc-meta">
+            {% if story.caption %}<div class="arc-cap">{{ story.caption }}</div>{% endif %}
+            <div>Posted: {{ story.createdAt ? story.createdAt|date('M d, Y H:i') : 'N/A' }}</div>
+            <div>Expired: {{ story.expiresAt ? story.expiresAt|date('M d, Y H:i') : 'N/A' }}</div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="arc-empty">No archived stories yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

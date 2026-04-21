@@ -134,112 +134,36 @@
     });
   });
 
-  /* ── Throttling & Lock Manager ── */
-  function initLoginThrottling() {
-    const lockUntil = window.TRIPX?.lockUntil;
-    if (!lockUntil) return;
-
-    const loginForm = document.getElementById('loginForm');
-    if (!loginForm) return;
-
-    const emailInput = document.getElementById('login_email');
-    const passInput  = document.getElementById('login_password');
-    const loginBtn   = loginForm.querySelector('.btn-primary');
-    
-    function updateCountdown() {
-      const now = Math.floor(Date.now() / 1000);
-      const timeLeft = lockUntil - now;
-
-      if (timeLeft <= 0) {
-        location.reload();
-        return;
-      }
-
-      // Lock
-      [emailInput, passInput, loginBtn].forEach(el => {
-        if (el) {
-          el.disabled = true;
-          el.style.opacity = '0.5';
-          el.style.cursor = 'not-allowed';
-        }
-      });
-
-      if (loginBtn) {
-        loginBtn.innerHTML = `Locked: ${timeLeft}s <br><span style="font-size:10px; text-decoration:underline; cursor:pointer;" onclick="fetch('/face/dev-reset-lock').then(()=>location.reload())">(Dev Reset)</span>`;
-      }
-      setTimeout(updateCountdown, 1000);
-    }
-
-    updateCountdown();
-  }
-  initLoginThrottling();
-
   /* ── Password strength meter ── */
   const regPass = document.getElementById('registration_form_plainPassword_first');
   const pwBar   = document.querySelector('.pw-bar');
-  const pwStatus = document.createElement('div');
-  if (regPass) {
-    pwStatus.style.fontSize = '11px';
-    pwStatus.style.marginTop = '4px';
-    regPass.parentElement.appendChild(pwStatus);
-
+  if (regPass && pwBar) {
     regPass.addEventListener('input', () => {
       const val = regPass.value;
       let strength = 0;
-      let items = [];
-      
-      if (val.length >= 8) strength++; else items.push('8+ characters');
-      if (/[A-Z]/.test(val)) strength++; else items.push('uppercase');
-      if (/[a-z]/.test(val)) strength++; else items.push('lowercase');
-      if (/[0-9]/.test(val)) strength++; else items.push('number');
-      
+      if (val.length >= 8) strength++;
+      if (/[A-Z]/.test(val)) strength++;
+      if (/[0-9]/.test(val)) strength++;
+      if (/[^A-Za-z0-9]/.test(val)) strength++;
       const pct  = (strength / 4) * 100;
-      const colors = ['#ef4444', '#e67e22', '#f1c40f', '#0fd850'];
-      
-      if (pwBar) {
-        pwBar.style.width = pct + '%';
-        pwBar.style.background = colors[strength - 1] || 'transparent';
-      }
-
-      if (val.length === 0) {
-        pwStatus.textContent = '';
-      } else if (strength < 4) {
-        pwStatus.style.color = '#ef4444';
-        pwStatus.textContent = items.join(', ');
-      } else {
-        pwStatus.style.color = '#0fd850';
-        pwStatus.textContent = 'Strong password! ✓';
-      }
+      const colors = ['#e74c3c', '#e67e22', '#f1c40f', '#0fd850'];
+      pwBar.style.width = pct + '%';
+      pwBar.style.background = colors[strength - 1] || 'transparent';
     });
   }
 
   /* ── Login form validation ── */
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
-    const email = document.getElementById('login_email');
-    const pass  = document.getElementById('login_password');
-
-    // Real-time format validation
-    if (email) {
-      email.addEventListener('blur', () => {
-        if (email.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) {
-          showFieldError(email, 'Invalid email format');
-        }
-      });
-    }
-
     loginForm.addEventListener('submit', function (e) {
       let valid = true;
-      [email, pass].forEach(f => f && clearFieldError(f));
+      const email = document.getElementById('login_email');
+      const pass  = document.getElementById('login_password');
 
       if (email && !email.value.trim()) {
         showFieldError(email, 'Email is required');
         valid = false;
-      } else if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) {
-        showFieldError(email, 'Invalid email format');
-        valid = false;
       }
-
       if (pass && !pass.value) {
         showFieldError(pass, 'Password is required');
         valid = false;
@@ -300,109 +224,13 @@
     });
   }
 
-  /* ── Forgot Password Modal Flow ── */
-  const forgotModal = document.getElementById('forgotModal');
-  const openForgot  = document.getElementById('openForgot');
-  const closeForgot = document.getElementById('closeForgot');
-  const btnSendCode = document.getElementById('btnSendCode');
-  const btnVerifyCode = document.getElementById('btnVerifyCode');
-  const btnResetFinal = document.getElementById('btnResetFinal');
-
-  const stepEmail = document.getElementById('stepEmail');
-  const stepCode  = document.getElementById('stepCode');
-  const stepReset = document.getElementById('stepReset');
-
-  function switchStep(nextStep) {
-    [stepEmail, stepCode, stepReset].forEach(s => s.classList.remove('active'));
-    nextStep.classList.add('active');
-  }
-
-  if (openForgot) {
-    openForgot.addEventListener('click', (e) => {
-      e.preventDefault();
-      forgotModal.classList.add('show');
-      switchStep(stepEmail);
-    });
-  }
-
-  if (closeForgot) {
-    closeForgot.addEventListener('click', () => {
-      forgotModal.classList.remove('show');
-    });
-  }
-
-  // Close on outside click
-  forgotModal?.addEventListener('click', (e) => {
-    if (e.target === forgotModal) closeForgot.click();
-  });
-
-  // Step 1: Send Code
-  btnSendCode?.addEventListener('click', async () => {
-    const email = document.getElementById('forgot_email').value;
-    if (!email) return alert('Please enter your email');
-    
-    btnSendCode.disabled = true;
-    btnSendCode.textContent = 'Sending...';
-
-    const resp = await fetch(window.TRIPX.endpoints.sendCode, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
-    });
-
-    const data = await resp.json();
-    if (data.success) {
-      switchStep(stepCode);
-    } else {
-      alert(data.message || 'Error occurred');
-    }
-    btnSendCode.disabled = false;
-    btnSendCode.textContent = 'Send Code';
-  });
-
-  // Step 2: Verify Code
-  btnVerifyCode?.addEventListener('click', async () => {
-    const code = document.getElementById('forgot_code').value;
-    if (code.length < 6) return alert('Enter the 6-digit code');
-
-    const resp = await fetch(window.TRIPX.endpoints.verifyCode, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code })
-    });
-
-    const data = await resp.json();
-    if (data.success) {
-      switchStep(stepReset);
-    } else {
-      alert(data.message || 'Invalid code');
-    }
-  });
-
-  // Step 3: Reset Final
-  btnResetFinal?.addEventListener('click', async () => {
-    const password = document.getElementById('forgot_password').value;
-    const confirm  = document.getElementById('forgot_confirm').value;
-
-    if (password !== confirm) return alert('Passwords do not match');
-    if (password.length < 8) return alert('Password must be at least 8 characters');
-    if (!/[A-Z]/.test(password)) return alert('Password must contain at least 1 uppercase letter');
-    if (!/[a-z]/.test(password)) return alert('Password must contain at least 1 lowercase letter');
-    if (!/[0-9]/.test(password)) return alert('Password must contain at least 1 number');
-
-    const resp = await fetch(window.TRIPX.endpoints.resetPassword, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password })
-    });
-
-    const data = await resp.json();
-    if (data.success) {
-      alert('Password updated successfully! Please login.');
-      location.reload();
-    } else {
-      alert(data.message || 'Error occurred');
-    }
-  });
+  /* ── Toast helper ── */
+  window.showToast = function(msg, duration = 2800) {
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), duration);
+  };
 
 })();

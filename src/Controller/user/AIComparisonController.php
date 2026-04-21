@@ -13,13 +13,11 @@ class AIComparisonController extends AbstractController
 {
     private EntityManagerInterface $em;
     private HttpClientInterface $httpClient;
-    private string $transportAiKey;
-
-    public function __construct(EntityManagerInterface $em, HttpClientInterface $httpClient, string $transportAiKey = '')
+    
+    public function __construct(EntityManagerInterface $em, HttpClientInterface $httpClient)
     {
         $this->em = $em;
         $this->httpClient = $httpClient;
-        $this->transportAiKey = $transportAiKey;
     }
     
     #[Route('/accommodations/compare', name: 'accommodations_compare', methods: ['POST'])]
@@ -89,56 +87,56 @@ class AIComparisonController extends AbstractController
     
     private function callGroqAI(array $accommodations): array
     {
-        $apiKey = $this->transportAiKey;
-
+        $apiKey = $_ENV['GROQ_API_KEY'] ?? getenv('GROQ_API_KEY');
+        
         if (empty($apiKey)) {
             return $this->fallbackAnalysis($accommodations);
         }
-
+        
+        // Prepare the prompt for Groq
         $prompt = $this->buildPrompt($accommodations);
-
+        
         try {
             $response = $this->httpClient->request('POST', 'https://api.groq.com/openai/v1/chat/completions', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $apiKey,
-                    'Content-Type'  => 'application/json',
+                    'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'model'    => 'llama-3.3-70b-versatile',
+                    'model' => 'mixtral-8x7b-32768',
                     'messages' => [
                         [
-                            'role'    => 'system',
-                            'content' => 'You are a travel and hospitality expert specializing in accommodation comparison. Provide detailed, unbiased comparisons with scores out of 10 for each property. Return your analysis in valid JSON format ONLY (no markdown, no extra text) with the following structure: {"ranking":[{"name":"Property Name","score":8.5}],"comparison":[{"name":"Property Name","price":150,"stars":4,"rating":4.5,"amenities":"..."}],"insights":"Your detailed insights here"}'
+                            'role' => 'system',
+                            'content' => 'You are a travel and hospitality expert specializing in accommodation comparison. Provide detailed, unbiased comparisons with scores out of 10 for each property. Return your analysis in valid JSON format with the following structure: {"ranking":[{"name":"Property Name","score":8.5}],"comparison":[{"name":"Property Name","price":150,"stars":4,"rating":4.5,"amenities":"..."}],"insights":"Your detailed insights here"}'
                         ],
                         [
-                            'role'    => 'user',
+                            'role' => 'user',
                             'content' => $prompt
                         ]
                     ],
                     'temperature' => 0.7,
-                    'max_tokens'  => 2000,
+                    'max_tokens' => 2000,
                 ]
             ]);
-
-            $result  = $response->toArray();
+            
+            $result = $response->toArray();
             $content = $result['choices'][0]['message']['content'] ?? '';
-
-            // Strip optional markdown code fences
-            $content = preg_replace('/^```(?:json)?\s*/i', '', trim($content));
-            $content = preg_replace('/\s*```$/i', '', $content);
-
+            
             // Extract JSON from the response
-            if (preg_match('/\{.*\}/s', $content, $matches)) {
+            $jsonMatch = preg_match('/\{.*\}/s', $content, $matches);
+            if ($jsonMatch) {
                 $analysis = json_decode($matches[0], true);
                 if (json_last_error() === JSON_ERROR_NONE && isset($analysis['ranking'])) {
                     return $analysis;
                 }
             }
-
+            
+            // Fallback if JSON parsing fails
             return $this->fallbackAnalysis($accommodations);
-
+            
         } catch (\Exception $e) {
-            error_log('Groq AI error: ' . $e->getMessage());
+            // Log error and return fallback
+            error_log('Groq API error: ' . $e->getMessage());
             return $this->fallbackAnalysis($accommodations);
         }
     }

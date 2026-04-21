@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\LiveSession;
 use App\Entity\Reaction;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -69,5 +70,34 @@ class ReactionRepository extends ServiceEntityRepository
         }
 
         return $counts;
+    }
+
+    /**
+     * Count live-stream reactions grouped by type for a given session.
+     * Live reactions are now stored in this table with live_session_id set.
+     *
+     * @return array<string,int>  e.g. ['like'=>3,'fire'=>1,...]
+     */
+    public function countByTypeForSession(LiveSession $session): array
+    {
+        $allowed = ['like', 'love', 'fire', 'wow', 'clap'];
+        $out     = array_fill_keys($allowed, 0);
+
+        $rows = $this->createQueryBuilder('r')
+            ->select('r.type AS type', 'COUNT(r.id) AS cnt')
+            ->where('r.live_session_id = :sid')
+            ->setParameter('sid', (int) $session->getId())
+            ->groupBy('r.type')
+            ->getQuery()
+            ->getArrayResult();
+
+        foreach ($rows as $row) {
+            $type = strtolower(trim((string) ($row['type'] ?? '')));
+            if ($type !== '') {
+                $out[$type] = (int) ($row['cnt'] ?? 0);
+            }
+        }
+
+        return $out;
     }
 }

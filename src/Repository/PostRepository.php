@@ -23,7 +23,9 @@ class PostRepository extends ServiceEntityRepository
             ->leftJoin('p.comments', 'c')
             ->addSelect('c')
             ->where('p.is_confirmed = :confirmed')
+            ->andWhere('p.removed_by_admin = :removed')
             ->setParameter('confirmed', true)
+            ->setParameter('removed', false)
             ->orderBy('p.id', 'DESC')
             ->addOrderBy('c.created_at', 'ASC');
 
@@ -58,6 +60,20 @@ class PostRepository extends ServiceEntityRepository
             ->setParameter('uid', $userId)
             ->orderBy('p.created_at', 'DESC')
             ->addOrderBy('c.created_at', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findPublicByUserId(int $userId): array
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.user_id = :uid')
+            ->andWhere('p.is_confirmed = :confirmed')
+            ->andWhere('p.removed_by_admin = :removed')
+            ->setParameter('uid', $userId)
+            ->setParameter('confirmed', true)
+            ->setParameter('removed', false)
+            ->orderBy('p.created_at', 'DESC')
             ->getQuery()
             ->getResult();
     }

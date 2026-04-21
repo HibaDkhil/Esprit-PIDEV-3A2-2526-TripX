@@ -6,28 +6,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Montserrat:wght@100..900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  /* Ocean Teal & Pastel Blue Luminous Aesthetic */
-  :root {
-    --ocean-teal: #00F5D4;
-    --ocean-blue: #0ea5e9;
-    --glass-bg: rgba(7, 20, 40, 0.65);
-    --glass-border: rgba(0, 245, 212, 0.2);
-  }
+  /* ── Page top (below fixed nav) ── */
+  .page-top { padding-top: calc(var(--nav-height) + 60px); padding-bottom: 40px; }
 
-  .page-top { 
-    position: relative;
-    padding-top: calc(var(--nav-height) + 100px); 
-    padding-bottom: 80px; 
-    overflow: hidden;
-    background: radial-gradient(circle at 50% -20%, rgba(14, 165, 233, 0.15), transparent 60%);
-  }
-  .page-top::before {
-    content: ''; position: absolute; top: 0; left: 10%; width: 300px; height: 300px;
-    background: radial-gradient(circle, rgba(0,245,212,0.2) 0%, transparent 60%);
-    border-radius: 50%; filter: blur(40px); z-index: -1; animation: float-orb 15s ease-in-out infinite;
-  }
-
-  /* ── Tab bar ── */
+  /* ── Tab bar  ── */
   .transport-tab-bar {
     display: flex; gap: 4px;
     background: var(--bg-surface);
@@ -49,20 +31,19 @@
 
   /* ── Schedule / Transport cards ── */
   .trip-card {
-    background: var(--glass-bg); backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius-lg);
     overflow: hidden;
-    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    transition: all var(--transition-smooth);
   }
-  .trip-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(0, 245, 212, 0.15); border-color: rgba(0, 245, 212, 0.4); }
+  .trip-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--accent-primary); }
   .trip-card-header {
     padding: 16px 20px;
-    background: linear-gradient(135deg, rgba(31,41,76,0.6), rgba(10,65,116,0.6));
-    border-bottom: 1px solid var(--glass-border);
+    background: linear-gradient(135deg, #1F294C, #0A4174);
   }
-  .trip-card-header.vehicle { background: linear-gradient(135deg, rgba(44,95,110,0.6), rgba(78,142,162,0.6)); }
-  .trip-card-header.unavailable { background: linear-gradient(135deg, rgba(107,114,128,0.5), rgba(156,163,175,0.5)); }
+  .trip-card-header.vehicle { background: linear-gradient(135deg, #2C5F6E, #4E8EA2); }
+  .trip-card-header.unavailable { background: linear-gradient(135deg, #6b7280, #9ca3af); }
   .trip-card-body { padding: 16px 20px; }
   .trip-card-footer { display: flex; border-top: 1px solid var(--border-color); }
   .trip-card-footer a, .trip-card-footer button {
@@ -106,27 +87,19 @@
 
   /* Type select cards */
   .type-select-card {
-    background: var(--glass-bg); backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius-lg);
     padding: 40px 32px;
     text-align: center; text-decoration: none;
-    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    transition: all var(--transition-smooth);
     display: flex; flex-direction: column;
     align-items: center; gap: 14px;
-    position: relative; overflow: hidden;
   }
-  .type-select-card::before {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(135deg, rgba(0, 245, 212, 0.05), rgba(14, 165, 233, 0.05));
-    opacity: 0; transition: opacity 0.5s; pointer-events: none;
-  }
-  .type-select-card:hover { transform: translateY(-8px); box-shadow: 0 25px 50px rgba(0,0,0,0.4), 0 0 40px rgba(0, 245, 212, 0.15); border-color: rgba(0, 245, 212, 0.5); }
-  .type-select-card:hover::before { opacity: 1; }
-  .type-select-icon { font-size: 56px; transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3)); }
-  .type-select-card:hover .type-select-icon { transform: scale(1.2) translateY(-10px); }
-  .type-select-title { font-family: var(--font-display); font-size: 28px; color: #fff; font-weight: 700; }
-  .type-select-sub { font-size: 15px; color: var(--text-secondary); line-height: 1.6; }
+  .type-select-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); border-color: var(--accent-primary); }
+  .type-select-icon { font-size: 48px; }
+  .type-select-title { font-family: var(--font-display); font-size: 22px; color: var(--text-primary); font-weight: 700; }
+  .type-select-sub { font-size: 0.88rem; color: var(--text-muted); }
 
   /* Stats bar */
   .stats-bar {
@@ -152,7 +125,7 @@
   .provider-name { font-weight: 700; font-size: 1rem; color: var(--text-primary); }
   .provider-count { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
 
-  /* ── Transport tabs (marketing-style inner tab row) ── */
+  /* ── Strip matching templates/front/transport.html.twig (marketing page) ── */
   .transport-tabs {
     display: flex; gap: 0; flex-wrap: wrap;
     background: var(--bg-surface); border: 1px solid var(--border-color);
@@ -168,7 +141,6 @@
   .transport-tabs .transport-tab.active { background: var(--accent-primary); color: #fff; }
   .transport-tabs .transport-tab:hover:not(.active) { background: var(--bg-card); color: var(--text-primary); }
 
-  /* ── Search form (second-file style) ── */
   .transport-search-extras {
     background: var(--bg-card); border: 1px solid var(--border-color);
     border-radius: var(--border-radius-lg); padding: 28px; margin-top: 28px; margin-bottom: 0;
@@ -179,22 +151,13 @@
   .search-fields { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
   @media (max-width: 900px) { .search-fields { grid-template-columns: 1fr 1fr; } }
 
-  /* ── Route cards (from second file) ── */
   .route-card {
-    background: var(--glass-bg); backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--border-radius-lg); padding: 28px; margin-bottom: 20px;
-    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-    position: relative; overflow: hidden;
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg); padding: 24px; margin-bottom: 16px;
+    transition: all var(--transition-smooth);
   }
-  .route-card::before {
-    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle at top right, rgba(0, 245, 212, 0.1), transparent 50%);
-    opacity: 0; transition: opacity 0.5s; pointer-events: none;
-  }
-  .route-card:hover { border-color: rgba(0,245,212,0.4); transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 30px rgba(0, 245, 212, 0.1); }
-  .route-card:hover::before { opacity: 1; }
-  .route-top { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
+  .route-card:hover { border-color: var(--accent-primary); transform: translateX(4px); }
+  .route-top { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
   .airline-logo {
     width: 40px; height: 40px; border-radius: 8px; background: var(--bg-secondary);
     display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
@@ -205,176 +168,15 @@
   .route-city { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; color: var(--text-muted); margin-top: 4px; }
   .route-duration { text-align: center; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
   .route-price { font-family: var(--font-display); font-size: 32px; color: var(--accent-primary); text-align: right; }
-  .route-price-sub { font-size: 0.75rem; color: var(--text-muted); }
-
-  /* ── AI Price Prediction banner ── */
   .price-pred {
-    background: rgba(0,245,212,0.06);
-    border: 1px solid rgba(0,245,212,0.2);
-    border-radius: var(--border-radius-md);
-    padding: 14px 18px;
-    display: flex; align-items: center; gap: 12px;
-    font-size: 0.85rem; color: var(--text-secondary);
+    background: rgba(0,245,212,0.06); border: 1px solid rgba(0,245,212,0.2);
+    border-radius: var(--border-radius-md); padding: 14px 18px;
+    display: flex; align-items: center; gap: 12px; font-size: 0.85rem; color: var(--text-secondary);
   }
-  .price-pred-icon { font-size: 20px; }
-
-  /* ── Carbon row ── */
   .carbon-row {
     display: flex; gap: 10px; align-items: center; margin-top: 12px;
     font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);
   }
-  .carbon-val { color: var(--accent-teal); font-size: 12px; }
-
-  /* ── Path Arc Visualization ── */
-  .route-visual {
-    margin: 20px 0;
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 10px;
-  }
-  .city-node {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    z-index: 2;
-  }
-  .city-code {
-    font-family: var(--font-mono);
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text-primary);
-  }
-  .city-name-small {
-    font-size: 9px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    max-width: 60px;
-    text-align: center;
-  }
-  .arc-wrapper {
-    position: absolute;
-    left: 40px;
-    right: 40px;
-    top: 0;
-    bottom: 0;
-    pointer-events: none;
-  }
-  .arc-svg {
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-  }
-  .arc-path {
-    fill: none;
-    stroke: var(--border-color);
-    stroke-width: 1.5;
-    stroke-dasharray: 4 3;
-  }
-  .moving-icon {
-    offset-path: path('M 0 30 Q 50 -10 100 30'); /* This will be overridden or simplified in SVG if path is dynamic */
-    animation: moveAlongPath 3s linear infinite;
-    font-size: 14px;
-    color: var(--accent-primary);
-  }
-
-  @keyframes moveAlongPath {
-    from { offset-distance: 0%; }
-    to { offset-distance: 100%; }
-  }
-
-  /* ── Trip Card Enhancements ── */
-  .trip-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    overflow: hidden;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
-  }
-  .trip-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 4px;
-    background: var(--accent-primary);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .trip-card:hover::before { opacity: 1; }
-  .trip-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
-
-  .trip-card-body { padding: 24px 20px; flex: 1; }
-  .trip-card-footer { border-top: 1px dashed var(--border-color); }
-
-  /* ── Stacked Schedule Row Layout ── */
-  .schedule-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    margin-top: 10px;
-  }
-  .schedule-row {
-    background: var(--glass-bg); backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--border-radius-lg);
-    display: flex;
-    align-items: center;
-    padding: 24px 28px;
-    gap: 32px;
-    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-    position: relative;
-    overflow: hidden;
-  }
-  .schedule-row:hover {
-    border-color: rgba(0,245,212,0.4);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 30px rgba(0, 245, 212, 0.1);
-    transform: translateY(-4px);
-  }
-  .schedule-row::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0; width: 4px;
-    background: var(--accent-primary);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .schedule-row:hover::before { opacity: 1; }
-
-  .row-provider { width: 140px; flex-shrink: 0; }
-  .row-provider-name { font-weight: 700; font-size: 1.1rem; color: var(--text-primary); margin-bottom: 2px; }
-  .row-provider-sub { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-
-  .row-route-visual { flex: 1; min-width: 280px; }
-  
-  .row-timing { width: 180px; text-align: center; border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 0 20px; }
-  .row-time-main { font-family: var(--font-display); font-size: 1.4rem; color: var(--text-primary); line-height: 1.1; margin-bottom: 4px; }
-  .row-date-sub { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
-
-  .row-details { display: flex; flex-direction: column; gap: 6px; width: 160px; }
-  .row-badges { display: flex; gap: 4px; flex-wrap: wrap; }
-  .row-eco { font-family: var(--font-mono); font-size: 10px; color: var(--accent-teal); font-weight: 700; }
-
-  .row-pricing { text-align: right; min-width: 120px; }
-  .row-price-val { font-family: var(--font-display); font-size: 1.8rem; color: var(--accent-primary); line-height: 1; }
-  .row-price-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; }
-
-  .row-action { min-width: 130px; }
-
-  @media (max-width: 1100px) {
-    .schedule-row { flex-wrap: wrap; gap: 16px; padding: 20px; }
-    .row-timing { border: none; padding: 0; text-align: left; order: 3; }
-    .row-route-visual { min-width: 100%; order: 2; margin: 10px 0; }
-    .row-details { order: 4; }
-    .row-pricing { order: 5; margin-left: auto; }
-    .row-action { order: 6; width: 100%; }
-  }
-
 </style>
 {% endblock %}
 
@@ -389,11 +191,11 @@
   <div class="container">
     <div class="section-label reveal"><span>✈ Travel with TripX</span></div>
     <h1 class="display-md reveal" style="margin-bottom:8px">
-      {% if tab == 'schedules' %}Find Your <span style="background: linear-gradient(90deg, #fff 0%, var(--ocean-teal) 50%, #fff 100%); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: text-shimmer 4s linear infinite;">Schedule</span>
-      {% elseif tab == 'transport' %}Browse <span style="background: linear-gradient(90deg, #fff 0%, var(--ocean-teal) 50%, #fff 100%); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: text-shimmer 4s linear infinite;">Transport</span>
-      {% elseif tab == 'booking_form' %}Book <span style="background: linear-gradient(90deg, #fff 0%, var(--ocean-teal) 50%, #fff 100%); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: text-shimmer 4s linear infinite;">Your Trip</span>
-      {% elseif tab == 'my_bookings' %}My <span style="background: linear-gradient(90deg, #fff 0%, var(--ocean-teal) 50%, #fff 100%); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: text-shimmer 4s linear infinite;">Bookings</span>
-      {% else %}Get There <span style="background: linear-gradient(90deg, #fff 0%, var(--ocean-teal) 50%, #fff 100%); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: text-shimmer 4s linear infinite;">Smarter</span>{% endif %}
+      {% if tab == 'schedules' %}Find Your <span class="gradient-text">Schedule</span>
+      {% elseif tab == 'transport' %}Browse <span class="gradient-text">Transport</span>
+      {% elseif tab == 'booking_form' %}Book <span class="gradient-text">Your Trip</span>
+      {% elseif tab == 'my_bookings' %}My <span class="gradient-text">Bookings</span>
+      {% else %}Explore <span class="gradient-text">Transport</span>{% endif %}
     </h1>
     <p class="serif-mood text-muted reveal reveal-delay-1">
       AI-powered schedules, real-time availability, and seamless booking — all in one place.
@@ -414,6 +216,7 @@
         📋 My Bookings
       </a>
     </div>
+
 
   </div>
 </div>
@@ -439,257 +242,136 @@
     {# ══════ SCHEDULES TAB ══════ #}
     {% if tab == 'schedules' %}
 
-      {# ── AI Price Prediction Banner (from second file) ── #}
-      {% if type != 'vehicle' %}
-      <div class="price-pred reveal" style="margin-bottom:28px;">
-        <span class="price-pred-icon">💡</span>
-        <div>
-          <strong>ARIA Price Alert:</strong> Let ARIA scan current schedules and predict the best time to book.
-          <span style="color:var(--accent-primary);">Smart pricing analysis active.</span>
+      {# Filter pills (type) #}
+      <div style="display:flex; gap:16px; margin-bottom:28px; flex-wrap:wrap; align-items:center;" class="reveal">
+        <div class="filter-pills">
+          <a href="{{ path('user_transport_schedules', {type: 'all'}) }}"
+             class="filter-pill {{ type == 'all' ? 'active' : '' }}">All</a>
+          <a href="{{ path('user_transport_schedules', {type: 'flight'}) }}"
+             class="filter-pill {{ type == 'flight' ? 'active' : '' }}">✈ Flights</a>
+          <a href="{{ path('user_transport_schedules', {type: 'vehicle'}) }}"
+             class="filter-pill {{ type == 'vehicle' ? 'active' : '' }}">🚗 Vehicles</a>
         </div>
       </div>
-      {% endif %}
 
-      {% if recommendations is defined and recommendations|length > 0 %}
-      <div class="reveal" style="margin-bottom:32px; background:linear-gradient(135deg, #2D145A, #140B2E); padding:24px; border-radius:var(--border-radius-xl); box-shadow:var(--shadow-lg);">
-          <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
-              <span style="font-size:24px;">✨</span>
-              <h3 style="color:#fff; margin:0; font-family:var(--font-display);">Recommended For You</h3>
-              <span style="background:rgba(255,255,255,0.1); padding:4px 10px; border-radius:12px; font-size:12px; color:#dec2ff; border:1px solid rgba(222, 194, 255, 0.2); font-weight:700;">⭐ Recommended</span>
+      {# ★ NEW — AJAX search panel (replaces GET form) #}
+      {% if type in ['flight', 'vehicle'] %}
+      <div class="search-panel reveal reveal-delay-1">
+        <div class="section-label" style="margin-bottom:16px"><span>{{ type == 'flight' ? 'Filter Flights' : 'Filter Vehicles' }}</span></div>
+        {# novalidate prevents browser pop-ups — our JS handles validation #}
+        <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end;">
+          {% if type == 'flight' %}
+            <div class="input-group" style="flex:1; min-width:160px;">
+              <label>Departure Date</label>
+              <input class="input" type="date" id="ajaxDepDate">
+            </div>
+            <div class="input-group" style="flex:1; min-width:140px;">
+              <label>Travel Class</label>
+              <select id="ajaxCls" class="input">
+                <option value="any">Any Class</option>
+                {% for c in ['ECONOMY','PREMIUM','BUSINESS','FIRST'] %}
+                  <option value="{{ c }}">{{ c }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          {% else %}
+            <div class="input-group" style="flex:1; min-width:160px;">
+              <label>Rental Start</label>
+              <input class="input" type="date" id="ajaxRsStart">
+            </div>
+            <div class="input-group" style="flex:1; min-width:160px;">
+              <label>Rental End</label>
+              <input class="input" type="date" id="ajaxRsEnd">
+            </div>
+          {% endif %}
+          <div style="display:flex; gap:8px; align-items:flex-end;">
+            <button type="button" onclick="doAjaxSearch()" class="btn btn-primary ripple-btn">Search</button>
+            <button type="button" onclick="resetAjaxSearch()" class="btn btn-secondary">Clear</button>
           </div>
-          <div style="display:flex; gap:16px; overflow-x:auto; padding-bottom:12px; scroll-snap-type:x mandatory; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,0.2) transparent;">
-              {% for s in recommendations %}
-                  {% set t = transportMap[s.transportId] ?? null %}
-                  {% if t %}
-                  <div style="min-width:300px; scroll-snap-align:start; background:#fff; border-radius:var(--border-radius-lg); padding:20px; box-shadow:0 10px 25px rgba(0,0,0,0.3); transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-6px)'" onmouseout="this.style.transform='translateY(0)'">
-                      <div style="display:flex; justify-content:space-between; margin-bottom:12px; align-items:center;">
-                          <span style="font-size:12px; font-weight:700; background:rgba(0,166,237,0.1); color:var(--accent-primary); padding:4px 8px; border-radius:4px;">{{ t.transportType == 'FLIGHT' ? '✈ Flight' : '🚗 Vehicle' }}</span>
-                          <span style="color:var(--text-muted); font-size:12px; font-weight:700;">{{ s.travelClass }}</span>
-                      </div>
-                      <div style="font-weight:700; font-size:18px; color:var(--text-primary); margin-bottom:4px; line-height:1.2;">{{ destMap[s.departureDestinationId] ?? 'Unknown' }}<br/><span style="color:var(--text-muted); font-size:12px;">to</span> {{ destMap[s.arrivalDestinationId] ?? 'Unknown' }}</div>
-                      <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); margin-bottom:16px;">{{ s.departureDatetime ? s.departureDatetime|date('d M Y') : 'Ongoing' }} • {{ t.providerName }}</div>
-                      <div style="display:flex; justify-content:space-between; align-items:flex-end; border-top:1px solid var(--border-color); padding-top:12px;">
-                          <div>
-                              <div style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">Estimated Base</div>
-                              <div style="font-weight:700; font-size:22px; color:var(--accent-primary);">€{{ (t.basePrice * s.priceMultiplier)|number_format(0) }}</div>
-                          </div>
-                          <a href="{{ path('user_transport_book_form', {transportId: t.transportId, scheduleId: s.scheduleId}) }}" class="btn btn-primary btn-sm ripple-btn" style="border-radius:20px; padding:6px 16px;">Book</a>
-                      </div>
-                  </div>
-                  {% endif %}
-              {% endfor %}
-          </div>
+        </div>
+        <div id="ajaxStatus" style="margin-top:10px; font-size:12px; color:var(--text-muted);"></div>
       </div>
       {% endif %}
+      {# ★ END new AJAX search panel #}
 
-      {# ── Two-column layout: schedule list + route map/carbon/multi-city ── #}
-      <div class="grid-2" style="gap:40px; align-items:start;">
+      {# ★ NEW — schedule cards grid (now updated by JS, initial PHP render kept) #}
+      <div id="scheduleGrid" class="grid-3 stagger">
+        {% for s in schedules %}
+          {% set t = transportMap[s.transportId] ?? null %}
+          {% if t %}
+            {% set avail = availability[s.scheduleId] ?? {unavailable: true, text: 'N/A', color: '#888'} %}
+            {% set isFlight = t.transportType == 'FLIGHT' %}
+            {% set price = t.basePrice * s.priceMultiplier * (s.travelClass == 'PREMIUM' ? 1.5 : s.travelClass == 'BUSINESS' ? 2.2 : s.travelClass == 'FIRST' ? 3.0 : 1.0) %}
 
-        {# ── LEFT COLUMN: filters + schedule grid ── #}
-        <div>
+            <div class="trip-card">
+              <div class="trip-card-header {{ avail.unavailable ? 'unavailable' : (isFlight ? '' : 'vehicle') }}">
+                <div style="color:white; font-weight:700; font-size:16px; margin-bottom:4px;">{{ t.providerName }}</div>
+                <div style="color:rgba(255,255,255,0.75); font-size:12px;">{{ t.vehicleModel }}</div>
+              </div>
 
-          {# Filter pills (type) #}
-          <div style="display:flex; gap:16px; margin-bottom:28px; flex-wrap:wrap; align-items:center;" class="reveal">
-            <div class="filter-pills">
-              <a href="{{ path('user_transport_schedules', {type: 'all'}) }}"
-                 class="filter-pill {{ type == 'all' ? 'active' : '' }}">All</a>
-              <a href="{{ path('user_transport_schedules', {type: 'flight'}) }}"
-                 class="filter-pill {{ type == 'flight' ? 'active' : '' }}">✈ Flights</a>
-              <a href="{{ path('user_transport_schedules', {type: 'vehicle'}) }}"
-                 class="filter-pill {{ type == 'vehicle' ? 'active' : '' }}">🚗 Vehicles</a>
-            </div>
-          </div>
+              <div class="trip-card-body">
+                {# Badges #}
+                <div style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:12px;">
+                  <span class="badge-transport" style="background:var(--accent-primary); color:#fff;">
+                    {{ t.transportType }}
+                  </span>
+                  <span class="badge-transport" style="background:{{ s.status == 'DELAYED' ? '#E07020' : s.status == 'CANCELLED' ? '#c0392b' : s.status == 'COMPLETED' ? '#4b5563' : s.status == 'BOARDING' ? '#8b5cf6' : '#27ae60' }}; color:#fff;">
+                    {{ (s.status|replace({'_': ' '}))|default('UNKNOWN') }}
+                  </span>
+                  <span class="badge-transport" style="background:{{ avail.color }}; color:#fff;">{{ avail.text|default('N/A') }}</span>
+                  {% if s.travelClass %}
+                    <span class="badge-transport" style="background:#7B68EE; color:#fff;">{{ s.travelClass }}</span>
+                  {% endif %}
+                </div>
 
-          {# ★ AJAX search panel #}
-          {% if type in ['flight', 'vehicle'] %}
-          <div class="search-panel reveal reveal-delay-1">
-            <div class="section-label" style="margin-bottom:16px"><span>{{ type == 'flight' ? 'Filter Flights' : 'Filter Vehicles' }}</span></div>
-            <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end;">
-              {% if type == 'flight' %}
-                <div class="input-group" style="flex:1; min-width:160px;">
-                  <label>Departure Date</label>
-                  <input class="input" type="date" id="ajaxDepDate">
+                {# Route info #}
+                <div style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); letter-spacing:0.08em; margin-bottom:8px;">
+                  DEST: {{ destMap[s.departureDestinationId] ?? ('#' ~ s.departureDestinationId) }} → {{ destMap[s.arrivalDestinationId] ?? ('#' ~ s.arrivalDestinationId) }}
                 </div>
-                <div class="input-group" style="flex:1; min-width:140px;">
-                  <label>Travel Class</label>
-                  <select id="ajaxCls" class="input">
-                    <option value="any">Any Class</option>
-                    {% for c in ['ECONOMY','PREMIUM','BUSINESS','FIRST'] %}
-                      <option value="{{ c }}">{{ c }}</option>
-                    {% endfor %}
-                  </select>
+
+                {# Times #}
+                <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">
+                  {% if isFlight %}
+                    {{ s.departureDatetime ? s.departureDatetime|date('d M Y  H:i') : 'N/A' }}
+                    → {{ s.arrivalDatetime ? s.arrivalDatetime|date('H:i') : 'N/A' }}
+                  {% else %}
+                    Rental: {{ s.rentalStart ? s.rentalStart|date('d M Y') : 'N/A' }}
+                    – {{ s.rentalEnd ? s.rentalEnd|date('d M Y') : 'N/A' }}
+                  {% endif %}
                 </div>
-              {% else %}
-                <div class="input-group" style="flex:1; min-width:160px;">
-                  <label>Rental Start</label>
-                  <input class="input" type="date" id="ajaxRsStart">
+
+                <div style="font-family:var(--font-display); font-size:26px; color:var(--accent-primary); line-height:1;">
+                  {{ price|number_format(2) }} EUR
                 </div>
-                <div class="input-group" style="flex:1; min-width:160px;">
-                  <label>Rental End</label>
-                  <input class="input" type="date" id="ajaxRsEnd">
+                <div style="font-size:11px; color:var(--text-muted);">per person</div>
+                <div style="font-family:var(--font-mono); font-size:10px; color:var(--accent-teal); margin-top:6px;">
+                  🌿 Eco: {{ t.sustainabilityRating|number_format(1) }} / 5
                 </div>
-              {% endif %}
-              <div style="display:flex; gap:8px; align-items:flex-end;">
-                <button type="button" onclick="doAjaxSearch()" class="btn btn-primary ripple-btn">Search</button>
-                <button type="button" onclick="resetAjaxSearch()" class="btn btn-secondary">Clear</button>
+              </div>
+
+              <div class="trip-card-footer">
+                {% if avail.unavailable %}
+                  <div style="flex:1; padding:12px; text-align:center; background:var(--bg-surface); color:var(--text-muted); font-size:13px; font-weight:700;">
+                    Unavailable
+                  </div>
+                {% else %}
+                  <a href="{{ path('user_transport_book_form', {transportId: t.transportId, scheduleId: s.scheduleId}) }}"
+                     style="background:#27ae60; color:#fff;">
+                    Book Now
+                  </a>
+                {% endif %}
               </div>
             </div>
-            <div id="ajaxStatus" style="margin-top:10px; font-size:12px; color:var(--text-muted);"></div>
-          </div>
           {% endif %}
-          {# ★ END AJAX search panel #}
-
-          {# ★ Stacked Schedule Row Layout #}
-          <div id="scheduleGrid" class="schedule-stack stagger" style="margin-top:20px;">
-            {% for s in schedules %}
-              {% set t = transportMap[s.transportId] ?? null %}
-              {% if t %}
-                {% set avail = availability[s.scheduleId] ?? {unavailable: true, text: 'N/A', color: '#888'} %}
-                {% set isFlight = t.transportType == 'FLIGHT' %}
-                {% set price = t.basePrice * s.priceMultiplier * (s.travelClass == 'PREMIUM' ? 1.5 : s.travelClass == 'BUSINESS' ? 2.2 : s.travelClass == 'FIRST' ? 3.0 : 1.0) %}
-
-                <div class="schedule-row reveal">
-                  {# Provider Column #}
-                  <div class="row-provider">
-                    <div class="row-provider-name">{{ t.providerName }}</div>
-                    <div class="row-provider-sub">{{ t.vehicleModel }}</div>
-                  </div>
-
-                  {# Route Visual Column #}
-                  <div class="row-route-visual">
-                    <div class="route-visual" style="margin:0; padding:0;">
-                      <div class="city-node">
-                        <span class="city-code">{{ (destMap[s.departureDestinationId]|default('LOC'))|split(',')[0]|slice(0,3)|upper }}</span>
-                        <span class="city-name-small">{{ (destMap[s.departureDestinationId]|default('Departure'))|split(',')[0] }}</span>
-                      </div>
-                      
-                      <div class="arc-wrapper">
-                        <svg class="arc-svg" viewBox="0 0 100 40">
-                          <path id="arcPath{{ s.scheduleId }}" class="arc-path" d="M 0 30 Q 50 -10 100 30" />
-                          <text font-size="20">
-                            <textPath href="#arcPath{{ s.scheduleId }}" startOffset="0">
-                              {{ isFlight ? '✈' : '🚗' }}
-                              <animate attributeName="startOffset" from="0%" to="100%" dur="4s" repeatCount="indefinite" />
-                            </textPath>
-                          </text>
-                        </svg>
-                      </div>
-
-                      <div class="city-node">
-                        <span class="city-code">{{ (destMap[s.arrivalDestinationId]|default('LOC'))|split(',')[0]|slice(0,3)|upper }}</span>
-                        <span class="city-name-small">{{ (destMap[s.arrivalDestinationId]|default('Arrival'))|split(',')[0] }}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {# Timing Column #}
-                  <div class="row-timing">
-                    {% if isFlight %}
-                      <div class="row-time-main">{{ s.departureDatetime ? s.departureDatetime|date('H:i') : 'N/A' }}</div>
-                      <div class="row-date-sub">{{ s.departureDatetime ? s.departureDatetime|date('d M Y') : '' }}</div>
-                    {% else %}
-                      <div class="row-time-main">RENTAL</div>
-                      <div class="row-date-sub">{{ s.rentalStart ? s.rentalStart|date('d M Y') : 'N/A' }}</div>
-                    {% endif %}
-                  </div>
-
-                  {# Details/Badges Column #}
-                  <div class="row-details">
-                    <div class="row-badges">
-                      <span class="badge-transport" style="background:var(--accent-primary); color:#fff; border-radius:4px; min-width:auto; padding:2px 8px;">{{ t.transportType }}</span>
-                      <span class="badge-transport" style="background:{{ s.status == 'DELAYED' ? '#E07020' : s.status == 'CANCELLED' ? '#c0392b' : s.status == 'COMPLETED' ? '#4b5563' : s.status == 'BOARDING' ? '#8b5cf6' : '#27ae60' }}; color:#fff; border-radius:4px; min-width:auto; padding:2px 8px;">
-                        {{ (s.status|replace({'_': ' '}))|default('UNKNOWN') }}
-                      </span>
-                      {% if s.travelClass %}
-                        <span class="badge-transport" style="background:#7B68EE; color:#fff; border-radius:4px; min-width:auto; padding:2px 8px;">{{ s.travelClass }}</span>
-                      {% endif %}
-                    </div>
-                    <div class="row-eco">🌿 Eco: {{ t.sustainabilityRating|number_format(1) }}</div>
-                  </div>
-
-                  {# Pricing Column #}
-                  <div class="row-pricing">
-                    <div class="row-price-val">{{ price|number_format(0) }}<span style="font-size:12px; margin-left:2px;">EUR</span></div>
-                    <div class="row-price-label">total per person</div>
-                  </div>
-
-                  {# Action Column #}
-                  <div class="row-action">
-                    {% if avail.unavailable %}
-                      <div style="text-align:center; background:var(--bg-surface); color:var(--text-muted); font-size:12px; font-weight:700; padding:10px; border-radius:8px; border:1px dashed var(--border-color);">
-                        Unavailable
-                      </div>
-                    {% else %}
-                      <a href="{{ path('user_transport_book_form', {transportId: t.transportId, scheduleId: s.scheduleId}) }}"
-                         class="btn btn-primary btn-sm ripple-btn" style="width:100%; text-align:center; padding:10px;">
-                        Book Now
-                      </a>
-                    {% endif %}
-                  </div>
-                </div>
-              {% endif %}
-            {% else %}
-              <div style="text-align:center; padding:60px 0; background:var(--bg-card); border-radius:var(--border-radius-lg); border:1px dashed var(--border-color);">
-                <div style="font-size:48px; margin-bottom:16px;">🗓</div>
-                <p class="serif-mood text-muted">No schedules match your search. Try different filters.</p>
-              </div>
-            {% endfor %}
+        {% else %}
+          <div style="grid-column:1/-1; text-align:center; padding:60px 0;">
+            <div style="font-size:48px; margin-bottom:16px;">🗓</div>
+            <p class="serif-mood text-muted">No schedules match your search. Try different filters.</p>
           </div>
-          {# ★ END schedule cards grid #}
+        {% endfor %}
+      </div>
 
-        </div>{# end left column #}
-
-        {# ── RIGHT COLUMN: route map + carbon tracker + multi-city builder ── #}
-        <div>
-
-          {# Route Map SVG (from second file) #}
-          <div class="route-map reveal" style="margin-bottom:24px;">
-            <svg class="route-svg" viewBox="0 0 600 280">
-              <defs>
-                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(107,127,163,0.08)" stroke-width="1"/>
-                </pattern>
-                <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#FF4D6D"/>
-                </marker>
-              </defs>
-              <rect width="600" height="280" fill="url(#grid)"/>
-              <path d="M 100 180 Q 300 60 500 170" stroke="#FF4D6D" stroke-width="2.5" fill="none" stroke-dasharray="8 4" marker-end="url(#arrow)"/>
-              <circle cx="100" cy="180" r="8" fill="#FF4D6D"/>
-              <circle cx="100" cy="180" r="16" fill="rgba(255,77,109,0.2)"/>
-              <text x="100" y="210" text-anchor="middle" font-family="Space Mono" font-size="11" fill="#6B7FA3">DEPARTURE</text>
-              <circle cx="500" cy="170" r="8" fill="#00F5D4"/>
-              <circle cx="500" cy="170" r="16" fill="rgba(0,245,212,0.2)"/>
-              <text x="500" y="200" text-anchor="middle" font-family="Space Mono" font-size="11" fill="#6B7FA3">ARRIVAL</text>
-              <circle cx="300" cy="95" r="5" fill="#FFB703"/>
-              <text x="300" y="78" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#FFB703">STOPOVER</text>
-            </svg>
-          </div>
-
-          {# Carbon Tracker (from second file) #}
-          <div class="carbon-bar reveal reveal-delay-1" style="margin-bottom:24px; display:flex; align-items:center; gap:16px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius-lg); padding:20px;">
-            <span style="font-size:24px;">🌿</span>
-            <div style="flex:1;">
-              <div style="font-weight:600; margin-bottom:4px; font-size:0.9rem; color:var(--text-primary);">Carbon Footprint Tracker</div>
-              <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">
-                You've earned <strong>{{ ecoMetrics.totalEcoScore }}</strong> cumulative eco-points across your bookings.
-              </div>
-              <div class="progress-bar" style="background:rgba(0,200,150,0.15); border-radius:99px; height:8px;">
-                <div class="progress-fill" style="width:{{ ecoMetrics.ecoPercentage }}%; height:8px; border-radius:99px; background:linear-gradient(90deg,#00C4AA,#00F5D4);"></div>
-              </div>
-            </div>
-            <div style="text-align:right; min-width:60px;">
-                <div style="font-family:var(--font-mono); font-size:14px; font-weight:700; color:var(--accent-teal);">{{ ecoMetrics.ecoPercentage }}%</div>
-                <div style="font-size:9px; color:var(--text-muted); text-transform:uppercase;">To Goal</div>
-            </div>
-          </div>
-
-
-        </div>{# end right column #}
-
-      </div>{# end grid-2 #}
-
-      {# ★ AJAX search JS + card renderer #}
+      {# ★ NEW — AJAX search + JS card renderer (add at the bottom of the schedules tab, before {% endif %}) #}
       <script>
       const SCHEDULE_SEARCH_URL = '{{ path("user_transport_schedules_search") }}';
       const CURRENT_TYPE        = '{{ type }}';
@@ -723,13 +405,13 @@
               if (el) el.value = el.tagName === 'SELECT' ? 'any' : '';
           });
           document.getElementById('ajaxStatus').textContent = '';
-          location.reload();
+          location.reload(); // restore PHP-rendered initial list
       }
 
       function renderScheduleCards(schedules) {
           const grid = document.getElementById('scheduleGrid');
           if (!schedules.length) {
-              grid.innerHTML = `<div style="text-align:center; padding:60px 0; background:var(--bg-card); border-radius:var(--border-radius-lg); border:1px dashed var(--border-color); width:100%;">
+              grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;">
                   <div style="font-size:48px;margin-bottom:16px;">🗓</div>
                   <p class="serif-mood text-muted">No schedules match your search.</p>
                 </div>`;
@@ -738,79 +420,44 @@
           grid.innerHTML = schedules.map(s => {
               const isFlight  = s.transportType === 'FLIGHT';
               const avail     = s.availability;
-              const statusClr = s.status === 'DELAYED' ? '#E07020' :
-                                s.status === 'CANCELLED' ? '#c0392b' :
-                                s.status === 'COMPLETED' ? '#4b5563' :
-                                s.status === 'BOARDING' ? '#8b5cf6' :
+              const hdrClass  = avail.unavailable ? '#6b7280,#9ca3af' : isFlight ? '#1F294C,#0A4174' : '#2C5F6E,#4E8EA2';
+              const statusClr = s.status === 'DELAYED' ? '#E07020' : 
+                                s.status === 'CANCELLED' ? '#c0392b' : 
+                                s.status === 'COMPLETED' ? '#4b5563' : 
+                                s.status === 'BOARDING' ? '#8b5cf6' : 
                                 '#27ae60';
               const statusText = (s.status || 'UNKNOWN').replace(/_/g, ' ');
-              
-              const depCity = (s.departureDestinationName || 'LOC').split(',')[0];
-              const arrCity = (s.arrivalDestinationName || 'LOC').split(',')[0];
-              const depCode = depCity.slice(0,3).toUpperCase();
-              const arrCode = arrCity.slice(0,3).toUpperCase();
-              const icon    = isFlight ? '✈' : '🚗';
-
-              const timeDisplay = isFlight 
-                ? `<div class="row-time-main">${s.departureDatetime || 'N/A'}</div><div class="row-date-sub">${s.departureDate || ''}</div>`
-                : `<div class="row-time-main">RENTAL</div><div class="row-date-sub">${s.rentalStart || 'N/A'}</div>`;
-
-              const actionHtml = avail.unavailable
-                  ? `<div style="text-align:center; background:var(--bg-surface); color:var(--text-muted); font-size:12px; font-weight:700; padding:10px; border-radius:8px; border:1px dashed var(--border-color);">Unavailable</div>`
-                  : `<a href="${s.bookUrl}" class="btn btn-primary btn-sm ripple-btn" style="width:100%; text-align:center; padding:10px;">Book Now</a>`;
-
+              const timing    = isFlight
+                  ? `${s.departureDatetime || 'N/A'} → ${s.arrivalDatetime || 'N/A'}`
+                  : `Rental: ${s.rentalStart || 'N/A'} – ${s.rentalEnd || 'N/A'}`;
+              const footer    = avail.unavailable
+                  ? `<div style="flex:1;padding:12px;text-align:center;background:var(--bg-surface);color:var(--text-muted);font-weight:700;">Unavailable</div>`
+                  : `<a href="${s.bookUrl}" style="flex:1;padding:12px;text-align:center;background:#27ae60;color:#fff;font-weight:700;text-decoration:none;">Book Now</a>`;
               return `
-                <div class="schedule-row reveal">
-                  <div class="row-provider">
-                    <div class="row-provider-name">${s.providerName}</div>
-                    <div class="row-provider-sub">${s.vehicleModel}</div>
+                <div class="trip-card">
+                  <div class="trip-card-header" style="background:linear-gradient(135deg,${hdrClass});">
+                    <div style="color:white;font-weight:700;font-size:16px;">${s.providerName}</div>
+                    <div style="color:rgba(255,255,255,.75);font-size:12px;">${s.vehicleModel}</div>
                   </div>
-
-                  <div class="row-route-visual">
-                    <div class="route-visual" style="margin:0; padding:0;">
-                      <div class="city-node">
-                        <span class="city-code">${depCode}</span>
-                        <span class="city-name-small">${depCity}</span>
-                      </div>
-                      <div class="arc-wrapper">
-                        <svg class="arc-svg" viewBox="0 0 100 40">
-                          <path id="arcPathAjax${s.scheduleId}" class="arc-path" d="M 0 30 Q 50 -10 100 30" />
-                          <text font-size="20">
-                            <textPath href="#arcPathAjax${s.scheduleId}" startOffset="0">
-                              ${icon}
-                              <animate attributeName="startOffset" from="0%" to="100%" dur="4s" repeatCount="indefinite" />
-                            </textPath>
-                          </text>
-                        </svg>
-                      </div>
-                      <div class="city-node">
-                        <span class="city-code">${arrCode}</span>
-                        <span class="city-name-small">${arrCity}</span>
-                      </div>
+                  <div class="trip-card-body">
+                    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;">
+                      <span class="badge-transport" style="background:var(--accent-primary);color:#fff;">${s.transportType}</span>
+                      <span class="badge-transport" style="background:${statusClr};color:#fff;">${statusText}</span>
+                      <span class="badge-transport" style="background:${avail.color};color:#fff;">${avail.text || 'N/A'}</span>
+                      ${s.travelClass ? `<span class="badge-transport" style="background:#7B68EE;color:#fff;">${s.travelClass}</span>` : ''}
                     </div>
-                  </div>
-
-                  <div class="row-timing">${timeDisplay}</div>
-
-                  <div class="row-details">
-                    <div class="row-badges">
-                      <span class="badge-transport" style="background:var(--accent-primary); color:#fff; border-radius:4px; min-width:auto; padding:2px 8px;">${s.transportType}</span>
-                      <span class="badge-transport" style="background:${statusClr}; color:#fff; border-radius:4px; min-width:auto; padding:2px 8px;">${statusText}</span>
-                      ${s.travelClass ? `<span class="badge-transport" style="background:#7B68EE; color:#fff; border-radius:4px; min-width:auto; padding:2px 8px;">${s.travelClass}</span>` : ''}
+                    <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:8px;">
+                      DEST: ${s.departureDestinationName || ('#'+s.departureDestinationId)} → ${s.arrivalDestinationName || ('#'+s.arrivalDestinationId)}
                     </div>
-                    <div class="row-eco">🌿 Eco: ${s.sustainabilityRating.toFixed(1)}</div>
+                    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">${timing}</div>
+                    <div style="font-family:var(--font-display);font-size:26px;color:var(--accent-primary);">${s.price.toFixed(2)} EUR</div>
+                    <div style="font-size:11px;color:var(--text-muted);">per person</div>
+                    <div style="font-family:var(--font-mono);font-size:10px;color:var(--accent-teal);margin-top:6px;">🌿 Eco: ${s.sustainabilityRating.toFixed(1)} / 5</div>
                   </div>
-
-                  <div class="row-pricing">
-                    <div class="row-price-val">${s.price.toFixed(0)}<span style="font-size:12px; margin-left:2px;">EUR</span></div>
-                    <div class="row-price-label">total per person</div>
-                  </div>
-
-                  <div class="row-action">${actionHtml}</div>
+                  <div class="trip-card-footer">${footer}</div>
                 </div>`;
           }).join('');
       }
-
       </script>
       {# ★ END AJAX search block #}
 
@@ -888,7 +535,7 @@
                 <div style="font-size:12px; color:var(--text-muted); margin-top:6px;">
                   Capacity: {{ t.capacity }} &nbsp;|&nbsp; {{ t.availableUnits }} unit(s)
                 </div>
-                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">{{ (t.amenities ?? '—')|raw }}</div>
+                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">{{ t.amenities ?? '—' }}</div>
               </div>
               <div class="trip-card-footer">
                 <a href="{{ path('user_transport_detail', {id: t.transportId}) }}"
@@ -933,7 +580,7 @@
                 {% for row in rows %}
                   <tr style="border-bottom:1px solid var(--border-color);">
                     <td style="padding:8px 0; font-weight:600; color:var(--text-muted); width:140px;">{{ row[0] }}</td>
-                    <td style="padding:8px 0; color:var(--text-primary);">{{ row[1]|raw }}</td>
+                    <td style="padding:8px 0; color:var(--text-primary);">{{ row[1] }}</td>
                   </tr>
                 {% endfor %}
               </table>
@@ -991,41 +638,10 @@
       </div>
 
       <div class="section-label reveal"><span>Booking Details</span></div>
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom:8px;" class="reveal">
-          <h2 class="display-md" style="margin: 0;">{{ transport.providerName }}</h2>
-          {% if audioMessage is defined and audioMessage %}
-              {% if audioMessage starts with 'BROWSER_TTS:' %}
-                  {% set ttsText = audioMessage|replace({'BROWSER_TTS:': ''}) %}
-                  <button type="button" class="btn btn-secondary btn-sm"
-                          onclick="var u=new SpeechSynthesisUtterance({{ ttsText|json_encode }}); u.lang = 'en-US'; window.speechSynthesis.speak(u);"
-                          style="display:flex; align-items:center; gap:8px;">
-                      🔊 Listen to your booking
-                  </button>
-              {% else %}
-                  <button type="button" class="btn btn-secondary btn-sm"
-                          onclick="document.getElementById('bookingAudioPlayer').play()"
-                          style="display:flex; align-items:center; gap:8px;">
-                      🔊 Listen to your booking
-                  </button>
-                  <audio id="bookingAudioPlayer" src="{{ audioMessage }}" preload="none"></audio>
-              {% endif %}
-          {% endif %}
-      </div>
-      <p class="serif-mood text-muted reveal reveal-delay-1" style="margin-bottom:12px;">
+      <h2 class="display-md reveal" style="margin-bottom:8px;">{{ transport.providerName }}</h2>
+      <p class="serif-mood text-muted reveal reveal-delay-1" style="margin-bottom:28px;">
         {{ transport.transportType }} · {{ transport.vehicleModel }} · Base price {{ transport.basePrice|number_format(2) }} EUR
       </p>
-
-      {% if aiInsight is defined and aiInsight and isFlight %}
-      <div class="reveal reveal-delay-2" style="background: rgba(14, 165, 255, 0.08); border-left: 4px solid #0ea5e9; padding: 16px; border-radius: 8px; margin-bottom: 28px;">
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-              <span style="font-size: 1.2rem;">🤖</span>
-              <strong style="font-family: var(--font-display); font-size: 0.9rem; letter-spacing: 0.05em; color: #0ea5e9; text-transform: uppercase;">ARIA Travel Insight</strong>
-          </div>
-          <p id="aiInsightText" style="margin: 0; font-size: 0.95rem; line-height: 1.5; color: #000000; font-style: italic;">
-              "{{ aiInsight }}"
-          </p>
-      </div>
-      {% endif %}
 
       {# Schedule info banner #}
       {% if schedule %}
@@ -1093,7 +709,7 @@
             </div>
           </div>
 
-          {# ★ Global booking validation errors #}
+          {# ★ Global booking validation errors (totalPrice, totalSeats etc) #}
           {% if errors is defined and errors|length > 0 %}
             <div style="margin-top:16px; padding:12px 16px; background:rgba(239,68,68,.08);
                         border:1px solid rgba(239,68,68,.3); border-radius:8px; font-size:13px; color:#ef4444;">
@@ -1106,7 +722,7 @@
                 {% endfor %}
               </ul>
             </div>
-          {% endif %}
+          {% endif %} {# ★ END error summary #}
 
           {# Vehicle-only: Map Picker #}
           {% if not isFlight %}
@@ -1158,22 +774,10 @@
           {% endif %}
 
           {# Price estimate #}
-          <div style="display:flex; justify-content:space-between; align-items:stretch; margin-top:20px; gap: 16px; flex-wrap:wrap;">
-            <div id="priceEstimate" style="padding:16px 20px; background:rgba(0,166,237,0.08);
-                                           border:1px solid rgba(0,166,237,0.2); border-radius:var(--border-radius-md);
-                                           font-weight:700; color:var(--accent-primary); font-size:15px; flex:1; display:flex; align-items:center;">
-              Calculating...
-            </div>
-            {% if isFlight %}
-            <div id="aiPredictionBox" style="padding:16px 20px; background:rgba(20, 184, 166, 0.1); border:1px solid rgba(20, 184, 166, 0.3); border-radius:var(--border-radius-md); font-weight:700; color:#0d9488; font-size:15px; display:flex; flex-direction:column; justify-content:center; gap:8px;">
-               <div>🤖 AI Price Estimate: <span id="aiPredictValue">{{ (predictedPrice ?? 0)|number_format(2) }} EUR</span></div>
-               <div id="aiPredictMetrics" style="display:flex; gap:10px; flex-wrap:wrap; font-size:12px; display:none;">
-                  <span id="aiPredictLabel" style="color:#fff; padding:2px 8px; border-radius:4px; font-weight:bold;"></span>
-                  <span id="aiPredictFairness" style="background:rgba(20, 184, 166, 0.2); padding:2px 8px; border-radius:4px;"></span>
-                  <span id="aiPredictMarket" style="background:rgba(20, 184, 166, 0.2); padding:2px 8px; border-radius:4px;"></span>
-               </div>
-            </div>
-            {% endif %}
+          <div id="priceEstimate" style="margin-top:20px; padding:16px 20px; background:rgba(0,166,237,0.08);
+                                         border:1px solid rgba(0,166,237,0.2); border-radius:var(--border-radius-md);
+                                         font-weight:700; color:var(--accent-primary); font-size:15px;">
+            Calculating...
           </div>
 
           <div style="margin-top:24px; display:flex; gap:12px; justify-content:flex-end;">
@@ -1221,41 +825,6 @@
             `Estimated Total: ${total.toFixed(2)} EUR — ` +
             `Base ${(BASE_PRICE * SCHED_MULT).toFixed(2)} × ${cm} (${cls}) × ${seats} seat(s)` +
             (ins ? ' + insurance' : '');
-
-          fetch('{{ path('user_transport_predict_ajax') }}', {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({
-                  transportId: {{ transport.transportId }},
-                  scheduleId: {{ schedule ? schedule.scheduleId : 0 }},
-                  seats: seats,
-                  cls: cls,
-                  insurance: ins,
-                  actualPrice: total
-              })
-          }).then(res => res.json()).then(data => {
-              if (data.error) return;
-
-              const valEl = document.getElementById('aiPredictValue');
-              const labEl = document.getElementById('aiPredictLabel');
-              const fairEl = document.getElementById('aiPredictFairness');
-              const markEl = document.getElementById('aiPredictMarket');
-              const metContainer = document.getElementById('aiPredictMetrics');
-              const insightEl = document.getElementById('aiInsightText');
-
-              if (valEl) valEl.textContent = data.predictedPrice.toFixed(2) + ' EUR';
-              if (labEl) {
-                  labEl.textContent = data.label;
-                  labEl.style.backgroundColor = data.color;
-              }
-              if (fairEl) fairEl.textContent = '📊 Fairness: ' + data.fairnessScore + '/100';
-              if (markEl) markEl.textContent = '🌍 ' + data.marketComparison;
-              if (metContainer) metContainer.style.display = 'flex';
-
-              if (data.aiInsight && insightEl) {
-                  insightEl.textContent = '"' + data.aiInsight + '"';
-              }
-          }).catch(console.error);
         }
 
         ['travelClass','adults','children'].forEach(id => {
@@ -1523,11 +1092,12 @@
             if (!form) return;
 
             form.addEventListener('submit', function(e) {
+                // Clear old errors
                 document.querySelectorAll('.js-error').forEach(el => el.remove());
                 document.querySelectorAll('.has-error').forEach(el => el.classList.remove('has-error'));
 
                 let hasError = false;
-
+                
                 const adults = document.getElementById('adults');
                 const children = document.getElementById('children');
 

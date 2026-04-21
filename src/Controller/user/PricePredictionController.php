@@ -130,9 +130,12 @@ class PricePredictionController extends AbstractController
                     $shown[] = $sig;
                     $session->set('price_feed_sigs', array_slice($shown, -30));
 
-                    // Return target hit signal but without the hardcoded message
                     return new JsonResponse([
-                        'message' => null,
+                        'message' => sprintf(
+                            'Price alert: "%s" is now at or below your target (current $%s).',
+                            $act->getName(),
+                            number_format($price, 2)
+                        ),
                         'sig' => $sig,
                     ]);
                 }

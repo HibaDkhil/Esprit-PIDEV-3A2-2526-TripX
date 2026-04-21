@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\Destination;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -32,21 +31,6 @@ class DestinationRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
-    }
-
-    /**
-     * Return a Query object for paginated destination search.
-     */
-    public function searchQuery(string $query = ''): Query
-    {
-        $qb = $this->createQueryBuilder('d');
-
-        if (!empty($query)) {
-            $qb->where('d.name LIKE :query OR d.country LIKE :query OR d.type LIKE :query')
-               ->setParameter('query', '%' . $query . '%');
-        }
-
-        return $qb->getQuery();
     }
 
     /**
@@ -108,54 +92,5 @@ class DestinationRepository extends ServiceEntityRepository
             ->orderBy('d.estimatedBudget', 'ASC')
             ->getQuery()
             ->getResult();
-    }
-
-    /**
-     * Pre-filter destinations by user preference criteria.
-     * Applies optional WHERE clauses so the scoring algorithm
-     * works on a narrower result set.
-     *
-     * @param array $filters  Accepted keys:
-     *   - season:    string|null
-     *   - type:      string|null
-     *   - minRating: float|null
-     *   - maxBudget: float|null
-     *   - minBudget: float|null
-     *
-     * @return Destination[]
-     */
-    public function findByPreferenceFilters(array $filters): array
-    {
-        $qb = $this->createQueryBuilder('d');
-
-        if (!empty($filters['season'])) {
-            $qb->andWhere('d.bestSeason = :season OR d.bestSeason = :allYear')
-               ->setParameter('season', $filters['season'])
-               ->setParameter('allYear', 'all_year');
-        }
-
-        if (!empty($filters['type'])) {
-            $qb->andWhere('d.type = :type')
-               ->setParameter('type', $filters['type']);
-        }
-
-        if (!empty($filters['minRating'])) {
-            $qb->andWhere('d.averageRating >= :minRating')
-               ->setParameter('minRating', (float) $filters['minRating']);
-        }
-
-        if (!empty($filters['maxBudget'])) {
-            $qb->andWhere('d.estimatedBudget <= :maxBudget OR d.estimatedBudget IS NULL')
-               ->setParameter('maxBudget', (float) $filters['maxBudget']);
-        }
-
-        if (!empty($filters['minBudget'])) {
-            $qb->andWhere('d.estimatedBudget >= :minBudget')
-               ->setParameter('minBudget', (float) $filters['minBudget']);
-        }
-
-        return $qb->orderBy('d.averageRating', 'DESC')
-                   ->getQuery()
-                   ->getResult();
     }
 }

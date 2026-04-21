@@ -29,10 +29,16 @@ class TravelStoryRepository extends ServiceEntityRepository
         string $destination = '',
         string $travelType = '',
         string $travelStyle = '',
-        ?int   $rating = null
+        ?int   $rating = null,
+        bool   $includeRemoved = false
     ): array {
         $qb = $this->createQueryBuilder('ts')
             ->orderBy('ts.createdAt', 'DESC');
+
+        if (!$includeRemoved) {
+            $qb->andWhere('ts.removedByAdmin = :notRemoved')
+               ->setParameter('notRemoved', false);
+        }
 
         if ($search !== '') {
             $qb->andWhere('ts.title LIKE :s OR ts.summary LIKE :s OR ts.destination LIKE :s')
@@ -65,6 +71,8 @@ class TravelStoryRepository extends ServiceEntityRepository
     public function searchByKeyword(?string $keyword): array
     {
         $qb = $this->createQueryBuilder('ts')
+            ->andWhere('ts.removedByAdmin = :notRemoved')
+            ->setParameter('notRemoved', false)
             ->orderBy('ts.createdAt', 'DESC');
 
         if ($keyword && trim($keyword) !== '') {
@@ -78,5 +86,17 @@ class TravelStoryRepository extends ServiceEntityRepository
     public function filterStories(?string $destination, ?string $travelType, ?string $travelStyle, ?int $rating): array
     {
         return $this->findFiltered('', $destination ?? '', $travelType ?? '', $travelStyle ?? '', $rating);
+    }
+
+    public function findByUserId(int $userId): array
+    {
+        return $this->createQueryBuilder('ts')
+            ->where('ts.userId = :uid')
+            ->andWhere('ts.removedByAdmin = :notRemoved')
+            ->setParameter('uid', $userId)
+            ->setParameter('notRemoved', false)
+            ->orderBy('ts.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
     }
 }

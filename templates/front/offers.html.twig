@@ -10,48 +10,28 @@
   <link rel="stylesheet" href="/assets.php?f=css/main.css">
   <link rel="stylesheet" href="/assets.php?f=css/animations.css">
   <style>
-    :root {
-      --ocean-teal: #00F5D4;
-      --ocean-blue: #0ea5e9;
-      --glass-bg: rgba(7, 20, 40, 0.65);
-      --glass-border: rgba(0, 245, 212, 0.2);
-    }
-    .page-top { 
-      padding-top: calc(var(--nav-height) + 100px); 
-      padding-bottom: 60px; 
-      position: relative;
-      overflow: hidden;
-    }
-    .page-top::before {
-      content: ''; position: absolute; top: 0; left: 20%; width: 400px; height: 400px;
-      background: radial-gradient(circle, rgba(0,245,212,0.15) 0%, transparent 60%);
-      border-radius: 50%; filter: blur(40px); z-index: -1; animation: float-orb 15s ease-in-out infinite;
-    }
+    .page-top { padding-top: calc(var(--nav-height) + 60px); padding-bottom: 40px; }
 
     /* Flash deal banner */
     .flash-banner {
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
+      background: linear-gradient(135deg, #1a0a00 0%, #2d0a0a 100%);
       border-radius: var(--border-radius-xl);
       padding: 40px 48px;
       position: relative;
       overflow: hidden;
       color: #F0F4F8;
       margin-bottom: 48px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.4), inset 0 0 20px rgba(0, 245, 212, 0.1);
     }
     .flash-banner-mesh {
       position: absolute; inset: 0;
-      background: radial-gradient(ellipse 80% 60% at 100% 50%, rgba(0,245,212,0.2) 0%, transparent 60%);
+      background: radial-gradient(ellipse 80% 60% at 100% 50%, rgba(255,77,109,0.25) 0%, transparent 60%);
       pointer-events: none;
     }
     .flash-price {
       font-family: var(--font-display);
       font-size: clamp(48px, 8vw, 96px);
       line-height: 1;
-      color: var(--ocean-teal);
-      text-shadow: 0 0 20px rgba(0, 245, 212, 0.4);
+      color: var(--accent-primary);
     }
     .flash-was {
       font-family: var(--font-display);
@@ -62,15 +42,14 @@
 
     /* Deal card */
     .deal-card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--glass-border);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       border-radius: var(--border-radius-lg);
       overflow: hidden;
-      transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+      transition: all var(--transition-smooth);
       position: relative;
     }
-    .deal-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(0, 245, 212, 0.15); border-color: rgba(0, 245, 212, 0.4); }
+    .deal-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--accent-primary); }
     .deal-img {
       height: 180px;
       display: flex; align-items: center; justify-content: center;
@@ -79,57 +58,46 @@
     }
     .deal-discount {
       position: absolute; top: 14px; left: 14px;
-      background: linear-gradient(135deg, var(--ocean-teal), var(--ocean-blue));
-      color: #020816;
+      background: var(--accent-primary);
+      color: #fff;
       font-family: var(--font-display);
-      font-size: 20px; font-weight: 700;
+      font-size: 20px;
       padding: 4px 12px;
       border-radius: 8px;
-      box-shadow: 0 4px 15px rgba(0, 245, 212, 0.4);
     }
-    .deal-body { padding: 24px; }
-    .deal-name { font-weight: 700; font-size: 1.1rem; margin-bottom: 6px; color: #fff; }
-    .deal-reason { font-size: 0.8rem; color: var(--ocean-teal); margin-bottom: 14px; font-style: italic; }
-    .deal-countdown-wrap { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
-    .deal-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+    .deal-body { padding: 18px; }
+    .deal-name { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+    .deal-reason { font-size: 0.78rem; color: var(--accent-teal); margin-bottom: 10px; font-style: italic; }
+    .deal-countdown-wrap { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .deal-footer { display: flex; justify-content: space-between; align-items: center; }
     .deal-price-row { display: flex; align-items: baseline; gap: 8px; }
-    .deal-price-now { font-family: var(--font-display); font-size: 32px; color: var(--ocean-teal); font-weight: 800; text-shadow: 0 0 10px rgba(0,245,212,0.3); }
-    .deal-price-was { font-size: 0.9rem; text-decoration: line-through; color: var(--text-muted); }
+    .deal-price-now { font-family: var(--font-display); font-size: 28px; color: var(--accent-primary); }
+    .deal-price-was { font-size: 0.85rem; text-decoration: line-through; color: var(--text-muted); }
 
     /* Countdown small */
     .cd-mini {
       display: flex; gap: 4px; align-items: center;
       font-family: var(--font-mono); font-size: 12px;
     }
-    .cd-unit { background: rgba(14, 165, 233, 0.15); color: var(--ocean-teal); border: 1px solid rgba(0,245,212,0.3); padding: 4px 8px; border-radius: 6px; font-size: 14px; min-width: 30px; text-align: center; font-weight: 700; }
-    .cd-col { color: var(--text-muted); font-weight: bold; }
+    .cd-unit { background: var(--accent-primary); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 14px; min-width: 28px; text-align: center; }
+    .cd-col { color: var(--text-muted); }
 
     /* Bundle card */
     .bundle-card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--glass-border);
+      background: var(--bg-card);
+      border: 2px solid transparent;
+      background-clip: padding-box;
       border-radius: var(--border-radius-lg);
-      padding: 36px;
+      padding: 28px;
       position: relative;
       overflow: hidden;
-      transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
     }
-    .bundle-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(0, 245, 212, 0.15); border-color: rgba(0, 245, 212, 0.4); }
     .bundle-card::before {
       content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(circle at top right, rgba(0, 245, 212, 0.15), transparent 60%);
-      pointer-events: none;
-    }
-    
-    .luminous-text {
-      background: linear-gradient(90deg, #fff 0%, var(--ocean-teal) 50%, #fff 100%);
-      background-size: 200% auto;
-      color: transparent;
-      -webkit-background-clip: text;
-      background-clip: text;
-      animation: text-shimmer 4s linear infinite;
+      position: absolute; inset: -2px;
+      border-radius: var(--border-radius-lg);
+      background: linear-gradient(135deg, var(--accent-gold), var(--accent-primary));
+      z-index: -1;
     }
   </style>
 </head>
@@ -166,8 +134,8 @@
 <div class="page-top">
   <div class="container">
     <div class="section-label reveal"><span>AI-Personalized Deals</span></div>
-    <h1 class="display-md reveal luminous-text" style="margin-bottom:8px">Unbeatable Deals ✦</h1>
-    <p class="serif-mood text-muted reveal reveal-delay-1" style="font-size: 20px;">ARIA watches prices 24/7 so you never miss the perfect deal.</p>
+    <h1 class="display-md reveal" style="margin-bottom:8px">Unbeatable <span class="gradient-text-warm">Deals ✦</span></h1>
+    <p class="serif-mood text-muted reveal reveal-delay-1">ARIA watches prices 24/7 so you never miss the perfect deal.</p>
     <div class="filter-pills mt-24 reveal reveal-delay-2">
       <button class="filter-pill active">All Deals</button>
       <button class="filter-pill">⚡ Flash</button>
@@ -217,8 +185,8 @@
 <section class="section-sm">
   <div class="container">
     <div class="section-label reveal"><span>Personalized For You</span></div>
-    <h2 class="display-md reveal" style="margin-bottom:8px">ARIA Found These <span class="gradient-text">For You</span></h2>
-    <p class="serif-mood text-muted reveal reveal-delay-1" style="margin-bottom:40px; font-size: 18px;">Based on your search history and travel DNA.</p>
+    <h2 class="display-md reveal" style="margin-bottom:8px">ARIA Found These <span class="text-coral">For You</span></h2>
+    <p class="serif-mood text-muted reveal reveal-delay-1" style="margin-bottom:32px">Based on your search history and travel DNA.</p>
 
     <div class="grid-4 stagger">
       <!-- Deal 1 -->

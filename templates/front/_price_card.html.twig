@@ -30,10 +30,17 @@
     <div><dt>Now</dt><dd>${{ card.current_price|number_format(0, '.', ',') }}</dd></div>
     <div><dt>~{{ card.days }}d outlook</dt><dd>${{ card.predicted_price|number_format(0, '.', ',') }}</dd></div>
   </dl>
+  {% set reco_text = card.recommendation ~ ' · ' ~ (card.percent_change > 0 ? '+' : '') ~ card.percent_change ~ '%' %}
+  {% include 'front/_price_sparkline_block.html.twig' with {
+    points: card.sparkline,
+    up: b == 'rising' ? '1' : '0',
+    flat: b == 'track' ? '1' : '0',
+    reco_text: reco_text
+  } %}
   <div class="pp-card-actions">
     <div class="pp-card-actions__row">
       <a href="{{ path('activities') }}" class="pp-btn pp-btn--ghost">Details</a>
-      <a href="{{ card.book_url }}" class="btn-primary ripple-btn" style="padding: 10px 24px; border-radius: 8px; font-weight: 600; text-decoration: none; text-align: center;">Book Now</a>
+      <a href="{{ card.book_url }}" class="pp-btn-book-plain">Book</a>
     </div>
   </div>
 </div>

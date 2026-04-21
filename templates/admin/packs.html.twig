@@ -6,53 +6,8 @@
   .dest-table th { background:rgba(0,166,237,0.05); text-align:left; padding:16px 20px; font-family:var(--font-display); font-size:14px; }
   .dest-table td { padding:16px 20px; border-bottom:1px solid var(--border-color); font-size:14px; }
   .dest-table tr:last-child td { border-bottom:none; }
+  .input-search { flex:1; padding:12px 16px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary); }
   a, button { cursor: pointer !important; }
-
-  /* ── Filters ── */
-  .filter-bar { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; padding:16px 20px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius-lg); margin-bottom:20px; }
-  .filter-bar input, .filter-bar select { padding:9px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-base); color:var(--text-primary); font-size:13px; }
-  .filter-bar input:focus, .filter-bar select:focus { outline:none; border-color:var(--accent-primary); }
-  .filter-label { font-size:11px; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); display:block; margin-bottom:5px; }
-  .filter-bar select option {
-      background: var(--bg-card);
-      color: var(--text-primary);
-    }
-  /* ── KnpPaginator ── */
-  .pagination { display:flex; justify-content:center; align-items:center; gap:6px; margin-top:24px; list-style:none; padding:0; }
-  .pagination li a, .pagination li span {
-    display:inline-flex; align-items:center; justify-content:center;
-    min-width:36px; height:36px; padding:0 10px;
-    border-radius:8px; border:1px solid var(--border-color);
-    background:var(--bg-card); color:var(--text-primary);
-    font-size:13px; text-decoration:none; transition:all .2s;
-  }
-  .pagination li.active span { background:var(--accent-primary); border-color:var(--accent-primary); color:#fff; font-weight:700; }
-  .pagination li a:hover { border-color:var(--accent-primary); color:var(--accent-primary); }
-  .pagination li.disabled span { opacity:.35; cursor:not-allowed; }
-
-  /* ── AI modal (same as before) ── */
-  #ai-modal-overlay { display:none; position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px); align-items:center; justify-content:center; }
-  #ai-modal-overlay.open { display:flex; }
-  #ai-modal { background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius-lg); padding:36px; width:min(680px,95vw); max-height:90vh; overflow-y:auto; position:relative; }
-  .ai-modal-title { font-family:var(--font-display); font-size:22px; font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:10px; }
-  .ai-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:24px 0; }
-  .ai-field label { display:block; font-weight:600; font-size:13px; margin-bottom:6px; }
-  .ai-field select, .ai-field input { width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-base); color:var(--text-primary); font-size:14px; }
-  .ai-field select option, .preview-field select option { background:var(--bg-card); color:var(--text-primary); }
-  #btn-generate { width:100%; padding:14px; border-radius:10px; border:none; background:var(--accent-primary); color:#fff; font-size:15px; font-weight:700; font-family:var(--font-display); cursor:pointer; transition:opacity .2s; }
-  #btn-generate:disabled { opacity:.55; cursor:not-allowed; }
-  #ai-loading { display:none; text-align:center; padding:28px 0; color:var(--text-muted); font-size:14px; }
-  #ai-loading .spinner { width:36px; height:36px; border:3px solid var(--border-color); border-top-color:var(--accent-primary); border-radius:50%; animation:spin .7s linear infinite; margin:0 auto 14px; }
-  @keyframes spin { to { transform:rotate(360deg); } }
-  #ai-preview { display:none; margin-top:28px; }
-  .preview-reasoning { background:rgba(0,166,237,0.07); border:1px solid rgba(0,166,237,0.2); border-radius:10px; padding:14px 18px; font-size:13px; color:var(--text-muted); margin-bottom:20px; line-height:1.6; }
-  .preview-reasoning strong { color:var(--accent-primary); }
-  .preview-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  .preview-field label { display:block; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); margin-bottom:5px; }
-  .preview-field input, .preview-field select, .preview-field textarea { width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-base); color:var(--text-primary); font-size:14px; }
-  .preview-field textarea { resize:vertical; min-height:80px; }
-  .preview-actions { display:flex; gap:12px; margin-top:20px; }
-  #btn-modal-close { position:absolute; top:16px; right:20px; background:none; border:none; font-size:22px; color:var(--text-muted); cursor:pointer; line-height:1; }
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -68,15 +23,9 @@
       <h1 class="display-sm" style="margin-bottom:4px">Travel Packs</h1>
       <p class="text-muted" style="font-size:14px">Create and manage travel packages.</p>
     </div>
-    <div style="display:flex;gap:10px;align-items:center;">
-      <button id="open-ai-modal" class="btn btn-secondary ripple-btn" style="display:flex;align-items:center;gap:7px;font-weight:700;border-color:var(--accent-primary);color:var(--accent-primary);">
-        ✦ Generate with AI
-      </button>
-      <a href="{{ path('admin_pack_add') }}" class="btn btn-primary ripple-btn">+ Add New Pack</a>
-    </div>
+    <a href="{{ path('admin_pack_add') }}" class="btn btn-primary ripple-btn" style="cursor:pointer !important;">+ Add New Pack</a>
   </div>
 
-  {# Stats #}
   <div class="stats-tab-bar reveal" style="display:flex;gap:16px;margin-bottom:24px;padding:12px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--border-radius-lg);">
     <div style="flex:1;padding:12px 20px;border-right:1px solid var(--border-color);">
       <div class="text-muted" style="font-size:12px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Total</div>
@@ -92,38 +41,13 @@
     </div>
   </div>
 
-  {# Filters #}
-  <form method="get" action="{{ path('admin_packs') }}">
-    <div class="filter-bar reveal">
-      <div>
-        <span class="filter-label">Search</span>
-        <input type="text" name="q" value="{{ currentQuery }}" placeholder="Title or description…" style="min-width:220px;">
-      </div>
-      <div>
-        <span class="filter-label">Status</span>
-        <select name="status">
-          <option value="">All</option>
-          <option value="ACTIVE"   {% if currentStatus == 'ACTIVE'   %}selected{% endif %}>Active</option>
-          <option value="INACTIVE" {% if currentStatus == 'INACTIVE' %}selected{% endif %}>Inactive</option>
-        </select>
-      </div>
-      <div>
-        <span class="filter-label">Category</span>
-        <select name="category">
-          <option value="">All</option>
-          {% for cat in categories %}
-              <option value="{{ cat.idCategory }}" {% if currentCat == cat.idCategory %}selected{% endif %}>{{ cat.name }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div style="display:flex;gap:8px;align-self:flex-end;">
-        <button type="submit" class="btn btn-primary" style="padding:9px 20px;font-size:13px;">Filter</button>
-        <a href="{{ path('admin_packs') }}" class="btn btn-secondary" style="padding:9px 16px;font-size:13px;">Reset</a>
-      </div>
-    </div>
-  </form>
+  <div style="margin-bottom:24px;">
+    <form method="get" action="{{ path('admin_packs') }}" style="display:flex;gap:12px;">
+      <input type="text" name="q" value="{{ currentQuery }}" class="input-search" placeholder="Search by title or description...">
+      <button type="submit" class="btn btn-secondary" style="cursor:pointer !important;">Search</button>
+    </form>
+  </div>
 
-  {# Table #}
   <div style="padding:0;overflow:hidden;">
     <table class="dest-table">
       <thead>
@@ -132,7 +56,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for item in pagination %}
+        {% for item in items %}
         <tr>
           <td style="font-family:var(--font-mono);font-size:12px;opacity:0.6">#{{ item.idPack }}</td>
           <td style="font-weight:600">{{ item.title }}</td>
@@ -148,12 +72,12 @@
           <td style="text-align:right">
             <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;">
               <a href="{{ path('admin_pack_toggle', {id: item.idPack}) }}"
-                 style="padding:6px 12px;border-radius:6px;border:1px solid var(--border-color);text-decoration:none;font-size:12px;font-weight:600;
+                 style="padding:6px 12px;border-radius:6px;border:1px solid var(--border-color);text-decoration:none;font-size:12px;font-weight:600;cursor:pointer !important;
                  {% if item.status == 'ACTIVE' %}color:#ef4444;border-color:#ef4444;{% else %}color:#10b981;border-color:#10b981;{% endif %}">
                 {% if item.status == 'ACTIVE' %}Deactivate{% else %}Activate{% endif %}
               </a>
-              <a href="{{ path('admin_pack_edit', {id: item.idPack}) }}" class="btn btn-secondary btn-sm">Edit</a>
-              <a href="{{ path('admin_pack_delete', {id: item.idPack}) }}" class="btn btn-primary btn-sm"
+              <a href="{{ path('admin_pack_edit', {id: item.idPack}) }}" class="btn btn-secondary btn-sm" style="cursor:pointer !important;">Edit</a>
+              <a href="{{ path('admin_pack_delete', {id: item.idPack}) }}" class="btn btn-primary btn-sm" style="cursor:pointer !important;"
                  onclick="return confirm('Delete this pack?')">Delete</a>
             </div>
           </td>
@@ -164,224 +88,5 @@
       </tbody>
     </table>
   </div>
-
-  {# KnpPaginator navigation #}
-  <div class="knp-pagination">
-    {{ knp_pagination_render(pagination, 'pagination/sliding.html.twig') }}
-  </div>
 </div>
-
-{# ══ AI GENERATOR MODAL (unchanged from before) ══ #}
-<div id="ai-modal-overlay">
-  <div id="ai-modal" role="dialog" aria-modal="true" aria-labelledby="ai-modal-heading">
-    <button id="btn-modal-close" title="Close">×</button>
-    <div class="ai-modal-title"><span style="color:var(--accent-primary)">✦</span><span id="ai-modal-heading">AI Pack Generator</span></div>
-    <p class="text-muted" style="font-size:14px;margin-bottom:0;">Describe what you want — AI picks the best options from your database.</p>
-
-    <div class="ai-grid" id="ai-seed-section">
-      <div class="ai-field">
-        <label for="ai-vibe">Vibe</label>
-        <select id="ai-vibe">
-          <option value="Luxury">Luxury</option>
-          <option value="Budget">Budget</option>
-          <option value="Adventure" selected>Adventure</option>
-          <option value="Romantic">Romantic</option>
-          <option value="Cultural">Cultural</option>
-          <option value="Family">Family</option>
-          <option value="Wellness">Wellness</option>
-        </select>
-      </div>
-      <div class="ai-field">
-        <label for="ai-country">Destination</label>
-        <select id="ai-country">
-          <option value="">✨ Surprise me</option>
-          {% set seen = [] %}
-          {% for dest in (destinations ?? []) %}
-            {% if dest.country not in seen %}
-              <option value="{{ dest.country }}">{{ dest.country }}</option>
-              {% set seen = seen|merge([dest.country]) %}
-            {% endif %}
-          {% endfor %}
-        </select>
-      </div>
-      <div class="ai-field">
-        <label for="ai-duration">Duration</label>
-        <select id="ai-duration">
-          <option value="short">Short (2–4 days)</option>
-          <option value="medium" selected>Medium (5–7 days)</option>
-          <option value="long">Long (8+ days)</option>
-        </select>
-      </div>
-      <div class="ai-field">
-        <label for="ai-audience">Audience</label>
-        <select id="ai-audience">
-          <option value="Couples">Couples</option>
-          <option value="Families">Families</option>
-          <option value="Solo">Solo travelers</option>
-          <option value="Groups">Groups</option>
-        </select>
-      </div>
-    </div>
-
-    <button id="btn-generate">✦ Generate Pack</button>
-    <div id="ai-loading"><div class="spinner"></div>AI is crafting your pack…</div>
-
-    <div id="ai-preview">
-      <div class="preview-reasoning" id="preview-reasoning"></div>
-      <form method="post" action="{{ path('admin_pack_add') }}" id="ai-save-form">
-        <div class="preview-grid">
-          <div class="preview-field" style="grid-column:1/-1;">
-            <label>Title</label>
-            <input type="text" name="title" id="prev-title" required minlength="3" maxlength="255">
-          </div>
-          <div class="preview-field">
-            <label>Category</label>
-            <select name="categoryId" id="prev-category">
-              <option value="">— none —</option>
-              {% for cat in (categories ?? []) %}
-                <option value="{{ cat.idCategory }}">{{ cat.name }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="preview-field">
-            <label>Destination</label>
-            <select name="destinationId" id="prev-destination">
-              <option value="">— none —</option>
-              {% for dest in (destinations ?? []) %}
-                <option value="{{ dest.destinationId }}">{{ dest.name }} — {{ dest.country }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="preview-field">
-            <label>Activity</label>
-            <select name="activityId" id="prev-activity">
-              <option value="">— none —</option>
-              {% for act in (activities ?? []) %}
-                <option value="{{ act.activityId }}">{{ act.name }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="preview-field">
-            <label>Accommodation</label>
-            <select name="accommodationId" id="prev-accommodation">
-              <option value="">— none —</option>
-              {% for acc in (accommodations ?? []) %}
-                <option value="{{ acc.id }}">{{ acc.name }} — {{ acc.city }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="preview-field">
-            <label>Transport</label>
-            <select name="transportId" id="prev-transport">
-              <option value="">— none —</option>
-              {% for t in (transports ?? []) %}
-                <option value="{{ t.transportId }}">{{ t.providerName }} — {{ t.vehicleModel }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="preview-field">
-            <label>Duration (days)</label>
-            <input type="number" name="durationDays" id="prev-duration" min="1" max="365" required>
-          </div>
-          <div class="preview-field">
-            <label>Base Price (€)</label>
-            <input type="number" step="0.01" name="basePrice" id="prev-price" min="0.01" required>
-          </div>
-          <div class="preview-field">
-            <label>Status</label>
-            <select name="status"><option value="ACTIVE" selected>Active</option><option value="INACTIVE">Inactive</option></select>
-          </div>
-          <div class="preview-field" style="grid-column:1/-1;">
-            <label>Description</label>
-            <textarea name="description" id="prev-description" rows="3" maxlength="2000"></textarea>
-          </div>
-        </div>
-        <div class="preview-actions">
-          <button type="submit" class="btn btn-primary" style="flex:1;">💾 Save Pack</button>
-          <button type="button" id="btn-regenerate" class="btn btn-secondary" style="flex:1;">↺ Regenerate</button>
-        </div>
-      </form>
-    </div>
-    <div id="ai-error" style="display:none;margin-top:16px;padding:14px;border-radius:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:13px;"></div>
-  </div>
-</div>
-{% endblock %}
-
-{% block page_scripts %}
-<script>
-(function () {
-  const overlay = document.getElementById('ai-modal-overlay');
-  document.getElementById('open-ai-modal').addEventListener('click', () => overlay.classList.add('open'));
-  document.getElementById('btn-modal-close').addEventListener('click', closeModal);
-  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
-  function closeModal() {
-    overlay.classList.remove('open');
-    document.getElementById('ai-preview').style.display  = 'none';
-    document.getElementById('ai-loading').style.display  = 'none';
-    document.getElementById('ai-error').style.display    = 'none';
-    document.getElementById('btn-generate').disabled     = false;
-    document.getElementById('btn-generate').textContent  = '✦ Generate Pack';
-  }
-
-  async function runGenerate() {
-    document.getElementById('ai-error').style.display   = 'none';
-    document.getElementById('ai-preview').style.display = 'none';
-    document.getElementById('ai-loading').style.display = 'block';
-    document.getElementById('btn-generate').disabled    = true;
-    document.getElementById('btn-generate').textContent = 'Generating…';
-
-    const payload = {
-      vibe:     document.getElementById('ai-vibe').value,
-      country:  document.getElementById('ai-country').value || null,
-      duration: document.getElementById('ai-duration').value,
-      audience: document.getElementById('ai-audience').value,
-    };
-
-    try {
-      const res  = await fetch('{{ path('admin_pack_generate') }}', {
-        method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
-      });
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || 'Unknown error.');
-      populatePreview(json.proposal);
-    } catch (err) {
-      document.getElementById('ai-error').textContent  = '⚠ ' + err.message;
-      document.getElementById('ai-error').style.display = 'block';
-    } finally {
-      document.getElementById('ai-loading').style.display = 'none';
-      document.getElementById('btn-generate').disabled    = false;
-      document.getElementById('btn-generate').textContent = '✦ Generate Pack';
-    }
-  }
-
-  document.getElementById('btn-generate').addEventListener('click', runGenerate);
-  document.getElementById('btn-regenerate').addEventListener('click', runGenerate);
-
-  function populatePreview(p) {
-    document.getElementById('preview-reasoning').innerHTML = '<strong>🤖 AI reasoning:</strong> ' + esc(p.reasoning ?? '');
-    setVal('prev-title',       p.title        ?? '');
-    setVal('prev-duration',    p.duration_days ?? '');
-    setVal('prev-price',       p.base_price    ?? '');
-    setVal('prev-description', p.description  ?? '');
-    setSel('prev-category',      p.category_id);
-    setSel('prev-destination',   p.destination_id);
-    setSel('prev-activity',      p.activity_id);
-    setSel('prev-accommodation', p.accommodation_id);
-    setSel('prev-transport',     p.transport_id);
-    document.getElementById('ai-preview').style.display = 'block';
-    document.getElementById('ai-preview').scrollIntoView({behavior:'smooth',block:'nearest'});
-  }
-
-  function setVal(id, val) { const el = document.getElementById(id); if (el) el.value = val; }
-  function setSel(id, val) {
-    const sel = document.getElementById(id);
-    if (!sel) return;
-    const opt = Array.from(sel.options).find(o => o.value == val);
-    if (opt) sel.value = opt.value;
-  }
-  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-})();
-</script>
 {% endblock %}

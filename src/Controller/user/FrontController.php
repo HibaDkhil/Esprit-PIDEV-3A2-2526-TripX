@@ -5,8 +5,6 @@ namespace App\Controller\user;
 use App\service\UserProfileService;
 use App\service\PricePredictionService;
 use App\Entity\User;
-use App\Repository\AccommodationRepository;
-use App\service\PackService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -25,8 +23,6 @@ class FrontController extends AbstractController
         \App\service\DestinationService $destinationService,
         \App\service\ActivityService $activityService,
         PricePredictionService $pricePredictionService,
-        private AccommodationRepository $accommodationRepository,
-        private PackService $packService,
     ) {
         $this->profileService = $profileService;
         $this->destinationService = $destinationService;
@@ -43,17 +39,8 @@ class FrontController extends AbstractController
         $user = $this->getUser();
         $uid = $user instanceof User ? $user->getUserId() : null;
 
-        // Fetch top 3 active accommodations
-        $accommodations = $this->accommodationRepository->findBy(['status' => 'Active'], ['id' => 'DESC'], 3);
-
-        // Fetch top 2 active packs (offers)
-        $packs = $this->packService->getActivePacks();
-        $packs = array_slice($packs, 0, 2);
-
         return $this->render('front/index.html.twig', [
             'price_prediction_cards' => $this->pricePredictionService->buildHomeCarouselCards($uid),
-            'accommodations' => $accommodations,
-            'packs' => $packs,
         ]);
     }
 
@@ -140,33 +127,11 @@ class FrontController extends AbstractController
     }
 
     #[Route('/search', name: 'search')]
-    public function search(Request $request, \Doctrine\ORM\EntityManagerInterface $em): Response
+    public function search(Request $request): Response
     {
         $query = $request->query->get('q', '');
-        
-        $user = $this->getUser();
-        if ($user instanceof User && !empty($query)) {
-            $log = new \App\Entity\UserActivityLog();
-            $log->setUserId($user->getUserId());
-            $log->setActivityType('SEARCH');
-            $log->setTargetId($query);
-            $log->setTargetType('QUERY');
-            $log->setTimestamp(new \DateTime());
-            $em->persist($log);
-            $em->flush();
-        }
-
         return $this->render('front/search_results.html.twig', [
             'query' => $query
         ]);
-    }
-
-    #[Route('/community', name: 'group_chat')]
-    public function groupChat(): Response
-    {
-        if (!$this->getUser()) {
-            return $this->redirectToRoute('app_login');
-        }
-        return $this->render('front/group_chat.html.twig');
     }
 }

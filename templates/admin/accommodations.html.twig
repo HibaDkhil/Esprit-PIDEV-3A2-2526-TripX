@@ -709,7 +709,7 @@
   <div class="acc-table-wrap">
     <table class="acc-table">
       <thead><tr>
-        <th>Accommodation</th><th>Type</th><th>Location</th><th>Stars</th><th>Status</th><th>Added</th><th>Actions</th>
+        <th>Accommodation</th><th>Type</th><th>Location</th><th>Stars</th><th>Status</th><th>Actions</th>
       </tr></thead>
       <tbody id="table-body">
         {% for a in accommodations %}
@@ -724,8 +724,7 @@
           <td><div style="font-weight:500">{{ a.city }}</div><div style="font-size:11px;color:var(--text-muted)">{{ a.country }}</div></td>
           <td><span class="stars">{% for i in 1..5 %}{{ i <= a.stars ? '★' : '☆' }}{% endfor %}</span></td>
           <td><span class="acc-status-badge {% if a.status == 'Active' %}badge-active{% else %}badge-inactive{% endif %}">{{ a.status }}</span></td>
-<td><small>{{ a.createdAt|time_diff }}</small></td>
-<td>
+          <td>
             <div class="tbl-actions">
               <button class="tbl-btn btn-view" onclick="viewAcc({{ a.id }})">👁 View</button>
               <button class="tbl-btn btn-edit" onclick="editAcc({{ a.id }})">✏️ Edit</button>
@@ -1055,7 +1054,7 @@ function renderGrid(items) {
 function renderTable(items) {
   const tb = document.getElementById('table-body');
   if (!items.length) {
-    tb.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">No results</td></tr>`;
+    tb.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">No results</td></tr>`;
     return;
   }
   tb.innerHTML = items.map(a => `
@@ -1070,7 +1069,6 @@ function renderTable(items) {
       <td><div style="font-weight:500">${esc(a.city||'')}</div><div style="font-size:11px;color:var(--text-muted)">${esc(a.country||'')}</div></td>
       <td><span class="stars">${starsHtml(a.stars)}</span></td>
       <td><span class="acc-status-badge ${a.status === 'Active' ? 'badge-active' : 'badge-inactive'}">${a.status}</span></td>
-      <td><small>${a.createdAtDiff || '—'}</small></td>
       <td>
         <div class="tbl-actions">
           <button class="tbl-btn btn-view" onclick="viewAcc(${a.id})">👁 View</button>
@@ -1080,6 +1078,7 @@ function renderTable(items) {
       </td>
     </tr>`).join('');
 }
+
 function starsHtml(n) {
   n = n || 0;
   return '★'.repeat(n) + '☆'.repeat(Math.max(0, 5 - n));
@@ -1388,7 +1387,8 @@ async function viewAcc(id) {
     const grid = document.getElementById('vm-grid');
     grid.innerHTML = '';
     [['📍 City',d.city],['🌍 Country',d.country],['🏠 Address',d.address],['📮 Postal',d.postalCode],
-['📞 Phone',d.phone],['✉️ Email',d.email],['🌐 Website',d.website],['📅 Added', d.createdAtDiff || d.createdAt || '—']]    .forEach(([l,v]) => { if(v) grid.innerHTML += `<div class="vm-item"><div class="vm-item-label">${l}</div><div class="vm-item-val">${esc(v)}</div></div>`; });
+     ['📞 Phone',d.phone],['✉️ Email',d.email],['🌐 Website',d.website],['📅 Added',d.createdAt]]
+    .forEach(([l,v]) => { if(v) grid.innerHTML += `<div class="vm-item"><div class="vm-item-label">${l}</div><div class="vm-item-val">${esc(v)}</div></div>`; });
 
     document.getElementById('vm-desc').textContent = d.description || '';
     document.getElementById('vm-desc-sec').style.display = d.description ? 'block' : 'none';

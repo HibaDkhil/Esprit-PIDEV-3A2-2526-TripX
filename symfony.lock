@@ -5,16 +5,16 @@
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "1.0",
-            "ref": "87424683adc81d7dc305eefec1fced883084aab9"
+            "ref": "fdd756167454623e21f1d769c5b814b243782a67"
         }
     },
     "doctrine/doctrine-bundle": {
-        "version": "3.2",
+        "version": "2.18",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
-            "version": "3.0",
-            "ref": "18ee08e513ba0303fd09a01fc1c934870af06ffa"
+            "version": "2.10",
+            "ref": "d1778a69711a9b06bb4e202977ca6c4a0d16933d"
         },
         "files": [
             "./config/packages/doctrine.yaml",
@@ -23,7 +23,7 @@
         ]
     },
     "doctrine/doctrine-migrations-bundle": {
-        "version": "4.0",
+        "version": "3.7",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
@@ -35,105 +35,20 @@
             "./migrations/.gitignore"
         ]
     },
-    "endroid/qr-code-bundle": {
-        "version": "5.0.0"
-    },
-    "friendsofsymfony/ckeditor-bundle": {
-        "version": "2.8",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "main",
-            "version": "2.0",
-            "ref": "f5ad42002183a6881962683e6d84bbb25cdfce5d"
-        },
-        "files": [
-            "./config/packages/fos_ckeditor.yaml"
-        ]
-    },
     "google/apiclient": {
-        "version": "2.15",
+        "version": "2.19",
         "recipe": {
             "repo": "github.com/symfony/recipes-contrib",
             "branch": "main",
             "version": "2.10",
             "ref": "07a97ec434d43b7903c78069a04c92adb6442e52"
-        }
+        },
+        "files": [
+            "./config/packages/google_apiclient.yaml"
+        ]
     },
     "knplabs/knp-paginator-bundle": {
         "version": "v6.10.0"
-    },
-    "knplabs/knp-time-bundle": {
-        "version": "2.5.0"
-    },
-    "knpuniversity/oauth2-client-bundle": {
-        "version": "2.20",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "main",
-            "version": "1.20",
-            "ref": "1ff300d8c030f55c99219cc55050b97a695af3f6"
-        },
-        "files": [
-            "./config/packages/knpu_oauth2_client.yaml"
-        ]
-    },
-    "liip/imagine-bundle": {
-        "version": "2.17",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "main",
-            "version": "1.8",
-            "ref": "d1227d002b70d1a1f941d91845fcd7ac7fbfc929"
-        }
-    },
-    "liip/monitor-bundle": {
-        "version": "2.25",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "main",
-            "version": "2.6",
-            "ref": "02c7cd93304dead890f9042fc2670dd9b0e0c091"
-        },
-        "files": [
-            "./config/packages/monitor.yaml"
-        ]
-    },
-    "scheb/2fa-bundle": {
-        "version": "7.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "6.0",
-            "ref": "1e6f68089146853a790b5da9946fc5974f6fcd49"
-        },
-        "files": [
-            "./config/packages/scheb_2fa.yaml",
-            "./config/routes/scheb_2fa.yaml"
-        ]
-    },
-    "snc/redis-bundle": {
-        "version": "4.11",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "main",
-            "version": "2.0",
-            "ref": "36b3d9ab65be62de4e085a25e6ca899efa96b1f3"
-        },
-        "files": [
-            "./config/packages/snc_redis.yaml"
-        ]
-    },
-    "stripe/stripe-php": {
-        "version": "20.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "main",
-            "version": "19.0",
-            "ref": "d6829c693e3927a8972c7671d74a1a5c505712b0"
-        },
-        "files": [
-            "./config/packages/stripe.yaml"
-        ]
     },
     "symfony/console": {
         "version": "6.4",
@@ -166,7 +81,7 @@
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "6.4",
-            "ref": "32126346f25e1cee607cc4aa6783d46034920554"
+            "ref": "08c492c28925bf921d98bc26fd815ae8a38b33d9"
         },
         "files": [
             "./config/packages/cache.yaml",
@@ -209,16 +124,16 @@
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
     },
-    "symfony/messenger": {
-        "version": "6.4",
+    "symfony/mercure-bundle": {
+        "version": "0.4",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
-            "version": "6.0",
-            "ref": "d8936e2e2230637ef97e5eecc0eea074eecae58b"
+            "version": "0.4",
+            "ref": "b141b8c8f13bc8c31d718a5488039b712c0d3592"
         },
         "files": [
-            "./config/packages/messenger.yaml"
+            "./config/packages/mercure.yaml"
         ]
     },
     "symfony/notifier": {
@@ -292,7 +207,7 @@
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "6.4",
-            "ref": "cab5fd2a13a45c266d45a7d9337e28dee6272877"
+            "ref": "f250159ebe99153d0c640a3e7742876fc7453f2c"
         },
         "files": [
             "./config/packages/twig.yaml",

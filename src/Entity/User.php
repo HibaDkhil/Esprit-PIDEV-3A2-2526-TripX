@@ -6,11 +6,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-use Scheb\TwoFactorBundle\Model\Google\TwoFactorInterface;
+
 
 #[ORM\Entity(repositoryClass: \App\Repository\UserRepository::class)]
 #[ORM\Table(name: 'user')]
-class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFactorInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -70,38 +70,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
 
     #[Assert\NotBlank(message: 'Password is required')]
     #[Assert\Length(min: 8, minMessage: 'Password must be at least 8 characters')]
-    #[Assert\Regex(pattern: '/[A-Z]/', message: 'Password must contain at least 1 uppercase letter')]
-    #[Assert\Regex(pattern: '/[a-z]/', message: 'Password must contain at least 1 lowercase letter')]
     private ?string $plainPassword = null;
 
-    #[ORM\Column(type: 'json', nullable: true)]
-    private ?array $faceDescriptor = null;
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    private ?string $googleAuthenticatorSecret = null;
-
-    #[ORM\Column(type: 'boolean', options: ['default' => true])]
-    private bool $dynamicThemeEnabled = true;
-    public function isGoogleAuthenticatorEnabled(): bool
-    {
-        return $this->googleAuthenticatorSecret !== null;
-    }
-
-    public function getGoogleAuthenticatorSecret(): ?string
-    {
-        return $this->googleAuthenticatorSecret;
-    }
-
-    public function setGoogleAuthenticatorSecret(?string $googleAuthenticatorSecret): self
-    {
-        $this->googleAuthenticatorSecret = $googleAuthenticatorSecret;
-        return $this;
-    }
-
-    public function getGoogleAuthenticatorUsername(): string
-    {
-        return $this->email;
-    }
     public function __construct()
     {
         $this->createdAt = new \DateTime();
@@ -269,24 +240,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
         $this->plainPassword = $plainPassword;
         return $this;
     }
-
-    public function getAvatarSeed(): string
-    {
-        return 'user_' . ($this->userId ?? 'new');
-    }
-
     /* ── UserInterface ── */
 
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
-    // Permissions & roles 
+// Permissions & roles 
     public function getRoles(): array
     {
         $roles = ['ROLE_USER'];
 
-
+        
         switch ($this->role) {
             case 'admin':
                 $roles[] = 'ROLE_ADMIN';
@@ -309,28 +274,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
         }
 
         return array_unique($roles);
-    }
-
-    public function getFaceDescriptor(): ?array
-    {
-        return $this->faceDescriptor;
-    }
-
-    public function setFaceDescriptor(?array $faceDescriptor): static
-    {
-        $this->faceDescriptor = $faceDescriptor;
-        return $this;
-    }
-
-    public function isDynamicThemeEnabled(): bool
-    {
-        return $this->dynamicThemeEnabled;
-    }
-
-    public function setDynamicThemeEnabled(bool $dynamicThemeEnabled): self
-    {
-        $this->dynamicThemeEnabled = $dynamicThemeEnabled;
-        return $this;
     }
 
     public function eraseCredentials(): void

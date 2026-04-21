@@ -1,209 +1,53 @@
-{% extends 'base.html.twig' %}
-
-{% block title %}Destinations — TripX{% endblock %}
-
-{% block stylesheets %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Explore 190+ stunning destinations worldwide. Find your perfect match with TripX AI-powered recommendations.">
+  <title>Destinations — TripX</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Montserrat:wght@100..900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets.php?f=css/main.css">
+  <link rel="stylesheet" href="/assets.php?f=css/animations.css">
   <style>
-    :root {
-      --ocean-teal: #00F5D4;
-      --ocean-blue: #0ea5e9;
-      --glass-bg: rgba(7, 20, 40, 0.65);
-      --glass-border: rgba(0, 245, 212, 0.2);
-    }
-
-    /* ══════════════════════════════════════════════════════════
-       HERO HEADER — Cinematic full-bleed
-    ══════════════════════════════════════════════════════════ */
-    .hero-header {
-      position: relative;
-      height: 580px;
-      overflow: hidden;
-      background: #060c14;
-    }
-
-    .hero-bg-img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center 40%;
-      filter: brightness(0.68) saturate(0.9);
-      transform: scale(1.05);
-      transition: transform 10s ease;
-    }
-
-    .hero-header:hover .hero-bg-img {
-      transform: scale(1.0);
-    }
-
-    .hero-header::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(
-          to bottom,
-          rgba(0,0,0,0.15) 0%,
-          rgba(0,0,0,0.04) 20%,
-          rgba(0,0,0,0.40) 62%,
-          rgba(0,0,0,0.88) 85%,
-          rgba(0,0,0,1.00) 100%
-        ),
-        linear-gradient(
-          to right,
-          rgba(0,0,0,0.38) 0%,
-          transparent 38%,
-          transparent 62%,
-          rgba(0,0,0,0.22) 100%
-        );
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .hero-content {
-      position: absolute;
-      bottom: 80px;
-      left: 0; right: 0;
-      z-index: 2;
-      padding: 0 52px;
-    }
-
-    .hero-eyebrow {
-      font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.5);
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .hero-eyebrow-dot {
-      display: inline-block;
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--accent-primary);
-      flex-shrink: 0;
-    }
-
-    .hero-title {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(46px, 6.5vw, 82px);
-      font-weight: 900;
-      color: #fff;
-      line-height: 1.0;
-      letter-spacing: -0.025em;
-      text-shadow: 0 4px 28px rgba(0,0,0,0.4);
-      margin-bottom: 18px;
-      display: block;
-    }
-
-    .hero-title-accent {
-      color: transparent;
-      background: linear-gradient(90deg, #fff 0%, var(--ocean-teal) 50%, #fff 100%); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; animation: text-shimmer 4s linear infinite;
-    }
-
-    .hero-subtitle {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 14px;
-      font-weight: 300;
-      color: rgba(255,255,255,0.62);
-      max-width: 420px;
-      line-height: 1.75;
-      letter-spacing: 0.02em;
-      margin: 0 0 28px;
-    }
-
-    .hero-stats {
-      position: absolute;
-      bottom: 80px;
-      right: 52px;
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      align-items: flex-end;
-    }
-
-    .hero-stat { text-align: right; }
-
-    .hero-stat-num {
-      font-family: 'Space Mono', monospace;
-      font-size: 24px;
-      font-weight: 700;
-      color: #fff;
-      line-height: 1;
-    }
-
-    .hero-stat-label {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 10px;
-      font-weight: 500;
-      color: rgba(255,255,255,0.38);
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      margin-top: 3px;
-    }
-
-    .hero-stat-divider {
-      width: 40px; height: 1px;
-      background: rgba(255,255,255,0.13);
-      margin-left: auto;
-    }
-
-    /* ── Destinations Grid ── */
+    .page-top { padding-top: calc(var(--nav-height) + 60px); padding-bottom: 40px; }
     .dest-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 24px;
     }
-
     .dest-card-wrap { border-radius: var(--border-radius-lg); overflow: hidden; position: relative; }
-    .dest-card-wrap.tall  .dest-card-inner { height: 460px; }
-    .dest-card-wrap.mid   .dest-card-inner { height: 360px; }
+    .dest-card-wrap.tall .dest-card-inner { height: 460px; }
+    .dest-card-wrap.mid  .dest-card-inner { height: 360px; }
     .dest-card-wrap.short .dest-card-inner { height: 300px; }
-
     .dest-card-inner {
       position: relative;
       border-radius: var(--border-radius-lg);
       overflow: hidden;
       cursor: pointer;
-      border: 1px solid var(--glass-border);
-      transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+      transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
     }
-
-    .dest-card-inner:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(0, 245, 212, 0.15); border-color: rgba(0, 245, 212, 0.4); }
-
+    .dest-card-inner:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
     .dest-card-bg {
       width: 100%; height: 100%;
       display: flex; align-items: center; justify-content: center;
       font-size: 80px;
       transition: transform var(--transition-smooth);
     }
-
     .dest-card-inner:hover .dest-card-bg { transform: scale(1.07); }
-
     .dest-card-over {
       position: absolute; inset: 0;
       background: linear-gradient(to top, rgba(3,7,18,0.85) 0%, rgba(3,7,18,0.15) 55%, transparent 100%);
     }
-
     .dest-card-cnt {
       position: absolute;
       bottom: 0; left: 0; right: 0;
       padding: 24px;
       color: #F0F4F8;
     }
-
-    .dest-name    { font-family: var(--font-display); font-size: 34px; text-transform: uppercase; line-height: 1; }
+    .dest-name { font-family: var(--font-display); font-size: 34px; text-transform: uppercase; line-height: 1; }
     .dest-country { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; opacity: 0.7; margin-bottom: 8px; }
     .dest-meta-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-
     .dest-hover-layer {
       position: absolute; inset: 0;
       background: rgba(3,7,18,0.7);
@@ -211,71 +55,89 @@
       opacity: 0;
       transition: opacity var(--transition-smooth);
       gap: 14px;
-      z-index: 10;
     }
-
     .dest-card-inner:hover .dest-hover-layer { opacity: 1; }
-
-    @media (max-width: 1024px) {
-      .hero-header { height: 480px; }
-      .hero-stats  { display: none; }
+    .dest-hover-btn {
+      background: var(--accent-primary);
+      color: #fff;
+      padding: 11px 28px;
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: transform var(--transition-fast);
     }
-
-    @media (max-width: 768px) {
-      .hero-header  { height: 400px; }
-      .hero-content { bottom: 56px; padding: 0 24px; }
+    .dest-hover-btn:hover { transform: scale(1.06); }
+    @media (max-width: 900px) {
+      .dest-grid { grid-template-columns: repeat(2, 1fr); }
     }
-
-    @media (max-width: 900px) { .dest-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 600px) { .dest-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) {
+      .dest-grid { grid-template-columns: 1fr; }
+    }
+    .filter-bar { position: sticky; top: var(--nav-height); z-index: 99; background: var(--bg-nav); backdrop-filter: var(--bg-glass-blur); border-bottom: 1px solid var(--border-color); padding: 16px 0; }
   </style>
-{% endblock %}
+</head>
+<body>
+    <div id="cursor-dot"></div><div id="cursor-halo"></div>
 
-{% block body %}
 
-{# ══ HERO HEADER ══════════════════════════════════════════════════════
-   📁 PUT YOUR HERO IMAGE HERE:
-      public/images/destinations-hero.jpg
-   (recommended: wide landscape — aerial city, world map, travel scene)
-   The onerror fallback uses an Unsplash photo if the file is missing.
-═══════════════════════════════════════════════════════════════════════ #}
-<div class="hero-header">
-  <img
-    class="hero-bg-img"
-    src="/images/destinations-hero.jpg"
-    alt="Destinations hero"
-    onerror="this.src='https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1800&q=80'"
-  >
 
-  {# Text — bottom left #}
-  <div class="hero-content">
-    <div class="hero-eyebrow">
-      <span class="hero-eyebrow-dot"></span>
-      TripX &nbsp;·&nbsp; Destinations
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="{{ path('index') }}" class="nav-logo">Trip<span>X</span></a>
+    <div class="nav-links">
+      <a href="{{ path('index') }}"          class="nav-link">Home</a>
+      <a href="{{ path('destinations') }}"   class="nav-link active">Destinations</a>
+      <a href="{{ path('activities') }}"     class="nav-link">Activities</a>
+      <a href="{{ path('accommodations') }}" class="nav-link">Accommodations</a>
+      <a href="{{ path('transport') }}"      class="nav-link">Transport</a>
+      <a href="{{ path('offers') }}"         class="nav-link">Offers</a>
+      <a href="{{ path('blog') }}" class="nav-link">Blog</a><a href="{{ path('my_bookings') }}" class="nav-link">My Bookings</a>
     </div>
-    <h1 class="hero-title">
-      Find Your<br>
-      <span class="hero-title-accent">Perfect Place</span>
-    </h1>
-    <p class="hero-subtitle">
-      Every corner of the earth, curated by AI for you.
-    </p>
-    <a href="{{ path('destination_recommendations') }}" class="btn btn-primary ripple-btn" style="padding:13px 28px; font-size:12px; letter-spacing:0.09em;">
-      ✨ Get Recommendations
-    </a>
+    <div class="nav-actions">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+        <span class="toggle-icon icon-sun">☀️</span>
+        <span class="toggle-icon icon-moon">🌙</span>
+      </button>
+      <a href="{{ path('users') }}" class="btn-nav-primary ripple-btn">My Profile</a><a href="{{ path('app_logout') }}" class="Btn-logout" style="margin-left: 8px;">
+        <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" /></svg></div>
+        <div class="text">Logout</div>
+      </a>
+    </div>
   </div>
+</nav>
 
-  {# Stats — bottom right #}
-  <div class="hero-stats">
-    <div class="hero-stat">
-      <div class="hero-stat-num">190+</div>
-      <div class="hero-stat-label">Destinations</div>
+<!-- Filter Bar -->
+<div class="filter-bar">
+  <div class="container">
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+      <div class="filter-pills">
+        <button class="filter-pill active">All</button>
+        <button class="filter-pill">🌍 Europe</button>
+        <button class="filter-pill">🌏 Asia</button>
+        <button class="filter-pill">🌎 Americas</button>
+        <button class="filter-pill">🌴 Islands</button>
+        <button class="filter-pill">🏔️ Mountains</button>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:10px">
+        <div class="filter-pills">
+          <button class="filter-pill">😎 Chill</button>
+          <button class="filter-pill">🧗 Adventure</button>
+          <button class="filter-pill">💑 Romantic</button>
+          <button class="filter-pill">🎭 Cultural</button>
+        </div>
+      </div>
     </div>
-    <div class="hero-stat-divider"></div>
-    <div class="hero-stat">
-      <div class="hero-stat-num">50+</div>
-      <div class="hero-stat-label">Countries</div>
-    </div>
+  </div>
+</div>
+
+<!-- Page Header -->
+<div class="page-top">
+  <div class="container">
+    <div class="section-label reveal"><span>190+ Destinations</span></div>
+    <h1 class="display-md reveal" style="margin-bottom:8px">Find Your <span class="gradient-text">Perfect Place</span></h1>
+    <p class="serif-mood text-muted reveal reveal-delay-1">Every corner of the earth, curated by AI for you.</p>
   </div>
 </div>
 
@@ -302,7 +164,7 @@
                 </span>
               </a>
               <a href="{{ path('booking_form', {destinationId: dest.destinationId}) }}" class="btn btn-primary btn-sm ripple-btn" style="margin-top:10px; padding:10px 24px; font-size:12px;">📋 Book Now</a>
-              <a href="{{ path('destination_recommendations', {type: dest.type, season: dest.bestSeason}) }}" class="btn btn-secondary btn-sm ripple-btn" style="margin-top:4px;">✨ Recommend</a>
+              <button class="btn btn-secondary btn-sm ripple-btn" style="margin-top:4px;">Recommend</button>
             </div>
             <div class="dest-card-cnt">
               <div class="dest-country">{{ dest.country }}</div>
@@ -317,43 +179,9 @@
       {% endfor %}
     </div>
 
-    {# ── Pagination Controls ── #}
-    {% if destinations.pageCount|default(0) > 1 or currentLimit is defined %}
-    <div style="display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:48px;">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono); letter-spacing:0.05em; text-transform:uppercase;">Show</span>
-        {% for size in [6, 12, 24, 48] %}
-          <a href="{{ path('destinations', {limit: size, page: 1}) }}"
-             class="btn btn-sm {{ currentLimit == size ? 'btn-primary' : 'btn-secondary' }} ripple-btn"
-             style="min-width:42px; text-align:center; font-size:12px; border-radius:50px;">{{ size }}</a>
-        {% endfor %}
-        <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono); letter-spacing:0.05em; text-transform:uppercase;">per page</span>
-      </div>
-
-      {% if destinations.pageCount|default(0) > 1 %}
-      <div style="display:flex; align-items:center; gap:8px;">
-        {% if destinations.currentPageNumber > 1 %}
-          <a href="{{ path('destinations', {page: destinations.currentPageNumber - 1, limit: currentLimit}) }}" class="btn btn-secondary ripple-btn" style="border-radius:50px; padding:10px 20px; font-size:13px;">← Previous</a>
-        {% endif %}
-
-        {% set startPage = max(1, destinations.currentPageNumber - 2) %}
-        {% set endPage   = min(destinations.pageCount, destinations.currentPageNumber + 2) %}
-        {% for p in startPage..endPage %}
-          <a href="{{ path('destinations', {page: p, limit: currentLimit}) }}"
-             class="btn {{ p == destinations.currentPageNumber ? 'btn-primary' : 'btn-secondary' }} ripple-btn"
-             style="min-width:42px; text-align:center; border-radius:50px; padding:10px 16px; font-size:13px;">{{ p }}</a>
-        {% endfor %}
-
-        {% if destinations.currentPageNumber < destinations.pageCount %}
-          <a href="{{ path('destinations', {page: destinations.currentPageNumber + 1, limit: currentLimit}) }}" class="btn btn-secondary ripple-btn" style="border-radius:50px; padding:10px 20px; font-size:13px;">Next →</a>
-        {% endif %}
-      </div>
-      <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono);">
-        Page {{ destinations.currentPageNumber }} of {{ destinations.pageCount }}
-      </span>
-      {% endif %}
+    <div class="text-center mt-48">
+      <button class="btn btn-secondary btn-lg ripple-btn">Load More Destinations</button>
     </div>
-    {% endif %}
   </div>
 </section>
 
@@ -382,4 +210,6 @@
   </div>
 </div>
 
-{% endblock %}
+<script src="/assets.php?f=js/main.js"></script>
+</body>
+</html>

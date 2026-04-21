@@ -5,7 +5,6 @@ namespace App\Controller\admin;
 use App\Entity\Accommodation;
 use App\Repository\AccommodationRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Knp\Bundle\TimeBundle\DateTimeFormatter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,66 +17,62 @@ class AccommodationController extends AbstractController
 {
     public function __construct(
         private AccommodationRepository $repo,
-        private EntityManagerInterface $em,
-        private DateTimeFormatter $timeFormatter
+        private EntityManagerInterface $em
     ) {}
 
     // ── List ─────────────────────────────────────────────────────────
-    #[Route('', name: 'index', methods: ['GET'])]
-    public function index(Request $request): Response
-    {
-        $search = $request->query->get('search', '');
-        $type   = $request->query->get('type', '');
-        $status = $request->query->get('status', '');
+#[Route('', name: 'index', methods: ['GET'])]
+public function index(Request $request): Response
+{
+    $search = $request->query->get('search', '');
+    $type   = $request->query->get('type', '');
+    $status = $request->query->get('status', '');
 
-        $accommodations = $this->repo->findByFilters($search, $type, $status);
-        $stats          = $this->repo->getStats();
-        $types          = $this->repo->findDistinctTypes();
+    $accommodations = $this->repo->findByFilters($search, $type, $status);
+    $stats          = $this->repo->getStats();
+    $types          = $this->repo->findDistinctTypes();
 
-        return $this->render('admin/accommodations.html.twig', [
-            'accommodations' => $accommodations,
-            'total'          => $stats['total'],
-            'active'         => $stats['active'],
-            'inactive'       => $stats['inactive'],
-            'types'          => $types,
-            'filters'        => compact('search', 'type', 'status'),
-        ]);
-    }
-
+    return $this->render('admin/accommodations.html.twig', [
+        'accommodations' => $accommodations,
+        'total'          => $stats['total'],
+        'active'         => $stats['active'],
+        'inactive'       => $stats['inactive'],
+        'types'          => $types,
+        'filters'        => compact('search', 'type', 'status'),
+    ]);
+}
     // ── Stats (AJAX) ─────────────────────────────────────────────────
-    #[Route('/stats', name: 'stats', methods: ['GET'])]
-    public function stats(): JsonResponse
-    {
-        return $this->json($this->repo->getStats());
-    }
+#[Route('/stats', name: 'stats', methods: ['GET'])]
+public function stats(): JsonResponse
+{
+    return $this->json($this->repo->getStats());
+}
 
-    // ── Search (AJAX real-time) ──────────────────────────────────────
-    #[Route('/search', name: 'search', methods: ['GET'])]
-    public function search(Request $request): JsonResponse
-    {
-        $search  = $request->query->get('q', '');
-        $type    = $request->query->get('type', '');
-        $status  = $request->query->get('status', '');
+   // ── Search (AJAX real-time) ──────────────────────────────────────
+#[Route('/search', name: 'search', methods: ['GET'])]
+public function search(Request $request): JsonResponse
+{
+    $search  = $request->query->get('q', '');
+    $type    = $request->query->get('type', '');
+    $status  = $request->query->get('status', '');
 
-        $results = $this->repo->findByFilters($search, $type, $status);
+    $results = $this->repo->findByFilters($search, $type, $status);
 
-        $data = array_map(fn($a) => [
-            'id'           => $a->getId(),
-            'name'         => $a->getName(),
-            'type'         => $a->getType(),
-            'city'         => $a->getCity(),
-            'country'      => $a->getCountry(),
-            'stars'        => $a->getStars(),
-            'rating'       => $a->getRating(),
-            'status'       => $a->getStatus(),
-            'imagePath'    => $a->getImagePath(),
-            'email'        => $a->getEmail(),
-            'createdAt'    => $a->getCreatedAt()?->format('c'),
-            'createdAtDiff' => $a->getCreatedAt() ? $this->timeFormatter->formatDiff($a->getCreatedAt()) : null,
-        ], $results);
+    $data = array_map(fn($a) => [
+        'id'        => $a->getId(),
+        'name'      => $a->getName(),
+        'type'      => $a->getType(),
+        'city'      => $a->getCity(),
+        'country'   => $a->getCountry(),
+        'stars'     => $a->getStars(),
+        'rating'    => $a->getRating(),
+        'status'    => $a->getStatus(),
+        'imagePath' => $a->getImagePath(),
+        'email'     => $a->getEmail(),
+    ], $results);
 
-        return $this->json(['results' => $data, 'count' => count($data)]);
-    }
+    return $this->json(['results' => $data, 'count' => count($data)]);
+}
 
     // ── View ────────────────────────────────────────────────────────
     #[Route('/{id}', name: 'view', methods: ['GET'], requirements: ['id' => '\d+'])]
@@ -87,26 +82,25 @@ class AccommodationController extends AbstractController
         if (!$a) return $this->json(['error' => 'Not found'], 404);
 
         return $this->json([
-            'id'           => $a->getId(),
-            'name'         => $a->getName(),
-            'type'         => $a->getType(),
-            'city'         => $a->getCity(),
-            'country'      => $a->getCountry(),
-            'address'      => $a->getAddress(),
-            'postalCode'   => $a->getPostalCode(),
-            'stars'        => $a->getStars(),
-            'rating'       => $a->getRating(),
-            'status'       => $a->getStatus(),
-            'description'  => $a->getDescription(),
-            'phone'        => $a->getPhone(),
-            'email'        => $a->getEmail(),
-            'website'      => $a->getWebsite(),
-            'latitude'     => $a->getLatitude(),
-            'longitude'    => $a->getLongitude(),
-            'imagePath'    => $a->getImagePath(),
-            'amenities'    => $a->getAccommodationAmenities(),
-            'createdAt'    => $a->getCreatedAt()?->format('Y-m-d H:i'),
-            'createdAtDiff' => $a->getCreatedAt() ? $this->timeFormatter->formatDiff($a->getCreatedAt()) : null,
+            'id'          => $a->getId(),
+            'name'        => $a->getName(),
+            'type'        => $a->getType(),
+            'city'        => $a->getCity(),
+            'country'     => $a->getCountry(),
+            'address'     => $a->getAddress(),
+            'postalCode'  => $a->getPostalCode(),
+            'stars'       => $a->getStars(),
+            'rating'      => $a->getRating(),
+            'status'      => $a->getStatus(),
+            'description' => $a->getDescription(),
+            'phone'       => $a->getPhone(),
+            'email'       => $a->getEmail(),
+            'website'     => $a->getWebsite(),
+            'latitude'    => $a->getLatitude(),
+            'longitude'   => $a->getLongitude(),
+            'imagePath'   => $a->getImagePath(),
+            'amenities'   => $a->getAccommodationAmenities(),
+            'createdAt'   => $a->getCreatedAt()?->format('Y-m-d H:i'),
         ]);
     }
 

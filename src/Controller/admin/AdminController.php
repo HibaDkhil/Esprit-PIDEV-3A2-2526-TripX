@@ -9,12 +9,11 @@ use App\service\TransportService;
 use App\service\BookingtransService;
 use App\Entity\Destination;
 use App\Entity\Activity;
-use App\form\DestinationType;
-use App\form\ActivityType;
+use App\Form\DestinationType;
+use App\Form\ActivityType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\ExpressionLanguage\Expression;
@@ -22,6 +21,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\User;
 use App\Entity\Preference;
 use App\Repository\UserRepository;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Knp\Component\Pager\PaginatorInterface;
 use App\Repository\RoomRepository;
 use App\Repository\RoomImagesRepository;
@@ -533,69 +533,11 @@ class AdminController extends AbstractController
 
     #[Route('/accommodations', name: 'accommodations')]
     #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_ACCOMODATION')"))]
-    public function accommodations(): Response 
-    { 
-        return $this->render('admin/accommodations.html.twig'); 
-    }
+    public function accommodations(): Response { return $this->render('admin/accommodations.html.twig'); }
 
     #[Route('/offers', name: 'offers')]
     #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_OFFERS')"))]
-    public function offers(): Response 
-    { 
-        return $this->render('admin/offers.html.twig'); 
-    }
+    public function offers(): Response { return $this->render('admin/offers.html.twig'); }
 
-    /**
-     * Display the admin chat interface
-     */
-    #[Route('/chat', name: 'chat', methods: ['GET'])]
-    #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_DESTINATION') or is_granted('ROLE_ADMIN_ACCOMMODATION') or is_granted('ROLE_ADMIN_TRANSPORT') or is_granted('ROLE_ADMIN_OFFERS') or is_granted('ROLE_ADMIN_BLOG')"))]
-    public function chat(): Response
-    {
-        $envPath = $this->getParameter('kernel.project_dir') . '/.env';
-        $envVars = [];
-        if (file_exists($envPath)) {
-            $dotenv = new \Symfony\Component\Dotenv\Dotenv();
-            $envVars = $dotenv->parse(file_get_contents($envPath), $envPath);
-        }
-        
-        $getEnv = function($key) use ($envVars) {
-            return $_ENV[$key] ?? $_SERVER[$key] ?? $envVars[$key] ?? '';
-        };
-
-        return $this->render('admin/admin_chat.html.twig', [
-            'firebase_config' => [
-                'apiKey' => $getEnv('FIREBASE_API_KEY'),
-                'authDomain' => $getEnv('FIREBASE_AUTH_DOMAIN'),
-                'databaseURL' => $getEnv('FIREBASE_DATABASE_URL'),
-                'projectId' => $getEnv('FIREBASE_PROJECT_ID'),
-                'storageBucket' => $getEnv('FIREBASE_STORAGE_BUCKET'),
-                'messagingSenderId' => $getEnv('FIREBASE_MESSAGING_SENDER_ID'),
-                'appId' => $getEnv('FIREBASE_APP_ID'),
-            ]
-        ]);
-    }
-
-    /**
-     * Get user info for Firebase chat
-     */
-    #[Route('/chat/user-info', name: 'chat_user_info', methods: ['GET'])]
-    #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_DESTINATION') or is_granted('ROLE_ADMIN_ACCOMMODATION') or is_granted('ROLE_ADMIN_TRANSPORT') or is_granted('ROLE_ADMIN_OFFERS') or is_granted('ROLE_ADMIN_BLOG')"))]
-    public function getUserInfo(): JsonResponse
-    {
-        /** @var \App\Entity\User $user */
-        $user = $this->getUser();
-        
-        return $this->json([
-            'success' => true,
-            'user' => [
-                'id' => $user->getUserId(),
-                'email' => $user->getEmail(),
-                'firstName' => $user->getFirstName(),
-                'lastName' => $user->getLastName(),
-                'initial' => strtoupper(substr($user->getFirstName(), 0, 1)),
-                'role' => $user->getRole()
-            ]
-        ]);
-    }
+    
 }

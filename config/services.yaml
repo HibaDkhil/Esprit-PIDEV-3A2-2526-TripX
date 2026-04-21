@@ -3,7 +3,13 @@ parameters:
     env(RAGHED_GEMINI): ''
     env(SERPAPI_API_KEY): ''
     env(OPENWEATHER_API_KEY): ''
-    env(ELEVENLABS_API_KEY): ''
+    env(AKISMET_API_KEY): ''
+    env(AKISMET_BLOG_URL): ''
+    env(OPENAI_API_KEY): ''
+    env(OPENAI_MODERATION_MODEL): 'omni-moderation-latest'
+    env(RECAPTCHA_SECRET_KEY): ''
+    env(float:RECAPTCHA_MIN_SCORE): '0.5'
+    app.moderation.bad_words_file: '%kernel.project_dir%/config/moderation_bad_words.txt'
 
 services:
     _defaults:
@@ -17,191 +23,98 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    # ============ SECURITY HANDLERS ============
-    
     App\Security\LoginSuccessHandler:
         arguments:
             - '@router'
             - '@doctrine.orm.entity_manager'
             - '@App\service\PreferenceService'
 
-    App\Security\LoginFailureHandler:
-        arguments:
-            $router: '@router'
-
-    # ============ GEMINI SERVICE ============
-    
     App\service\GeminiService:
         arguments:
             $httpClient: '@http_client'
             $geminiApiKey: '%env(GEMINI_API_KEY)%'
             $geminiModel: '%env(GEMINI_MODEL)%'
 
-    # ============ AUTH CONTROLLER INJECTIONS ============
-    
+    App\service\AIRecommenderService:
+        arguments:
+            $httpClient: '@http_client'
+            $geminiApiKey: '%env(GEMINI_API_KEY_Blog)%'
+
+    # Inject services into AuthController via setters
+    # Inject services into AuthController via setters
     App\Controller\user\AuthController:
         calls:
             - setAuthService: ['@App\service\AuthService']
             - setSecurity: ['@Symfony\Bundle\SecurityBundle\Security']
             - setPreferenceService: ['@App\service\PreferenceService']
 
-    # ============ ACCOMMODATION SERVICES ============
-    
-    # Cache Service
     App\service\Accommodation\CacheService:
         arguments:
             $projectDir: '%kernel.project_dir%'
 
-    # Weather Service (Accommodation version - with HTTP client and cache)
     App\service\Accommodation\WeatherService:
         arguments:
-            $httpClient: '@http_client'
-            $cache: '@App\service\Accommodation\CacheService'
             $openWeatherApiKey: '%env(OPENWEATHER_API_KEY)%'
 
-    # Weather Service (Simple version - just API key)
-    App\service\WeatherService:
-        arguments:
-            $apiKey: '%env(OPENWEATHER_API_KEY)%'
-
-    # SerpApiService base class
     App\service\Accommodation\SerpApiService:
         arguments:
-            $httpClient: '@http_client'
-            $cache: '@App\service\Accommodation\CacheService'
             $serpApiKey: '%env(SERPAPI_API_KEY)%'
 
-    # Image Service
-    App\service\Accommodation\ImageService:
-        arguments:
-            $httpClient: '@http_client'
-            $cache: '@App\service\Accommodation\CacheService'
-            $serpApiKey: '%env(SERPAPI_API_KEY)%'
-
-    # Local Service
-    App\service\Accommodation\LocalService:
-        arguments:
-            $httpClient: '@http_client'
-            $cache: '@App\service\Accommodation\CacheService'
-            $serpApiKey: '%env(SERPAPI_API_KEY)%'
-
-    # Review Service
-    App\service\Accommodation\ReviewService:
-        arguments:
-            $httpClient: '@http_client'
-            $cache: '@App\service\Accommodation\CacheService'
-            $serpApiKey: '%env(SERPAPI_API_KEY)%'
-
-    # Flight Service
     App\service\Accommodation\FlightService:
         arguments:
-            $httpClient: '@http_client'
-            $cache: '@App\service\Accommodation\CacheService'
             $serpApiKey: '%env(SERPAPI_API_KEY)%'
 
-    # Itinerary Service
+    App\service\Accommodation\ImageService:
+        arguments:
+            $serpApiKey: '%env(SERPAPI_API_KEY)%'
+
     App\service\Accommodation\ItineraryService:
         arguments:
-            $cache: '@App\service\Accommodation\CacheService'
             $geminiApiKey: '%env(RAGHED_GEMINI)%'
 
-    # RoomInsightsService
     App\service\Accommodation\RoomInsightsService:
         arguments:
             $raggedGemini: '%env(RAGHED_GEMINI)%'
 
-    # Google Calendar Service
     App\service\Accommodation\GoogleCalendarAccService:
         arguments:
             $projectDir: '%kernel.project_dir%'
 
-    # Booking Mailer Service
-    App\service\Accommodation\BookingAccMailerService:
+    App\service\Accommodation\LocalService:
         arguments:
-            $mailer: '@mailer.mailer'
-            $userRepo: '@App\Repository\UserRepository'
-            $fromEmail: '%env(BOOKING_MAILER_FROM)%'
-            $fromName: '%env(BOOKING_MAILER_NAME)%'
+            $serpApiKey: '%env(SERPAPI_API_KEY)%'
 
-    # Notification Service
-    App\service\NotificationService:
+    App\service\Accommodation\ReviewService:
         arguments:
-            $em: '@doctrine.orm.entity_manager'
-            $notificationRepo: '@App\Repository\AdminNotificationRepository'
+            $serpApiKey: '%env(SERPAPI_API_KEY)%'
 
-    # Image Watermark Service
-    App\service\Accommodation\ImageWatermarkService:
+    App\service\TransportOptimalRouteService:
         arguments:
-            $projectDir: '%kernel.project_dir%'
+            $groqApiKey: '%env(TRANSPORTAI)%'
 
-    # ============ CALENDARIFIC SERVICE ============
-    
-    App\service\CalendarificService:
+    App\service\ContentModerationService:
         arguments:
-            $calendarificApiKey: '%env(CALENDARIFIC_API_KEY)%'
-    
-    # ============ GEMINI PACK SERVICE ============
-    
-    App\service\GeminiPackService:
+            $akismetApiKey: '%env(AKISMET_API_KEY)%'
+            $akismetBlogUrl: '%env(AKISMET_BLOG_URL)%'
+            $openAiApiKey: '%env(OPENAI_API_KEY)%'
+            $openAiModerationModel: '%env(OPENAI_MODERATION_MODEL)%'
+            $badWordsFile: '%app.moderation.bad_words_file%'
+
+    App\service\BotProtectionService:
         arguments:
-            $apiKey: '%env(GROQ_PACK_API_KEY)%'
-    
-    # ============ ADMIN CONTROLLERS ============
-    
-    App\Controller\admin\AdminPacksController:
-        arguments:
-            $paginator: '@knp_paginator'
-    
+            $recaptchaSecretKey: '%env(RECAPTCHA_SECRET_KEY)%'
+            $recaptchaMinScore: '%env(float:RECAPTCHA_MIN_SCORE)%'
+
     App\Controller\admin\OverviewController:
         arguments:
             $groqApiKey: '%env(TRANSPORTAI)%'
         tags: ['controller.service_arguments']
 
-    # ============ TRANSPORT SERVICES ============
-    
-    # Transport Optimal Route Service
-    App\service\TransportOptimalRouteService:
+    App\service\BlogModerationAnalyzer:
         arguments:
-            $groqApiKey: '%env(TRANSPORTAI)%'
-
-    # ============ AI COMPARISON CONTROLLER ============
-
-    App\Controller\user\AIComparisonController:
+            $moderationService: '@App\service\ContentModerationService'
+    #houniiii image enhancer service Blog 
+    App\service\ImageEnhancerService:
         arguments:
-            $transportAiKey: '%env(TRANSPORTAI)%'
-        tags: ['controller.service_arguments']
-
-    # ============ HEALTH CHECK SERVICES ============
-    
-    # ElevenLabs API Health Check
-    App\service\HealthCheck\ElevenLabsStatusCheck:
-        arguments:
-            $elevenLabsApiKey: '%env(ELEVENLABS_API_KEY)%'
-        tags:
-            - { name: liip_monitor.check, alias: eleven_labs_api }
-
-    # Mailer Health Check
-    App\service\HealthCheck\MailerStatusCheck:
-        arguments:
-            $transport: '@mailer.default_transport'
-        tags:
-            - { name: liip_monitor.check, alias: symfony_mailer }
-
-    # Redis Health Check
-    App\service\HealthCheck\RedisStatusCheck:
-        arguments:
-            $redisUrl: '%env(REDIS_URL)%'
-        tags:
-            - { name: liip_monitor.check, alias: redis_status }
-
-    # ============ TWO-FACTOR AUTHENTICATION SERVICES ============
-    
-    Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleTotpFactory:
-        alias: scheb_two_factor.security.google_totp_factory
-        public: true
-
-    Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticator:
-        arguments:
-            $totpFactory: '@scheb_two_factor.security.google_totp_factory'
-            $leeway: 0
-        public: true
+            $pixianApiId: '%env(PIXIAN_API_ID)%'
+            $pixianApiSecret: '%env(PIXIAN_API_SECRET)%'

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\form;
+namespace App\Form;
 
 use App\Entity\TravelStory;
 use Symfony\Component\Form\AbstractType;
@@ -24,6 +24,8 @@ class TravelStoryType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $today = (new \DateTimeImmutable('today'))->format('Y-m-d');
+
         $builder
 
             // ───────── BASIC INFO ─────────
@@ -32,7 +34,7 @@ class TravelStoryType extends AbstractType
             ])
 
             ->add('destination', TextType::class, [
-                'required' => false,
+                'required' => true,
             ])
 
             ->add('summary', TextareaType::class, [
@@ -46,12 +48,20 @@ class TravelStoryType extends AbstractType
             // ───────── TRAVEL INFO ─────────
             ->add('startDate', DateType::class, [
                 'widget' => 'single_text',
-                'required' => false,
+                'required' => true,
+                'attr' => [
+                    'class' => 'story-date-input',
+                    'max' => $today,
+                ],
             ])
 
             ->add('endDate', DateType::class, [
                 'widget' => 'single_text',
-                'required' => false,
+                'required' => true,
+                'attr' => [
+                    'class' => 'story-date-input',
+                    'max' => $today,
+                ],
             ])
 
             ->add('travelType', ChoiceType::class, [
@@ -74,7 +84,7 @@ class TravelStoryType extends AbstractType
                     'Backpacking' => 'backpacking',
                     'Adventure' => 'adventure',
                 ],
-                'required' => false,
+                'required' => true,
                 'placeholder' => 'Select style',
             ])
 
@@ -87,16 +97,16 @@ class TravelStoryType extends AbstractType
                     '⭐⭐⭐⭐ 4' => 4,
                     '⭐⭐⭐⭐⭐ 5' => 5,
                 ],
-                'required' => false,
+                'required' => true,
                 'placeholder' => 'Rating',
             ])
 
             ->add('wouldRecommend', CheckboxType::class, [
-                'required' => false,
+                'required' => true,
             ])
 
             ->add('wouldGoAgain', CheckboxType::class, [
-                'required' => false,
+                'required' => true,
             ])
 
             // ───────── BUDGET ─────────

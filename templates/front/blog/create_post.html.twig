@@ -1,243 +1,472 @@
 {% extends 'base.html.twig' %}
-{% block title %}Create Post — TripX{% endblock %}
+{% block title %}Create a Post — TripX{% endblock %}
 
 {% block stylesheets %}
-  {{ parent() }}
-  <link rel="stylesheet" href="{{ asset('css/blog.css') }}">
+<style>
+.cp-wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: calc(var(--nav-height, 70px) + 40px) 16px 80px;
+}
+.cp-label {
+    font-family: var(--font-mono, 'Space Mono');
+    font-size: 11px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--accent-primary);
+    margin-bottom: 10px; display: block;
+}
+.cp-title {
+    font-family: var(--font-display, 'Playfair Display');
+    font-size: 36px; font-weight: 900;
+    color: var(--text-primary); margin: 0 0 8px; line-height: 1.15;
+}
+.cp-title span { color: var(--accent-primary); }
+.cp-subtitle {
+    font-size: 15px; color: var(--text-muted);
+    margin: 0 0 32px; line-height: 1.6;
+}
+.cp-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 24px; padding: 36px 32px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.06);
+    animation: fadeUp .45s cubic-bezier(.22,1,.36,1) both;
+}
+.cp-card label, .cp-field-label {
+    display: block; font-weight: 700; font-size: 12px;
+    color: var(--text-muted); margin-bottom: 7px;
+    font-family: var(--font-mono, 'Space Mono');
+    text-transform: uppercase; letter-spacing: .06em;
+}
+.cp-card input[type="text"],
+.cp-card textarea,
+.cp-card select {
+    width: 100%; padding: 13px 16px;
+    border: 1px solid var(--border-color); border-radius: 14px;
+    background: var(--bg-surface); color: var(--text-primary);
+    font-size: 14px; font-family: inherit;
+    transition: border-color .2s, box-shadow .2s;
+    appearance: none;
+}
+.cp-card input:focus, .cp-card textarea:focus, .cp-card select:focus {
+    outline: none; border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+}
+.cp-card input::placeholder, .cp-card textarea::placeholder { color: var(--text-muted); }
+.cp-card textarea { min-height: 200px; resize: vertical; line-height: 1.7; }
+.select-wrap { position: relative; }
+.select-wrap::after {
+    content: '▾'; position: absolute; right: 16px; top: 50%;
+    transform: translateY(-50%); pointer-events: none;
+    color: var(--text-muted); font-size: 14px;
+}
+.select-wrap select { padding-right: 40px; cursor: pointer; }
+.cp-field { margin-bottom: 22px; }
+.cp-card ul { padding: 0; margin: 6px 0 0; list-style: none; }
+.cp-card ul li { color: #ef4444; font-size: 13px; }
+
+/* ── Image upload zone ── */
+.upload-zone {
+    display: block;                       /* label needs display:block */
+    border: 2px dashed var(--border-color);
+    border-radius: 16px; padding: 36px 20px;
+    text-align: center; cursor: pointer;
+    transition: border-color .2s, background .2s;
+    user-select: none;
+}
+.upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--accent-primary);
+    background: rgba(99,102,241,.04);
+}
+.upload-icon {
+    font-size: 46px; display: block; margin-bottom: 12px;
+    transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.upload-zone:hover .upload-icon { transform: scale(1.18) translateY(-5px); }
+.upload-zone-text {
+    font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px;
+}
+.upload-zone-sub {
+    font-size: 12px; color: var(--text-muted);
+    font-family: var(--font-mono, 'Space Mono');
+}
+
+/* ── Image preview grid ── */
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px; margin-top: 14px;
+}
+.preview-item {
+    position: relative; border-radius: 12px; overflow: hidden;
+    aspect-ratio: 1; border: 1px solid var(--border-color);
+    animation: fadeUp .3s cubic-bezier(.22,1,.36,1) both;
+}
+.preview-item img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.preview-remove {
+    position: absolute; top: 5px; right: 5px;
+    background: rgba(0,0,0,.65); color: #fff; border: none;
+    width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+    font-size: 13px; display: flex; align-items: center; justify-content: center;
+    transition: background .15s;
+}
+.preview-remove:hover { background: #ef4444; }
+
+/* ── Notice & actions ── */
+.cp-notice {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: rgba(245,158,11,.09); border: 1px solid rgba(245,158,11,.28);
+    border-radius: 14px; padding: 13px 16px;
+    font-size: 13px; color: #92400e; margin-bottom: 26px; line-height: 1.5;
+}
+.cp-actions {
+    display: flex; gap: 14px; align-items: center;
+    margin-top: 32px; padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+}
+.cp-submit {
+    padding: 13px 32px;
+    background: linear-gradient(135deg, var(--accent-primary,#6366f1), #a855f7);
+    color: #fff; border: none; border-radius: 50px;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+    box-shadow: 0 4px 14px rgba(99,102,241,.3);
+}
+.cp-submit:hover { transform: translateY(-2px); box-shadow: 0 7px 22px rgba(99,102,241,.42); }
+.cp-back {
+    text-decoration: none; color: var(--text-muted);
+    font-weight: 600; font-size: 14px; transition: color .18s;
+}
+.cp-back:hover { color: var(--text-primary); }
+
+    @keyframes fadeUp {
+        from { opacity:0; transform:translateY(20px); }
+        to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* ── Magic Enhancer Button ── */
+    .magic-btn {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(99,102,241,.1); color: var(--accent-primary);
+        border: 2px solid var(--accent-primary); border-radius: 12px;
+        padding: 8px 16px; font-size: 13px; font-weight: 700;
+        cursor: pointer; transition: all .2s; margin-bottom: 12px;
+    }
+    .magic-btn:hover { background: var(--accent-primary); color: #fff; transform: translateY(-1px); }
+
+    /* ── Enhancer Modal ── */
+    #enhancer-modal {
+        display: none; position: fixed; inset: 0; z-index: 9999;
+        background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
+        align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-content {
+        background: var(--bg-card); border-radius: 24px;
+        width: 100%; max-width: 500px; padding: 32px;
+        box-shadow: 0 20px 50px rgba(0,0,0,.3);
+        animation: fadeUp .3s ease-out;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .modal-title { font-family: var(--font-display); font-size: 22px; font-weight: 900; }
+    .modal-close { border: none; background: none; font-size: 24px; cursor: pointer; color: var(--text-muted); }
+    .tool-group { margin-bottom: 20px; }
+    .tool-label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; }
+    .action-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .action-btn {
+        padding: 12px; border: 1px solid var(--border-color); border-radius: 12px;
+        background: var(--bg-surface); cursor: pointer; text-align: center;
+        transition: all .2s; font-size: 14px; font-weight: 600;
+    }
+    .action-btn.active { border-color: var(--accent-primary); background: rgba(99,102,241,.05); color: var(--accent-primary); }
+    .process-btn {
+        width: 100%; padding: 14px; border: none; border-radius: 50px;
+        background: var(--accent-primary); color: #fff; font-weight: 700;
+        cursor: pointer; transition: transform .2s; margin-top: 10px;
+    }
+    .process-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    #enhance-preview {
+        width: 100%; aspect-ratio: 16/9; border-radius: 12px;
+        background: var(--bg-surface); margin-top: 20px;
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden; border: 1px solid var(--border-color);
+    }
+    #enhance-preview img { width: 100%; height: 100%; object-fit: contain; }
+</style>
 {% endblock %}
 
 {% block body %}
-<div class="blog-page">
 <div class="cp-wrap">
+    <span class="cp-label">✍️ Create</span>
+    <h1 class="cp-title">Share your <span>thoughts</span></h1>
+    <p class="cp-subtitle">
+        Post a story, review, tip or question with the TripX community.
+        All posts are reviewed before going live.
+    </p>
 
-  <span class="cp-eyebrow">✍️ Create</span>
-  <h1 class="cp-title">Share your <span>Travel Story</span></h1>
-  <p class="cp-subtitle">Post a story, review, tip or question to the TripX community.<br>All posts are reviewed before going live.</p>
+    {% for msg in app.flashes('error') %}
+        <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);
+                    border-radius:14px;padding:14px 18px;margin-bottom:20px;
+                    color:#b91c1c;font-size:14px;">❌ {{ msg }}</div>
+    {% endfor %}
 
-  {% for msg in app.flashes('error') %}
-    <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:16px;padding:14px 18px;margin-bottom:20px;color:#fca5a5;font-size:14px;">
-      ❌ {{ msg }}
-    </div>
-  {% endfor %}
+    <div class="cp-card">
+        <div class="cp-notice">
+            ℹ️ Your post will be reviewed by an admin before appearing publicly.
+        </div>
 
-  <div class="cp-card">
-    <div class="cp-notice">ℹ️ Your post will be reviewed by an admin before appearing publicly.</div>
-
-    {{ form_start(form, {
-      'attr': {
-        'novalidate': 'novalidate',
-        'enctype': 'multipart/form-data',
-        'id': 'post-create-form'
-      }
-    }) }}
-
-      {# Title #}
-      <div class="cp-field" id="field-title">
-        <label class="cp-field-label" for="post-title-input">📝 Post Title</label>
-        {{ form_widget(form.title, {
-          'attr': {
-            'class': 'cp-input',
-            'id': 'post-title-input',
-            'placeholder': 'Give your post a clear, catchy title…',
-            'autocomplete': 'off'
-          }
-        }) }}
-        <span class="field-error" id="err-title"></span>
-      </div>
-
-      {# Body #}
-      <div class="cp-field" id="field-body">
-        <label class="cp-field-label" for="post-body-input">📖 Content</label>
-        {{ form_widget(form.body, {
-          'attr': {
-            'class': 'cp-textarea',
-            'id': 'post-body-input',
-            'placeholder': 'Tell your story, share your experience, ask your question…'
-          }
-        }) }}
-        <span class="field-error" id="err-body"></span>
-        <div style="text-align:right;font-size:11px;color:var(--text-3);margin-top:4px;" id="body-count">0 chars</div>
-      </div>
-
-      {# Type #}
-      <div class="cp-field" id="field-type">
-        <label class="cp-field-label" for="post-type-select">🏷️ Post Type</label>
-        <div class="select-wrap">
-          {{ form_widget(form.type, {
+        {{ form_start(form, {
             'attr': {
-              'class': 'cp-select',
-              'id': 'post-type-select'
+                'novalidate': 'novalidate',
+                'enctype': 'multipart/form-data',
+                'data-recaptcha-action': 'post_create'
             }
-          }) }}
+        }) }}
+
+            {{ form_errors(form) }}
+            <input type="text" name="_hp" value="" tabindex="-1" autocomplete="off" style="display:none">
+            <input type="hidden" name="_recaptcha_token" value="">
+
+            {# Title #}
+            <div class="cp-field">
+                {{ form_label(form.title, 'Post Title') }}
+                {{ form_widget(form.title, {'attr': {'placeholder': 'Give your post a clear, catchy title…'}}) }}
+                {{ form_errors(form.title) }}
+            </div>
+
+            {# Body #}
+            <div class="cp-field">
+                {{ form_label(form.body, 'Content') }}
+                {{ form_widget(form.body, {'attr': {'placeholder': 'Tell your story, share your experience, ask your question…'}}) }}
+                {{ form_errors(form.body) }}
+            </div>
+
+            {# Type #}
+            <div class="cp-field">
+                {{ form_label(form.type, 'Post Type') }}
+                <div class="select-wrap">
+                    {{ form_widget(form.type) }}
+                </div>
+                {{ form_errors(form.type) }}
+            </div>
+
+            {# Image Upload #}
+            <div class="cp-field">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="cp-field-label">🖼️ Images (optional — up to 5)</span>
+                    <button type="button" class="magic-btn" onclick="openEnhancer()">✨ Magic AI Enhancer</button>
+                </div>
+
+                {# Render the Symfony file widget — hidden visually but fully clickable via its label #}
+                {# We capture the real Symfony-generated ID so our <label for="..."> matches exactly #}
+                {% set fileInputId = form.imageFile.vars.id %}
+
+                <div style="position:absolute;width:0;height:0;overflow:hidden;">
+                    {{ form_widget(form.imageFile, {'attr': {'multiple': 'multiple'}}) }}
+                </div>
+                {{ form_errors(form.imageFile) }}
+
+                {# <label for="..."> natively triggers the input on click — zero JS needed #}
+                <label for="{{ fileInputId }}" class="upload-zone" id="upload-zone"
+                       ondragover="handleDragOver(event)"
+                       ondragleave="handleDragLeave(event)"
+                       ondrop="handleDrop(event)">
+                    <span class="upload-icon">📷</span>
+                    <div class="upload-zone-text">Click to add photos — or drag & drop here</div>
+                    <div class="upload-zone-sub">
+                        JPG, PNG, WebP, GIF &nbsp;·&nbsp; max 5 MB each &nbsp;·&nbsp; up to 5 images
+                    </div>
+                </label>
+
+                <div class="preview-grid" id="preview-grid"></div>
+            </div>
+
+            <div class="cp-actions">
+                <button type="submit" class="cp-submit">🚀 Publish Post</button>
+                <a href="{{ path('blog') }}" class="cp-back">← Back to blog</a>
+            </div>
+
+        {{ form_end(form) }}
+    </div>
+
+    <!-- Magic Enhancer Modal -->
+    <div id="enhancer-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">AI Magic Tool</h2>
+                <button class="modal-close" onclick="closeEnhancer()">✕</button>
+            </div>
+
+            <div class="tool-group">
+                <span class="tool-label">Select Image</span>
+                <input type="file" id="magic-input" accept="image/*" style="display: none" onchange="previewMagic(this)">
+                <label for="magic-input" class="upload-zone" style="padding: 20px;">
+                    <span id="magic-filename" style="font-size: 14px; font-weight: 600; color: var(--text-muted);">Choose a photo to enhance...</span>
+                </label>
+            </div>
+
+            <div class="tool-group">
+                <span class="tool-label">What should we do?</span>
+                <div class="action-options">
+                    <button type="button" class="action-btn active" data-action="enhance" onclick="setAction(this)">✨ Enhance</button>
+                    <button type="button" class="action-btn" data-action="remove-bg" onclick="setAction(this)">✂️ Remove BG</button>
+                </div>
+            </div>
+
+            <button type="button" id="apply-magic" class="process-btn" onclick="applyMagic()">Apply Magic AI</button>
+
+            <div id="enhance-preview">
+                <span style="color: var(--text-muted); font-size: 13px;">Result will appear here</span>
+            </div>
+
+            <div id="magic-actions" style="display: none; margin-top: 20px; gap: 10px;">
+                <button type="button" class="process-btn" style="background: #10b981" onclick="useMagicResult()">✅ Use this image</button>
+            </div>
         </div>
-        <span class="field-error" id="err-type"></span>
-      </div>
-
-      {# Images #}
-      <div class="cp-field" id="field-images">
-        <span class="cp-field-label">🖼️ Images (optional — up to 5)</span>
-        {% set fileInputId = form.imageFile.vars.id %}
-        <div style="position:absolute;width:0;height:0;overflow:hidden;">
-          {{ form_widget(form.imageFile, {'attr': {'multiple': 'multiple'}}) }}
-        </div>
-        <label for="{{ fileInputId }}" class="upload-zone" id="upload-zone"
-               ondragover="handleDragOver(event)"
-               ondragleave="handleDragLeave(event)"
-               ondrop="handleDrop(event)">
-          <span class="upload-icon">📷</span>
-          <div class="upload-zone-text">Click to add photos — or drag & drop</div>
-          <div class="upload-zone-sub">JPG · PNG · WebP · GIF &nbsp;·&nbsp; max 5 MB each &nbsp;·&nbsp; up to 5 images</div>
-        </label>
-        <div class="preview-grid" id="preview-grid"></div>
-        <span class="field-error" id="err-images"></span>
-      </div>
-
-      <div class="cp-actions">
-        <button type="button" class="cp-submit" onclick="validateAndSubmit()">
-          🚀 Publish Post
-        </button>
-        <a href="{{ path('blog') }}" class="cp-back">← Back to blog</a>
-      </div>
-
-    {{ form_end(form) }}
-  </div>
-</div>
+    </div>
 </div>
 
 <script>
-/* ── Image Upload ── */
-const fileInput   = document.querySelector('input[type="file"][multiple]');
+const fileInput  = document.querySelector('input[type="file"][multiple]');
 const previewGrid = document.getElementById('preview-grid');
 const uploadZone  = document.getElementById('upload-zone');
 let selectedFiles = [];
-const MAX_FILES   = 5;
-const MAX_SIZE    = 5 * 1024 * 1024;
-const ALLOWED_TYPES = ['image/jpeg','image/png','image/webp','image/gif'];
 
+// ── Sync our selectedFiles array to the real input ──────────────────
 function syncFilesToInput() {
-  const dt = new DataTransfer();
-  selectedFiles.forEach(f => dt.items.add(f));
-  fileInput.files = dt.files;
+    const dt = new DataTransfer();
+    selectedFiles.forEach(f => dt.items.add(f));
+    fileInput.files = dt.files;
 }
 
+// ── Render preview grid ──────────────────────────────────────────────
 function renderPreviews() {
-  previewGrid.innerHTML = '';
-  selectedFiles.forEach((file, idx) => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const item = document.createElement('div');
-      item.className = 'preview-item';
-      item.style.animationDelay = (idx * 0.06) + 's';
-      item.innerHTML = `<img src="${e.target.result}" alt="${file.name}">
-        <button type="button" class="preview-remove" onclick="removeFile(${idx})" title="Remove">✕</button>`;
-      previewGrid.appendChild(item);
-    };
-    reader.readAsDataURL(file);
-  });
+    previewGrid.innerHTML = '';
+    selectedFiles.forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const item = document.createElement('div');
+            item.className = 'preview-item';
+            item.style.animationDelay = (idx * 0.06) + 's';
+            item.innerHTML = `
+                <img src="${e.target.result}" alt="${file.name}">
+                <button type="button" class="preview-remove" onclick="removeFile(${idx})" title="Remove">✕</button>
+            `;
+            previewGrid.appendChild(item);
+        };
+        reader.readAsDataURL(file);
+    });
 }
 
 function removeFile(idx) {
-  selectedFiles.splice(idx, 1);
-  syncFilesToInput();
-  renderPreviews();
+    selectedFiles.splice(idx, 1);
+    syncFilesToInput();
+    renderPreviews();
 }
 
 function addFiles(files) {
-  const errEl = document.getElementById('err-images');
-  errEl.textContent = '';
-  const arr = Array.from(files);
-  const valid = [];
-  for (const f of arr) {
-    if (!ALLOWED_TYPES.includes(f.type)) {
-      errEl.textContent = `"${f.name}" is not a valid image format.`;
-      continue;
-    }
-    if (f.size > MAX_SIZE) {
-      errEl.textContent = `"${f.name}" exceeds 5 MB limit.`;
-      continue;
-    }
-    valid.push(f);
-  }
-  selectedFiles = [...selectedFiles, ...valid].slice(0, MAX_FILES);
-  if (selectedFiles.length >= MAX_FILES) {
-    errEl.textContent = 'Maximum 5 images allowed.';
-  }
-  syncFilesToInput();
-  renderPreviews();
+    const arr = Array.from(files);
+    selectedFiles = [...selectedFiles, ...arr].slice(0, 5); // max 5
+    syncFilesToInput();
+    renderPreviews();
 }
 
-fileInput.addEventListener('change', () => addFiles(fileInput.files));
-
-function handleDragOver(e) { e.preventDefault(); uploadZone.classList.add('dragover'); }
-function handleDragLeave()  { uploadZone.classList.remove('dragover'); }
-function handleDrop(e) {
-  e.preventDefault();
-  uploadZone.classList.remove('dragover');
-  if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
-}
-
-/* ── Character Count ── */
-const bodyInput = document.getElementById('post-body-input');
-const bodyCount = document.getElementById('body-count');
-if (bodyInput && bodyCount) {
-  bodyInput.addEventListener('input', () => {
-    const len = bodyInput.value.length;
-    bodyCount.textContent = len + ' chars';
-    bodyCount.style.color = len < 10 ? 'var(--danger)' : 'var(--text-3)';
-  });
-}
-
-/* ── JS Validation ── */
-function setFieldError(fieldId, errId, msg) {
-  const field = document.getElementById(fieldId);
-  const err   = document.getElementById(errId);
-  if (field) field.classList.toggle('err', !!msg);
-  if (err)   { err.textContent = msg || ''; }
-  return !msg;
-}
-
-function validateAndSubmit() {
-  let valid = true;
-
-  const title = document.getElementById('post-title-input')?.value.trim() || '';
-  valid = setFieldError('post-title-input', 'err-title',
-    title === '' ? 'Title is required.' :
-    title.length < 3 ? 'Title must be at least 3 characters.' :
-    title.length > 255 ? 'Title must not exceed 255 characters.' : '') && valid;
-
-  const body = document.getElementById('post-body-input')?.value.trim() || '';
-  valid = setFieldError('post-body-input', 'err-body',
-    body === '' ? 'Content is required.' :
-    body.length < 10 ? 'Content must be at least 10 characters.' : '') && valid;
-
-  const type = document.getElementById('post-type-select')?.value || '';
-  valid = setFieldError('post-type-select', 'err-type',
-    type === '' ? 'Please select a post type.' : '') && valid;
-
-  if (valid) {
-    const btn = document.querySelector('.cp-submit');
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ Submitting…'; }
-    document.getElementById('post-create-form').submit();
-  }
-}
-
-/* ── Real-time validation on blur ── */
-document.addEventListener('DOMContentLoaded', () => {
-  const titleEl = document.getElementById('post-title-input');
-  const bodyEl  = document.getElementById('post-body-input');
-  const typeEl  = document.getElementById('post-type-select');
-
-  if (titleEl) titleEl.addEventListener('input', () => {
-    setFieldError('post-title-input', 'err-title', '');
-  });
-
-  if (bodyEl) bodyEl.addEventListener('input', () => {
-    setFieldError('post-body-input', 'err-body', '');
-  });
-
-  if (typeEl) typeEl.addEventListener('change', () => {
-    setFieldError('post-type-select', 'err-type', '');
-  });
+// ── File input change ────────────────────────────────────────────────
+fileInput.addEventListener('change', () => {
+    addFiles(fileInput.files);
 });
+
+// ── Drag & drop ──────────────────────────────────────────────────────
+function handleDragOver(e) {
+    e.preventDefault();
+    uploadZone.classList.add('dragover');
+}
+function handleDragLeave(e) {
+    uploadZone.classList.remove('dragover');
+}
+function handleDrop(e) {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+}
+
+// ── MAGIC ENHANCER JS ────────────────────────────────────────────────
+let currentAction = 'enhance';
+let magicFile = null;
+let magicResultUrl = null;
+
+function openEnhancer() {
+    document.getElementById('enhancer-modal').style.display = 'flex';
+}
+function closeEnhancer() {
+    document.getElementById('enhancer-modal').style.display = 'none';
+}
+function setAction(btn) {
+    document.querySelectorAll('.action-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentAction = btn.dataset.action;
+}
+function previewMagic(input) {
+    if (input.files && input.files[0]) {
+        magicFile = input.files[0];
+        document.getElementById('magic-filename').textContent = magicFile.name;
+    }
+}
+
+async function applyMagic() {
+    if (!magicFile) return alert('Please select an image first');
+    
+    const btn = document.getElementById('apply-magic');
+    const preview = document.getElementById('enhance-preview');
+    btn.disabled = true;
+    btn.textContent = 'Processing... 🪄';
+    preview.innerHTML = '<span style="font-size: 24px; animation: spin 1s linear infinite">⏳</span>';
+
+    const formData = new FormData();
+    formData.append('image', magicFile);
+    formData.append('action', currentAction);
+
+    try {
+        const resp = await fetch('{{ path('post_ajax_enhance') }}', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await resp.json();
+
+        if (data.ok) {
+            magicResultUrl = data.url;
+            preview.innerHTML = `<img src="${data.url}?t=${Date.now()}" alt="Result" style="max-width:100%; max-height:100%; border-radius:8px">`;
+            document.getElementById('magic-actions').style.display = 'flex';
+        } else {
+            alert(data.error || 'Magic failed');
+            preview.innerHTML = '<span style="color: #ef4444">Processing failed</span>';
+        }
+    } catch (e) {
+        alert('Network error');
+        console.error(e);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Apply Magic AI';
+    }
+}
+
+async function useMagicResult() {
+    if (!magicResultUrl) return;
+    
+    try {
+        const resp = await fetch(magicResultUrl);
+        const blob = await resp.blob();
+        const filename = magicResultUrl.split('/').pop() || 'enhanced_image.png';
+        const file = new File([blob], filename, { type: blob.type });
+
+        addFiles([file]);
+        closeEnhancer();
+        
+        document.getElementById('magic-actions').style.display = 'none';
+        document.getElementById('enhance-preview').innerHTML = '<span style="color: var(--text-muted); font-size: 13px;">Result will appear here</span>';
+    } catch (e) {
+        alert('Could not use the result: ' + e.message);
+    }
+}
 </script>
 {% endblock %}

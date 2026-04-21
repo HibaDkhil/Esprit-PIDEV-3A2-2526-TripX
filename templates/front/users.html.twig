@@ -11,7 +11,6 @@
   <link rel="stylesheet" href="/assets.php?f=css/animations.css">
   <style>
     .profile-layout { display: grid; grid-template-columns: 300px 1fr; gap: 32px; padding-top: calc(var(--nav-height) + 40px); }
-    .profile-layout > main { min-width: 0; } /* Essential fix for Grid Blowout */
     /* Sidebar */
     .profile-sidebar { position: sticky; top: calc(var(--nav-height) + 20px); align-self: start; max-height: calc(100vh - var(--nav-height) - 40px); overflow-y: auto; padding-right: 6px; }
     .profile-sidebar::-webkit-scrollbar { width: 4px; }
@@ -162,63 +161,30 @@
     .engagement-ring { position: relative; display: inline-flex; align-items: center; justify-content: center; }
     .engagement-ring svg { transform: rotate(-90deg); }
     .engagement-ring-inner { position: absolute; text-align: center; }
-    /* === AVATAR SCROLLER === */
-    .avatar-scroller-container { position: relative; display: flex; align-items: center; gap: 10px; margin-top: 10px; max-width: 100%; overflow: hidden; }
-    .avatar-scroller { 
-      display: flex; gap: 16px; overflow-x: auto; padding: 15px 5px; scroll-behavior: smooth; 
-      -webkit-overflow-scrolling: touch; flex: 1; min-width: 0; scrollbar-width: none;
-    }
-    .avatar-scroller::-webkit-scrollbar { display: none; }
-    .scroller-btn {
-      width: 32px; height: 32px; border-radius: 50%; background: var(--bg-card); 
-      border: 1px solid var(--border-color); color: var(--text-primary);
-      display: flex; align-items: center; justify-content: center; cursor: pointer;
-      z-index: 5; transition: all 0.2s; flex-shrink: 0;
-    }
-    .scroller-btn:hover { border-color: var(--accent-teal); color: var(--accent-teal); transform: scale(1.1); }
-    
-    .avatar-option {
-      flex: 0 0 auto;
-      width: 100px; padding: 10px;
-      background: var(--bg-card); border: 1px solid var(--border-color);
-      border-radius: 16px; text-align: center; cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .avatar-option:hover { transform: translateY(-4px); border-color: var(--accent-teal); }
-    .avatar-option.selected { border-color: var(--accent-primary); background: rgba(255,77,109,0.06); }
-    .avatar-option img { width: 60px; height: 60px; border-radius: 50%; margin-bottom: 6px; }
-    .avatar-label { font-size: 10px; font-family: var(--font-mono); color: var(--text-muted); text-transform: capitalize; }
-
-    /* === LATEST TRIP CARD (COMPACT) === */
-    .latest-trip-card {
-      position: relative;
-      border-radius: var(--border-radius-md);
-      overflow: hidden;
-      margin-bottom: 24px;
-      height: 120px;
-      display: flex;
-      align-items: center;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      transition: border-color 0.3s;
-    }
-    .latest-trip-card:hover { border-color: var(--accent-coral); }
-    .latest-trip-bg-wrapper { width: 140px; height: 100%; position: relative; overflow: hidden; flex-shrink: 0; }
-    .latest-trip-bg { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s; }
-    .latest-trip-card:hover .latest-trip-bg { transform: scale(1.1); }
-    .latest-trip-info { padding: 20px 24px; flex: 1; min-width: 0; }
-    .latest-trip-badge { 
-      font-size: 9px; font-family: var(--font-mono); background: rgba(255,77,109,0.1); 
-      color: var(--accent-primary); padding: 3px 8px; border-radius: 4px; 
-      display: inline-block; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;
-    }
-    .latest-trip-title { font-family: var(--font-display); font-size: 20px; text-transform: uppercase; margin-bottom: 4px; color: var(--text-primary); }
-    .latest-trip-meta { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--text-muted); }
-    .latest-trip-rating { color: var(--accent-gold); font-weight: 600; }
-
+    /* === ARIA CHAT REDESIGN === */
+    .aria-panel { width: 400px; max-height: min(560px, calc(100vh - 160px)); display: flex; flex-direction: column; background: linear-gradient(160deg, rgba(5,16,42,0.95), rgba(9,28,68,0.92)); border: 1px solid rgba(0,166,237,0.35); }
+    .aria-header { flex-shrink: 0; padding: 12px 14px; }
+    .aria-messages { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+    .aria-input-row { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border-color); flex-shrink: 0; }
+    .aria-input { flex: 1; min-width: 0; font-size: 0.78rem; color: #e2e8f0; }
+    .aria-attach-btn { background: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 10px; cursor: pointer; color: var(--text-muted); font-size: 16px; transition: border-color 0.2s; flex-shrink: 0; }
+    .aria-attach-btn:hover { border-color: var(--accent-teal); color: var(--accent-teal); }
+    .aria-img-preview { margin: 8px 16px 0; position: relative; display: none; }
+    .aria-img-preview img { width: 80px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color); }
+    .aria-img-preview .remove-img { position: absolute; top: -6px; left: 70px; background: var(--accent-primary); color: #fff; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .pref-check-row { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 8px; }
+    .pref-check-row label { display: inline-flex; align-items: center; gap: 6px; font-size: 0.84rem; cursor: pointer; color: var(--text-secondary); }
+    .aria-msg .aria-bubble { white-space: pre-line; }
+    .aria-voice-btn { background: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 10px; cursor: pointer; color: var(--text-muted); font-size: 14px; transition: border-color 0.2s; flex-shrink: 0; }
+    .aria-voice-btn:hover, .aria-voice-btn.active { border-color: var(--accent-gold); color: var(--accent-gold); }
+    .aria-stop-voice-btn { background: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 9px; cursor: pointer; color: var(--text-muted); font-size: 13px; transition: border-color 0.2s; flex-shrink: 0; }
+    .aria-stop-voice-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+    .aria-msg .aria-bubble { font-size: 0.78rem; }
+    .aria-msg.user .aria-bubble { background: #ffffff; color: #0f172a; }
     @media (max-width: 900px) {
       .profile-layout { grid-template-columns: 1fr; }
       .profile-sidebar { position: static; }
+      .aria-panel { width: 92vw; max-width: 400px; }
     }
   </style>
 </head>
@@ -258,9 +224,7 @@
     <!-- Sidebar -->
     <aside class="profile-sidebar">
       <div class="profile-card reveal">
-        <div class="profile-avatar">
-          <img src="https://api.dicebear.com/9.x/{{ userAvatarStyle|default('adventurer') }}/svg?seed=user_{{ user.userId }}&size=96&radius=50" style="width:100%; height:100%; border-radius:50%; object-fit:cover">
-        </div>
+        <div class="profile-avatar">{{ user.firstName|first|upper }}</div>
         <div class="profile-name">{{ user.firstName }} {{ user.lastName }}</div>
         <div class="profile-handle">@{{ profileHandle }} · {{ user.role|capitalize }} · TripX</div>
         <div class="profile-badge-row">
@@ -282,54 +246,14 @@
         <a href="#activity"   class="sidebar-nav-item" data-track="NAV_ACTIVITY" data-track-type="NAV"><span class="sidebar-nav-icon">📊</span> Your Activity</a>
         <a href="#history"    class="sidebar-nav-item" data-track="NAV_HISTORY" data-track-type="NAV"><span class="sidebar-nav-icon">🗺️</span> Trip History</a>
         <a href="#recos"      class="sidebar-nav-item" data-track="NAV_RECOS" data-track-type="NAV"><span class="sidebar-nav-icon">✦</span> AI Picks</a>
+        <a href="#achievements" class="sidebar-nav-item" data-track="NAV_ACHIEVEMENTS" data-track-type="NAV"><span class="sidebar-nav-icon">🏆</span> Achievements</a>
         <a href="#loyalty"    class="sidebar-nav-item" data-track="NAV_LOYALTY" data-track-type="NAV"><span class="sidebar-nav-icon">💎</span> Loyalty Points</a>
         <a href="#security"   class="sidebar-nav-item" data-track="NAV_SECURITY" data-track-type="NAV"><span class="sidebar-nav-icon">🔐</span> Security</a>
-        <a href="#face-id"    class="sidebar-nav-item" data-track="NAV_FACEID" data-track-type="NAV">
-          <span class="sidebar-nav-icon">🫣</span> Face ID
-          {% if user.faceDescriptor %}
-            <span class="badge badge-teal" style="margin-left:auto; font-size:9px; background:rgba(15,216,80,.2); color:#0fd850; border-color:rgba(15,216,80,.3)">Setuped</span>
-          {% endif %}
-        </a>
       </div>
     </aside>
 
     <!-- Main Content -->
     <main style="padding-bottom:80px">
-
-      <!-- Avatar Selection Section -->
-      <section id="avatar-selection" style="margin-bottom: 48px;">
-        <div class="section-label reveal"><span>Identity</span></div>
-        <h2 class="display-md reveal" style="margin-bottom: 24px">Your <span class="text-gold">Visual Soul</span></h2>
-        
-        <div class="card reveal" style="padding: 24px;">
-          <div style="display:flex; align-items:center; gap:32px">
-            <div class="profile-avatar" style="width: 120px; height: 120px; margin: 0; flex-shrink: 0; transition: all 0.5s ease" id="mainAvatarPreview">
-              <img src="https://api.dicebear.com/9.x/{{ userAvatarStyle|default('adventurer') }}/svg?seed=user_{{ user.userId }}&size=120&radius=50" alt="Avatar" id="mainAvatarImg" style="width: 100%; height: 100%; object-fit: cover;">
-            </div>
-            <div style="flex:1; min-width:0">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
-                <span class="badge badge-teal">← scroll to discover →</span>
-                <span style="font-size:11px; color:var(--text-muted)">Auto-Saves on Click</span>
-              </div>
-              <div class="avatar-scroller-container">
-                <button class="scroller-btn" onclick="scrollAvatars(-1)">←</button>
-                <div class="avatar-scroller" id="avatarScroller">
-                  {% set styles = ['adventurer','adventurer-neutral','avataaars','bottts','croodles','dylan','fun-emoji','glass','identicon','initials','lorelei','micah','miniavs','notionists','open-peeps'] %}
-                  {% for style in styles %}
-                  <div class="avatar-option {{ userAvatarStyle|default('adventurer') == style ? 'selected' : '' }}" 
-                       onclick="updateAvatar(this, '{{ style }}')" 
-                       data-style="{{ style }}">
-                    <img src="https://api.dicebear.com/9.x/{{ style }}/svg?seed=user_{{ user.userId }}&size=60&radius=50" alt="{{ style }}">
-                    <div class="avatar-label">{{ style|replace({'-': ' '}) }}</div>
-                  </div>
-                  {% endfor %}
-                </div>
-                <button class="scroller-btn" onclick="scrollAvatars(1)">→</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <!-- Personal Info -->
       <section id="personal" style="margin-bottom:48px">
@@ -377,7 +301,6 @@
               <div class="input-label">Bio / Travel Style</div>
               <textarea id="profile_bio" class="input" rows="3" style="resize:vertical; color:var(--text-primary)" placeholder="Tell us about your travel style...">{{ user.bio|default('') }}</textarea>
             </div>
-            
             <div style="margin-top:28px;display:flex;gap:12px">
               <button class="btn btn-primary ripple-btn" id="saveProfileBtn">Save Changes</button>
               <button class="btn btn-secondary">Cancel</button>
@@ -709,17 +632,17 @@
         <div class="grid-3 reveal" style="gap:16px;margin-bottom:28px">
           <div class="dna-card" style="text-align:center">
             <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">⏱ Time on Platform</div>
-            <div id="stat-time" style="font-family: var(--font-display); font-size: 3rem; font-weight: 800; color: #00a6ed; -webkit-text-fill-color: #00a6ed !important; background: none;">{{ totalMinutes }}</div>
+            <div class="dna-stat-num" id="stat-time">0</div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:6px">minutes tracked</div>
           </div>
           <div class="dna-card" style="text-align:center">
-            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">📄 Last Page Visited</div>
-            <div id="stat-visits" style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; color: #00a6ed; -webkit-text-fill-color: #00a6ed !important; background: none; line-height: 1.2; word-break: break-word;">{{ lastPageVisited|default('Home')|slice(0, 20) }}</div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:6px">Section: {{ lastPageVisited }}</div>
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">📄 Pages Visited</div>
+            <div class="dna-stat-num" id="stat-visits">0</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:6px">unique page views</div>
           </div>
           <div class="dna-card" style="text-align:center">
             <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">✦ AI Chats</div>
-            <div id="stat-ai" style="font-family: var(--font-display); font-size: 3rem; font-weight: 800; color: #00a6ed; -webkit-text-fill-color: #00a6ed !important; background: none;">{{ aiInteractions }}</div>
+            <div class="dna-stat-num" id="stat-ai">0</div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:6px">ARIA interactions</div>
           </div>
         </div>
@@ -735,16 +658,14 @@
                 <span class="legend-item"><span class="legend-dot" style="background:#00a6ed"></span>Home</span>
                 <span class="legend-item"><span class="legend-dot" style="background:#ff4d6d"></span>Destinations</span>
                 <span class="legend-item"><span class="legend-dot" style="background:#00c896"></span>Activities</span>
-                <span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span>Accomm.</span>
-                <span class="legend-item"><span class="legend-dot" style="background:#7209b7"></span>Transport</span>
-                <span class="legend-item"><span class="legend-dot" style="background:#f43f5e"></span>Offers/Blog</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span>Offers</span>
               </div>
             </div>
             <div style="position:relative;width:200px;height:200px;margin:0 auto">
               <canvas id="dna-donut"></canvas>
               <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
-                <div style="font-family:var(--font-display);font-size:26px">{{ totalMinutes|default(0)|round }}m</div>
-                <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase">time tracked</div>
+                <div style="font-family:var(--font-display);font-size:26px">{{ pageVisits|default(0) }}</div>
+                <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase">page visits</div>
               </div>
             </div>
           </div>
@@ -759,7 +680,39 @@
           </div>
         </div>
 
-        <div class="reveal" style="margin-bottom:28px">
+        <div class="grid-2 reveal" style="gap:24px;margin-bottom:28px">
+          <div class="dna-card" style="padding:24px">
+            <div class="chart-label-row">
+              <h4>Top Destinations Clicked</h4>
+              <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted)">most explored</span>
+            </div>
+            <canvas id="dna-destinations" height="210"></canvas>
+          </div>
+
+          <div class="dna-card" style="padding:24px">
+            <div class="chart-label-row">
+              <h4>Travel Style Radar</h4>
+              <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted)">pace · climate · group</span>
+            </div>
+            <canvas id="dna-radar" height="210"></canvas>
+          </div>
+        </div>
+
+        <div class="grid-2 reveal" style="gap:24px;margin-bottom:28px">
+          <div class="dna-card" style="padding:24px">
+            <div class="chart-label-row">
+              <h4>AI Usage Meter</h4>
+              <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted)">{{ aiInteractions }} interactions</span>
+            </div>
+            {% set aiPctRaw = aiInteractions * 10 %}
+            {% set aiPct = aiPctRaw > 100 ? 100 : aiPctRaw %}
+            <div style="height:10px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;margin:8px 0 10px">
+              <div id="ai-meter-fill" style="height:100%;width:0%;background:linear-gradient(90deg,#7209b7,#00a6ed);transition:width 1.2s cubic-bezier(0.22,1,0.36,1)" data-target="{{ aiPct }}"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted)">
+              <span>Occasional</span><span id="ai-meter-pct">{{ aiPct }}%</span><span>Power user</span>
+            </div>
+          </div>
 
           <div class="dna-card" style="padding:24px">
             <div class="chart-label-row">
@@ -782,16 +735,30 @@
           </div>
         </div>
 
-        {# ── AI Fiche Button ── #}
-        <div class="dna-card reveal" style="padding:32px;margin-bottom:28px; text-align: center; background: linear-gradient(135deg, rgba(114, 9, 183, 0.1), rgba(0, 166, 237, 0.1)); border: 1px solid rgba(255,255,255,0.1)">
-          <div style="font-size: 40px; margin-bottom: 16px;">🔬</div>
-          <h4 style="font-family:var(--font-display);font-size:18px;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px">AI Behavioral DNA Index</h4>
-          <p style="color:var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
-            Generate a comprehensive AI-powered report of your traveler profile, deep insights, and Aria's picks.
-          </p>
-          <button class="btn btn-primary" id="btn-generate-fiche" style="padding: 12px 32px; cursor: pointer; border-radius: 50px;">
-            <i class="fas fa-magic" style="margin-right: 8px;"></i> Generate AI Fiche
-          </button>
+        {# ── Behavioral DNA Bars ── #}
+        <div class="dna-card reveal" style="padding:28px;margin-bottom:28px">
+          <h4 style="font-family:var(--font-display);font-size:15px;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:20px">Behavioural DNA Report</h4>
+          {% set totalActions = activityStats.VISIT|default(0) + activityStats.SEARCH|default(0) + activityStats.BOOKING|default(0) + activityStats.AI_FEATURE|default(0) + activityStats.NAV|default(0) %}
+          {% set totalActions = totalActions > 0 ? totalActions : 1 %}
+
+          {% set bars = [
+            { label: '📍 Page Visits', val: activityStats.VISIT|default(0), color: '#00a6ed' },
+            { label: '🔍 Searches', val: activityStats.SEARCH|default(0), color: '#ff4d6d' },
+            { label: '🏨 Bookings', val: activityStats.BOOKING|default(0), color: '#00c896' },
+            { label: '✦ AI Chats', val: activityStats.AI_FEATURE|default(0), color: '#7209b7' },
+            { label: '🧭 Navigation', val: activityStats.NAV|default(0), color: '#f59e0b' }
+          ] %}
+
+          {% for bar in bars %}
+          {% set pct = ((bar.val / totalActions) * 100)|round %}
+          <div class="dna-bar-row">
+            <div class="dna-bar-label">{{ bar.label }}</div>
+            <div class="dna-bar-track">
+              <div class="dna-bar-fill dna-bar-animated" style="background:{{ bar.color }};width:0%" data-target="{{ pct }}"></div>
+            </div>
+            <div class="dna-bar-pct">{{ pct }}%</div>
+          </div>
+          {% endfor %}
         </div>
 
         {# ── Recent Searches (last 10) ── #}
@@ -813,109 +780,128 @@
         </div>
       </section>
 
-
+      <!-- Trip History Timeline -->
+      <section id="history" style="margin-bottom:48px">
+        <div class="section-label reveal"><span>Trip Timeline</span></div>
+        <h2 class="display-md reveal" style="margin-bottom:24px">Your <span class="text-coral">Adventures</span></h2>
+        <div class="timeline-scroll reveal">
+          <div class="timeline-card">
+            <div class="timeline-card-img" style="background:linear-gradient(135deg,#003049,#d62828);display:flex;align-items:center;justify-content:center;font-size:56px">🌊</div>
+            <div class="timeline-card-body">
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:6px">JAN 2025</div>
+              <div style="font-family:var(--font-display);font-size:22px;text-transform:uppercase;margin-bottom:6px">Bali</div>
+              <div style="font-size:0.8rem;color:var(--text-muted)">14 days · ⭐ 5/5 rated</div>
+              <div style="display:flex;gap:6px;margin-top:10px"><span class="badge badge-teal">Beach</span><span class="badge badge-coral">Cultural</span></div>
+            </div>
+          </div>
+          <div class="timeline-card">
+            <div class="timeline-card-img" style="background:linear-gradient(135deg,#0a1628,#1e3c72);display:flex;align-items:center;justify-content:center;font-size:56px">🌸</div>
+            <div class="timeline-card-body">
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:6px">OCT 2024</div>
+              <div style="font-family:var(--font-display);font-size:22px;text-transform:uppercase;margin-bottom:6px">Kyoto</div>
+              <div style="font-size:0.8rem;color:var(--text-muted)">10 days · ⭐ 5/5 rated</div>
+              <div style="display:flex;gap:6px;margin-top:10px"><span class="badge badge-indigo">Cultural</span></div>
+            </div>
+          </div>
+          <div class="timeline-card">
+            <div class="timeline-card-img" style="background:linear-gradient(135deg,#185a37,#f9a825);display:flex;align-items:center;justify-content:center;font-size:56px">🦁</div>
+            <div class="timeline-card-body">
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:6px">JUL 2024</div>
+              <div style="font-family:var(--font-display);font-size:22px;text-transform:uppercase;margin-bottom:6px">Serengeti</div>
+              <div style="font-size:0.8rem;color:var(--text-muted)">8 days · ⭐ 5/5 rated</div>
+              <div style="display:flex;gap:6px;margin-top:10px"><span class="badge badge-gold">Adventure</span></div>
+            </div>
+          </div>
+          <div class="timeline-card">
+            <div class="timeline-card-img" style="background:linear-gradient(135deg,#3d1c6b,#c9184a);display:flex;align-items:center;justify-content:center;font-size:56px">🗼</div>
+            <div class="timeline-card-body">
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:6px">APR 2024</div>
+              <div style="font-family:var(--font-display);font-size:22px;text-transform:uppercase;margin-bottom:6px">Paris</div>
+              <div style="font-size:0.8rem;color:var(--text-muted)">6 days · ⭐ 4/5 rated</div>
+              <div style="display:flex;gap:6px;margin-top:10px"><span class="badge badge-coral">Romantic</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <!-- AI Picks -->
       <section id="recos" style="margin-bottom:48px">
         <div class="section-label reveal"><span>AI Recommendations</span></div>
         <h2 class="display-md reveal" style="margin-bottom:24px">ARIA's <span class="gradient-text">Picks for You</span></h2>
         <div style="display:flex;flex-direction:column;gap:14px" class="stagger">
-          {% for pick in ariaPicks %}
           <div class="reco-card">
-            <div class="reco-thumb">{{ pick.emoji }}</div>
+            <div class="reco-thumb">🏔️</div>
             <div style="flex:1">
-              <div style="font-weight:600;margin-bottom:4px">{{ pick.name }}</div>
-              <div style="font-size:0.82rem;color:var(--text-muted)">{{ pick.desc }}</div>
+              <div style="font-weight:600;margin-bottom:4px">Faroe Islands, Denmark</div>
+              <div style="font-size:0.82rem;color:var(--text-muted)">Because you loved Iceland's raw landscapes & solitude</div>
             </div>
             <div style="display:flex;gap:8px;align-items:center">
-              <span class="ai-badge">{{ pick.match }}% match</span>
-              <a href="{{ pick.path|default('#') }}" class="btn btn-secondary btn-sm">Explore</a>
+              <span class="ai-badge">93% match</span>
+              <a href="destination-detail.html.twig" class="btn btn-secondary btn-sm">Explore</a>
             </div>
           </div>
-          {% else %}
           <div class="reco-card">
-            <div class="reco-thumb">🤖</div>
+            <div class="reco-thumb">🍜</div>
             <div style="flex:1">
-              <div style="font-weight:600;margin-bottom:4px">Browse More</div>
-              <div style="font-size:0.82rem;color:var(--text-muted)">Aria is learning about your style. Browse more to unlock tailored suggestions.</div>
+              <div style="font-weight:600;margin-bottom:4px">Hanoi, Vietnam</div>
+              <div style="font-size:0.82rem;color:var(--text-muted)">Your street food obsession + cultural depth = perfect match</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="ai-badge">91% match</span>
+              <a href="destination-detail.html.twig" class="btn btn-secondary btn-sm">Explore</a>
             </div>
           </div>
-          {% endfor %}
+          <div class="reco-card">
+            <div class="reco-thumb">🏛️</div>
+            <div style="flex:1">
+              <div style="font-weight:600;margin-bottom:4px">Athens, Greece</div>
+              <div style="font-size:0.82rem;color:var(--text-muted)">Based on history and culture scores in your Travel DNA</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="ai-badge">88% match</span>
+              <a href="destination-detail.html.twig" class="btn btn-secondary btn-sm">Explore</a>
+            </div>
+          </div>
         </div>
       </section>
 
-      <!-- Trip History (Styled as Achievements) -->
-      <section id="history" style="margin-bottom:48px">
-        <div class="section-label reveal"><span>Milestones</span></div>
-        <h2 class="display-md reveal" style="margin-bottom:24px">Trip <span class="text-gold">History</span></h2>
+      <!-- Achievements -->
+      <section id="achievements" style="margin-bottom:48px">
+        <div class="section-label reveal"><span>Gamification</span></div>
+        <h2 class="display-md reveal" style="margin-bottom:24px">Your <span class="text-gold">Achievements</span></h2>
         <div class="grid-2 stagger" style="gap:14px">
-          {% for trip in trips %}
-            <div class="achievement">
-              <div class="achievement-icon">
-                {% if trip.type == 'Accommodation' %}🏨{% elseif trip.type == 'Transport' %}✈️{% elseif trip.type == 'Activity' %}🏄{% else %}📍{% endif %}
-              </div>
-              <div>
-                <div style="font-weight:600;margin-bottom:4px">{{ trip.name }}</div>
-                <div style="font-size:0.8rem;color:var(--text-muted)">{{ trip.date }}</div>
-              </div>
-              <span class="badge badge-gold">{{ trip.type }}</span>
-            </div>
-          {% else %}
-            <div class="achievement locked">
-              <div class="achievement-icon">🏜️</div>
-              <div>
-                <div style="font-weight:600;margin-bottom:4px">No History</div>
-                <div style="font-size:0.8rem;color:var(--text-muted)">Start your journey!</div>
-              </div>
-              <span class="badge badge-muted">Empty</span>
-            </div>
-          {% endfor %}
+          <div class="achievement"><div class="achievement-icon">🌍</div><div><div style="font-weight:600;margin-bottom:4px">World Explorer</div><div style="font-size:0.8rem;color:var(--text-muted)">Visited 30+ countries</div></div><span class="badge badge-gold">Unlocked</span></div>
+          <div class="achievement"><div class="achievement-icon">🍜</div><div><div style="font-weight:600;margin-bottom:4px">Culinary Nomad</div><div style="font-size:0.8rem;color:var(--text-muted)">Tried local food in 20 countries</div></div><span class="badge badge-gold">Unlocked</span></div>
+          <div class="achievement"><div class="achievement-icon">⛺</div><div><div style="font-weight:600;margin-bottom:4px">Trailblazer</div><div style="font-size:0.8rem;color:var(--text-muted)">5 off-beaten-path destinations</div></div><span class="badge badge-gold">Unlocked</span></div>
+          <div class="achievement locked"><div class="achievement-icon">🚀</div><div><div style="font-weight:600;margin-bottom:4px">Supernova</div><div style="font-size:0.8rem;color:var(--text-muted)">Visit all 7 continents</div></div><span class="badge badge-muted">6/7</span></div>
+          <div class="achievement locked"><div class="achievement-icon">💎</div><div><div style="font-weight:600;margin-bottom:4px">Diamond Traveller</div><div style="font-size:0.8rem;color:var(--text-muted)">50+ trips completed</div></div><span class="badge badge-muted">23/50</span></div>
+          <div class="achievement locked"><div class="achievement-icon">🌊</div><div><div style="font-weight:600;margin-bottom:4px">Island Hopper</div><div style="font-size:0.8rem;color:var(--text-muted)">Visit 10 island destinations</div></div><span class="badge badge-muted">7/10</span></div>
         </div>
       </section>
 
+      <!-- Loyalty -->
       <section id="loyalty" style="margin-bottom:48px">
         <div class="section-label reveal"><span>Rewards</span></div>
         <h2 class="display-md reveal" style="margin-bottom:24px">Loyalty <span class="text-gold">Points</span></h2>
         <div class="card reveal">
           <div class="card-body">
-            {% if loyalty %}
-              {% set lvl        = loyalty.computeLevel() %}
-              {% set pts        = loyalty.totalPoints %}
-              {% set toNext     = loyalty.pointsToNextLevel %}
-              {% set nextLvl    = lvl == 'BRONZE' ? 'SILVER' : (lvl == 'SILVER' ? 'GOLD' : 'GOLD') %}
-              {% set maxForBar  = lvl == 'BRONZE' ? 200 : (lvl == 'SILVER' ? 400 : 400) %}
-              {% set minForBar  = lvl == 'BRONZE' ? 0   : (lvl == 'SILVER' ? 200 : 400) %}
-              {% set barPct     = lvl == 'GOLD' ? 100 : (((pts - minForBar) / (maxForBar - minForBar)) * 100)|round %}
-              {% set tierColor  = lvl == 'GOLD' ? '#f4b942' : (lvl == 'SILVER' ? '#94a3b8' : '#cd7f32') %}
-            {% else %}
-              {% set lvl = 'BRONZE' %}{% set pts = 0 %}{% set toNext = 200 %}
-              {% set nextLvl = 'SILVER' %}{% set barPct = 0 %}{% set tierColor = '#cd7f32' %}
-            {% endif %}
-
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px">
               <div>
                 <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em">Your Balance</div>
-                <div style="font-family:var(--font-display);font-size:56px;color:var(--accent-gold);line-height:1">{{ pts|number_format }}</div>
-                <div style="font-size:0.85rem;color:var(--text-muted)">
-                  {{ lvl|capitalize }} Tier
-                  {% if lvl != 'GOLD' %} · {{ toNext }} pts to {{ nextLvl }}{% endif %}
-                </div>
+                <div style="font-family:var(--font-display);font-size:56px;color:var(--accent-gold);line-height:1">8,420</div>
+                <div style="font-size:0.85rem;color:var(--text-muted)">Explorer Tier · 1,580 pts to Gold</div>
               </div>
               <div style="text-align:right">
-                <span class="badge badge-gold" style="font-size:14px;padding:8px 20px;color:{{ tierColor }}">{{ lvl }}</span>
-                {% if lvl != 'GOLD' %}
-                  <div style="font-size:0.8rem;color:var(--text-muted);margin-top:8px">Next: {{ nextLvl }} Tier</div>
-                {% else %}
-                  <div style="font-size:0.8rem;color:var(--accent-gold);margin-top:8px">✨ Max Tier!</div>
-                {% endif %}
+                <span class="badge badge-gold" style="font-size:14px;padding:8px 20px">EXPLORER</span>
+                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:8px">Next: Gold Tier 🥇</div>
               </div>
             </div>
             <div class="loyalty-track">
-              <div class="loyalty-fill" style="width:{{ barPct }}%"></div>
-              <div class="loyalty-glow" style="right:{{ 100 - barPct }}%"></div>
+              <div class="loyalty-fill" style="width:84%"></div>
+              <div class="loyalty-glow" style="right:16%"></div>
             </div>
             <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-top:8px">
-              <span>Bronze (0)</span><span>Silver (200)</span><span>Gold (400)</span>
+              <span>Explorer (0)</span><span>Gold (10,000)</span><span>Diamond (25,000)</span>
             </div>
           </div>
         </div>
@@ -949,22 +935,13 @@
                 <button class="btn btn-primary ripple-btn" style="margin-top:8px" id="confirmPasswordBtn">Update Password</button>
               </div>
               <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:rgba(0,200,150,0.06);border-radius:var(--border-radius-md);border:1px solid rgba(0,200,150,0.2)">
-                <div>
-                  <div style="font-weight:600;margin-bottom:4px">Two-Factor Authentication</div>
-                  <div style="font-size:0.8rem;color:var(--text-muted)">
-                    {% if user.googleAuthenticatorSecret %}Enabled via Authenticator App ✓{% else %}Not set up{% endif %}
-                  </div>
-                </div>
-                {% if user.googleAuthenticatorSecret %}
-                  <div style="display: flex; align-items: center; gap: 12px;">
-                    <span class="badge badge-teal">Active</span>
-                    <button class="btn btn-secondary btn-sm" id="disable2faBtn" style="border-color:#ff4d6d; color:#ff4d6d;">Disable</button>
-                  </div>
-                {% else %}
-                  <a href="{{ path('profile_2fa_setup') }}" class="btn btn-secondary btn-sm">Set Up</a>
-                {% endif %}
+                <div><div style="font-weight:600;margin-bottom:4px">Two-Factor Authentication</div><div style="font-size:0.8rem;color:var(--text-muted)">Enabled via Authenticator App ✓</div></div>
+                <span class="badge badge-teal">Active</span>
               </div>
-
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:var(--bg-surface);border-radius:var(--border-radius-md);border:1px solid var(--border-color)">
+                <div><div style="font-weight:600;margin-bottom:4px">AI Data Training</div><div style="font-size:0.8rem;color:var(--text-muted)">Control what ARIA learns from your behavior</div></div>
+                <button class="btn btn-secondary btn-sm">Manage Privacy</button>
+              </div>
               <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:rgba(255,77,109,0.08);border-radius:var(--border-radius-md);border:1px solid rgba(255,77,109,0.35)">
                 <div><div style="font-weight:600;margin-bottom:4px;color:#ff4d6d">Delete Account</div><div style="font-size:0.8rem;color:var(--text-muted)">Permanently disable your account access</div></div>
                 <button class="btn btn-secondary btn-sm" id="deleteAccountBtn" style="border-color:#ff4d6d;color:#ff4d6d">Delete</button>
@@ -974,192 +951,9 @@
         </div>
       </section>
 
-      {# ── Face ID Section ── #}
-      <section id="face-id" style="margin-bottom:48px">
-        <div class="section-label reveal"><span>Biometrics</span></div>
-        <h2 class="display-md reveal" style="margin-bottom:24px">Face <span class="text-teal">ID</span></h2>
-
-        <style>
-          .faceid-status-badge {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 6px 16px; border-radius: 50px; font-size: 0.78rem;
-            font-weight: 700; letter-spacing: 0.04em;
-          }
-          .faceid-status-badge.active {
-            background: rgba(15,216,80,.12); color: #0fd850;
-            border: 1px solid rgba(15,216,80,.3);
-          }
-          .faceid-status-badge.inactive {
-            background: rgba(255,255,255,.05); color: var(--text-muted);
-            border: 1px solid var(--border-color);
-          }
-          .faceid-status-dot {
-            width: 8px; height: 8px; border-radius: 50%;
-          }
-          .faceid-status-badge.active .faceid-status-dot {
-            background: #0fd850;
-            box-shadow: 0 0 0 0 rgba(15,216,80,.5);
-            animation: faceIdPulse 2s ease infinite;
-          }
-          .faceid-status-badge.inactive .faceid-status-dot { background: var(--text-muted); }
-          @keyframes faceIdPulse {
-            0%   { box-shadow: 0 0 0 0 rgba(15,216,80,.5); }
-            70%  { box-shadow: 0 0 0 7px rgba(15,216,80,0); }
-            100% { box-shadow: 0 0 0 0 rgba(15,216,80,0); }
-          }
-          .faceid-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 18px 20px;
-            border-radius: var(--border-radius-md);
-            border: 1px solid var(--border-color);
-            transition: border-color 0.2s;
-          }
-          .faceid-row:hover { border-color: rgba(0,200,150,0.35); }
-          .faceid-row.active-row {
-            background: rgba(15,216,80,.05);
-            border-color: rgba(15,216,80,.25);
-          }
-          .faceid-row.setup-row {
-            background: rgba(244,185,66,.04);
-            border-color: rgba(244,185,66,.2);
-          }
-          .faceid-btn-gold {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 8px 22px; border-radius: 50px;
-            background: linear-gradient(135deg,#f4b942,#d4860a);
-            color: #0f1b2d; font-weight: 700; font-size: 0.85rem;
-            border: none; cursor: pointer; text-decoration: none;
-            transition: all 0.25s;
-          }
-          .faceid-btn-gold:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(244,185,66,.35); }
-          .faceid-btn-danger {
-            padding: 8px 18px; border-radius: 50px;
-            background: none; border: 1px solid rgba(248,113,113,.4);
-            color: #f87171; font-size: 0.82rem; font-weight: 600;
-            cursor: pointer; transition: all 0.2s;
-          }
-          .faceid-btn-danger:hover { background: rgba(248,113,113,.1); border-color: #f87171; }
-          .faceid-tip-box {
-            padding: 16px 20px;
-            background: rgba(255,255,255,.03);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-md);
-            display: flex; flex-direction: column; gap: 8px;
-          }
-          .faceid-tip { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; color: var(--text-muted); }
-        </style>
-
-        <div class="card reveal">
-          <div class="card-body">
-            <div style="display:flex; flex-direction:column; gap:16px">
-
-              {# ── Status row ── #}
-              <div class="faceid-row {{ user.faceDescriptor ? 'active-row' : '' }}">
-                <div>
-                  <div style="font-weight:600;margin-bottom:6px">Face Recognition Status</div>
-                  <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:10px">
-                    Use your face to log in instantly — no password needed
-                  </div>
-                  {% if user.faceDescriptor %}
-                    <span class="faceid-status-badge active">
-                      <span class="faceid-status-dot"></span>ACTIVE / SETUPED
-                    </span>
-                  {% else %}
-                    <span class="faceid-status-badge inactive">
-                      <span class="faceid-status-dot"></span>NOT SET UP
-                    </span>
-                  {% endif %}
-                </div>
-                <div style="text-align:right">
-                  {% if user.faceDescriptor %}
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#0fd850" stroke-width="2" width="40" height="40" style="opacity:.8">
-                      <circle cx="12" cy="8" r="4"/><path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
-                      <path d="M9 7c.5-.5 1.5-1 3-1s2.5.5 3 1"/>
-                      <path d="M9 9.5c.5.5 1.5 1 3 1s2.5-.5 3-1"/>
-                    </svg>
-                  {% else %}
-                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" width="40" height="40" style="opacity:.4">
-                      <circle cx="12" cy="8" r="4"/><path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
-                    </svg>
-                  {% endif %}
-                </div>
-              </div>
-
-              {# ── Setup / Update row ── #}
-              <div class="faceid-row setup-row">
-                <div>
-                  <div style="font-weight:600;margin-bottom:4px">
-                    {{ user.faceDescriptor ? '🔄 Update Face Data' : '📸 Register Your Face' }}
-                  </div>
-                  <div style="font-size:0.82rem;color:var(--text-muted)">
-                    {{ user.faceDescriptor
-                      ? 'Re-capture your face to improve recognition accuracy'
-                      : 'Open the camera and register your face in seconds' }}
-                  </div>
-                </div>
-                <a href="{{ path('face_setup') }}" class="faceid-btn-gold">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                    <circle cx="12" cy="8" r="4"/>
-                    <circle cx="12" cy="19" r="3"/>
-                    <path d="M15 19h4m-2-2v4"/>
-                  </svg>
-                  {{ user.faceDescriptor ? 'Update Face' : 'Set Up Face ID' }}
-                </a>
-              </div>
-
-              {# ── Remove row (only if registered) ── #}
-              {% if user.faceDescriptor %}
-              <div class="faceid-row" style="background:rgba(248,113,113,.04); border-color:rgba(248,113,113,.2)">
-                <div>
-                  <div style="font-weight:600;margin-bottom:4px;color:#f87171">Remove Face Data</div>
-                  <div style="font-size:0.82rem;color:var(--text-muted)">Unlink your biometric data from this account</div>
-                </div>
-                <button class="faceid-btn-danger" id="profileUnlinkFaceBtn">
-                  🗑 Remove
-                </button>
-              </div>
-              {% endif %}
-
-              {# ── Tips ── #}
-              <div class="faceid-tip-box">
-                <div style="font-size:0.8rem;font-weight:700;color:var(--text-secondary);margin-bottom:4px">Tips for best results</div>
-                <div class="faceid-tip"><span>💡</span> Good, even lighting on your face improves accuracy significantly</div>
-                <div class="faceid-tip"><span>📐</span> Centre your face inside the oval on the camera screen</div>
-                <div class="faceid-tip"><span>😐</span> Use a neutral expression — similar to your ID photo</div>
-                <div class="faceid-tip"><span>🔒</span> Your face data is stored securely on Azure Cognitive Services</div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </section>
-
     </main>
   </div>
 </div>
-
-{# ── MODAL UI ── #}
-<div id="modal-ai-fiche" class="modal-root">
-  <div class="modal-backdrop" id="btn-close-fiche-backdrop"></div>
-  <div class="modal-content" style="max-width: 800px; padding: 0; background: #0b0f19; color: #ffffff;">
-    <div style="padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02)">
-      <h3 style="margin:0; font-family:var(--font-display); font-size: 18px; color: #fff;">Intelligence Report</h3>
-      <div style="display:flex; gap:12px">
-        <button id="btn-download-pdf" class="btn btn-secondary btn-sm">PDF</button>
-        <button class="modal-close-trigger" id="btn-close-fiche-trigger" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">✕</button>
-      </div>
-    </div>
-    <div id="fiche-content-area" style="padding: 32px; max-height: 70vh; overflow-y: auto;"></div>
-  </div>
-</div>
-
-<style>
-.modal-root { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 2000; opacity: 0; visibility: hidden; transition: 0.3s; }
-.modal-root.open { opacity: 1; visibility: visible; }
-.modal-backdrop { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
-.modal-content { position: relative; width: 90%; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); transform: translateY(20px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.modal-root.open .modal-content { transform: translateY(0); }
-</style>
 
 <div class="toast" id="profileToast" style="display:none; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#0b1f4d; color:#fff; padding:12px 24px; border-radius:50px; z-index:9999; font-weight:500; font-size:0.9rem; box-shadow:0 10px 30px rgba(0,0,0,0.35); transition:opacity 0.3s; opacity:0;">
     <span id="toastMsg"></span>
@@ -1174,7 +968,29 @@
   </div>
 </footer>
 
-
+<button class="aria-orb" id="aria-orb" aria-label="Open ARIA">🤖</button>
+<div class="aria-panel" id="aria-panel">
+  <div class="aria-header">
+    <div class="aria-avatar">🤖</div>
+    <div><span class="aria-name">ARIA</span><span class="aria-status">Personalized for {{ user.firstName }}</span></div>
+    <button id="aria-close" style="margin-left:auto;font-size:18px;color:var(--text-muted);background:none;border:none">✕</button>
+  </div>
+  <div class="aria-messages" id="aria-messages">
+    <div class="aria-msg bot"><div class="aria-bubble">Hey {{ user.firstName }}! 👋 I know you well — you're a <strong>{{ travelPersona }}</strong>. Want a destination curated just for you? Or ask me anything about travel! ✨</div></div>
+  </div>
+  <div class="aria-img-preview" id="aria-img-preview">
+    <img id="aria-preview-img" src="" alt="preview">
+    <button class="remove-img" id="aria-remove-img" title="Remove image">✕</button>
+  </div>
+  <div class="aria-input-row">
+    <button class="aria-attach-btn" id="aria-attach-btn" title="Attach image">📎</button>
+    <button class="aria-voice-btn" id="aria-voice-btn" title="Voice search">🎤</button>
+    <button class="aria-stop-voice-btn" id="aria-stop-voice-btn" title="Stop voice">⏹</button>
+    <input type="file" id="aria-file-input" accept="image/*" style="display:none">
+    <input class="aria-input" id="aria-input" type="text" placeholder="Ask ARIA anything...">
+    <button class="aria-send" id="aria-send" data-track="AI_ARIA_CHAT" data-track-type="AI_FEATURE">➤</button>
+  </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -1253,19 +1069,14 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch('/profile/update', { 
       method:'POST', 
       headers:{'Content-Type':'application/json'}, 
-      body:JSON.stringify(payload) 
+      body:JSON.stringify(data) 
     })
     .then(r=>r.json())
     .then(res => {
       btn.innerText = origText;
       if (res.success) {
-        showToast('✅ Profile updated successfully!');
-        
-        // Update live theme without reload
-        const dynamicEnabled = document.getElementById('profile_dynamic_theme').checked;
-        document.body.setAttribute('data-dynamic-theme', dynamicEnabled ? '1' : '0');
-        
-        setTimeout(() => { btn.innerText = origText; btn.disabled = false; }, 2000);
+          showToast('✅ Profile updated successfully!');
+          setTimeout(() => window.location.reload(), 1000);
       } else {
           showToast('❌ ' + (res.error || 'Update failed.'));
       }
@@ -1332,67 +1143,6 @@ document.addEventListener('DOMContentLoaded', function() {
       .catch(() => showToast('❌ Could not delete account.'));
   });
 
-    window.scrollAvatars = function(direction) {
-      const scroller = document.getElementById('avatarScroller');
-      if (scroller) {
-        scroller.scrollBy({ left: direction * 240, behavior: 'smooth' });
-      }
-    };
-
-    window.updateAvatar = function(el, style) {
-      const img = document.getElementById('mainAvatarImg');
-      const preview = document.getElementById('mainAvatarPreview');
-      const sidebarAvatar = document.querySelector('.profile-sidebar .profile-avatar');
-      
-      // 1. Immediate UI Feedback
-      const newUrl = `https://api.dicebear.com/9.x/${style}/svg?seed=user_{{ user.userId }}&size=120&radius=100`;
-      
-      if (img) {
-        img.style.opacity = '0.3';
-        setTimeout(() => {
-          img.src = newUrl;
-          img.style.opacity = '1';
-        }, 150);
-      }
-      
-      // Update selections in scroller
-      document.querySelectorAll('.avatar-option').forEach(opt => {
-        opt.classList.remove('selected');
-      });
-      if (el) el.classList.add('selected');
-      
-      // Update sidebar avatar (instant sync)
-      if (sidebarAvatar) {
-        const sidebarImg = sidebarAvatar.querySelector('img');
-        if (sidebarImg) sidebarImg.src = newUrl.replace('size=120', 'size=96');
-      }
-      
-      // Animation on preview
-      if (preview) {
-        preview.style.transform = 'scale(1.08)';
-        setTimeout(() => preview.style.transform = 'scale(1)', 200);
-      }
-
-      // 2. Auto-Save via AJAX
-      fetch('/profile/avatar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ style: style })
-      })
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) {
-          showToast('✨ Identity updated!');
-        } else {
-          showToast('⚠️ Could not save style.', true);
-        }
-      })
-      .catch(e => {
-        console.error('Avatar sync error:', e);
-        showToast('⚠️ Sync error.', true);
-      });
-    }
-
   function showToast(msg, isError = false) {
     const t = document.getElementById('profileToast');
     const m = document.getElementById('toastMsg');
@@ -1453,17 +1203,16 @@ document.addEventListener('DOMContentLoaded', function() {
     new Chart(donutCtx, {
       type: 'doughnut',
       data: {
-        labels: ['Home', 'Destinations', 'Activities', 'Accomm.', 'Transport', 'Offers/Blog'],
+        labels: ['Home', 'Destinations', 'Activities', 'Offers', 'Other'],
         datasets: [{
           data: [
-            {{ timeBreakdown.Home|default(0) }},
-            {{ timeBreakdown.Destinations|default(0) }},
-            {{ timeBreakdown.Activities|default(0) }},
-            {{ timeBreakdown.Accommodations|default(0) }},
-            {{ timeBreakdown.Transport|default(0) }},
-            {{ (timeBreakdown.Offers|default(0)) + (timeBreakdown.Blog|default(0)) }}
+            {{ pageBreakdown.Home|default(0) }},
+            {{ pageBreakdown.Destinations|default(0) }},
+            {{ pageBreakdown.Activities|default(0) }},
+            {{ pageBreakdown.Offers|default(0) }},
+            {{ pageBreakdown.Other|default(0) }}
           ],
-          backgroundColor: ['#00a6ed','#ff4d6d','#00c896','#f59e0b','#7209b7','#f43f5e'],
+          backgroundColor: ['#00a6ed','#ff4d6d','#00c896','#f59e0b','#6b7280'],
           borderWidth: 0,
           hoverOffset: 12
         }]
@@ -1796,47 +1545,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initial scroll
   scrollMsgs();
 
-  if (saveProfileBtn) {
-    saveProfileBtn.addEventListener('click', function() {
-      const origText = saveProfileBtn.textContent;
-      saveProfileBtn.textContent = 'Saving…';
-      saveProfileBtn.disabled = true;
-
-      const payload = {
-        firstName: document.getElementById('profile_first_name')?.value,
-        lastName: document.getElementById('profile_last_name')?.value,
-        email: document.getElementById('profile_email')?.value,
-        phone: document.getElementById('profile_phone')?.value,
-        bio: document.getElementById('profile_bio')?.value
-      };
-
-      fetch('/profile/update', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: JSON.stringify(payload)
-      })
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) {
-          showToast('✅ Profile updated successfully!');
-          setTimeout(() => location.reload(), 1000);
-        } else {
-          showToast('⚠️ ' + (data.error || 'Update failed'), true);
-          saveProfileBtn.textContent = origText;
-          saveProfileBtn.disabled = false;
-        }
-      })
-      .catch(() => {
-        showToast('⚠️ Network error', true);
-        saveProfileBtn.textContent = origText;
-        saveProfileBtn.disabled = false;
-      });
-    });
-  }
-
   // ════════════════════════════════════════════
   // TRAVEL PREFERENCES CHIPS
   // ════════════════════════════════════════════
@@ -1931,152 +1639,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // ════════════════════════════════════════════
-  // FACE ID – Remove button (profile page)
-  // ════════════════════════════════════════════
-  const unlinkFaceBtn = document.getElementById('profileUnlinkFaceBtn');
-  if (unlinkFaceBtn) {
-    unlinkFaceBtn.addEventListener('click', function() {
-      if (!confirm('Remove your face data? You can re-register at any time from this page.')) return;
-      const origText = unlinkFaceBtn.textContent;
-      unlinkFaceBtn.textContent = 'Removing…';
-      unlinkFaceBtn.disabled = true;
-
-      fetch('{{ path('face_remove') }}', { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-        .then(r => r.json())
-        .then(data => {
-          if (data.success) {
-            showToast('✅ Face data removed successfully.');
-            setTimeout(() => window.location.reload(), 1200);
-          } else {
-            showToast('⚠️ ' + (data.message || 'Could not remove face data.'), true);
-            unlinkFaceBtn.textContent = origText;
-            unlinkFaceBtn.disabled = false;
-          }
-        })
-        .catch(() => {
-          showToast('⚠️ Network error. Please try again.', true);
-          unlinkFaceBtn.textContent = origText;
-          unlinkFaceBtn.disabled = false;
-        });
-    });
-  }
-
-  // ════════════════════════════════════════════
-  // CHART INITIALIZATION & AI FICHE
-  // ════════════════════════════════════════════
-  try {
-    const donutCtx = document.getElementById('dna-donut')?.getContext('2d');
-    if (donutCtx && typeof Chart !== 'undefined') {
-      const tbData = {{ timeBreakdown|default({})|json_encode|raw }};
-      new Chart(donutCtx, {
-        type: 'doughnut',
-        data: {
-          labels: Object.keys(tbData),
-          datasets: [{ data: Object.values(tbData), backgroundColor: ['#00a6ed','#ff4d6d','#00c896','#f59e0b','#7209b7','#f43f5e'] }]
-        },
-        options: { cutout:'70%', plugins: { legend: { display: false } } }
-      });
-    }
-
-    const hourCtx = document.getElementById('dna-hourly')?.getContext('2d');
-    if (hourCtx && typeof Chart !== 'undefined') {
-      new Chart(hourCtx, {
-        type: 'bar',
-        data: {
-          labels: Array.from({length:24},(_,i)=>i+'h'),
-          datasets: [{
-            data: {{ hourlyActivity|default([])|json_encode|raw }},
-            backgroundColor: '#00a6ed',
-            borderRadius: 4
-          }]
-        },
-        options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
-      });
-    }
-  } catch (err) {
-    console.error("Error initializing Charts:", err);
-  }
-
-  const btnFiche = document.getElementById('btn-generate-fiche');
-  const modalFiche = document.getElementById('modal-ai-fiche');
-  const ficheArea = document.getElementById('fiche-content-area');
-
-  if (btnFiche && modalFiche) {
-    btnFiche.addEventListener('click', () => {
-      modalFiche.classList.add('open');
-      ficheArea.innerHTML = '<p style="text-align:center; color:#9ca3af; padding:40px;">Analyzing patterns...</p>';
-      
-      fetch('/profile/report/generate')
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                const report = data.report;
-                let html = `<div style="text-align:center; margin-bottom:24px;"><div style="font-size:48px;">${report.emoji}</div><h3 style="color:#fff;">${report.persona}</h3></div>`;
-                html += `<div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:12px; margin-bottom:20px;"><h5 style="color:#fff;">Insights</h5><p style="color:#e5e7eb; line-height:1.6;">${report.insights}</p></div>`;
-                
-                if (report.loyalty) {
-                    html += `<div style="background:rgba(244,185,66,0.1); border: 1px solid rgba(244,185,66,0.3); padding:24px; border-radius:12px; margin-bottom:24px; text-align:center;">
-                                <h5 style="color: #f4b942; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Reward Unlocked!</h5>
-                                <p style="color: #e5e7eb; margin-bottom: 16px; font-size: 0.95rem;">With an engagement score of <strong>${report.stats.engagement}</strong> and <strong>${report.loyalty.points}</strong> loyalty points computed from your bookings and visits, you've earned a special gift:</p>
-                                <div style="font-size: 1.5rem; font-weight: bold; color: #fff; margin-bottom: 12px;">🎁 ${report.loyalty.reward}</div>
-                                <p style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">Print or download this PDF to claim your reward at your destination or checkout.</p>
-                             </div>`;
-                }
-
-                html += `<h5 style="color:#fff;">Aria's Picks</h5><div style="display:flex; flex-direction:column; gap:10px;">`;
-                report.picks.forEach(p => {
-                   html += `<div style="display:flex; align-items:center; gap:12px; padding:12px; border:1px solid rgba(255,255,255,0.1); border-radius:8px; background:rgba(0,0,0,0.2);">
-                              <span style="font-size: 24px;">${p.emoji}</span><div style="flex:1"><strong style="color:#fff;">${p.name}</strong><br><small style="color:#9ca3af">${p.desc}</small></div>
-                              <span style="margin-left:auto; color:#00a6ed; font-weight: bold;">${p.match}%</span>
-                            </div>`;
-                });
-                html += `</div>`;
-                ficheArea.innerHTML = html;
-            }
-        });
-    });
-
-    document.getElementById('btn-close-fiche-backdrop')?.addEventListener('click', () => modalFiche.classList.remove('open'));
-    document.getElementById('btn-close-fiche-trigger')?.addEventListener('click', () => modalFiche.classList.remove('open'));
-    
-    document.getElementById('btn-download-pdf')?.addEventListener('click', () => {
-      window.open('/profile/report/export', '_blank');
-    });
-  }
-
 });
-
-// Disable 2FA
-const disable2faBtn = document.getElementById('disable2faBtn');
-if (disable2faBtn) {
-  disable2faBtn.addEventListener('click', async function() {
-    if (!confirm('Are you sure you want to disable Two-Factor Authentication? This will reduce your account security.')) {
-      return;
-    }
-    
-    // Fallback to manual AJAX using raw fetch since there's no pre-built endpoint
-    try {
-      const response = await fetch('{{ path('profile_2fa_disable') }}', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      });
-      const data = await response.json();
-      if (data.success) {
-        window.location.reload();
-      } else {
-        alert(data.error || 'Failed to disable 2FA');
-      }
-    } catch (e) {
-      alert('Network error. Could not disable 2FA.');
-    }
-  });
-}
 </script>
 <script src="/assets.php?f=js/main.js"></script>
-
 </body>
 </html>
+
+
+
+
+
+

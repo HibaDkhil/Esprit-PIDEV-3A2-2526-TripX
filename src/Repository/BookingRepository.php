@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\Booking;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -33,22 +32,6 @@ class BookingRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
-    }
-
-    /**
-     * Return a Query object for paginated booking search.
-     */
-    public function searchQuery(string $query = ''): Query
-    {
-        $qb = $this->createQueryBuilder('b')
-            ->orderBy('b.createdAt', 'DESC');
-
-        if (!empty($query)) {
-            $qb->where('b.bookingReference LIKE :query OR b.userEmail LIKE :query OR b.status LIKE :query')
-               ->setParameter('query', '%' . $query . '%');
-        }
-
-        return $qb->getQuery();
     }
 
     /**
