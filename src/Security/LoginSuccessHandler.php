@@ -20,8 +20,25 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
     ) {
     }
 
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token): RedirectResponse
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token): ?RedirectResponse
     {
+        // Clear flashes to avoid "Wrong password" from failed attempts leaking to home page
+        $request->getSession()->getFlashBag()->clear();
+
+        // Support scheb/2fa-bundle: if 2FA is in progress, don't redirect yet
+        // Check for specific attribute or interface to detect a 2FA-in-progress state
+        try {
+            if (method_exists($token, 'getAttribute') && $token->getAttribute('scheb_two_factor_auth_in_progress')) {
+                return null;
+            }
+        } catch (\Exception $e) {
+            // Attribute might not exist, which is fine
+        }
+        
+        // Newer versions of SchebTwoFactorBundle use a specific token class
+        if ($token instanceof \Scheb\TwoFactorBundle\Security\Authentication\Token\TwoFactorTokenInterface) {
+            return null;
+        }
         // Reset session attempts on successful login
         $session = $request->getSession();
         $session->remove('login_attempts');

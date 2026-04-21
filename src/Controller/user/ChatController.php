@@ -6,7 +6,6 @@ use App\Entity\User;
 use App\Entity\Preference;
 use App\Entity\Destination;
 use App\Entity\Activity;
-use App\Entity\Accommodation;
 use App\service\GeminiService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -64,18 +63,7 @@ class ChatController extends AbstractController
             ];
         }
 
-        $accommodations = $em->getRepository(Accommodation::class)->findAll();
-        $accommodationsData = [];
-        foreach ($accommodations as $acc) {
-            $accommodationsData[] = [
-                'name' => $acc->getName(),
-                'city' => $acc->getCity(),
-                'country' => $acc->getCountry(),
-                'type' => $acc->getType(),
-                'stars' => $acc->getStars(),
-                'rating' => $acc->getRating(),
-            ];
-        }
+        $accommodationNames = $this->getAccommodationOptions($em, $preferences);
 
         // Get Offers for recommendations
         //$offers = $em->getRepository(Offer::class)->findAll();
@@ -116,7 +104,7 @@ class ChatController extends AbstractController
             ] : [],
             'destinations' => $destinationsData,
             'activities' => $activitiesData,
-            'accommodations' => $accommodationsData,
+            'accommodations' => $accommodationNames,
             //'offers' => $offersData,
             'bookingHistory' => $tripHistory,
         ];
@@ -126,7 +114,7 @@ class ChatController extends AbstractController
                 try {
                     $response = $gemini->analyzeImage($image, $message, $imageMimeType);
                 } catch (\Throwable $e) {
-                    $response = $this->buildBriefOfflineReply($e->getMessage(), $destinationsData, $accommodationsData);
+                    $response = $this->buildBriefOfflineReply($e->getMessage(), $destinationsData, $accommodationNames);
                 }
 
                 return $this->json(['response' => $response]);
@@ -139,7 +127,7 @@ class ChatController extends AbstractController
                 return $this->json(['response' => $response]);
             } catch (\Throwable $e) {
                 return $this->json([
-                    'response' => $this->buildBriefOfflineReply($e->getMessage(), $destinationsData, $accommodationsData),
+                    'response' => $this->buildBriefOfflineReply($e->getMessage(), $destinationsData, $accommodationNames),
                     'fallback' => true,
                     'notice' => $e->getMessage(),
                 ]);
@@ -149,7 +137,7 @@ class ChatController extends AbstractController
         }
     }
 
-    private function buildBriefOfflineReply(string $reason, array $destinationsData, array $accommodationsData): string
+    private function buildBriefOfflineReply(string $reason, array $destinationsData, array $accommodationNames): string
     {
         $hint = 'Based on our latest trends, I have some tailored recommendations that might catch your eye! ';
 
@@ -160,15 +148,42 @@ class ChatController extends AbstractController
         }
 
         $acc = '';
-        if ($accommodationsData !== []) {
-            $sample = array_slice($accommodationsData, 0, 3);
-            $names = array_map(fn($a) => $a['name'], $sample);
-            $acc = 'Some of our top-rated options include: **' . implode('**, **', $names) . '**.';
+        if ($accommodationNames !== []) {
+            $sample = array_slice($accommodationNames, 0, 3);
+            $acc = 'Some of our top-rated options include: **' . implode('**, **', $sample) . '**.';
         }
 
         return $hint . $place . $acc . "\n\nFeel free to explore the platform menus to discover even more about these incredible experiences!";
     }
 
+    private function getAccommodationOptions(EntityManagerInterface $em, ?Preference $preferences): array
+    {
+        $conn = $em->getConnection();
+        try {
+            $schema = $conn->createSchemaManager();
+            $tables = $schema->listTableNames();
+            foreach (['accommodations', 'accommodation', 'hotels'] as $table) {
+                if (in_array($table, $tables, true)) {
+                    // Fetch more data including city/country for better AI grounding
+                    $results = $conn->fetchAllAssociative("SELECT name, city, country FROM {$table} WHERE status = 'Active' LIMIT 20");
+                    if ($results) {
+                        return array_map(function($row) {
+                            return sprintf("%s (%s, %s)", $row['name'], $row['city'], $row['country']);
+                        }, $results);
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // fallback to preference-based accommodation styles when no table exists
+        }
 
+        $prefText = (string) ($preferences?->getAccommodationTypes() ?? '');
+        $parts = array_values(array_filter(array_map('trim', preg_split('/[,;|]/', $prefText ?: ''))));
+        if ($parts !== []) {
+            return $parts;
+        }
+
+        return ['Hotels', 'Boutique stays', 'Villas', 'Eco lodges'];
+    }
 
 }

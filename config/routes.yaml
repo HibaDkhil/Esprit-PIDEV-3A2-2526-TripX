@@ -10,3 +10,13 @@ controllers:
 
 2fa_login_check:
     path: /2fa_check
+
+# Google OAuth - Start
+google_auth_start:
+    path: /connect/google
+    controller: App\Controller\user\OAuthController::connectGoogle
+
+# Google OAuth - Callback
+google_auth_check:
+    path: /connect/google/check
+    controller: App\Controller\user\OAuthController::connectGoogleCheck

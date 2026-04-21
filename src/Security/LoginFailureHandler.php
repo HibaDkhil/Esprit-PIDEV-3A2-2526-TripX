@@ -74,15 +74,15 @@ class LoginFailureHandler implements AuthenticationFailureHandlerInterface
                 $session->set('login_block_count', $blockCount + 1);
                 $session->getFlashBag()->add('error', "Too many failed attempts. Please wait 10 minutes.");
             } elseif ($blockCount == 1) {
-                // Secondary block (90s)
-                $session->set('locked_until', time() + 90);
+                // Secondary block (120s)
+                $session->set('locked_until', time() + 120);
                 $session->set('login_block_count', 2);
-                $session->getFlashBag()->add('error', "Too many failed attempts. Please wait 1 minute 30 seconds.");
+                $session->getFlashBag()->add('error', "Too many failed attempts. Please wait 2 minutes.");
             } else {
-                // Initial block (30s)
-                $session->set('locked_until', time() + 30);
+                // Initial block (60s)
+                $session->set('locked_until', time() + 60);
                 $session->set('login_block_count', 1);
-                $session->getFlashBag()->add('error', "Too many failed attempts. Please wait 30 seconds.");
+                $session->getFlashBag()->add('error', "Too many failed attempts. Please wait 1 minute.");
             }
         } else {
             $session->getFlashBag()->add('error', $errorMessage);

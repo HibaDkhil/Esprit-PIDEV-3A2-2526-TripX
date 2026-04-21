@@ -94,78 +94,6 @@
 {% endblock %}
 
 {% block body %}
-{# ── Global Fixed Top Alerts ── #}
-<div id="global-toast-container">
-    {% for message in app.flashes('signup_error') %}
-        <div class="global-toast toast-error">
-            <i class="fas fa-exclamation-circle"></i> <span>{{ message }}</span>
-        </div>
-    {% endfor %}
-    {% set error_flashes = app.flashes('error') %}
-    {% for message in error_flashes %}
-        <div class="global-toast toast-error">
-            <i class="fas fa-exclamation-circle"></i> <span>{{ message }}</span>
-        </div>
-    {% endfor %}
-    {% set success_flashes = app.flashes('success') %}
-    {% for message in success_flashes %}
-        <div class="global-toast toast-success">
-            <i class="fas fa-check-circle"></i> <span>{{ message }}</span>
-        </div>
-    {% endfor %}
-    {% if error %}
-        <div class="global-toast toast-error">
-            <i class="fas fa-exclamation-circle"></i> <span>{{ error.messageKey|trans(error.messageData, 'security') }}</span>
-        </div>
-    {% endif %}
-</div>
-
-<style>
-#global-toast-container {
-    position: fixed;
-    top: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 999999;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    pointer-events: none;
-    align-items: center;
-    width: 600px;
-    max-width: 90vw;
-}
-.global-toast {
-    background: rgba(22, 34, 54, 0.95);
-    color: #fff;
-    padding: 16px 24px;
-    border-radius: 12px;
-    box-shadow: 0 16px 40px rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 15px;
-    font-weight: 500;
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.1);
-    animation: toastSlideDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, toastFadeOut 0.6s 6s forwards;
-    pointer-events: auto;
-    width: 100%;
-}
-.toast-error { border-left: 5px solid #ef4444; }
-.toast-error i { color: #ef4444; font-size: 20px; line-height: 1; }
-.toast-success { border-left: 5px solid #0fd850; }
-.toast-success i { color: #0fd850; font-size: 20px; line-height: 1; }
-
-@keyframes toastSlideDown {
-    from { transform: translateY(-100px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-@keyframes toastFadeOut {
-    from { opacity: 1; transform: translateY(0); }
-    to { opacity: 0; transform: translateY(-50px); }
-}
-</style>
 
 <div id="app">
   <div class="auth-card" id="authCard">
@@ -178,9 +106,9 @@
         <div class="form-sub">Sign in and pick up where you left off</div>
 
         <div class="social-row">
-          <a href="{{ path('connect_google_start') }}" class="social-btn social-btn--circle" title="Sign in with Google">
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="G"/>
-          </a>
+          <a href="{{ path('google_auth_start') }}" class="social-btn social-btn--circle" title="Sign in with Google">
+    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="G"/>
+</a>
           <a href="{{ path('face_login_page') }}" class="social-btn social-btn--circle" id="faceLoginBtn" title="Login with Face ID"
              style="background:linear-gradient(135deg,#f4b942,#d4860a); border-color:rgba(244,185,66,.5); position:relative; overflow:hidden;">
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="22" height="22">
@@ -207,10 +135,29 @@
         <form method="POST" action="{{ path('app_login') }}" id="loginForm" novalidate>
           <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}"/>
 
+          {# Security Lock Countdown UI #}
+          <div id="lockout-panel" style="display:none; background:rgba(239,68,68,0.1); border:1px solid #ef4444; border-radius:12px; padding:15px; margin-bottom:20px; animation:shake 0.5s ease;">
+            <div style="display:flex; align-items:center; gap:12px; color:#ef4444;">
+              <i class="fas fa-lock" style="font-size:20px;"></i>
+              <div>
+                <div style="font-weight:700; font-size:14px;">Security Lock Active</div>
+                <div style="font-size:12px; opacity:0.9;">Please wait <span id="lockout-timer" style="font-weight:800; font-family:monospace;">00:00</span> before trying again.</div>
+              </div>
+            </div>
+          </div>
+
+          <style>
+            @keyframes shake {
+              0%, 100% { transform: translateX(0); }
+              25% { transform: translateX(-5px); }
+              75% { transform: translateX(5px); }
+            }
+          </style>
+
           <div class="form-control {{ error ? 'has-error' : '' }}">
-            <input type="email" id="login_email" name="_username"
+            <input type="text" id="login_email" name="_username"
                    value="{{ last_username }}"
-                   autocomplete="email" 
+                   autocomplete="off" 
                    placeholder=" " />
             <label for="login_email">
               <span style="transition-delay:0ms">E</span><span style="transition-delay:50ms">m</span><span style="transition-delay:100ms">a</span><span style="transition-delay:150ms">i</span><span style="transition-delay:200ms">l</span>
@@ -427,5 +374,38 @@
       resetPassword: "{{ path('app_forgot_password_reset') }}"
     }
   };
+
+  // Lockout Timer Logic
+  (function() {
+      const lockUntil = window.TRIPX.lockUntil;
+      const panel = document.getElementById('lockout-panel');
+      const timerDisplay = document.getElementById('lockout-timer');
+      const loginBtn = document.querySelector('#loginForm button[type="submit"]');
+
+      if (lockUntil && panel && timerDisplay) {
+          function updateTimer() {
+              const now = Math.floor(Date.now() / 1000);
+              const remaining = lockUntil - now;
+
+              if (remaining <= 0) {
+                  panel.style.display = 'none';
+                  if (loginBtn) loginBtn.disabled = false;
+                  return;
+              }
+
+              panel.style.display = 'block';
+              if (loginBtn) loginBtn.disabled = true;
+
+              const mins = Math.floor(remaining / 60);
+              const secs = remaining % 60;
+              timerDisplay.textContent = 
+                  (mins < 10 ? '0' : '') + mins + ':' + 
+                  (secs < 10 ? '0' : '') + secs;
+
+              setTimeout(updateTimer, 1000);
+          }
+          updateTimer();
+      }
+  })();
 </script>
 {% endblock %}

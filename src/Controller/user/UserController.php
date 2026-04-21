@@ -257,6 +257,20 @@ class UserController extends AbstractController
         }
     }
 
+    private function getRewardForPoints(int $points): string
+    {
+        $user = $this->getUser();
+        $id = $user ? ($user->getUserId() ?? $user->getId()) : '000';
+        $year = date('Y');
+
+        if ($points > 100) {
+            return "15% DISCOUNT VOUCHER (CODE: TRIPX-PLATINUM-{$id}-{$year})";
+        }
+        if ($points > 50) {
+            return "Exclusive Travel Tips Access";
+        }
+        return "Early Explorer Badge";
+    }
 
     #[Route('/profile/report/generate', name: 'profile_report_generate', methods: ['GET'])]
     public function generateReport(): JsonResponse
@@ -271,9 +285,10 @@ class UserController extends AbstractController
         $loyalty = $profileData['loyalty'] ?? null;
         $loyaltyData = null;
         if ($loyalty) {
+            $pts = $loyalty->getTotalPoints();
             $loyaltyData = [
-                'points' => $loyalty->getTotalPoints(),
-                'reward' => $loyalty->computeLevel() . ' Tier Benefits'
+                'points' => $pts,
+                'reward' => $this->getRewardForPoints($pts)
             ];
         }
 
@@ -312,9 +327,10 @@ class UserController extends AbstractController
         $loyalty = $profileData['loyalty'] ?? null;
         $loyaltyData = null;
         if ($loyalty) {
+            $pts = $loyalty->getTotalPoints();
             $loyaltyData = [
-                'points' => $loyalty->getTotalPoints(),
-                'reward' => $loyalty->computeLevel() . ' Tier Benefits'
+                'points' => $pts,
+                'reward' => $this->getRewardForPoints($pts)
             ];
         }
 

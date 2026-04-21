@@ -10,7 +10,7 @@
   }
 </style>
 
-<link rel="stylesheet" href="/assets.php?f=css/Chatassis.css&v={{ 'now'|date('U') }}">
+<link rel="stylesheet" href="{{ asset('css/Chatassis.css') }}?v={{ 'now'|date('U') }}">
 
 <button class="aria-orb" id="aria-orb" aria-label="Open ARIA">
   <div class="orb-core"></div>
@@ -27,7 +27,7 @@
     </div>
     <div class="aria-info">
       <span class="aria-name">ARIA</span>
-      <span class="aria-status">Global Intelligence</span>
+      <span class="aria-status">Your travel assistant</span>
     </div>
     <button class="aria-close-btn" id="aria-close">✕</button>
   </div>
@@ -53,8 +53,8 @@
     <button class="aria-upload" id="aria-attach-btn" title="Attach image">📎</button>
     <input type="file" id="aria-file-input" accept="image/*" style="display:none">
     <input class="aria-input" id="aria-input" type="text" placeholder="Ask ARIA anything...">
-    <button class="aria-stop" id="aria-stop" title="Stop speaking">■</button>
-    <button class="aria-mic" id="aria-mic" title="Voice input">🎤</button>
+    <button class="aria-stop" id="aria-stop-voice-btn" title="Stop speaking">■</button>
+    <button class="aria-mic" id="aria-voice-btn" title="Voice input">🎤</button>
     <button class="aria-send" id="aria-send">➤</button>
   </div>
 </div>
@@ -77,8 +77,8 @@
     var imgPrev  = document.getElementById('aria-img-preview');
     var prevImg  = document.getElementById('aria-preview-img');
     var removeImg= document.getElementById('aria-remove-img');
-    var micBtn   = document.getElementById('aria-mic');
-    var stopBtn  = document.getElementById('aria-stop');
+    var micBtn   = document.getElementById('aria-voice-btn');
+    var stopBtn  = document.getElementById('aria-stop-voice-btn');
 
     if (!orb || !panel) return;
 
@@ -88,17 +88,18 @@
 
     // ── open / close ──────────────────────────────
     orb.addEventListener('click', function() {
-      var isOpen = panel.style.display === 'flex';
+      var isOpen = panel.classList.contains('open');
       if (isOpen) {
-        panel.style.display = 'none';
+        panel.classList.remove('open');
       } else {
-        panel.style.display = 'flex';
+        panel.classList.add('open');
         scrollBottom();
+        if (input) input.focus();
       }
     });
 
     closeBtn && closeBtn.addEventListener('click', function() {
-      panel.style.display = 'none';
+      panel.classList.remove('open');
       if (window.speechSynthesis) window.speechSynthesis.cancel();
     });
 

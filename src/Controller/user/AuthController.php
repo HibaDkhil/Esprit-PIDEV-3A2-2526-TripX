@@ -54,7 +54,8 @@ class AuthController extends AbstractController
     #[Route('/login')]
     public function login(Request $request, AuthenticationUtils $authUtils, EntityManagerInterface $em): Response
     {
-        if ($this->getUser()) {
+        // Only redirect if fully authenticated
+        if ($this->getUser() && $this->isGranted('IS_AUTHENTICATED_FULLY')) {
             return $this->redirectToRoute('index');
         }
 

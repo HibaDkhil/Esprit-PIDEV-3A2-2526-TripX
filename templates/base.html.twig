@@ -17,7 +17,10 @@
     <div id="cursor-halo"></div>
 
     {% block aria_chat %}
-        {% include 'front/aria_chat.html.twig' %}
+        {% set allowed_routes = ['index', 'destinations', 'activities', 'accommodations', 'user_packs_offers', 'user_transport_index', 'user_transport_schedules'] %}
+        {% if app.request.attributes.get('_route') in allowed_routes %}
+            {% include 'front/aria_chat.html.twig' %}
+        {% endif %}
     {% endblock %}
 
     <nav class="nav" id="main-nav" style="position: relative; z-index: 1000;">

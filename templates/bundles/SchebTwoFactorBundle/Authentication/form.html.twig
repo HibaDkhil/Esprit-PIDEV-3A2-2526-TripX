@@ -193,14 +193,14 @@
     </div>
   {% endif %}
 
-  <form action="{{ checkPathUrl ? checkPathUrl : path('2fa_login_check') }}" method="post" id="twoFactorForm">
+  <form action="{{ checkPathUrl ? checkPathUrl : path('2fa_login_check') }}" method="post" id="twoFactorForm" novalidate>
     <div class="code-container">
-      <input type="text" class="code-input" maxlength="1" pattern="\d*" inputmode="numeric" autofocus>
-      <input type="text" class="code-input" maxlength="1" pattern="\d*" inputmode="numeric">
-      <input type="text" class="code-input" maxlength="1" pattern="\d*" inputmode="numeric">
-      <input type="text" class="code-input" maxlength="1" pattern="\d*" inputmode="numeric">
-      <input type="text" class="code-input" maxlength="1" pattern="\d*" inputmode="numeric">
-      <input type="text" class="code-input" maxlength="1" pattern="\d*" inputmode="numeric">
+      <input type="text" class="code-input" maxlength="1" inputmode="numeric" autofocus>
+      <input type="text" class="code-input" maxlength="1" inputmode="numeric">
+      <input type="text" class="code-input" maxlength="1" inputmode="numeric">
+      <input type="text" class="code-input" maxlength="1" inputmode="numeric">
+      <input type="text" class="code-input" maxlength="1" inputmode="numeric">
+      <input type="text" class="code-input" maxlength="1" inputmode="numeric">
     </div>
 
     {# The real field that SchebTwoFactorBundle expects #}
