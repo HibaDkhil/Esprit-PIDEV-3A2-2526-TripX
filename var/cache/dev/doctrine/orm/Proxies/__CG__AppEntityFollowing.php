@@ -20,10 +20,12 @@ class Following extends \App\Entity\Following implements \Doctrine\ORM\Proxy\Int
         "\0".parent::class."\0".'followed_id' => [parent::class, 'followed_id', null, 16],
         "\0".parent::class."\0".'follower_id' => [parent::class, 'follower_id', null, 16],
         "\0".parent::class."\0".'id' => [parent::class, 'id', null, 16],
+        "\0".parent::class."\0".'status' => [parent::class, 'status', null, 16],
         'created_at' => [parent::class, 'created_at', null, 16],
         'followed_id' => [parent::class, 'followed_id', null, 16],
         'follower_id' => [parent::class, 'follower_id', null, 16],
         'id' => [parent::class, 'id', null, 16],
+        'status' => [parent::class, 'status', null, 16],
     ];
 
     public function __isInitialized(): bool

@@ -164,6 +164,47 @@ class LiveController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/saved-to-profile', name: 'blog_live_saved_to_profile', methods: ['POST'], requirements: ['id' => '\\d+'])]
+    public function setSavedToProfile(
+        int $id,
+        Request $request,
+        LiveSessionRepository $sessionRepository,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        /** @var User|null $me */
+        $me = $this->getUser();
+        if (!$me instanceof User) {
+            return $this->json(['ok' => false, 'message' => 'Authentication required.'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $session = $sessionRepository->find($id);
+        if (!$session instanceof LiveSession) {
+            return $this->json(['ok' => false, 'message' => 'Live session not found.'], Response::HTTP_NOT_FOUND);
+        }
+
+        if ((int) $session->getHostUser()?->getUserId() !== (int) $me->getUserId()) {
+            return $this->json(['ok' => false, 'message' => 'Only host can update this live.'], Response::HTTP_FORBIDDEN);
+        }
+
+        if ((string) $session->getStatus() !== 'ended') {
+            return $this->json(['ok' => false, 'message' => 'Live must be ended first.'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $saveToProfile = $request->request->getBoolean('saveToProfile', false);
+        $now = new \DateTimeImmutable();
+
+        $session->setSavedToProfile($saveToProfile);
+        $session->setSavedToProfileAt($saveToProfile ? $now : null);
+        $session->setUpdatedAt($now);
+        $em->flush();
+
+        return $this->json([
+            'ok' => true,
+            'savedToProfile' => $session->isSavedToProfile(),
+            'savedToProfileAt' => $session->getSavedToProfileAt()?->format(DATE_ATOM),
+        ]);
+    }
+
     #[Route('/{id}/join', name: 'blog_live_join', methods: ['POST'], requirements: ['id' => '\\d+'])]
     public function join(
         int $id,

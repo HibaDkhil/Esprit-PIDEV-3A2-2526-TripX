@@ -8,6 +8,7 @@ use App\Form\PostType;
 use App\Repository\PostRepository;
 use App\service\BotProtectionService;
 use App\service\ContentModerationService;
+use App\service\ImageEnhancerService;
 use App\service\ModerationRecordService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -110,6 +111,64 @@ class PostController extends AbstractController
 
         return $this->render('front/blog/create_post.html.twig', [
             'form' => $form->createView(),
+        ]);
+    }
+
+    // ── MAGIC AI ENHANCER (AJAX) ────────────────────────────────────────
+    #[Route('/post/enhance-image', name: 'post_enhance_image', methods: ['POST'])]
+    public function enhanceImage(
+        Request              $request,
+        SluggerInterface     $slugger,
+        ImageEnhancerService $imageEnhancerService
+    ): JsonResponse {
+        /** @var User|null $user */
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->json(['ok' => false, 'message' => 'Authentication required.'], 401);
+        }
+
+        $file = $request->files->get('image');
+        if (!$file) {
+            return $this->json(['ok' => false, 'message' => 'No image uploaded.'], 400);
+        }
+
+        $wantSharpen  = (bool) $request->request->get('sharpen', false);
+        $wantRemoveBg = (bool) $request->request->get('remove_bg', false);
+
+        if (!$wantSharpen && !$wantRemoveBg) {
+            return $this->json(['ok' => false, 'message' => 'Select at least one enhancement.'], 400);
+        }
+
+        $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/enhanced';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0775, true);
+        }
+
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeBasename = $slugger->slug($originalName);
+        $ext = $file->getClientOriginalExtension() ?: 'jpg';
+        $newFilename  = $safeBasename . '-' . uniqid() . '.' . $ext;
+
+        $file->move($uploadDir, $newFilename);
+        $fullPath = $uploadDir . '/' . $newFilename;
+
+        // Apply enhancements
+        if ($wantSharpen) {
+            $imageEnhancerService->sharpen($fullPath);
+        }
+
+        $resultUrl = '/uploads/enhanced/' . $newFilename;
+
+        if ($wantRemoveBg) {
+            $noBgPath = $imageEnhancerService->removeBackground($fullPath);
+            if ($noBgPath !== null) {
+                $resultUrl = '/uploads/enhanced/' . basename($noBgPath);
+            }
+        }
+
+        return $this->json([
+            'ok'  => true,
+            'url' => $resultUrl,
         ]);
     }
 

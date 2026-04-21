@@ -148,8 +148,39 @@
       display: none;
       flex-direction: column;
       gap: 10px;
-      box-shadow: 0 18px 35px rgba(0, 0, 0, 0.35);
     }
+
+    /* ── Follow Requests Card ── */
+    .req-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+    .req-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px; border-radius: 12px; background: #f9fafb;
+      transition: all .2s ease; border: 1px solid #f3f4f6;
+    }
+    .req-row:hover { background: #f3f4f6; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.03); }
+    .req-info { display: flex; align-items: center; gap: 10px; }
+    .req-av {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: .9rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,.1);
+    }
+    .req-details { display: flex; flex-direction: column; }
+    .req-name { font-size: .88rem; font-weight: 700; color: #111827; }
+    .req-time { font-size: .72rem; color: #6b7280; margin-top: 1px; }
+    .req-actions { display: flex; gap: 6px; }
+    .req-actions button {
+      width: 32px; height: 32px; border: 0; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .2s; font-size: .85rem;
+    }
+    .btn-req-acc { background: #ecfdf5; color: #059669; }
+    .btn-req-acc:hover { background: #10b981; color: #fff; transform: scale(1.1); }
+    .btn-req-rej { background: #fef2f2; color: #dc2626; }
+    .btn-req-rej:hover { background: #ef4444; color: #fff; transform: scale(1.1); }
+    .flw-btn.pending { background: #fffbeb !important; color: #d97706 !important; border-color: #fef3c7 !important; }
+    .flw-btn.pending::before { content: '⌛ '; font-size: 0.8em; }
+
     .ig-story-removed-panel h4 {
       margin: 0;
       font-size: .98rem;
@@ -229,6 +260,38 @@
       white-space: nowrap;
     }
     .live-head-btn:disabled { opacity: .65; cursor: not-allowed; box-shadow: none; }
+    .live-head-btn.live-icon-btn {
+      min-width: 72px;
+      height: 34px;
+      padding: 0 12px;
+      border-radius: 12px;
+      font-size: .82rem;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .live-head-btn .live-btn-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ef4444;
+      box-shadow: 0 0 0 2px rgba(255,255,255,.92), 0 0 0 0 rgba(239,68,68,.55);
+      animation: liveDotPulse 1.4s infinite;
+      flex: 0 0 auto;
+    }
+    .live-head-btn .live-btn-label {
+      font-size: .66rem;
+      letter-spacing: .06em;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .type-pills-live-slot {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+    }
 
     .story-bbl.live-story-bbl .story-lbl {
       color: #be123c;
@@ -826,6 +889,179 @@
       padding: 9px 13px;
       cursor: pointer;
     }
+
+    .live-ended-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 11220;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(2, 6, 23, .88);
+      overflow: hidden;
+    }
+    .live-ended-modal.open {
+      display: flex;
+      animation: liveEndedFadeIn .32s ease;
+    }
+    .live-ended-bg {
+      position: absolute;
+      inset: -6%;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .live-ended-bg video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: blur(26px) saturate(115%) brightness(50%);
+      transform: scale(1.1);
+    }
+    .live-ended-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(251, 113, 133, .24), transparent 42%),
+        radial-gradient(circle at 78% 74%, rgba(56, 189, 248, .2), transparent 44%),
+        linear-gradient(180deg, rgba(2, 6, 23, .14) 0%, rgba(2, 6, 23, .74) 100%);
+    }
+    .live-ended-card {
+      position: relative;
+      z-index: 1;
+      width: min(760px, 96vw);
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.2);
+      background: linear-gradient(160deg, rgba(15, 23, 42, .86) 0%, rgba(2, 6, 23, .92) 100%);
+      box-shadow: 0 26px 70px rgba(0,0,0,.56);
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+      backdrop-filter: blur(8px);
+      animation: liveEndedSlideUp .34s cubic-bezier(.2,.8,.2,1);
+    }
+    .live-ended-pill {
+      justify-self: start;
+      border-radius: 999px;
+      border: 1px solid rgba(251,113,133,.65);
+      background: rgba(127, 29, 29, .45);
+      color: #fecdd3;
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      padding: 4px 11px;
+    }
+    .live-ended-title {
+      margin: 0;
+      color: #fff;
+      font-size: clamp(1.38rem, 1.8vw + .9rem, 2rem);
+      line-height: 1.15;
+      letter-spacing: -.02em;
+    }
+    .live-ended-subtitle {
+      margin: -4px 0 0;
+      color: #cbd5e1;
+      font-size: .88rem;
+      line-height: 1.4;
+    }
+    .live-ended-preview-wrap {
+      position: relative;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.15);
+      background:
+        linear-gradient(145deg, rgba(15, 23, 42, .7), rgba(2, 6, 23, .86));
+      min-height: min(46vh, 380px);
+      display: grid;
+      place-items: center;
+    }
+    .live-ended-preview {
+      width: 100%;
+      height: min(46vh, 380px);
+      object-fit: cover;
+      display: none;
+      background: #000;
+    }
+    .live-ended-preview.visible {
+      display: block;
+    }
+    .live-ended-empty {
+      color: #94a3b8;
+      font-size: .85rem;
+      font-weight: 700;
+      text-align: center;
+      padding: 0 16px;
+    }
+    .live-ended-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: #dbeafe;
+      font-size: .8rem;
+      font-weight: 700;
+    }
+    .live-ended-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .live-ended-btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 14px;
+      font-size: .84rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+    }
+    .live-ended-btn:hover {
+      transform: translateY(-1px);
+    }
+    .live-ended-btn:disabled {
+      cursor: not-allowed;
+      opacity: .45;
+      transform: none;
+      box-shadow: none;
+    }
+    .live-ended-btn.save {
+      background: linear-gradient(135deg, #f43f5e, #ef4444);
+      color: #fff;
+      box-shadow: 0 12px 28px rgba(244,63,94,.33);
+      flex: 1;
+      min-width: 180px;
+    }
+    .live-ended-btn.edit {
+      background: rgba(30, 64, 175, .24);
+      color: #dbeafe;
+      border: 1px solid rgba(147, 197, 253, .45);
+      flex: 1;
+      min-width: 180px;
+    }
+    .live-ended-btn.discard {
+      background: rgba(51, 65, 85, .5);
+      color: #cbd5e1;
+      border: 1px solid rgba(148, 163, 184, .44);
+      width: 100%;
+    }
+
+    @keyframes liveEndedFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes liveEndedSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px) scale(.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
     .live-edit-actions .cancel { background: #334155; color: #e2e8f0; }
     .live-edit-actions .save { background: linear-gradient(135deg,#22c55e,#16a34a); color: #fff; }
 
@@ -1217,20 +1453,105 @@
     }
     .story-camera-msg {
       position: absolute;
-      left: 14px;
-      right: 14px;
-      bottom: 106px;
-      z-index: 6;
-      border-radius: 10px;
-      background: rgba(0,0,0,.58);
-      color: #fff;
-      font-size: .78rem;
-      font-weight: 600;
-      padding: 8px 10px;
-      text-align: center;
+      left: 0;
+      right: 0;
+      top: 70px;
+      z-index: 100;
+      pointer-events: none;
       display: none;
+      justify-content: center;
+      padding: 0 20px;
     }
-    .story-camera-msg.visible { display: block; }
+    .story-camera-msg .inner {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 8px 18px;
+      border-radius: 99px;
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      text-align: center;
+      letter-spacing: 0.02em;
+    }
+    .story-camera-msg.visible { display: flex; }
+
+    /* Vertical Sidebar & Floating Popovers */
+    .story-camera-sidebar {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .story-sidebar-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    .story-sidebar-btn:hover { background: rgba(15, 23, 42, 0.8); transform: scale(1.05); }
+    .story-sidebar-btn.active {
+      background: #3b82f6;
+      border-color: transparent;
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+    }
+    
+    .story-popover {
+      position: absolute;
+      right: 60px;
+      top: 50%;
+      transform: translateY(-50%) translateX(10px);
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 18px;
+      padding: 12px;
+      width: max-content;
+      max-width: 280px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s ease;
+      z-index: 60;
+    }
+    .story-popover.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(-50%) translateX(0);
+    }
+    .story-popover::after {
+      content: '';
+      position: absolute;
+      right: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-left: 6px solid rgba(15, 23, 42, 0.88);
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+    }
+    .story-popover h5 {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 0 0 10px 4px;
+    }
     .story-camera-gesture-guide {
       position: absolute;
       left: 12px;
@@ -1474,6 +1795,20 @@
       .live-head-main .nm {
         max-width: 150px;
       }
+      .live-ended-card {
+        width: min(96vw, 700px);
+        padding: 14px;
+      }
+      .live-ended-preview-wrap {
+        min-height: min(40vh, 300px);
+      }
+      .live-ended-preview {
+        height: min(40vh, 300px);
+      }
+      .live-ended-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 {% endblock %}
@@ -1564,6 +1899,12 @@
         data-type="posts" onclick="return feedFilter(event, 'posts')">Posts</a>
       <a href="#" class="tpill {% if typeFilter == 'travel_story' %}active{% endif %}"
          data-type="travel_story" onclick="return feedFilter(event, 'travel_story')">🧳 Travel Stories</a>
+      <span class="type-pills-live-slot">
+        <button type="button" class="live-head-btn live-icon-btn" id="live-start-btn" title="Go live" aria-label="Go live">
+          <span class="live-btn-dot" aria-hidden="true"></span>
+          <span class="live-btn-label" aria-hidden="true">LIVE</span>
+        </button>
+      </span>
     </div>
 
     {# ── Stories row ───────────────────────────────────── #}
@@ -1571,7 +1912,6 @@
       <div class="stories-head">
         <h3>Stories</h3>
         <div class="stories-head-actions">
-          <button type="button" class="live-head-btn" id="live-start-btn">Go Live</button>
           <a href="#" class="watch-all" onclick="return openFirstStory(event)">Watch all</a>
         </div>
       </div>
@@ -1650,25 +1990,43 @@
             <p>Pinch in/out: zoom preview</p>
             <button type="button" id="story-camera-gesture-guide-close">Got it</button>
           </div>
-          <div class="story-camera-msg" id="story-camera-msg"></div>
+          <div class="story-camera-msg" id="story-camera-msg"><div class="inner">Loading...</div></div>
+          
+          <div class="story-camera-sidebar">
+            <div style="position:relative;">
+              <button type="button" class="story-sidebar-btn" data-cam-popover="filters" title="Filters">✨</button>
+              <div id="popover-filters" class="story-popover">
+                <h5>Filters</h5>
+                <div class="story-camera-filters" id="story-camera-filters" style="flex-wrap:wrap; width:160px; gap:6px;">
+                  <button type="button" class="story-camera-fchip active" data-cam-filter="normal">Normal</button>
+                  <button type="button" class="story-camera-fchip" data-cam-filter="vivid">Vivid</button>
+                  <button type="button" class="story-camera-fchip" data-cam-filter="golden">Golden</button>
+                  <button type="button" class="story-camera-fchip" data-cam-filter="noir">Noir</button>
+                  <button type="button" class="story-camera-fchip" data-cam-filter="cool">Cool</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="position:relative;">
+              <button type="button" class="story-sidebar-btn" data-cam-popover="gestures" title="Gestures">✋</button>
+              <div id="popover-gestures" class="story-popover">
+                <h5>Gestures</h5>
+                <div class="story-camera-gesture-tune" id="story-camera-gesture-tune" style="flex-direction:column; align-items:flex-start; gap:8px;">
+                  <button type="button" class="story-camera-tune-btn" data-gesture-sense="low">Low Sensitivity</button>
+                  <button type="button" class="story-camera-tune-btn active" data-gesture-sense="medium">Medium Sens.</button>
+                  <button type="button" class="story-camera-tune-btn" data-gesture-sense="high">High Sensitivity</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
         <div class="story-camera-foot">
-          <div class="story-camera-filters" id="story-camera-filters">
-            <button type="button" class="story-camera-fchip active" data-cam-filter="normal">Normal</button>
-            <button type="button" class="story-camera-fchip" data-cam-filter="vivid">Vivid</button>
-            <button type="button" class="story-camera-fchip" data-cam-filter="golden">Golden</button>
-            <button type="button" class="story-camera-fchip" data-cam-filter="noir">Noir</button>
-            <button type="button" class="story-camera-fchip" data-cam-filter="cool">Cool</button>
-          </div>
-          <div class="story-camera-gesture-tune" id="story-camera-gesture-tune" aria-label="Gesture sensitivity">
-            <span class="lbl">Gesture sensitivity</span>
-            <button type="button" class="story-camera-tune-btn" data-gesture-sense="low">Low</button>
-            <button type="button" class="story-camera-tune-btn active" data-gesture-sense="medium">Medium</button>
-            <button type="button" class="story-camera-tune-btn" data-gesture-sense="high">High</button>
-          </div>
           <div class="story-camera-controls">
             <button type="button" class="story-camera-side" id="story-camera-switch">Switch</button>
-            <button type="button" class="story-camera-capture" id="story-camera-capture" aria-label="Capture photo"></button>
+            <div style="position:relative;">
+              <button type="button" class="story-camera-capture" id="story-camera-capture" aria-label="Capture photo"></button>
+            </div>
             <button type="button" class="story-camera-side" id="story-camera-retake">Retake</button>
           </div>
         </div>
@@ -1915,6 +2273,29 @@
       </div>
     </div>
 
+    <div class="live-ended-modal" id="live-ended-modal" aria-hidden="true">
+      <div class="live-ended-bg" aria-hidden="true">
+        <video id="live-ended-bg-video" autoplay muted loop playsinline></video>
+      </div>
+      <div class="live-ended-card" role="dialog" aria-modal="true" aria-labelledby="live-ended-title">
+        <div class="live-ended-pill">LIVE ENDED</div>
+        <h3 class="live-ended-title" id="live-ended-title">Your live has ended</h3>
+        <p class="live-ended-subtitle">Choose what you want to do with this replay.</p>
+        <div class="live-ended-preview-wrap">
+          <video id="live-ended-preview" class="live-ended-preview" autoplay muted loop playsinline></video>
+          <div class="live-ended-empty" id="live-ended-empty">No recording preview was captured for this live.</div>
+        </div>
+        <div class="live-ended-meta">
+          <span id="live-ended-duration">Duration 0:00</span>
+        </div>
+        <div class="live-ended-actions">
+          <button type="button" class="live-ended-btn save" id="live-ended-save">Save to Profile</button>
+          <button type="button" class="live-ended-btn edit" id="live-ended-edit">Edit &amp; Preview</button>
+          <button type="button" class="live-ended-btn discard" id="live-ended-discard">Discard</button>
+        </div>
+      </div>
+    </div>
+
     <div class="ts-map-modal" id="ts-map-modal" aria-hidden="true">
       <div class="ts-map-dialog" role="dialog" aria-modal="true" aria-labelledby="ts-map-title">
         <div class="ts-map-head">
@@ -1944,9 +2325,32 @@
   </main>
 
   <aside class="tg-right">
-    <div class="rcard">
-      <h4>Requests <span class="rpill">2</span></h4>
-      <p class="placeholder-text">(placeholder)</p>
+    <div class="rcard" id="follow-requests-card">
+      <h4>Requests <span class="rpill" id="request-pill">{{ pendingRequests|length }}</span></h4>
+      {% if pendingRequests is empty %}
+        <p class="placeholder-text">No pending requests</p>
+      {% else %}
+        <div class="req-list">
+          {% for req in pendingRequests %}
+            {% set author = requestAuthors[req.followerId] %}
+            <div class="req-row" id="req-row-{{ req.followerId }}">
+              <div class="req-info">
+                <div class="req-av" style="background:linear-gradient(135deg,#6366f1,#a855f7);">
+                  {{ author.name|first|upper }}
+                </div>
+                <div class="req-details">
+                  <div class="req-name">{{ author.name }}</div>
+                  <div class="req-time">{{ req.createdAt|date('d M') }}</div>
+                </div>
+              </div>
+              <div class="req-actions">
+                <button class="btn-req-acc" onclick="handleRequest({{ req.followerId }}, 'accept')" title="Accept">✔</button>
+                <button class="btn-req-rej" onclick="handleRequest({{ req.followerId }}, 'reject')" title="Reject">✖</button>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
     </div>
 
     <div class="rcard">
@@ -1956,39 +2360,43 @@
         'linear-gradient(135deg,#10b981,#3b82f6)',
         'linear-gradient(135deg,#a855f7,#ec4899)'
       ] %}
-      {% set seen = [] %}
-      {% for item in feed %}
-        {% set uid = item.entity.userId %}
-        {% if uid not in seen and seen|length < 3 %}
-          {% set seen = seen|merge([uid]) %}
-          {% set sName = authorMap[uid] ?? 'User #' ~ uid %}
-          {% set isFollowingSug = followingLookup[uid] is defined and followingLookup[uid] %}
-          <div class="sug-row">
-            <div class="sug-av" style="background:{{ sugColors[loop.index0 % 3] }};">
-              {{ sName|first|upper }}
-            </div>
-            <div>
-              <div class="sug-name">
-                <a class="sug-name-link" href="{{ path('blog_user_profile', {id: uid}) }}">{{ sName }}</a>
-              </div>
-              <div class="sug-handle">@user{{ uid }}</div>
-            </div>
-            {% if app.user %}
-              <button
-                class="flw-btn {{ isFollowingSug ? 'following' : '' }}"
-                data-follow-url="{{ path('follow_toggle', {id: uid}) }}"
-                data-csrf-token="{{ csrf_token('follow_' ~ uid) }}"
-                onclick="toggleSuggestionFollow(this)">
-                {{ isFollowingSug ? 'Following' : 'Follow' }}
-              </button>
-            {% else %}
-              <a class="flw-btn" href="{{ path('app_login') }}">Follow</a>
-            {% endif %}
+      {% for sug in suggestedUsers|default([]) %}
+        {% set uid = sug.id %}
+        {% set sName = sug.name %}
+        {% set isFollowingSug = followingLookup[uid] is defined and followingLookup[uid] %}
+        <div class="sug-row">
+          <div class="sug-av" style="background:{{ sugColors[loop.index0 % 3] }};">
+            {{ sName|first|upper }}
           </div>
-        {% endif %}
-      {% else %}
-        <p class="placeholder-text">(placeholder)</p>
+          <div>
+            <div class="sug-name">
+              <a class="sug-name-link" href="{{ path('blog_user_profile', {id: uid}) }}">{{ sName }}</a>
+            </div>
+            <div class="sug-handle" style="font-size:11px; opacity:0.8;">{{ sug.reason }}</div>
+          </div>
+          {% if app.user %}
+            {% set sugStatus = followingLookup[uid] ?? 'none' %}
+            <button
+              class="flw-btn {{ sugStatus != 'none' ? 'following' : '' }} {{ sugStatus == 'pending' ? 'pending' : '' }}"
+              data-follow-url="{{ path('follow_toggle', {id: uid}) }}"
+              data-csrf-token="{{ csrf_token('follow_' ~ uid) }}"
+              onclick="toggleSuggestionFollow(this)">
+              {% if sugStatus == 'accepted' %}
+                Following
+              {% elseif sugStatus == 'pending' %}
+                Requested
+              {% else %}
+                Follow
+              {% endif %}
+            </button>
+          {% else %}
+            <a class="flw-btn" href="{{ path('app_login') }}">Follow</a>
+          {% endif %}
+        </div>
       {% endfor %}
+      {% if suggestedUsers|default([]) is empty %}
+        <p class="placeholder-text" style="font-size:12px; padding:10px;">Explore more to get better suggestions!</p>
+      {% endif %}
     </div>
   </aside>
 
@@ -1996,7 +2404,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.10.14/drawing_utils.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/livekit-client@2.15.8/dist/livekit-client.umd.min.js"></script>
 <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
 
@@ -2023,6 +2431,7 @@ const _liveStateUrlPattern = '{{ path('blog_live_state', {id: 0}) }}';
 const _liveJoinUrlPattern = '{{ path('blog_live_join', {id: 0}) }}';
 const _liveLeaveUrlPattern = '{{ path('blog_live_leave', {id: 0}) }}';
 const _liveEndUrlPattern = '{{ path('blog_live_end', {id: 0}) }}';
+const _liveSaveToProfileUrlPattern = '{{ path('blog_live_saved_to_profile', {id: 0}) }}';
 const _liveCommentUrlPattern = '{{ path('blog_live_comment', {id: 0}) }}';
 const _liveReactUrlPattern = '{{ path('blog_live_react', {id: 0, type: 'like'}) }}';
 const _liveTokenUrlPattern = '{{ path('blog_live_token', {id: 0}) }}';
@@ -2050,6 +2459,8 @@ let _liveCompositeAnimTimer = null;
 let _liveRecorderFxBursts = [];
 let _liveEditResolve = null;
 let _liveEditObjectUrl = null;
+let _liveEndedResolve = null;
+let _liveEndedRecordingUrl = null;
 let _liveFfmpeg = null;
 let _liveFfmpegLoadPromise = null;
 let _livePreviewFilter = { brightness: 0, contrast: 100, saturation: 100, blur: 0 };
@@ -2078,6 +2489,40 @@ let _storyCameraPinchStartDistance = null;
 let _storyCameraPinchStartZoom = 1;
 let _storyGestureLockUntil = 0;
 let _storyCameraSwipeCooldownUntil = 0;
+
+/**
+ * Handle follow request (accept/reject)
+ */
+async function handleRequest(followerId, action) {
+  const url = action === 'accept' ? '{{ path('follow_accept', {id: 0}) }}'.replace('/0', '/' + followerId) : '{{ path('follow_reject', {id: 0}) }}'.replace('/0', '/' + followerId);
+  const row = document.getElementById(`req-row-${followerId}`);
+  const pill = document.getElementById('request-pill');
+
+  if (!row) return;
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+
+    if (res.ok) {
+      row.style.opacity = '0.5';
+      row.style.pointerEvents = 'none';
+      setTimeout(() => {
+        row.remove();
+        const count = parseInt(pill.textContent) - 1;
+        pill.textContent = count;
+        if (count === 0) {
+          const list = document.querySelector('#follow-requests-card .req-list');
+          if (list) list.innerHTML = '<p class="placeholder-text">No pending requests</p>';
+        }
+      }, 300);
+    }
+  } catch (err) {
+    console.error('Failed to handle follow request:', err);
+  }
+}
 let _storyCameraUpCooldownUntil = 0;
 let _storyPointerUpSince = 0;
 let _storyPointerUpCooldownUntil = 0;
@@ -2190,13 +2635,13 @@ function getCameraFilterFromPreset(name) {
 function setStoryCameraMessage(msg = '', isError = false) {
   const box = document.getElementById('story-camera-msg');
   if (!box) return;
+  const inner = box.querySelector('.inner');
   if (!msg) {
-    box.textContent = '';
     box.classList.remove('visible');
     return;
   }
-  box.textContent = msg;
-  box.style.background = isError ? 'rgba(153, 27, 27, .72)' : 'rgba(0,0,0,.58)';
+  if (inner) inner.textContent = msg;
+  box.style.color = isError ? '#fecaca' : '#fff';
   box.classList.add('visible');
 }
 
@@ -2465,6 +2910,7 @@ async function ensureStoryHandTrackingReady() {
     _storyHandLandmarker = await HandLandmarker.createFromOptions(_storyMpVision, {
       baseOptions: {
         modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+        delegate: 'GPU'
       },
       runningMode: 'VIDEO',
       numHands: 2,
@@ -2922,23 +3368,9 @@ async function captureStoryFromCamera() {
   try {
     const sw = video.videoWidth;
     const sh = video.videoHeight;
-    const targetRatio = 9 / 16;
-    let sx = 0;
-    let sy = 0;
-    let sWidth = sw;
-    let sHeight = sh;
-
-    if (sw / sh > targetRatio) {
-      sWidth = Math.floor(sh * targetRatio);
-      sx = Math.floor((sw - sWidth) / 2);
-    } else {
-      sHeight = Math.floor(sw / targetRatio);
-      sy = Math.floor((sh - sHeight) / 2);
-    }
-
     const canvas = document.createElement('canvas');
-    canvas.width = 1080;
-    canvas.height = 1920;
+    canvas.width = sw;
+    canvas.height = sh;
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Canvas unavailable');
 
@@ -2947,7 +3379,7 @@ async function captureStoryFromCamera() {
     ctx.scale(-1, 1);
     const camFilter = getCameraFilterFromPreset(_storyCameraActiveFilter);
     ctx.filter = camFilter.css;
-    ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(video, 0, 0, sw, sh, 0, 0, canvas.width, canvas.height);
     ctx.filter = 'none';
     ctx.restore();
 
@@ -3420,10 +3852,13 @@ function renderLiveStrip() {
   storiesRow.querySelectorAll('.live-story-bbl').forEach(node => node.remove());
 
   if (_currentUserId === null) {
-    startBtn.textContent = 'Login to go live';
+    startBtn.title = 'Login to go live';
+    startBtn.setAttribute('aria-label', 'Login to go live');
+    startBtn.dataset.liveResumeId = '';
   } else {
     const mine = _liveSessions.find(s => s && s.isHost && s.status === 'live');
-    startBtn.textContent = mine ? 'Resume Live' : 'Go Live';
+    startBtn.title = mine ? 'Resume live' : 'Go live';
+    startBtn.setAttribute('aria-label', mine ? 'Resume live' : 'Go live');
     startBtn.dataset.liveResumeId = mine ? String(mine.id) : '';
   }
 
@@ -3845,6 +4280,133 @@ function formatLiveSeconds(total) {
   const sec = s % 60;
   if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
   return `${m}:${String(sec).padStart(2, '0')}`;
+}
+
+async function setLiveSavedToProfile(sessionId, saveToProfile) {
+  if (!sessionId) return;
+  const form = new FormData();
+  form.append('saveToProfile', saveToProfile ? '1' : '0');
+
+  const res = await fetch(buildLiveIdUrl(_liveSaveToProfileUrlPattern, sessionId), {
+    method: 'POST',
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    body: form,
+  });
+  const json = await res.json();
+  if (!res.ok || !json.ok) {
+    throw new Error(json.message || 'Could not update live visibility');
+  }
+}
+
+function closeLiveEndedModal(action = 'discard') {
+  const modal = document.getElementById('live-ended-modal');
+  const preview = document.getElementById('live-ended-preview');
+  const bgVideo = document.getElementById('live-ended-bg-video');
+
+  if (modal) {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+
+  if (preview) {
+    try { preview.pause(); } catch (_) {}
+    preview.removeAttribute('src');
+    preview.classList.remove('visible');
+    preview.load();
+  }
+
+  if (bgVideo) {
+    try { bgVideo.pause(); } catch (_) {}
+    bgVideo.removeAttribute('src');
+    bgVideo.load();
+  }
+
+  if (_liveEndedRecordingUrl) {
+    URL.revokeObjectURL(_liveEndedRecordingUrl);
+    _liveEndedRecordingUrl = null;
+  }
+
+  if (!document.getElementById('story-editor-modal')?.classList.contains('open') && !document.getElementById('story-source-sheet')?.classList.contains('open') && !document.getElementById('story-camera-modal')?.classList.contains('open') && !document.getElementById('live-edit-modal')?.classList.contains('open')) {
+    document.body.classList.remove('story-editor-open');
+  }
+
+  const resolve = _liveEndedResolve;
+  _liveEndedResolve = null;
+  if (typeof resolve === 'function') {
+    resolve(action);
+  }
+}
+
+async function getBlobDurationSeconds(blob) {
+  if (!blob) return 0;
+
+  return await new Promise((resolve) => {
+    const url = URL.createObjectURL(blob);
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.onloadedmetadata = () => {
+      const duration = Math.max(0, Number(video.duration || 0));
+      URL.revokeObjectURL(url);
+      resolve(duration);
+    };
+    video.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(0);
+    };
+    video.src = url;
+  });
+}
+
+async function openLiveEndedModal(sessionId, recordingBlob) {
+  const modal = document.getElementById('live-ended-modal');
+  const preview = document.getElementById('live-ended-preview');
+  const bgVideo = document.getElementById('live-ended-bg-video');
+  const empty = document.getElementById('live-ended-empty');
+  const duration = document.getElementById('live-ended-duration');
+  const saveBtn = document.getElementById('live-ended-save');
+  const editBtn = document.getElementById('live-ended-edit');
+  const discardBtn = document.getElementById('live-ended-discard');
+
+  if (!modal || !preview || !bgVideo || !empty || !duration || !saveBtn || !editBtn || !discardBtn) {
+    return recordingBlob ? 'save' : 'discard';
+  }
+
+  if (_liveEndedRecordingUrl) {
+    URL.revokeObjectURL(_liveEndedRecordingUrl);
+    _liveEndedRecordingUrl = null;
+  }
+
+  const hasRecording = !!recordingBlob;
+  const replayDuration = await getBlobDurationSeconds(recordingBlob);
+  duration.textContent = `Duration ${formatLiveSeconds(replayDuration)}`;
+
+  if (hasRecording) {
+    _liveEndedRecordingUrl = URL.createObjectURL(recordingBlob);
+    preview.src = _liveEndedRecordingUrl;
+    bgVideo.src = _liveEndedRecordingUrl;
+    preview.classList.add('visible');
+    empty.style.display = 'none';
+    saveBtn.disabled = false;
+    editBtn.disabled = false;
+  } else {
+    preview.removeAttribute('src');
+    bgVideo.removeAttribute('src');
+    preview.classList.remove('visible');
+    empty.style.display = 'block';
+    saveBtn.disabled = true;
+    editBtn.disabled = true;
+  }
+
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('story-editor-open');
+
+  return await new Promise((resolve) => {
+    _liveEndedResolve = resolve;
+    saveBtn.onclick = () => closeLiveEndedModal('save');
+    editBtn.onclick = () => closeLiveEndedModal('edit');
+    discardBtn.onclick = () => closeLiveEndedModal('discard');
+  });
 }
 
 function closeLiveEditModal(resultBlob = null) {
@@ -4822,12 +5384,11 @@ async function endLiveSession() {
 
   const sessionId = Number(_liveActiveSessionId || 0);
   const endBtn = document.getElementById('live-end-btn');
-  let saveToProfile = window.confirm('Store this live on your profile in the Lives section?\nPress OK to save, Cancel to end without saving.');
 
   if (endBtn) endBtn.disabled = true;
 
   const form = new FormData();
-  form.append('saveToProfile', saveToProfile ? '1' : '0');
+  form.append('saveToProfile', '0');
 
   try {
     const res = await fetch(buildLiveIdUrl(_liveEndUrlPattern, sessionId), {
@@ -4847,23 +5408,39 @@ async function endLiveSession() {
       recordingBlob = await stopLiveRecordingCapture();
     }
 
-    if (recordingBlob) {
-      try {
-        if (saveToProfile) {
-          const editedBlob = await openLiveRecordingEditor(recordingBlob);
-          if (editedBlob) {
-            await uploadLiveRecording(sessionId, editedBlob);
-            showToast('Live replay saved to your profile');
-          }
-        } else {
-          await uploadLiveRecording(sessionId, recordingBlob);
-          showToast('Live recording archived for admin');
-        }
-      } catch (uploadErr) {
-        showToast(uploadErr.message || 'Live ended, but recording upload failed');
-      }
-    } else {
+    let action = await openLiveEndedModal(sessionId, recordingBlob);
+    if (action === 'discard') {
+      showToast('Live ended without saving');
+      return;
+    }
+
+    if (!recordingBlob) {
       showToast('Live ended, but no recording data was captured.');
+      return;
+    }
+
+    let blobToUpload = recordingBlob;
+    while (action === 'edit') {
+      const editedBlob = await openLiveRecordingEditor(blobToUpload);
+      if (editedBlob) {
+        blobToUpload = editedBlob;
+        action = 'save';
+      } else {
+        action = await openLiveEndedModal(sessionId, recordingBlob);
+        if (action === 'discard') {
+          showToast('Live ended without saving');
+          return;
+        }
+      }
+    }
+
+    try {
+      await uploadLiveRecording(sessionId, blobToUpload);
+      await setLiveSavedToProfile(sessionId, true);
+      await fetchLiveSessions();
+      showToast('Live replay saved to your profile');
+    } catch (uploadErr) {
+      showToast(uploadErr.message || 'Live ended, but recording upload failed');
     }
   } catch (e) {
     showToast(e.message || 'Could not end live');
@@ -4961,10 +5538,10 @@ function fitStoryCropperToFrame() {
   const boxLeft = (container.width - boxWidth) / 2;
   const boxTop = (container.height - boxHeight) / 2;
   _storyCropper.setCropBoxData({
-    left: boxLeft,
-    top: boxTop,
-    width: boxWidth,
-    height: boxHeight,
+    left: 0,
+    top: 0,
+    width: container.width,
+    height: container.height,
   });
 }
 
@@ -5007,7 +5584,6 @@ function openStoryEditor(file) {
     _storyCropper = new Cropper(preview, {
       viewMode: 1,
       dragMode: 'move',
-      aspectRatio: 9 / 16,
       autoCropArea: 1,
       background: false,
       responsive: true,
@@ -5433,6 +6009,34 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Camera Sidebar Popover Logic
+  document.querySelectorAll('[data-cam-popover]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const popoverId = `popover-${btn.dataset.camPopover}`;
+      const popover = document.getElementById(popoverId);
+      const isOpen = popover?.classList.contains('open');
+
+      // Close all first
+      document.querySelectorAll('.story-popover').forEach(p => p.classList.remove('open'));
+      document.querySelectorAll('.story-sidebar-btn').forEach(b => b.classList.remove('active'));
+
+      if (!isOpen && popover) {
+        popover.classList.add('open');
+        btn.classList.add('active');
+      }
+    });
+  });
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.story-popover').forEach(p => p.classList.remove('open'));
+    document.querySelectorAll('.story-sidebar-btn').forEach(b => b.classList.remove('active'));
+  });
+
+  document.querySelectorAll('.story-popover').forEach(p => {
+    p.addEventListener('click', (e) => e.stopPropagation());
+  });
 
   document.querySelectorAll('#story-camera-filters .story-camera-fchip').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -5982,6 +6586,49 @@ if (_storyFrameEl) {
       openStoryViewersSheet();
     }
   }, { passive: true });
+}
+
+/**
+ * Toggle follow status for suggested users
+ */
+async function toggleSuggestionFollow(btn) {
+  if (btn.disabled) return;
+  btn.disabled = true;
+
+  const url = btn.dataset.followUrl;
+  const token = btn.dataset.csrfToken;
+
+  try {
+    const formData = new FormData();
+    formData.append('_token', token);
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body: formData
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.following) {
+        if (data.status === 'pending') {
+          btn.textContent = 'Requested';
+          btn.classList.add('following', 'pending');
+        } else {
+          btn.textContent = 'Following';
+          btn.classList.add('following');
+          btn.classList.remove('pending');
+        }
+      } else {
+        btn.textContent = 'Follow';
+        btn.classList.remove('following', 'pending');
+      }
+    }
+  } catch (err) {
+    console.error('Follow toggle failed:', err);
+  } finally {
+    btn.disabled = false;
+  }
 }
 </script>
 {% endblock %}

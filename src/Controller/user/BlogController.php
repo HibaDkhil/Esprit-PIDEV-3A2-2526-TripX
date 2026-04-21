@@ -485,30 +485,95 @@ class BlogController extends AbstractController
         $ctx  = $this->buildFeedContext($feed, $em, $currentUserId);
         $storiesByUser = $this->buildStoriesContext($storyRepository, $storyViewRepository, $followingRepository, $currentUserId);
 
-        $followingLookup = [];
+        $pendingRequests = [];
+        $requestAuthors = [];
         if ($currentUserId !== null) {
-            $suggestedIds = [];
-            foreach ($feed as $item) {
-                $uid = (int) $item['entity']->getUserId();
-                if ($uid > 0 && $uid !== $currentUserId) {
-                    $suggestedIds[$uid] = true;
+            $pendingRequests = $followingRepository->findPendingRequests($currentUserId);
+            if (!empty($pendingRequests)) {
+                $reqIds = array_map(fn($r) => $r->getFollowerId(), $pendingRequests);
+                $reqUsers = $em->getRepository(User::class)->findBy(['userId' => $reqIds]);
+                foreach ($reqUsers as $u) {
+                    $requestAuthors[$u->getUserId()] = [
+                        'name' => trim($u->getFirstName() . ' ' . $u->getLastName()) ?: 'User #' . $u->getUserId(),
+                        'avatar' => $u->getAvatarId()
+                    ];
+                }
+            }
+        }
+
+        $followingLookup = [];
+        $suggestedUsers = [];
+        if ($currentUserId !== null) {
+            // 1. Get followings and their statuses
+            $myFollowings = $followingRepository->findBy(['follower_id' => $currentUserId]);
+            foreach ($myFollowings as $f) {
+                $followingLookup[(int)$f->getFollowedId()] = $f->getStatus();
+            }
+            $followingIds = array_keys($followingLookup);
+
+            // 2. Get my preferences
+            $myPrefs = $em->getRepository(\App\Entity\Preference::class)->findOneBy(['userId' => $currentUserId]);
+
+            // 3. Get my story attributes
+            $myStories = $tsRepository->findBy(['userId' => $currentUserId, 'removedByAdmin' => false]);
+            $myDests = array_unique(array_filter(array_map(fn($s) => $s->getDestination(), $myStories)));
+            $myStyles = array_unique(array_filter(array_map(fn($s) => $s->getTravelStyle(), $myStories)));
+
+            // 4. Candidate users (excluding self and already followed)
+            $excludeIds = array_merge([$currentUserId], $followingIds);
+            $candidates = $em->getRepository(User::class)->createQueryBuilder('u')
+                ->where('u.userId NOT IN (:exclude)')
+                ->setParameter('exclude', $excludeIds)
+                ->setMaxResults(20) // Limit scan for performance
+                ->getQuery()
+                ->getResult();
+
+            $scored = [];
+            foreach ($candidates as $other) {
+                $score = 0;
+                $reasons = [];
+                $otherUid = (int)$other->getUserId();
+
+                // Preference matching
+                $oPrefs = $em->getRepository(\App\Entity\Preference::class)->findOneBy(['userId' => $otherUid]);
+                if ($myPrefs && $oPrefs) {
+                    if ($myPrefs->getLocationPreferences() && $oPrefs->getLocationPreferences()) {
+                        $mLocs = array_map('trim', explode(',', strtolower($myPrefs->getLocationPreferences())));
+                        $oLocs = array_map('trim', explode(',', strtolower($oPrefs->getLocationPreferences())));
+                        if (array_intersect($mLocs, $oLocs)) { $score += 15; $reasons[] = "Interested in same locations"; }
+                    }
+                    if ($myPrefs->getStylePreferences() && $oPrefs->getStylePreferences()) {
+                        $mS = array_map('trim', explode(',', strtolower($myPrefs->getStylePreferences())));
+                        $oS = array_map('trim', explode(',', strtolower($oPrefs->getStylePreferences())));
+                        if (array_intersect($mS, $oS)) { $score += 10; $reasons[] = "Shared travel styles"; }
+                    }
+                    if ($myPrefs->getPreferredClimate() && $oPrefs->getPreferredClimate() && 
+                        strtolower($myPrefs->getPreferredClimate()) === strtolower($oPrefs->getPreferredClimate())) {
+                        $score += 8; $reasons[] = "Same climate preference";
+                    }
+                }
+
+                // Content matching
+                $oStories = $tsRepository->findBy(['userId' => $otherUid, 'removedByAdmin' => false]);
+                $foundDest = false;
+                foreach ($oStories as $os) {
+                    if ($os->getDestination() && in_array($os->getDestination(), $myDests)) {
+                        if (!$foundDest) { $score += 12; $reasons[] = "Visited same places"; $foundDest = true; }
+                    }
+                }
+
+                if ($score > 0 || !empty($oStories)) {
+                    $scored[] = [
+                        'id' => $otherUid,
+                        'name' => trim($other->getFirstName() . ' ' . $other->getLastName()) ?: 'User #' . $otherUid,
+                        'score' => $score,
+                        'reason' => !empty($reasons) ? $reasons[0] : "Active traveler"
+                    ];
                 }
             }
 
-            if (!empty($suggestedIds)) {
-                $rows = $followingRepository->createQueryBuilder('f')
-                    ->select('f.followed_id AS followedId')
-                    ->where('f.follower_id = :me')
-                    ->andWhere('f.followed_id IN (:ids)')
-                    ->setParameter('me', $currentUserId)
-                    ->setParameter('ids', array_keys($suggestedIds))
-                    ->getQuery()
-                    ->getArrayResult();
-
-                foreach ($rows as $row) {
-                    $followingLookup[(int) $row['followedId']] = true;
-                }
-            }
+            usort($scored, fn($a, $b) => $b['score'] <=> $a['score']);
+            $suggestedUsers = array_slice($scored, 0, 3);
         }
 
         return $this->render('front/blog/blog.html.twig', [
@@ -523,6 +588,9 @@ class BlogController extends AbstractController
             'storiesByUser'   => $storiesByUser,
             'currentUserId'   => $currentUserId,
             'followingLookup' => $followingLookup,
+            'suggestedUsers'  => $suggestedUsers,
+            'pendingRequests' => $pendingRequests,
+            'requestAuthors'  => $requestAuthors,
             'ownerPostCount'  => $ownerPostCount,
             'ownerStoryCount' => $ownerStoryCount,
             'ownerFollowersCount' => $ownerFollowersCount,

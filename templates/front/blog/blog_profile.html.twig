@@ -98,7 +98,9 @@
     .up-live-dialog { width: min(920px, 96vw); background: #0f172a; border: 1px solid rgba(255,255,255,0.16); border-radius: 16px; overflow: hidden; box-shadow: 0 24px 56px rgba(0,0,0,0.42); }
     .up-live-modal-head { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; color: #fff; background: rgba(2,6,23,0.55); }
     .up-live-modal-x { border: 0; background: transparent; color: #fff; font-size: 1.4rem; cursor: pointer; line-height: 1; }
-    .up-live-player { width: 100%; max-height: 78vh; background: #000; }
+    .up-btn.pending { background: #fffbeb; color: #d97706; border: 1px solid #fef3c7; box-shadow: 0 4px 6px rgba(217, 119, 6, 0.1); }
+    .up-btn.pending::before { content: '⌛ '; font-size: 0.8em; margin-right: 4px; }
+    .up-btn.pending:hover { background: #fef3c7; }
   </style>
 {% endblock %}
 
@@ -123,7 +125,15 @@
             {% if app.user %}
               <form id="profile-follow-form" method="post" action="{{ path('follow_toggle', {id: target.userId}) }}" style="margin:0;">
                 <input type="hidden" name="_token" value="{{ csrf_token('follow_' ~ target.userId) }}">
-                <button id="profile-follow-btn" class="up-btn {{ isFollowing ? 'secondary' : 'primary' }}" type="submit">{{ isFollowing ? 'Following' : 'Follow' }}</button>
+                <button id="profile-follow-btn" class="up-btn {{ followStatus != 'none' ? 'secondary' : 'primary' }} {{ followStatus == 'pending' ? 'pending' : '' }}" type="submit">
+                  {% if followStatus == 'accepted' %}
+                    Following
+                  {% elseif followStatus == 'pending' %}
+                    Requested
+                  {% else %}
+                    Follow
+                  {% endif %}
+                </button>
               </form>
               <button class="up-btn secondary" type="button" onclick="alert('Messaging UI can be connected here.')">Message</button>
             {% else %}
@@ -374,8 +384,18 @@
       }
 
       const isFollowing = !!json.following;
-      btn.textContent = isFollowing ? 'Following' : 'Follow';
-      btn.className = 'up-btn ' + (isFollowing ? 'secondary' : 'primary');
+      const status = json.status || 'none';
+
+      if (status === 'accepted') {
+        btn.textContent = 'Following';
+        btn.className = 'up-btn secondary';
+      } else if (status === 'pending') {
+        btn.textContent = 'Requested';
+        btn.className = 'up-btn secondary pending';
+      } else {
+        btn.textContent = 'Follow';
+        btn.className = 'up-btn primary';
+      }
 
       if (followersEl && typeof json.followerCount !== 'undefined') {
         followersEl.textContent = String(json.followerCount);

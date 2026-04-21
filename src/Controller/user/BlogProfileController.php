@@ -67,15 +67,18 @@ class BlogProfileController extends AbstractController
         $followersCount = (int) $followingRepository->count(['followed_id' => (int) $target->getUserId()]);
         $followingCount = (int) $followingRepository->count(['follower_id' => (int) $target->getUserId()]);
 
-        $isFollowing = false;
+        $followStatus = 'none';
         if ($myId !== null && !$isSelf) {
-            $isFollowing = $followingRepository->findOneBy([
+            $f = $followingRepository->findOneBy([
                 'follower_id' => $myId,
                 'followed_id' => (int) $target->getUserId(),
-            ]) !== null;
+            ]);
+            if ($f) {
+                $followStatus = $f->getStatus();
+            }
         }
 
-        $canViewContent = $isSelf || $isFollowing;
+        $canViewContent = $isSelf || ($followStatus === \App\Entity\Following::STATUS_ACCEPTED);
 
         $posts = [];
         $travelStories = [];
@@ -117,7 +120,7 @@ class BlogProfileController extends AbstractController
             'shared' => $shared,
             'followersCount' => $followersCount,
             'followingCount' => $followingCount,
-            'isFollowing' => $isFollowing,
+            'followStatus' => $followStatus,
             'isSelf' => $isSelf,
             'canViewContent' => $canViewContent,
             'activeStoriesCount' => $activeStoriesCount,

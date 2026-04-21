@@ -104,3 +104,9 @@ services:
         arguments:
             $groqApiKey: '%env(TRANSPORTAI)%'
         tags: ['controller.service_arguments']
+
+    App\service\ImageEnhancerService:
+        arguments:
+            $pixianId: '%env(PIXIAN_API_ID)%'
+            $pixianSecret: '%env(PIXIAN_API_SECRET)%'
+            $appEnv: '%kernel.environment%'

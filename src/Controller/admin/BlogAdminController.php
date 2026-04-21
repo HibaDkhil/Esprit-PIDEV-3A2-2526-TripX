@@ -25,7 +25,7 @@ use Symfony\UX\Chartjs\Model\Chart;
 #[Route('/admin/blog')]
 class BlogAdminController extends AbstractController
 {
-    private const BLOG_TABS = ['posts', 'stories', 'ig-stories', 'live', 'moderation'];
+    private const BLOG_TABS = ['moderation', 'posts', 'stories', 'ig-stories', 'live'];
     private const MODERATION_ORDER = [
         'HIGH_RISK' => 1,
         'SPAM' => 2,
@@ -175,13 +175,22 @@ class BlogAdminController extends AbstractController
             $posts
         ));
 
+        $unifiedModerationQueue = [];
+
         foreach ($posts as $post) {
             $postId = (int) ($post->getId() ?? 0);
             $analysis = $postModerationFromDb[$postId] ?? $this->analyzePostModeration($post);
             $postModeration[(int) $post->getId()] = $analysis;
 
             if ($analysis['state'] !== 'SAFE') {
-                $moderationQueue[] = $post;
+                $unifiedModerationQueue[] = [
+                    'type' => 'post',
+                    'id' => $postId,
+                    'title' => (string) ($post->getTitle() ?? 'Untitled Post'),
+                    'content' => (string) ($post->getBody() ?? ''),
+                    'analysis' => $analysis,
+                    'entity' => $post,
+                ];
                 if (in_array($analysis['state'], ['REVIEW', 'HIGH_RISK', 'AUTO_HIDDEN'], true)) {
                     $flaggedPosts++;
                 }
@@ -196,7 +205,8 @@ class BlogAdminController extends AbstractController
         }
 
         foreach ($stories as $story) {
-            $storyModeration[(int) $story->getId()] = $this->analyzeModerationText(
+            $storyId = (int) ($story->getId() ?? 0);
+            $analysis = $this->analyzeModerationText(
                 (string) ($story->getTitle() ?? ''),
                 trim(implode("\n", array_filter([
                     (string) ($story->getSummary() ?? ''),
@@ -209,20 +219,52 @@ class BlogAdminController extends AbstractController
                     implode(' ', $story->getFavoritePlacesJson() ?? []),
                 ])))
             );
+            $storyModeration[$storyId] = $analysis;
+            if ($analysis['state'] !== 'SAFE') {
+                $unifiedModerationQueue[] = [
+                    'type' => 'travel_story',
+                    'id' => $storyId,
+                    'title' => (string) ($story->getTitle() ?? 'Untitled Travel Story'),
+                    'content' => (string) ($story->getSummary() ?? ''),
+                    'analysis' => $analysis,
+                    'entity' => $story,
+                ];
+            }
         }
 
         foreach ($igStories as $igStory) {
-            $igStoryModeration[(int) $igStory->getId()] = $this->analyzeModerationText(
-                '',
-                (string) ($igStory->getCaption() ?? '')
-            );
+            $igStoryId = (int) ($igStory->getId() ?? 0);
+            $analysis = $this->analyzeModerationText('', (string) ($igStory->getCaption() ?? ''));
+            $igStoryModeration[$igStoryId] = $analysis;
+            if ($analysis['state'] !== 'SAFE') {
+                $unifiedModerationQueue[] = [
+                    'type' => 'story',
+                    'id' => $igStoryId,
+                    'title' => 'IG Story',
+                    'content' => (string) ($igStory->getCaption() ?? ''),
+                    'analysis' => $analysis,
+                    'entity' => $igStory,
+                ];
+            }
         }
 
         foreach ($liveSessions as $live) {
-            $liveModeration[(int) $live->getId()] = $this->analyzeModerationText(
+            $liveId = (int) ($live->getId() ?? 0);
+            $analysis = $this->analyzeModerationText(
                 (string) ($live->getTitle() ?? ''),
                 (string) ($live->getRoomName() ?? '')
             );
+            $liveModeration[$liveId] = $analysis;
+            if ($analysis['state'] !== 'SAFE') {
+                $unifiedModerationQueue[] = [
+                    'type' => 'live',
+                    'id' => $liveId,
+                    'title' => (string) ($live->getTitle() ?? 'Untitled Live'),
+                    'content' => (string) ($live->getRoomName() ?? ''),
+                    'analysis' => $analysis,
+                    'entity' => $live,
+                ];
+            }
         }
 
         foreach ($allComments as $comment) {
@@ -246,6 +288,17 @@ class BlogAdminController extends AbstractController
                 }
                 $this->accumulateCommentModeration($storyCommentModeration[$storyId], $analysis, $commentText);
             }
+
+            if ($analysis['state'] !== 'SAFE') {
+                $unifiedModerationQueue[] = [
+                    'type' => 'comment',
+                    'id' => $comment->getId(),
+                    'title' => 'Comment',
+                    'content' => (string) ($comment->getBody() ?? ''),
+                    'analysis' => $analysis,
+                    'entity' => $comment,
+                ];
+            }
         }
 
         foreach ($allLiveComments as $liveComment) {
@@ -262,6 +315,17 @@ class BlogAdminController extends AbstractController
                 $liveCommentModeration[$liveSessionId] = $this->createCommentModerationBucket();
             }
             $this->accumulateCommentModeration($liveCommentModeration[$liveSessionId], $analysis, $commentText);
+
+            if ($analysis['state'] !== 'SAFE') {
+                $unifiedModerationQueue[] = [
+                    'type' => 'live_comment',
+                    'id' => $liveComment->getId(),
+                    'title' => 'Live Comment',
+                    'content' => (string) ($liveComment->getMessage() ?? ''),
+                    'analysis' => $analysis,
+                    'entity' => $liveComment,
+                ];
+            }
         }
 
         $postCommentModeration = $this->finalizeCommentModerationMap($postCommentModeration);
@@ -285,17 +349,13 @@ class BlogAdminController extends AbstractController
             }
         }
 
-        usort($moderationQueue, function (Post $a, Post $b) use ($postModeration): int {
-            $aState = $postModeration[(int) $a->getId()]['state'] ?? 'SAFE';
-            $bState = $postModeration[(int) $b->getId()]['state'] ?? 'SAFE';
-
-            $aRank = self::MODERATION_ORDER[$aState] ?? 99;
-            $bRank = self::MODERATION_ORDER[$bState] ?? 99;
+        usort($unifiedModerationQueue, function ($a, $b): int {
+            $aRank = self::MODERATION_ORDER[$a['analysis']['state']] ?? 99;
+            $bRank = self::MODERATION_ORDER[$b['analysis']['state']] ?? 99;
             if ($aRank !== $bRank) {
                 return $aRank <=> $bRank;
             }
-
-            return ((int) $b->getId()) <=> ((int) $a->getId());
+            return ((int) $b['id']) <=> ((int) $a['id']);
         });
 
         $stats = [
@@ -312,135 +372,89 @@ class BlogAdminController extends AbstractController
             'blockedBots' => 0,
         ];
 
+        // 1. Content Overview Chart (Doughnut)
         $contentMixChart = $chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
         $contentMixChart->setData([
-            'labels' => ['Posts', 'Travel Stories', 'Stories', 'Live Sessions'],
+            'labels' => ['Posts', 'Travel Stories', 'Live Sessions', 'Comments'],
             'datasets' => [[
-                'label' => 'Content Mix',
-                'data' => [count($posts), count($stories), count($igStories), count($liveSessions)],
-                'backgroundColor' => ['#0ea5e9', '#f97316', '#14b8a6', '#e11d48'],
+                'data' => [count($posts), count($stories), count($liveSessions), count($allComments)],
+                'backgroundColor' => ['#3b82f6', '#ec4899', '#ef4444', '#8b5cf6'],
                 'borderWidth' => 0,
             ]],
         ]);
         $contentMixChart->setOptions([
-            'plugins' => ['legend' => ['position' => 'bottom']],
+            'plugins' => [
+                'legend' => ['position' => 'bottom', 'labels' => ['usePointStyle' => true, 'padding' => 20]]
+            ],
             'maintainAspectRatio' => false,
+            'cutout' => '70%',
         ]);
 
-        $moderationStates = ['SAFE' => 0, 'REVIEW' => 0, 'SPAM' => 0, 'HIGH_RISK' => 0, 'AUTO_HIDDEN' => 0];
-        foreach ($postModeration as $analysis) {
-            $state = (string) ($analysis['state'] ?? 'SAFE');
-            if (isset($moderationStates[$state])) {
-                $moderationStates[$state]++;
-            }
-        }
-
-        $moderationChart = $chartBuilder->createChart(Chart::TYPE_BAR);
-        $moderationChart->setData([
-            'labels' => ['Safe', 'Review', 'Spam', 'High Risk', 'Hidden'],
+        // 2. Verification Stats Chart (Pie)
+        $approvedPosts = count(array_filter($posts, fn($p) => $p->isConfirmed()));
+        $pendingPosts = count($posts) - $approvedPosts;
+        $verificationStatsChart = $chartBuilder->createChart(Chart::TYPE_PIE);
+        $verificationStatsChart->setData([
+            'labels' => ['Approved Posts', 'Pending Posts'],
             'datasets' => [[
-                'label' => 'Posts',
-                'data' => [
-                    $moderationStates['SAFE'],
-                    $moderationStates['REVIEW'],
-                    $moderationStates['SPAM'],
-                    $moderationStates['HIGH_RISK'],
-                    $moderationStates['AUTO_HIDDEN'],
-                ],
-                'backgroundColor' => ['#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#7f1d1d'],
-                'borderRadius' => 8,
+                'data' => [$approvedPosts, $pendingPosts],
+                'backgroundColor' => ['#10b981', '#f59e0b'],
+                'borderWidth' => 0,
             ]],
         ]);
-        $moderationChart->setOptions([
-            'plugins' => ['legend' => ['display' => false]],
-            'scales' => ['y' => ['beginAtZero' => true, 'ticks' => ['precision' => 0]]],
+        $verificationStatsChart->setOptions([
+            'plugins' => [
+                'legend' => ['position' => 'bottom', 'labels' => ['usePointStyle' => true, 'padding' => 20]]
+            ],
             'maintainAspectRatio' => false,
         ]);
 
+        // 3. Peak User Activity (24H) (Line)
+        $now = new \DateTimeImmutable();
         $activityLabels = [];
-        $activityMap = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $d = (new \DateTimeImmutable('today'))->modify(sprintf('-%d days', $i));
-            $key = $d->format('Y-m-d');
-            $activityLabels[] = $d->format('D');
-            $activityMap[$key] = 0;
+        $activityData = [];
+        $allActivityEntities = array_merge($posts, $stories, $igStories, $liveSessions, $allComments);
+        
+        for ($i = 23; $i >= 0; $i--) {
+            $t = $now->modify(sprintf('-%d hours', $i));
+            $hourKey = $t->format('Y-m-d H');
+            $activityLabels[] = ($i % 2 === 0) ? $t->format('H:00') : '';
+            
+            $count = 0;
+            foreach ($allActivityEntities as $entity) {
+                $dt = null;
+                if ($entity instanceof Post || $entity instanceof TravelStory || $entity instanceof Story || $entity instanceof Comment) {
+                    $dt = $entity->getCreatedAt();
+                } elseif ($entity instanceof LiveSession) {
+                    $dt = $entity->getStartedAt();
+                }
+                if ($dt instanceof \DateTimeInterface && $dt->format('Y-m-d H') === $hourKey) {
+                    $count++;
+                }
+            }
+            $activityData[] = $count;
         }
 
-        foreach ($posts as $post) {
-            $at = $post->getCreatedAt();
-            if ($at instanceof \DateTimeInterface) {
-                $key = $at->format('Y-m-d');
-                if (isset($activityMap[$key])) {
-                    $activityMap[$key]++;
-                }
-            }
-        }
-        foreach ($stories as $story) {
-            $at = $story->getCreatedAt();
-            if ($at instanceof \DateTimeInterface) {
-                $key = $at->format('Y-m-d');
-                if (isset($activityMap[$key])) {
-                    $activityMap[$key]++;
-                }
-            }
-        }
-        foreach ($igStories as $story) {
-            $at = $story->getCreatedAt();
-            if ($at instanceof \DateTimeInterface) {
-                $key = $at->format('Y-m-d');
-                if (isset($activityMap[$key])) {
-                    $activityMap[$key]++;
-                }
-            }
-        }
-        foreach ($liveSessions as $live) {
-            $at = $live->getStartedAt();
-            if ($at instanceof \DateTimeInterface) {
-                $key = $at->format('Y-m-d');
-                if (isset($activityMap[$key])) {
-                    $activityMap[$key]++;
-                }
-            }
-        }
-
-        $activityChart = $chartBuilder->createChart(Chart::TYPE_LINE);
-        $activityChart->setData([
+        $peakActivityChart = $chartBuilder->createChart(Chart::TYPE_LINE);
+        $peakActivityChart->setData([
             'labels' => $activityLabels,
             'datasets' => [[
-                'label' => 'New Content',
-                'data' => array_values($activityMap),
-                'borderColor' => '#2563eb',
-                'backgroundColor' => 'rgba(37,99,235,0.15)',
+                'label' => 'User Activity (Events)',
+                'data' => $activityData,
+                'borderColor' => '#4f46e5',
+                'backgroundColor' => 'rgba(79, 70, 229, 0.1)',
                 'fill' => true,
-                'tension' => 0.35,
-                'pointRadius' => 3,
+                'tension' => 0.4,
+                'pointRadius' => 4,
+                'pointBackgroundColor' => '#4f46e5',
             ]],
         ]);
-        $activityChart->setOptions([
+        $peakActivityChart->setOptions([
             'plugins' => ['legend' => ['display' => false]],
-            'scales' => ['y' => ['beginAtZero' => true, 'ticks' => ['precision' => 0]]],
-            'maintainAspectRatio' => false,
-        ]);
-
-        $commentModerationChart = $chartBuilder->createChart(Chart::TYPE_BAR);
-        $commentModerationChart->setData([
-            'labels' => ['Safe', 'Review', 'Spam', 'High Risk', 'Hidden'],
-            'datasets' => [[
-                'label' => 'Comments',
-                'data' => [
-                    $commentModerationTotals['safe'],
-                    $commentModerationTotals['review'],
-                    $commentModerationTotals['spam'],
-                    $commentModerationTotals['high_risk'],
-                    $commentModerationTotals['auto_hidden'],
-                ],
-                'backgroundColor' => ['#22c55e', '#f59e0b', '#8b5cf6', '#ef4444', '#7f1d1d'],
-                'borderRadius' => 8,
-            ]],
-        ]);
-        $commentModerationChart->setOptions([
-            'plugins' => ['legend' => ['display' => false]],
-            'scales' => ['y' => ['beginAtZero' => true, 'ticks' => ['precision' => 0]]],
+            'scales' => [
+                'y' => ['beginAtZero' => true, 'grid' => ['color' => '#f3f4f6']],
+                'x' => ['grid' => ['display' => false]]
+            ],
             'maintainAspectRatio' => false,
         ]);
 
@@ -470,9 +484,8 @@ class BlogAdminController extends AbstractController
             'liveViewerCounts'  => $liveViewerCounts,
             'liveActiveViewerCounts' => $liveActiveViewerCounts,
             'contentMixChart' => $contentMixChart,
-            'moderationChart' => $moderationChart,
-            'activityChart' => $activityChart,
-            'commentModerationChart' => $commentModerationChart,
+            'verificationStatsChart' => $verificationStatsChart,
+            'peakActivityChart' => $peakActivityChart,
         ]);
     }
 
@@ -803,11 +816,31 @@ class BlogAdminController extends AbstractController
         return $this->redirect($referer);
     }
 
+    // ── Delete a live comment ───────────────────────────────────────────
+    #[Route('/live-comment/{id}/delete', name: 'admin_live_comment_delete', methods: ['POST'])]
+    public function deleteLiveComment(int $id, Request $request, EntityManagerInterface $em): Response
+    {
+        $comment = $em->getRepository(LiveComment::class)->find($id);
+        if (!$comment) {
+            throw $this->createNotFoundException('Live comment not found.');
+        }
+
+        $referer = $request->headers->get('referer', $this->generateUrl('admin_blog'));
+
+        if ($this->isCsrfTokenValid('admin_live_comment_delete_' . $id, $request->request->get('_token'))) {
+            $em->remove($comment);
+            $em->flush();
+            $this->addFlash('success', 'Live comment deleted.');
+        }
+
+        return $this->redirect($referer);
+    }
+
     private function resolveTab(Request $request): string
     {
-        $tab = (string) ($request->request->get('_tab') ?? $request->query->get('tab') ?? 'posts');
+        $tab = (string) ($request->request->get('_tab') ?? $request->query->get('tab') ?? 'moderation');
 
-        return in_array($tab, self::BLOG_TABS, true) ? $tab : 'posts';
+        return in_array($tab, self::BLOG_TABS, true) ? $tab : 'moderation';
     }
 
     private function removeTravelStoryImages(TravelStory $story): void

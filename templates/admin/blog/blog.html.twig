@@ -7,12 +7,110 @@
 
 {% block content %}
 <style>
-.stats-row        { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:28px; }
-.stat-card        { flex:1; min-width:140px; background:var(--bg-card); border:1px solid var(--border-color);
-                     border-radius:var(--border-radius-md); padding:18px 20px; }
-.stat-card .num   { font-size:32px; font-weight:900; color:var(--accent-primary); }
-.stat-card .lbl   { font-size:13px; color:var(--text-muted); margin-top:2px; }
+/* Modern Admin Dashboard Styles */
+:root {
+    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    --card-border: 1px solid rgba(226, 232, 240, 0.8);
+}
 
+.dashboard-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card-modern {
+    background: #ffffff;
+    border: var(--card-border);
+    border-radius: 16px;
+    padding: 24px 16px;
+    text-align: center;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card-modern:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card-modern .num {
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.stat-card-modern .lbl {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    letter-spacing: 0.02em;
+}
+
+/* Specific Card Colors */
+.card-total-posts .num { color: #3b82f6; }
+.card-pending .num { color: #f59e0b; }
+.card-approved .num { color: #10b981; }
+.card-travel-stories .num { color: #f43f5e; }
+.card-stories .num { color: #14b8a6; }
+.card-live .num { color: #e11d48; }
+.card-comments .num { color: #8b5cf6; }
+.card-reactions .num { color: #d946ef; }
+
+.wide-stat-card {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+}
+
+.charts-row-modern {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.chart-card-modern {
+    background: #ffffff;
+    border: var(--card-border);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+}
+
+.chart-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.chart-header h3 {
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #475569;
+    letter-spacing: 0.05em;
+    margin: 0;
+}
+
+.chart-body {
+    height: 300px;
+    position: relative;
+}
+
+@media (max-width: 1200px) {
+    .charts-row-modern { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+    .charts-row-modern { grid-template-columns: 1fr; }
+    .dashboard-stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Original table styles kept below */
 .blog-table       { width:100%; border-collapse:collapse; background:var(--bg-card);
                      border-radius:var(--border-radius-md); overflow:hidden;
                      border:1px solid var(--border-color); }
@@ -44,13 +142,13 @@
 .badge            { display:inline-block; padding:3px 10px; border-radius:50px; font-size:11px; font-weight:700; }
 .badge-pending    { background:#fef3c7; color:#92400e; }
 .badge-approved   { background:#d1fae5; color:#065f46; }
-.type-dot         { display:inline-block; padding:3px 8px; border-radius:50px; font-size:11px; font-weight:600; }
-.type-inquiry     { background:#dbeafe; color:#1d4ed8; }
-.type-story       { background:#d1fae5; color:#065f46; }
-.type-review      { background:#fef3c7; color:#92400e; }
-.type-advice      { background:#ede9fe; color:#5b21b6; }
-.type-other       { background:#f3f4f6; color:#374151; }
-.type-travel      { background:linear-gradient(135deg,#fef3c7,#fee2e2); color:#92400e; }
+.type-dot         { display:inline-block; padding:3px 8px; border-radius:50px; font-size:11px; font-weight:600; white-space:nowrap; }
+.type-post        { background:#dbeafe; color:#1d4ed8; }
+.type-travel-story { background:#fdf2f8; color:#be185d; }
+.type-story       { background:#f0fdf4; color:#15803d; }
+.type-live        { background:#fff1f2; color:#be123c; }
+.type-comment     { background:#f5f3ff; color:#6d28d9; }
+.type-live-comment { background:#fff7ed; color:#c2410c; }
 
 .actions          { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
 .btn-approve,
@@ -122,105 +220,85 @@
 .hl-flag { background:#fef08a; color:#713f12; padding:0 2px; border-radius:4px; }
 .mod-actions { display:flex; gap:8px; flex-wrap:wrap; }
 
-.charts-grid { display:grid; grid-template-columns:repeat(3, minmax(260px,1fr)); gap:16px; margin-bottom:24px; }
-.chart-card { background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius-md); padding:14px; }
-.chart-title { margin:0 0 10px; font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); }
-.chart-wrap { height:250px; position:relative; }
-@media (max-width: 1200px) {
-    .charts-grid { grid-template-columns:repeat(2, minmax(260px,1fr)); }
-}
-@media (max-width: 760px) {
-    .charts-grid { grid-template-columns:1fr; }
-}
 </style>
 
 {# ── Flash messages ── #}
 {% for msg in app.flashes('success') %}<div class="flash-success">✅ {{ msg }}</div>{% endfor %}
 {% for msg in app.flashes('info') %}<div class="flash-info">ℹ️ {{ msg }}</div>{% endfor %}
 
-{# ── Stats ── #}
-<div class="stats-row">
-    <div class="stat-card">
+{# ── Modern Stats Section ── #}
+<div class="dashboard-stats-grid">
+    <div class="stat-card-modern card-total-posts">
         <div class="num">{{ stats.total }}</div>
         <div class="lbl">Total Posts</div>
     </div>
-    <div class="stat-card">
-        <div class="num" style="color:#f59e0b;">{{ stats.pending }}</div>
+    <div class="stat-card-modern card-pending">
+        <div class="num">{{ stats.pending }}</div>
         <div class="lbl">Pending Approval</div>
     </div>
-    <div class="stat-card">
-        <div class="num" style="color:#10b981;">{{ stats.approved }}</div>
+    <div class="stat-card-modern card-approved">
+        <div class="num">{{ stats.approved }}</div>
         <div class="lbl">Approved</div>
     </div>
-    <div class="stat-card">
-        <div class="num" style="color:#ef4444;">{{ stats.stories }}</div>
+    <div class="stat-card-modern card-travel-stories">
+        <div class="num">{{ stats.stories }}</div>
         <div class="lbl">Travel Stories</div>
     </div>
-    <div class="stat-card">
-        <div class="num" style="color:#14b8a6;">{{ stats.igStories ?? 0 }}</div>
+    <div class="stat-card-modern card-stories">
+        <div class="num">{{ stats.igStories ?? 0 }}</div>
         <div class="lbl">Stories</div>
     </div>
-    <div class="stat-card">
-        <div class="num" style="color:#e11d48;">{{ stats.liveSessions ?? 0 }}</div>
+    <div class="stat-card-modern card-live">
+        <div class="num">{{ stats.liveSessions ?? 0 }}</div>
         <div class="lbl">Live Sessions</div>
     </div>
-    <div class="stat-card">
-        <div class="num" style="color:#8b5cf6;">{{ stats.comments }}</div>
+    <div class="stat-card-modern card-comments">
+        <div class="num">{{ stats.comments }}</div>
         <div class="lbl">Total Comments</div>
     </div>
-    <div class="stat-card">
-        <div class="num" style="color:#ec4899;">{{ stats.reactions }}</div>
+
+    {# Wide Reaction Card #}
+    <div class="stat-card-modern wide-stat-card card-reactions">
+        <div class="num">{{ stats.reactions }}</div>
         <div class="lbl">Total Reactions</div>
-    </div>
-    <div class="stat-card">
-        <div class="num" style="color:#f97316;">{{ stats.flaggedPosts ?? 0 }}</div>
-        <div class="lbl">Flagged Posts</div>
-    </div>
-    <div class="stat-card">
-        <div class="num" style="color:#7c3aed;">{{ stats.spamDetected ?? 0 }}</div>
-        <div class="lbl">Spam Detected</div>
-    </div>
-    <div class="stat-card">
-        <div class="num" style="color:#0ea5e9;">{{ stats.blockedBots ?? 0 }}</div>
-        <div class="lbl">Blocked Bots</div>
     </div>
 </div>
 
-{# ── Dashboard Charts ── #}
-<div class="charts-grid">
-    <div class="chart-card">
-        <h3 class="chart-title">Content Mix</h3>
-        <div class="chart-wrap">
+{# ── Modern Charts Section ── #}
+<div class="charts-row-modern">
+    <div class="chart-card-modern">
+        <div class="chart-header">
+            <h3>Content Overview</h3>
+        </div>
+        <div class="chart-body">
             {{ render_chart(contentMixChart) }}
         </div>
     </div>
-    <div class="chart-card">
-        <h3 class="chart-title">Post Moderation States</h3>
-        <div class="chart-wrap">
-            {{ render_chart(moderationChart) }}
+    <div class="chart-card-modern">
+        <div class="chart-header">
+            <h3>Verification Stats</h3>
+        </div>
+        <div class="chart-body">
+            {{ render_chart(verificationStatsChart) }}
         </div>
     </div>
-    <div class="chart-card">
-        <h3 class="chart-title">7-Day Content Activity</h3>
-        <div class="chart-wrap">
-            {{ render_chart(activityChart) }}
+    <div class="chart-card-modern">
+        <div class="chart-header">
+            <h3>Peak User Activity (24h)</h3>
         </div>
-    </div>
-    <div class="chart-card">
-        <h3 class="chart-title">Comments Moderation Analysis</h3>
-        <div class="chart-wrap">
-            {{ render_chart(commentModerationChart) }}
+        <div class="chart-body">
+            {{ render_chart(peakActivityChart) }}
         </div>
     </div>
 </div>
 
 {# ── Tabs ── #}
 <div class="admin-tabs">
-    <button class="admin-tab active" data-tab="posts" onclick="switchTab('posts', this)">
-        📝 Posts <span class="tab-count">{{ (visiblePosts ?? posts)|length }}</span>
-    </button>
-    <button class="admin-tab" data-tab="moderation" onclick="switchTab('moderation', this)">
+    <button class="admin-tab active" data-tab="moderation" onclick="switchTab('moderation', this)">
         🛡 Moderation Queue <span class="tab-count">{{ moderationQueue|length }}</span>
+    </button>
+    <button class="admin-tab" data-tab="posts" onclick="switchTab('posts', this)">
+        📝 Posts <span class="tab-count">{{ (visiblePosts ?? posts)|length }}</span>
     </button>
     <button class="admin-tab" data-tab="stories" onclick="switchTab('stories', this)">
         🧳 Travel Stories <span class="tab-count">{{ stories|length }}</span>
@@ -233,8 +311,121 @@
     </button>
 </div>
 
+{# ── Moderation Queue Tab ── #}
+<div class="tab-panel active" id="tab-moderation">
+    {% if moderationQueue is empty %}
+        <div class="empty-state">
+            <p style="font-size:42px;">🛡</p>
+            <p>No flagged content in moderation queue.</p>
+        </div>
+    {% else %}
+        {% for state, label in {'HIGH_RISK':'🚨 High Risk','REVIEW':'⚠️ Needs Review','SPAM':'🕷 Spam'} %}
+            {% set rows = moderationQueue|filter(item => item.analysis.state == state) %}
+            {% if rows is not empty %}
+                <div class="mq-section">
+                    <h3 class="mq-title">{{ label }} ({{ rows|length }})</h3>
+                    <div class="table-scroll">
+                        <table class="blog-table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Title/Snippet</th>
+                                    <th>Author</th>
+                                    <th>🛡 Moderation</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in rows %}
+                                    {% set m = item.analysis %}
+                                    {% set stateClass = {
+                                        'SAFE': 'badge-mod-safe',
+                                        'REVIEW': 'badge-mod-review',
+                                        'SPAM': 'badge-mod-spam',
+                                        'HIGH_RISK': 'badge-mod-high-risk',
+                                        'AUTO_HIDDEN': 'badge-mod-hidden'
+                                    }[m.state]|default('badge-mod-safe') %}
+                                    {% set stateText = {
+                                        'SAFE': '🟢 Safe',
+                                        'REVIEW': '⚠️ Review',
+                                        'SPAM': '🕷 Spam',
+                                        'HIGH_RISK': '🚨 High Risk',
+                                        'AUTO_HIDDEN': '⛔ Hidden'
+                                    }[m.state]|default('🟢 Safe') %}
+                                    <tr>
+                                        <td><span class="type-dot type-{{ item.type|replace('_', '-') }}">{{ item.type|replace('_', ' ')|capitalize }}</span></td>
+                                        <td class="post-title-cell" title="{{ item.title }}">{{ item.title }}</td>
+                                        <td>
+                                            {% set uid = 0 %}
+                                            {% if item.type == 'live' %}{% set uid = item.entity.hostUser.userId|default(0) %}
+                                            {% elseif item.type == 'live_comment' %}{% set uid = item.entity.user.userId|default(0) %}
+                                            {% else %}{% set uid = item.entity.userId|default(0) %}
+                                            {% endif %}
+                                            {{ authorMap[uid] ?? 'User #' ~ uid }}
+                                        </td>
+                                        <td><span class="badge {{ stateClass }}">{{ stateText }}</span></td>
+                                        <td style="font-size:13px; color:var(--text-muted);">
+                                            {% if item.entity.createdAt is defined %}{{ item.entity.createdAt|date('d M Y') }}
+                                            {% elseif item.entity.startedAt is defined %}{{ item.entity.startedAt|date('d M Y') }}
+                                            {% else %}—{% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="actions">
+                                                <button type="button" class="btn-view" data-open-moderation="1"
+                                                        data-content-type="{{ item.type }}"
+                                                        data-post-id="{{ item.id }}"
+                                                        data-post-title="{{ item.title|e('html_attr') }}"
+                                                        data-post-content="{{ item.content|e('html_attr') }}"
+                                                        data-state="{{ m.state }}"
+                                                        data-openai-hate="{{ m.openai.hate|default(0) }}"
+                                                        data-openai-harassment="{{ m.openai.harassment|default(0) }}"
+                                                        data-openai-self-harm="{{ m.openai.self_harm|default(0) }}"
+                                                        data-openai-violence="{{ m.openai.violence|default(0) }}"
+                                                        data-spam="{{ m.spam_probability|default(0) }}"
+                                                        data-profanity-count="{{ m.profanity_count|default(0) }}"
+                                                        data-profanity-words="{{ (m.profanity_words|default([])|join('||'))|e('html_attr') }}"
+                                                        data-flagged-phrases="{{ (m.flagged_phrases|default([])|join('||'))|e('html_attr') }}"
+                                                title="View moderation details" aria-label="View moderation details">👁</button>
+
+                                                {% if item.type == 'post' %}
+                                                    <form method="post" action="{{ path('admin_blog_approve', {id: item.id}) }}">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('admin_blog_' ~ item.id) }}">
+                                                        <button type="submit" class="btn-approve" title="Approve post" aria-label="Approve post">✔</button>
+                                                    </form>
+                                                {% endif %}
+
+                                                {% set delRoute = {
+                                                    'post': 'admin_blog_delete',
+                                                    'travel_story': 'admin_story_delete',
+                                                    'story': 'admin_ig_story_delete',
+                                                    'live': 'admin_live_delete',
+                                                    'comment': 'admin_comment_delete',
+                                                    'live_comment': 'admin_live_comment_delete'
+                                                }[item.type] %}
+
+                                                <form method="post"
+                                                      action="{{ path(delRoute, {id: item.id}) }}"
+                                                      onsubmit="return confirm('Delete this {{ item.type|replace('_', ' ') }} permanently?');">
+                                                    <input type="hidden" name="_token"
+                                                           value="{{ csrf_token(delRoute ~ '_' ~ item.id) }}">
+                                                    <button type="submit" class="btn-del" title="Delete content" aria-label="Delete content">🗑</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+</div>
+
 {# ── Posts Tab ── #}
-<div class="tab-panel active" id="tab-posts">
+<div class="tab-panel" id="tab-posts">
     {% set postsForDisplay = visiblePosts ?? posts %}
     {% if postsForDisplay is empty %}
         <div class="empty-state">
@@ -420,104 +611,6 @@
                 </tbody>
             </table>
         </div>
-    {% endif %}
-</div>
-
-{# ── Moderation Queue Tab ── #}
-<div class="tab-panel" id="tab-moderation">
-    {% if moderationQueue is empty %}
-        <div class="empty-state">
-            <p style="font-size:42px;">🛡</p>
-            <p>No flagged posts in moderation queue.</p>
-        </div>
-    {% else %}
-        {% for state, label in {'HIGH_RISK':'🚨 High Risk','REVIEW':'⚠️ Needs Review','SPAM':'🕷 Spam'} %}
-            {% set rows = moderationQueue|filter(p => (postModeration[p.id].state ?? 'SAFE') == state) %}
-            {% if rows is not empty %}
-                <div class="mq-section">
-                    <h3 class="mq-title">{{ label }} ({{ rows|length }})</h3>
-                    <div class="table-scroll">
-                        <table class="blog-table">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Title</th>
-                                    <th>Author</th>
-                                    <th>🛡 Moderation</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for post in rows %}
-                                    {% set m = postModeration[post.id] %}
-                                    {% set cm = postCommentModeration[post.id] ?? {total: 0, flagged: 0, review: 0, spam: 0, high_risk: 0, auto_hidden: 0, top_terms: [], samples: []} %}
-                                    {% set stateClass = {
-                                        'SAFE': 'badge-mod-safe',
-                                        'REVIEW': 'badge-mod-review',
-                                        'SPAM': 'badge-mod-spam',
-                                        'HIGH_RISK': 'badge-mod-high-risk',
-                                        'AUTO_HIDDEN': 'badge-mod-hidden'
-                                    }[m.state]|default('badge-mod-safe') %}
-                                    {% set stateText = {
-                                        'SAFE': '🟢 Safe',
-                                        'REVIEW': '⚠️ Review',
-                                        'SPAM': '🕷 Spam',
-                                        'HIGH_RISK': '🚨 High Risk',
-                                        'AUTO_HIDDEN': '⛔ Hidden'
-                                    }[m.state]|default('🟢 Safe') %}
-                                    <tr>
-                                        <td style="color:var(--text-muted); font-size:13px;">{{ post.id }}</td>
-                                        <td class="post-title-cell" title="{{ post.title }}">{{ post.title }}</td>
-                                        <td>{{ authorMap[post.userId] ?? 'User #' ~ post.userId }}</td>
-                                        <td><span class="badge {{ stateClass }}">{{ stateText }}</span></td>
-                                        <td>
-                                            {% if m.state == 'AUTO_HIDDEN' %}
-                                                <span class="badge badge-mod-hidden">⛔ Auto-hidden (AI)</span>
-                                            {% elseif not post.isConfirmed and m.state != 'SAFE' %}
-                                                <span class="badge badge-pending">⏳ Pending (AI flagged)</span>
-                                            {% elseif post.isConfirmed %}
-                                                <span class="badge badge-approved">✅ Approved</span>
-                                            {% else %}
-                                                <span class="badge badge-pending">⏳ Pending</span>
-                                            {% endif %}
-                                        </td>
-                                        <td style="font-size:13px; color:var(--text-muted);">{{ post.createdAt ? post.createdAt|date('d M Y') : '—' }}</td>
-                                        <td>
-                                            <div class="actions">
-                                                <button type="button" class="btn-view" data-open-moderation="1"
-                                                        data-post-id="{{ post.id }}"
-                                                        data-post-title="{{ post.title|e('html_attr') }}"
-                                                        data-post-content="{{ post.body|e('html_attr') }}"
-                                                        data-state="{{ m.state }}"
-                                                        data-openai-hate="{{ m.openai.hate }}"
-                                                        data-openai-harassment="{{ m.openai.harassment }}"
-                                                        data-openai-self-harm="{{ m.openai.self_harm }}"
-                                                        data-openai-violence="{{ m.openai.violence }}"
-                                                        data-spam="{{ m.spam_probability }}"
-                                                        data-profanity-count="{{ m.profanity_count }}"
-                                                        data-profanity-words="{{ (m.profanity_words|join('||'))|e('html_attr') }}"
-                                                        data-flagged-phrases="{{ (m.flagged_phrases|join('||'))|e('html_attr') }}"
-                                                        data-comments-total="{{ cm.total|default(0) }}"
-                                                        data-comments-flagged="{{ cm.flagged|default(0) }}"
-                                                        data-comments-review="{{ cm.review|default(0) }}"
-                                                        data-comments-spam="{{ cm.spam|default(0) }}"
-                                                        data-comments-high-risk="{{ cm.high_risk|default(0) }}"
-                                                        data-comments-auto-hidden="{{ cm.auto_hidden|default(0) }}"
-                                                        data-comments-top-terms="{{ (cm.top_terms|default([])|join('||'))|e('html_attr') }}"
-                                                        data-comments-samples="{{ (cm.samples|default([])|join('||'))|e('html_attr') }}"
-                                                title="View moderation details" aria-label="View moderation details">👁</button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            {% endif %}
-        {% endfor %}
     {% endif %}
 </div>
 
@@ -996,6 +1089,7 @@
     {% endif %}
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 function getCurrentTab() {
     const activePanel = document.querySelector('.tab-panel.active');
@@ -1014,6 +1108,11 @@ function switchTab(tab, btn) {
     document.getElementById('tab-' + tab).classList.add('active');
     btn.classList.add('active');
     updateTabInUrl(tab);
+    
+    // Resize charts in case they were hidden
+    setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+    }, 50);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1197,6 +1296,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // --- Manually initialize Symfony UX Chart.js charts ---
+    const chartElements = document.querySelectorAll('canvas[data-controller="symfony--ux-chartjs--chart"]');
+    chartElements.forEach(canvas => {
+        try {
+            const viewValue = JSON.parse(canvas.getAttribute('data-symfony--ux-chartjs--chart-view-value'));
+            if (viewValue) {
+                new Chart(canvas, {
+                    type: viewValue.type,
+                    data: viewValue.data,
+                    options: viewValue.options
+                });
+            }
+        } catch (e) {
+            console.error('Failed to initialize chart:', e);
+        }
+    });
 });
 </script>
 

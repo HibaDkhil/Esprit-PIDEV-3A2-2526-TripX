@@ -20,6 +20,12 @@ class Following
     #[ORM\Column]
     private ?int $followed_id = null;
 
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_ACCEPTED = 'accepted';
+
+    #[ORM\Column(type: 'string', length: 20, options: ['default' => self::STATUS_ACCEPTED])]
+    private string $status = self::STATUS_ACCEPTED;
+
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $created_at = null;
 
@@ -34,6 +40,12 @@ class Following
     public function getFollowedId(): ?int { return $this->followed_id; }
     public function setFollowedId(int $followed_id): static {
         $this->followed_id = $followed_id;
+        return $this;
+    }
+
+    public function getStatus(): string { return $this->status; }
+    public function setStatus(string $status): static {
+        $this->status = $status;
         return $this;
     }
 
