@@ -294,8 +294,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
             case 'adminDestination':
                 $roles[] = 'ROLE_ADMIN_DESTINATION';
                 break;
-            case 'adminAccomodation':
-                $roles[] = 'ROLE_ADMIN_ACCOMODATION';
+            case 'adminAccomodation':  
+                $roles[] = 'ROLE_ADMIN_ACCOMMODATION';  
                 break;
             case 'adminOffers':
                 $roles[] = 'ROLE_ADMIN_OFFERS';
