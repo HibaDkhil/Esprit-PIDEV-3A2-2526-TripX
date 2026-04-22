@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\service\Accommodation\RoomInsightsService;
-use App\service\Accommodation\ImageWatermarkService;
 
 #[Route('/admin/accommodations/{accId}/rooms', name: 'admin_rooms_')]
 class RoomController extends AbstractController
@@ -41,10 +40,10 @@ class RoomController extends AbstractController
                        ?? $this->imgRepo->findOneBy(['room' => $r], ['displayOrder' => 'ASC']);
             $allImages  = $this->imgRepo->findBy(['room' => $r], ['displayOrder' => 'ASC']);
             return [
-                'room'        => $r,
-                'primaryImg'  => $primaryImg,
-                'allImages'   => $allImages,
-                'imageCount'  => count($allImages),
+                'room'       => $r,
+                'primaryImg' => $primaryImg,
+                'allImages'  => $allImages,
+                'imageCount' => count($allImages),
             ];
         }, $rooms);
 
@@ -83,9 +82,9 @@ class RoomController extends AbstractController
         return $this->json(['rooms' => $data]);
     }
 
-    // ── Create room (with watermark) ─────────────────────────────────
+    // ── Create room ───────────────────────────────────────────────────
     #[Route('/new', name: 'new', methods: ['POST'])]
-    public function new(int $accId, Request $request, ValidatorInterface $validator, ImageWatermarkService $watermarkService): JsonResponse
+    public function new(int $accId, Request $request, ValidatorInterface $validator): JsonResponse
     {
         try {
             $acc = $this->accRepo->find($accId);
@@ -97,45 +96,24 @@ class RoomController extends AbstractController
             $this->hydrateRoom($room, $data);
 
             $errors = $validator->validate($room);
-            
             if (count($errors) > 0) {
                 $errorMessages = [];
                 foreach ($errors as $error) {
-                    $field = $error->getPropertyPath();
-                    $errorMessages[$field] = $error->getMessage();
+                    $errorMessages[$error->getPropertyPath()] = $error->getMessage();
                 }
-                
-                return $this->json([
-                    'success' => false,
-                    'errors' => $errorMessages,
-                    'message' => 'Validation failed'
-                ], Response::HTTP_BAD_REQUEST);
+                return $this->json(['success' => false, 'errors' => $errorMessages, 'message' => 'Validation failed'], Response::HTTP_BAD_REQUEST);
             }
 
             $this->em->persist($room);
             $this->em->flush();
 
-            $allFiles = $request->files->all();
-            $images = [];
-            
-            foreach ($allFiles as $key => $value) {
-                if (is_array($value)) {
-                    foreach ($value as $file) {
-                        if ($file && $file->isValid()) {
-                            $images[] = $file;
-                        }
-                    }
-                } elseif ($value && $value->isValid()) {
-                    $images[] = $value;
-                }
-            }
-            
+            $images = $this->collectUploadedFiles($request);
             if (!empty($images)) {
-                $this->handleImageUploads($room, $images, true, $watermarkService);
+                $this->handleImageUploads($room, $images, true);
             }
 
             return $this->json(['success' => true, 'id' => $room->getId(), 'message' => 'Room created successfully']);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
@@ -168,9 +146,9 @@ class RoomController extends AbstractController
         ]);
     }
 
-    // ── Edit room (with watermark) ───────────────────────────────────
+    // ── Edit room ─────────────────────────────────────────────────────
     #[Route('/{roomId}/edit', name: 'edit', methods: ['POST'], requirements: ['roomId' => '\d+'])]
-    public function edit(int $accId, int $roomId, Request $request, ValidatorInterface $validator, ImageWatermarkService $watermarkService): JsonResponse
+    public function edit(int $accId, int $roomId, Request $request, ValidatorInterface $validator): JsonResponse
     {
         try {
             $room = $this->roomRepo->find($roomId);
@@ -180,44 +158,23 @@ class RoomController extends AbstractController
             $this->hydrateRoom($room, $data);
 
             $errors = $validator->validate($room);
-            
             if (count($errors) > 0) {
                 $errorMessages = [];
                 foreach ($errors as $error) {
-                    $field = $error->getPropertyPath();
-                    $errorMessages[$field] = $error->getMessage();
+                    $errorMessages[$error->getPropertyPath()] = $error->getMessage();
                 }
-                
-                return $this->json([
-                    'success' => false,
-                    'errors' => $errorMessages,
-                    'message' => 'Validation failed'
-                ], Response::HTTP_BAD_REQUEST);
+                return $this->json(['success' => false, 'errors' => $errorMessages, 'message' => 'Validation failed'], Response::HTTP_BAD_REQUEST);
             }
 
             $this->em->flush();
 
-            $allFiles = $request->files->all();
-            $images = [];
-            
-            foreach ($allFiles as $key => $value) {
-                if (is_array($value)) {
-                    foreach ($value as $file) {
-                        if ($file && $file->isValid()) {
-                            $images[] = $file;
-                        }
-                    }
-                } elseif ($value && $value->isValid()) {
-                    $images[] = $value;
-                }
-            }
-            
+            $images = $this->collectUploadedFiles($request);
             if (!empty($images)) {
-                $this->handleImageUploads($room, $images, false, $watermarkService);
+                $this->handleImageUploads($room, $images, false);
             }
 
             return $this->json(['success' => true, 'message' => 'Room updated successfully']);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
@@ -241,42 +198,28 @@ class RoomController extends AbstractController
             $this->em->flush();
 
             return $this->json(['success' => true, 'message' => 'Room deleted successfully']);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
 
-    // ── Upload images (with watermark) ────────────────────────────────
+    // ── Upload images ─────────────────────────────────────────────────
     #[Route('/{roomId}/images/upload', name: 'images_upload', methods: ['POST'], requirements: ['roomId' => '\d+'])]
-    public function uploadImages(int $accId, int $roomId, Request $request, ImageWatermarkService $watermarkService): JsonResponse
+    public function uploadImages(int $accId, int $roomId, Request $request): JsonResponse
     {
         try {
             $room = $this->roomRepo->find($roomId);
             if (!$room) return $this->json(['error' => 'Not found'], 404);
 
-            $images = [];
-            $allFiles = $request->files->all();
-            
-            foreach ($allFiles as $key => $value) {
-                if (is_array($value)) {
-                    foreach ($value as $file) {
-                        if ($file && $file->isValid()) {
-                            $images[] = $file;
-                        }
-                    }
-                } elseif ($value && $value->isValid()) {
-                    $images[] = $value;
-                }
-            }
-
+            $images = $this->collectUploadedFiles($request);
             if (empty($images)) {
                 return $this->json(['error' => 'No images provided'], 400);
             }
 
-            $uploaded = $this->handleImageUploads($room, $images, false, $watermarkService);
+            $uploaded = $this->handleImageUploads($room, $images, false);
 
             return $this->json(['success' => true, 'message' => count($uploaded) . ' image(s) uploaded', 'images' => $uploaded]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
@@ -297,7 +240,7 @@ class RoomController extends AbstractController
 
             $this->em->flush();
             return $this->json(['success' => true, 'message' => 'Primary image updated']);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
@@ -317,7 +260,7 @@ class RoomController extends AbstractController
             $this->em->flush();
 
             return $this->json(['success' => true, 'message' => 'Image deleted']);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
@@ -327,7 +270,7 @@ class RoomController extends AbstractController
     public function reorderImages(int $accId, int $roomId, Request $request): JsonResponse
     {
         try {
-            $data = json_decode($request->getContent(), true);
+            $data  = json_decode($request->getContent(), true);
             $order = $data['order'] ?? [];
             foreach ($order as $idx => $imgId) {
                 $img = $this->imgRepo->find($imgId);
@@ -335,12 +278,12 @@ class RoomController extends AbstractController
             }
             $this->em->flush();
             return $this->json(['success' => true]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
 
-    // ── AI Room Insights ────────────────────────────────────────────────
+    // ── AI Room Insights ──────────────────────────────────────────────
     #[Route('/insights', name: 'insights', methods: ['GET'])]
     public function insights(int $accId, RoomInsightsService $insightsService): JsonResponse
     {
@@ -349,13 +292,14 @@ class RoomController extends AbstractController
             return $this->json(['error' => 'Accommodation not found'], 404);
         }
 
-        $rooms = $this->roomRepo->findBy(['accommodation' => $acc]);
+        $rooms    = $this->roomRepo->findBy(['accommodation' => $acc]);
         $analysis = $insightsService->analyzeRooms($rooms);
-        
+
         return $this->json($analysis);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────
+
     private function hydrateRoom(Room $room, array $data): void
     {
         if (array_key_exists('roomName', $data))      $room->setRoomName($data['roomName']);
@@ -367,38 +311,73 @@ class RoomController extends AbstractController
         if (array_key_exists('isAvailable', $data))   $room->setIsAvailable((bool)$data['isAvailable']);
     }
 
-    private function handleImageUploads(Room $room, array $files, bool $firstIsPrimary, ImageWatermarkService $watermarkService = null): array
+    /**
+     * Flatten all valid uploaded files from the request into a simple array.
+     */
+    private function collectUploadedFiles(Request $request): array
+    {
+        $images = [];
+        foreach ($request->files->all() as $value) {
+            if (is_array($value)) {
+                foreach ($value as $file) {
+                    if ($file && $file->isValid()) $images[] = $file;
+                }
+            } elseif ($value && $value->isValid()) {
+                $images[] = $value;
+            }
+        }
+        return $images;
+    }
+
+    /**
+     * Handle image uploads — mirrors AccommodationController's proven pattern:
+     *
+     *  1. Capture size + mime-type from UploadedFile BEFORE moving it.
+     *     (Symfony's UploadedFile loses the temp path reference after move.)
+     *  2. Move the file to its final destination (or apply watermark).
+     *  3. Read dimensions via getimagesize() on the FINAL absolute path —
+     *     always safe because the file is guaranteed to exist there.
+     *  4. Persist the RoomImages entity.
+     *
+     * This replaces the old getRealPath()-after-move pattern that returned
+     * false, caused getimagesize() to throw, and made PHP emit an HTML error
+     * page — which is the "Unexpected token '<'" JSON parse error.
+     */
+    private function handleImageUploads(Room $room, array $files, bool $firstIsPrimary): array
     {
         $dir = $this->getParameter('kernel.project_dir') . '/public/uploads/images/rooms';
         if (!is_dir($dir)) mkdir($dir, 0777, true);
 
-        $existingCount = $this->imgRepo->count(['room' => $room]);
-        $uploaded = [];
+        $existingCount    = $this->imgRepo->count(['room' => $room]);
+        $uploaded         = [];
         $shouldSetPrimary = $firstIsPrimary && $existingCount === 0;
 
         foreach ($files as $i => $file) {
             if (!$file || !$file->isValid()) continue;
 
-            $extension = $file->guessExtension() ?? 'jpg';
-            $filename = uniqid() . '.' . $extension;
+            $extension    = $file->guessExtension() ?? 'jpg';
+            $filename     = uniqid() . '.' . $extension;
             $relativePath = 'uploads/images/rooms/' . $filename;
-            
-            // Apply watermark if service is available
-            if ($watermarkService && $watermarkService->isWatermarkAvailable()) {
-                $watermarkService->applyWatermarkToUpload($file, $relativePath, 'watermark_room');
-            } else {
-                $file->move($dir, $filename);
-            }
+            $absolutePath = $this->getParameter('kernel.project_dir') . '/public/' . $relativePath;
 
-            $tmpPath = $file->getRealPath();
-            [$w, $h] = @getimagesize($tmpPath) ?: [null, null];
+            // 1. Read volatile metadata BEFORE the move
+            $fileSize = $file->getSize();
+            $fileSizeStr = $fileSize !== false ? (string)$fileSize : '0';
+            $mimeType = $file->getMimeType() ?? 'image/jpeg';
 
+            // 2. Move
+            $file->move($dir, $filename);
+
+            // 3. Dimensions from the final saved file (always valid)
+            [$w, $h] = @getimagesize($absolutePath) ?: [null, null];
+
+            // 4. Persist
             $img = new RoomImages();
             $img->setRoom($room);
             $img->setFileName($filename);
             $img->setFilePath('/' . $relativePath);
-            $img->setMimeType($file->getMimeType() ?? 'image/jpeg');
-            $img->setFileSizeBytes($file->getSize());
+            $img->setMimeType($mimeType);
+            $img->setFileSizeBytes($fileSizeStr);
             $img->setWidth($w);
             $img->setHeight($h);
             $img->setIsPrimary($shouldSetPrimary && $i === 0);
@@ -407,7 +386,11 @@ class RoomController extends AbstractController
             $img->setUpdatedAt(new \DateTime());
 
             $this->em->persist($img);
-            $uploaded[] = ['filePath' => '/' . $relativePath, 'fileName' => $filename, 'id' => $img->getId()];
+            $uploaded[] = [
+                'filePath' => '/' . $relativePath,
+                'fileName' => $filename,
+                'id'       => $img->getId(),
+            ];
         }
 
         $this->em->flush();

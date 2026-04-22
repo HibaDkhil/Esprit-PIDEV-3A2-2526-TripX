@@ -26,7 +26,7 @@ use App\service\TransportService;
 use App\service\TransportOptimalRouteService;
 use App\service\ValidationService;
 use App\service\DestinationTransService;
-use App\service\PricePredictionService;
+use App\service\Transport\PricePredictionService as TransportPricePredictionService;
 use App\service\RouteRecommendationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -49,7 +49,7 @@ class TransportUserInterfaceController extends AbstractController
     private ValidationService $validation;
     private ValidatorInterface $validator;
     private DestinationTransService $destService;
-    private PricePredictionService $pricePredictionService;
+    private TransportPricePredictionService $pricePredictionService;
     private \App\service\TravelInsightAiService $aiService;
 
     public function __construct(
@@ -60,7 +60,7 @@ class TransportUserInterfaceController extends AbstractController
         ValidationService $validation,
         ValidatorInterface $validator,
         DestinationTransService $destService,
-        PricePredictionService $pricePredictionService,
+        TransportPricePredictionService $pricePredictionService,
         RouteRecommendationService $recommendationService,
         \App\service\TravelInsightAiService $aiService
     ) {

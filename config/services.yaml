@@ -110,7 +110,7 @@ services:
     App\service\Accommodation\ItineraryService:
         arguments:
             $cache: '@App\service\Accommodation\CacheService'
-            $geminiApiKey: '%env(RAGHED_GEMINI)%'
+            $geminiApiKey: '%env(GEMINI_API_KEY)%'
 
     # RoomInsightsService
     App\service\Accommodation\RoomInsightsService:
