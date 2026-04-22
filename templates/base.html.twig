@@ -79,6 +79,53 @@
         });
     </script>
 
+    {% if recaptcha_site_key is defined and recaptcha_site_key %}
+        <script src="https://www.google.com/recaptcha/api.js?render={{ recaptcha_site_key|e('url') }}"></script>
+        <script>
+            window.tripxGetRecaptchaToken = async function(action) {
+                if (!window.grecaptcha || !window.grecaptcha.execute) {
+                    return '';
+                }
+
+                const siteKey = '{{ recaptcha_site_key|e('js') }}';
+                if (!siteKey) {
+                    return '';
+                }
+
+                try {
+                    return await window.grecaptcha.execute(siteKey, { action: action || 'submit' });
+                } catch (e) {
+                    return '';
+                }
+            };
+
+            document.addEventListener('submit', async (event) => {
+                const form = event.target;
+                if (!(form instanceof HTMLFormElement)) {
+                    return;
+                }
+
+                const tokenField = form.querySelector('input[name="_recaptcha_token"]');
+                if (!tokenField || form.dataset.recaptchaReady === '1') {
+                    return;
+                }
+
+                event.preventDefault();
+                const action = form.dataset.recaptchaAction || 'submit';
+                tokenField.value = await window.tripxGetRecaptchaToken(action);
+                form.dataset.recaptchaReady = '1';
+                form.submit();
+                form.dataset.recaptchaReady = '';
+            }, true);
+        </script>
+    {% else %}
+        <script>
+            window.tripxGetRecaptchaToken = async function() {
+                return '';
+            };
+        </script>
+    {% endif %}
+
     <script src="/assets.php?f=js/main.js"></script>
     <script src="/js/tracker.js"></script>
     {% block javascripts %}{% endblock %}

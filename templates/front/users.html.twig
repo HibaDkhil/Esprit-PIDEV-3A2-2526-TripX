@@ -246,7 +246,7 @@
       </button>
       <a href="{{ path('users') }}" class="btn-nav-primary ripple-btn">My Profile</a>
       <a href="{{ path('app_logout') }}" class="Btn-logout" style="margin-left: 8px;">
-        <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9V343.4H192c-17.7 0-32-14.3-32-32V200.6c0-17.7 14.3-32 32-32h128v-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96H96c-17.7 0-32 14.3-32 32v256c0 17.7 14.3 32 32 32h64c17.7 0 32 14.3 32 32s-14.3 32-32 32H96c-53 0-96-43-96-96V128c0-53 43-96 96-96h64c17.7 0 32 14.3 32 32s-14.3 32-32 32z" /></svg></div>
+        <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" /></svg></div>
         <div class="text">Logout</div>
       </a>
     </div>
@@ -1602,199 +1602,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // ════════════════════════════════════════════
-  // ARIA CHAT — FULLY WORKING
+  // ARIA CHAT — Logic moved to shared template
   // ════════════════════════════════════════════
-  const orbBtn     = document.getElementById('aria-orb');
-  const panel      = document.getElementById('aria-panel');
-  const closeBtn   = document.getElementById('aria-close');
-  const msgBox     = document.getElementById('aria-messages');
-  const inputEl    = document.getElementById('aria-input');
-  const sendBtn    = document.getElementById('aria-send');
-  const attachBtn  = document.getElementById('aria-attach-btn');
-  const voiceBtn   = document.getElementById('aria-voice-btn');
-  const stopVoiceBtn = document.getElementById('aria-stop-voice-btn');
-  const fileInput  = document.getElementById('aria-file-input');
-  const imgPreview = document.getElementById('aria-img-preview');
-  const previewImg = document.getElementById('aria-preview-img');
-  const removeImg  = document.getElementById('aria-remove-img');
-
-  let selectedImageBase64 = null;
-  let selectedImageMimeType = null;
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const speechRecognition = SpeechRecognition ? new SpeechRecognition() : null;
-  if (speechRecognition) {
-    speechRecognition.lang = 'en-US';
-    speechRecognition.interimResults = false;
-    speechRecognition.maxAlternatives = 1;
-  }
-
-  // Open / close panel
-  orbBtn?.addEventListener('click', () => panel?.classList.toggle('open'));
-  closeBtn?.addEventListener('click', () => panel?.classList.remove('open'));
-
-  // Image attach
-  attachBtn?.addEventListener('click', () => fileInput?.click());
-
-  fileInput?.addEventListener('change', () => {
-    const file = fileInput.files[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      appendBubble('bot', 'Please attach a valid image file.');
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      appendBubble('bot', 'Image too large. Please use a file smaller than 5MB.');
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const dataUrl = e.target.result;
-      // strip prefix: data:image/jpeg;base64,
-      selectedImageBase64 = dataUrl.split(',')[1];
-      selectedImageMimeType = file.type;
-      previewImg.src = dataUrl;
-      imgPreview.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
-  });
-
-  removeImg?.addEventListener('click', () => {
-    selectedImageBase64 = null;
-    selectedImageMimeType = null;
-    fileInput.value = '';
-    imgPreview.style.display = 'none';
-    previewImg.src = '';
-  });
-
-  voiceBtn?.addEventListener('click', () => {
-    if (!speechRecognition) {
-      appendBubble('bot', 'Voice search is not supported in this browser.');
-      return;
-    }
-    voiceBtn.classList.add('active');
-    speechRecognition.start();
-  });
-
-  speechRecognition?.addEventListener('result', (event) => {
-    const transcript = event.results?.[0]?.[0]?.transcript || '';
-    if (!transcript.trim()) return;
-    inputEl.value = transcript;
-    sendMessage();
-  });
-
-  speechRecognition?.addEventListener('end', () => {
-    voiceBtn?.classList.remove('active');
-  });
-  stopVoiceBtn?.addEventListener('click', () => {
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-  });
-
-  // Send message
-  function sendMessage() {
-    const text = (inputEl?.value || '').trim();
-    if (!text && !selectedImageBase64) return;
-
-    // Append user bubble
-    appendBubble('user', text, selectedImageBase64 ? previewImg.src : null);
-
-    // Clear inputs
-    inputEl.value = '';
-    const imgB64 = selectedImageBase64;
-    const imgMimeType = selectedImageMimeType;
-    selectedImageBase64 = null;
-    selectedImageMimeType = null;
-    fileInput.value = '';
-    imgPreview.style.display = 'none';
-    previewImg.src = '';
-
-    // Typing indicator
-    const typingEl = document.createElement('div');
-    typingEl.className = 'aria-msg bot';
-    typingEl.innerHTML = '<div class="aria-bubble aria-typing-bubble" aria-live="polite"><span class="aria-ellipsis">...</span></div>';
-    msgBox.appendChild(typingEl);
-    scrollMsgs();
-
-    // API call
-    fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-      credentials: 'same-origin',
-      body: JSON.stringify({ message: text, image: imgB64, imageMimeType: imgMimeType })
-    })
-    .then(function (r) {
-      return r.text().then(function (txt) {
-        var data = {};
-        try {
-          data = txt ? JSON.parse(txt) : {};
-        } catch (e) {
-          typingEl.remove();
-          appendBubble('bot', '⚠️ Server error (HTTP ' + r.status + '). If you are logged in, try refreshing the page.');
-          return null;
-        }
-        return { ok: r.ok, status: r.status, data: data };
-      });
-    })
-    .then(function (result) {
-      if (!result) return;
-      typingEl.remove();
-      var data = result.data;
-      if (data.response) {
-        appendBubble('bot', data.response);
-        speakText(data.response);
-      } else if (data.error) {
-        appendBubble('bot', '⚠️ ' + data.error);
-      } else {
-        appendBubble('bot', '⚠️ Unexpected response (HTTP ' + result.status + ').');
-      }
-    })
-    .catch(function () {
-      typingEl.remove();
-      appendBubble('bot', '⚠️ Network error. Check your connection and try again.');
-    });
-  }
-
-  function appendBubble(role, text, imgSrc) {
-    const wrap = document.createElement('div');
-    wrap.className = 'aria-msg ' + role;
-    if (imgSrc) {
-      const img = document.createElement('img');
-      img.src = imgSrc;
-      img.style.maxWidth = '120px';
-      img.style.borderRadius = '8px';
-      img.style.marginBottom = '6px';
-      img.style.display = 'block';
-      wrap.appendChild(img);
-    }
-    if (text) {
-      const bubble = document.createElement('div');
-      bubble.className = 'aria-bubble';
-      bubble.textContent = text;
-      wrap.appendChild(bubble);
-    }
-    msgBox.appendChild(wrap);
-    scrollMsgs();
-  }
-
-  function scrollMsgs() {
-    if (msgBox) msgBox.scrollTop = msgBox.scrollHeight;
-  }
-
-  function speakText(text) {
-    if (window.TRIPX_ARIA && typeof window.TRIPX_ARIA.speak === 'function') {
-      window.TRIPX_ARIA.speak(text);
-    }
-  }
-
-  sendBtn?.addEventListener('click', sendMessage);
-  inputEl?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-  });
-
-  // Prevent input from clearing on focus (ensure value is preserved)
-  inputEl?.addEventListener('focus', (e) => e.stopPropagation());
-
-  // Initial scroll
-  scrollMsgs();
 
   if (saveProfileBtn) {
     saveProfileBtn.addEventListener('click', function() {
@@ -1965,7 +1774,38 @@ document.addEventListener('DOMContentLoaded', function() {
   // ════════════════════════════════════════════
   // CHART INITIALIZATION & AI FICHE
   // ════════════════════════════════════════════
-  // Removed duplicate chart initialization
+  try {
+    const donutCtx = document.getElementById('dna-donut')?.getContext('2d');
+    if (donutCtx && typeof Chart !== 'undefined') {
+      const tbData = {{ timeBreakdown|default({})|json_encode|raw }};
+      new Chart(donutCtx, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(tbData),
+          datasets: [{ data: Object.values(tbData), backgroundColor: ['#00a6ed','#ff4d6d','#00c896','#f59e0b','#7209b7','#f43f5e'] }]
+        },
+        options: { cutout:'70%', plugins: { legend: { display: false } } }
+      });
+    }
+
+    const hourCtx = document.getElementById('dna-hourly')?.getContext('2d');
+    if (hourCtx && typeof Chart !== 'undefined') {
+      new Chart(hourCtx, {
+        type: 'bar',
+        data: {
+          labels: Array.from({length:24},(_,i)=>i+'h'),
+          datasets: [{
+            data: {{ hourlyActivity|default([])|json_encode|raw }},
+            backgroundColor: '#00a6ed',
+            borderRadius: 4
+          }]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
+      });
+    }
+  } catch (err) {
+    console.error("Error initializing Charts:", err);
+  }
 
   const btnFiche = document.getElementById('btn-generate-fiche');
   const modalFiche = document.getElementById('modal-ai-fiche');

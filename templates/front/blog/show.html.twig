@@ -2,397 +2,545 @@
 {% block title %}{{ post.title }} — TripX Blog{% endblock %}
 
 {% block stylesheets %}
-  {{ parent() }}
-  <link rel="stylesheet" href="{{ asset('css/blog.css') }}">
+{{ parent() }}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+.post-show-shell {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 50px 16px 72px;
+}
+
+.post-show-panel {
+    background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+    border: 1px solid #e5e7eb;
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
+}
+
+.back-link {
+    color: #1d4ed8;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 18px;
+}
+
+.back-link:hover {
+    color: #0f172a;
+}
+
+.flash-success,
+.flash-error {
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.flash-success {
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #86efac;
+}
+
+.flash-error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.show-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.avatar-lg {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563eb, #22c55e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+    flex-shrink: 0;
+}
+
+.show-author {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.show-date {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.type-badge {
+    margin-left: auto;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.badge-inquiry { background: #dbeafe; color: #1e40af; }
+.badge-story { background: #d1fae5; color: #065f46; }
+.badge-travel_story { background: #e0f2fe; color: #155e75; }
+.badge-review { background: #fef3c7; color: #92400e; }
+.badge-advice { background: #ede9fe; color: #5b21b6; }
+.badge-other { background: #f1f5f9; color: #334155; }
+
+.owner-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.btn-edit,
+.btn-delete {
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.btn-edit {
+    border: 1px solid #93c5fd;
+    background: #eff6ff;
+    color: #1d4ed8;
+    text-decoration: none;
+}
+
+.btn-delete {
+    border: 1px solid #fda4af;
+    background: #fff1f2;
+    color: #be123c;
+    cursor: pointer;
+}
+
+h1.show-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.9rem, 3vw, 2.7rem);
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0 0 20px;
+    color: #0f172a;
+}
+
+.show-image {
+    width: 100%;
+    max-height: 460px;
+    object-fit: cover;
+    border-radius: 18px;
+    margin-bottom: 20px;
+}
+
+.show-images-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    margin-bottom: 20px;
+}
+
+.show-images-grid .show-image {
+    margin-bottom: 0;
+    height: 260px;
+    max-height: 260px;
+}
+
+.show-body {
+    font-size: 16px;
+    line-height: 1.85;
+    color: #1e293b;
+    white-space: pre-line;
+    margin-bottom: 8px;
+}
+
+.reactions-bar {
+    margin: 26px 0;
+    padding: 14px 0;
+    border-top: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.reaction-wrapper { position: relative; display: inline-block; }
+.reaction-wrapper::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 100%;
+    width: 100%;
+    height: 14px;
+}
+
+.react-main-btn {
+    padding: 8px 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    background: #f8fafc;
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.react-main-btn.active {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+    color: #ffffff;
+}
+
+.reaction-picker {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 10px);
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    padding: 6px 8px;
+    display: flex;
+    gap: 4px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition: all .2s;
+    z-index: 60;
+    pointer-events: none;
+}
+
+.reaction-wrapper:hover .reaction-picker {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.reaction-picker form { margin: 0; }
+
+.reaction-emoji {
+    background: transparent;
+    border: none;
+    font-size: 21px;
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: 10px;
+}
+
+.reaction-emoji:hover {
+    background: #f1f5f9;
+    transform: scale(1.15);
+}
+
+.counts-row {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 13px;
+    color: #475569;
+}
+
+.comments-section {
+    margin-top: 34px;
+}
+
+.comments-section h2 {
+    margin: 0 0 18px;
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.comment-item {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.comment-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f59e0b, #f97316);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    flex-shrink: 0;
+}
+
+.comment-bubble {
+    flex: 1;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 12px 14px;
+}
+
+.comment-author {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.comment-body {
+    margin-top: 4px;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.7;
+    white-space: pre-line;
+}
+
+.comment-footer {
+    margin-top: 8px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.comment-delete-btn {
+    border: none;
+    background: none;
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+}
+
+.comment-form-wrap {
+    margin-top: 20px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: #f8fafc;
+}
+
+.comment-form-wrap h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.comment-form-wrap textarea {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    min-height: 110px;
+    padding: 11px 13px;
+    font-size: 14px;
+    font-family: 'Montserrat', sans-serif;
+    resize: vertical;
+}
+
+.comment-form-wrap textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+.comment-form-wrap button {
+    margin-top: 10px;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    cursor: pointer;
+}
+
+.empty-comments {
+    color: #64748b;
+    margin: 0;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .post-show-panel {
+        padding: 18px;
+        border-radius: 18px;
+    }
+
+    .show-meta {
+        flex-wrap: wrap;
+    }
+
+    .type-badge {
+        margin-left: 0;
+    }
+
+    .owner-actions {
+        flex-wrap: wrap;
+    }
+}
+</style>
 {% endblock %}
 
 {% block body %}
-{% set rxnIcons  = {like:'👍',love:'❤️',haha:'😂',wow:'😮',sad:'😢',angry:'😡'} %}
-{% set rxnLabels = {like:'Like',love:'Love',haha:'Haha',wow:'Wow',sad:'Sad',angry:'Angry'} %}
-{% set me = app.user %}
-{% set myId = me is not null ? me.id : null %}
-{% set total = reactionMap.like + reactionMap.love + reactionMap.haha + reactionMap.wow + reactionMap.sad + reactionMap.angry %}
-{% set isOwner = myId is not null and myId == post.userId %}
+{% set typeKey = (post.type ?? 'other')|lower %}
+{% set badgeClass = typeKey in ['inquiry', 'story', 'travel_story', 'review', 'advice'] ? typeKey : 'other' %}
+<div class="post-show-shell">
+    <div class="post-show-panel">
 
-<div class="blog-page">
-<div class="show-wrap">
+        <a href="{{ path('blog') }}" class="back-link">← Back to Blog</a>
 
-  <a href="{{ path('blog') }}" class="show-back">← Back to Feed</a>
+    {# Flash #}
+        {% for msg in app.flashes('success') %}<div class="flash-success">{{ msg }}</div>{% endfor %}
+        {% for msg in app.flashes('error') %}<div class="flash-error">{{ msg }}</div>{% endfor %}
 
-  <div class="show-card">
-    {# Hero image #}
-    {% if post.imageUrl %}
-      {% set firstImg = post.imageUrl|split(',')|first|trim %}
-      {% if firstImg %}
-        <img src="{{ firstImg }}" class="show-hero-img" alt="{{ post.title }}"
-             onerror="this.style.display='none'">
-      {% endif %}
+    {# ── Post header ── #}
+    {% set authorName = authors[post.userId] ?? 'Anonymous' %}
+    <div class="show-meta">
+        <div class="avatar-lg">{{ authorName|first|upper }}</div>
+        <div>
+            <div class="show-author">{{ authorName }}</div>
+            {% if post.createdAt %}
+                <div class="show-date">{{ post.createdAt|date('d M Y · H:i') }}</div>
+            {% endif %}
+        </div>
+        <span class="type-badge badge-{{ badgeClass }}">{{ typeKey|replace({'_': ' '})|capitalize }}</span>
+    </div>
+
+    {# Owner controls #}
+    {% set isOwner = (app.user is not null and app.user.id == post.userId) %}
+    {% if isOwner %}
+        <div class="owner-actions">
+            <a href="{{ path('post_edit', {id: post.id}) }}" class="btn-edit">Edit</a>
+            <form method="post" action="{{ path('post_delete', {id: post.id}) }}"
+                  onsubmit="return confirm('Delete this post?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete_post_' ~ post.id) }}">
+                <button type="submit" class="btn-delete">Delete</button>
+            </form>
+        </div>
     {% endif %}
 
-    <div class="show-body-wrap">
+    <h1 class="show-title">{{ post.title }}</h1>
 
-      {# Meta row #}
-      <div class="show-meta">
-        {% set aName = authors[post.userId] ?? 'User #' ~ post.userId %}
-        <div class="pc-avatar" style="width:38px;height:38px;font-size:15px;">{{ aName|first|upper }}</div>
-        <div>
-          <div class="pc-name">{{ aName }}</div>
-          <div class="pc-date">{% if post.createdAt %}{{ post.createdAt|date('d M Y · H:i') }}{% endif %}</div>
-        </div>
-        <span class="pc-badge b-{{ post.type }}" style="margin-left:auto;">{{ post.type }}</span>
-        {% if not post.isConfirmed %}
-          <span class="pc-badge" style="background:rgba(245,158,11,0.15);color:#fcd34d;border:1px solid rgba(245,158,11,0.25);">⏳ Pending</span>
+    {% if post.imageUrl %}
+        {% set imageUrls = post.imageUrl|split(',') %}
+        {% if imageUrls|length > 1 %}
+            <div class="show-images-grid">
+                {% for img in imageUrls %}
+                    {% set cleanImg = img|trim %}
+                    {% if cleanImg is not empty %}
+                        <img src="{{ cleanImg }}" class="show-image" alt="{{ post.title }} image {{ loop.index }}">
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <img src="{{ imageUrls[0]|trim }}" class="show-image" alt="{{ post.title }}">
         {% endif %}
-      </div>
+    {% endif %}
 
-      {# Title #}
-      <h1 class="show-title">{{ post.title }}</h1>
+    <div class="show-body">{{ post.body }}</div>
 
-      {# Body #}
-      <div class="show-content">{{ post.body }}</div>
-
-      {# Additional images grid #}
-      {% if post.imageUrl %}
-        {% set imgUrls = post.imageUrl|split(',') %}
-        {% if imgUrls|length > 1 %}
-          <div class="show-image-grid cols-{{ imgUrls|length > 2 ? 3 : 2 }}" style="margin-top:20px;">
-            {% for img in imgUrls %}
-              {% if img|trim %}
-                <img src="{{ img|trim }}" alt="{{ post.title }}" onerror="this.style.display='none'">
-              {% endif %}
+    {# ── Reactions ── #}
+    <div class="reactions-bar">
+        {% set icons = {like:'👍',love:'❤️',haha:'😂',wow:'😮',sad:'😢',angry:'😡'} %}
+        <div class="reaction-wrapper">
+            <button type="button" class="react-main-btn {% if userReaction %}active{% endif %}">
+                {% if userReaction and icons[userReaction] is defined %}
+                    {{ icons[userReaction] }} {{ userReaction|capitalize }}
+                {% else %}
+                    🙂 React
+                {% endif %}
+            </button>
+            <div class="reaction-picker">
+                {% for rtype, emoji in icons %}
+                    <form method="post" action="{{ path('post_react', {id: post.id, type: rtype}) }}">
+                        <button type="submit" class="reaction-emoji" aria-label="React {{ rtype|capitalize }}" title="{{ rtype|capitalize }}">{{ emoji }}</button>
+                    </form>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="counts-row">
+            {% for rtype, emoji in icons %}
+                {% if reactionMap[rtype] is defined and reactionMap[rtype] > 0 %}
+                    <span>{{ emoji }} {{ reactionMap[rtype] }}</span>
+                {% endif %}
             {% endfor %}
-          </div>
-        {% endif %}
-      {% endif %}
-
-      {# Reaction tally #}
-      {% if total > 0 %}
-        <div class="rxn-tally" style="margin-top:20px;">
-          {% for rtype, emoji in rxnIcons %}
-            {% if reactionMap[rtype] is defined and reactionMap[rtype] > 0 %}
-              <span>{{ emoji }} {{ reactionMap[rtype] }}</span>
-            {% endif %}
-          {% endfor %}
         </div>
-      {% endif %}
-
-      {# Actions #}
-      <div class="show-actions-section">
-        <div class="pc-actions" style="border:none;padding:0;margin:0;">
-          {# Reaction #}
-          <div class="rxn-wrap" id="rxnwrap-{{ post.id }}">
-            <button type="button"
-                    class="rxn-btn {% if userReaction %}reacted-{{ userReaction }}{% endif %}"
-                    id="rxnbtn-{{ post.id }}"
-                    onclick="quickReact({{ post.id }}, '{{ userReaction ?: '' }}', 'post')">
-              <span id="rxnicon-{{ post.id }}">
-                {% if userReaction and rxnIcons[userReaction] is defined %}{{ rxnIcons[userReaction] }}{% else %}👍{% endif %}
-              </span>
-              <span id="rxnlbl-{{ post.id }}">
-                {% if userReaction and rxnLabels[userReaction] is defined %}{{ rxnLabels[userReaction] }}{% else %}Like{% endif %}
-              </span>
-              {% if total > 0 %}
-                <span class="rxn-count" id="rxntotal-{{ post.id }}">{{ total }}</span>
-              {% else %}
-                <span class="rxn-count" id="rxntotal-{{ post.id }}" style="display:none">0</span>
-              {% endif %}
-            </button>
-            <div class="rxn-picker">
-              {% for rtype, emoji in rxnIcons %}
-                <button type="button"
-                        class="emoji-btn {% if userReaction == rtype %}active-emoji{% endif %}"
-                        id="rxnopt-{{ post.id }}-{{ rtype }}"
-                        onclick="sendReaction({{ post.id }}, '{{ rtype }}', 'post')">
-                  <span class="e">{{ emoji }}</span>
-                  <span class="el">{{ rxnLabels[rtype] }}</span>
-                </button>
-              {% endfor %}
-            </div>
-          </div>
-
-          <button type="button" class="act-btn"
-                  onclick="sharePost('{{ post.title|e('js') }}', window.location.href)">
-            🔗 Share
-          </button>
-
-          {% if isOwner %}
-            <a href="{{ path('post_edit', {id: post.id}) }}" class="act-btn">✏️ Edit</a>
-            <form method="post" action="{{ path('post_delete', {id: post.id}) }}" class="inline-form"
-                  onsubmit="return confirm('Delete this post?')">
-              <input type="hidden" name="_token" value="{{ csrf_token('delete_post_' ~ post.id) }}">
-              <button type="submit" class="act-btn" style="color:var(--danger)">🗑 Delete</button>
-            </form>
-          {% endif %}
-        </div>
-      </div>
-
-      {# Comments Section #}
-      <div class="show-comments-section">
-        <h2 class="show-comments-title">💬 Comments ({{ post.comments|length }})</h2>
-
-        {% set comments    = post.comments|default([]) %}
-        {% set topComments = comments|filter(c => c.parentCommentId is null or c.parentCommentId == 0) %}
-        {% set allReplies  = comments|filter(c => c.parentCommentId is not null and c.parentCommentId != 0) %}
-
-        {% for comment in topComments %}
-          {% set cn = authors[comment.userId] ?? 'User #' ~ comment.userId %}
-          {% set commentReplies = allReplies|filter(r => r.parentCommentId == comment.id) %}
-
-          <div class="crow" id="comment-{{ comment.id }}">
-            <div class="cav">{{ cn|first|upper }}</div>
-            <div class="cbubble">
-              <div class="cn">{{ cn }}</div>
-              <div class="cb" id="cbody-{{ comment.id }}">{{ comment.body }}</div>
-
-              <div class="edit-form" id="edit-{{ comment.id }}">
-                <form method="post" action="{{ path('comment_edit', {id: comment.id}) }}" class="edit-inline-form">
-                  <input type="hidden" name="_token" value="{{ csrf_token('edit_comment_' ~ comment.id) }}">
-                  <textarea name="body" rows="1"
-                            oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'">{{ comment.body }}</textarea>
-                  <button type="submit" class="edit-send">Save</button>
-                  <button type="button" class="edit-cancel" onclick="toggleEditForm('edit-{{ comment.id }}')">✕</button>
-                </form>
-              </div>
-
-              <div class="comment-actions">
-                <div class="c-rxn-wrap">
-                  <button type="button" class="ca-btn" id="crxnbtn-{{ comment.id }}"
-                          onclick="quickReact({{ comment.id }}, '', 'comment')">👍 Like</button>
-                  <div class="c-rxn-picker">
-                    {% for rtype, emoji in rxnIcons %}
-                      <button type="button" class="c-emoji-btn"
-                              onclick="sendReaction({{ comment.id }}, '{{ rtype }}', 'comment')"
-                              title="{{ rxnLabels[rtype] }}">{{ emoji }}</button>
-                    {% endfor %}
-                  </div>
-                </div>
-                <span class="c-rxn-tally" id="crxntally-{{ comment.id }}"></span>
-                <span class="ca-sep">·</span>
-                <button type="button" class="ca-btn" onclick="toggleReplyForm('reply-{{ comment.id }}')">💬 Reply</button>
-                <span class="ca-sep">·</span>
-                <span class="comment-time">{% if comment.createdAt %}{{ comment.createdAt|date('d M · H:i') }}{% endif %}</span>
-                {% if me is not null and myId == comment.userId %}
-                  <span class="ca-sep">·</span>
-                  <button type="button" class="ca-btn" onclick="toggleEditForm('edit-{{ comment.id }}')">✏️ Edit</button>
-                {% endif %}
-                {% if me is not null and (myId == comment.userId or myId == post.userId) %}
-                  <span class="ca-sep">·</span>
-                  <form method="post" action="{{ path('comment_delete', {id: comment.id}) }}" class="inline-form"
-                        onsubmit="return confirm('Delete this comment?')">
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_' ~ comment.id) }}">
-                    <button type="submit" class="ca-btn danger">🗑 Delete</button>
-                  </form>
-                {% endif %}
-              </div>
-            </div>
-          </div>
-
-          <div class="reply-form" id="reply-{{ comment.id }}">
-            <form method="post" action="{{ path('comment_create', {id: post.id}) }}">
-              <input type="hidden" name="parent_comment_id" value="{{ comment.id }}">
-              <div class="reply-form-inner">
-                <textarea name="body" rows="1"
-                          placeholder="Reply to {{ cn|split(' ')|first }}…"
-                          oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-                <button type="submit" class="reply-send">Reply</button>
-                <button type="button" class="reply-cancel" onclick="toggleReplyForm('reply-{{ comment.id }}')">✕</button>
-              </div>
-            </form>
-          </div>
-
-          {% if commentReplies|length > 0 %}
-            <button type="button" class="replies-toggle" onclick="toggleReplies('replies-{{ comment.id }}', this)">
-              <span>▸</span> {{ commentReplies|length }} {{ commentReplies|length == 1 ? 'reply' : 'replies' }}
-            </button>
-            <div class="replies-wrap" id="replies-{{ comment.id }}" style="display:none">
-              {% for reply in commentReplies %}
-                {% set rn = authors[reply.userId] ?? 'User #' ~ reply.userId %}
-                <div class="crow crow-reply" id="comment-{{ reply.id }}">
-                  <div class="cav cav-small">{{ rn|first|upper }}</div>
-                  <div class="cbubble">
-                    <div class="cn">{{ rn }}</div>
-                    <div class="cb">{{ reply.body }}</div>
-                    <div class="comment-actions">
-                      <span class="comment-time">{% if reply.createdAt %}{{ reply.createdAt|date('d M · H:i') }}{% endif %}</span>
-                      {% if me is not null and (myId == reply.userId or myId == post.userId) %}
-                        <span class="ca-sep">·</span>
-                        <form method="post" action="{{ path('comment_delete', {id: reply.id}) }}" class="inline-form"
-                              onsubmit="return confirm('Delete this reply?')">
-                          <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_' ~ reply.id) }}">
-                          <button type="submit" class="ca-btn danger">🗑</button>
-                        </form>
-                      {% endif %}
-                    </div>
-                  </div>
-                </div>
-              {% endfor %}
-            </div>
-          {% endif %}
-        {% else %}
-          <p class="no-comments">No comments yet — be the first! 🌍</p>
-        {% endfor %}
-
-        {# New comment (AJAX) #}
-        {% if me is not null %}
-          <form onsubmit="event.preventDefault(); submitCommentAjax(this, {{ post.id }});" style="margin-top:8px;">
-            <div class="cform-row">
-              <textarea name="body" rows="1" placeholder="Write a comment…"
-                        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-              <button type="submit" class="csend">Post</button>
-            </div>
-            <div class="cform-error"></div>
-          </form>
-        {% else %}
-          <p class="no-comments">
-            <a href="{{ path('app_login') }}" style="color:var(--accent);font-weight:700;">Log in</a> to leave a comment.
-          </p>
-        {% endif %}
-      </div>
     </div>
-  </div>
+
+    {# ── Comments ── #}
+    <div class="comments-section">
+        <h2>Comments ({{ post.comments|length }})</h2>
+
+        {% if post.comments|length > 0 %}
+            {% for comment in post.comments %}
+                {% set cAuthor = authors[comment.userId] ?? 'User #' ~ comment.userId %}
+                <div class="comment-item">
+                    <div class="comment-avatar">{{ cAuthor|first|upper }}</div>
+                    <div class="comment-bubble">
+                        <div class="comment-author">{{ cAuthor }}</div>
+                        <div class="comment-body">{{ comment.body }}</div>
+                        <div class="comment-footer">
+                            {% if comment.createdAt %}
+                                <span>{{ comment.createdAt|date('d M Y H:i') }}</span>
+                            {% endif %}
+                            {# Delete own comment #}
+                            {% if app.user is not null and app.user.id == comment.userId %}
+                                <form method="post" action="{{ path('comment_delete', {id: comment.id}) }}"
+                                      onsubmit="return confirm('Delete this comment?');" style="margin:0;">
+                                    <input type="hidden" name="_token"
+                                           value="{{ csrf_token('delete_comment_' ~ comment.id) }}">
+                                    <button type="submit" class="comment-delete-btn">
+                                        Delete
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="empty-comments">No comments yet. Be the first to comment.</p>
+        {% endif %}
+
+        {# ── Add comment form ── #}
+        <div class="comment-form-wrap">
+            <h3>Leave a comment</h3>
+            <form method="post" action="{{ path('comment_create', {id: post.id}) }}">
+                <textarea name="body" placeholder="Share your thoughts…" required></textarea>
+                <br>
+                <button type="submit">Post Comment</button>
+            </form>
+        </div>
+    </div>
+
+    </div>
 </div>
-</div>
-
-<script>
-const RXN_ICONS  = {like:'👍',love:'❤️',haha:'😂',wow:'😮',sad:'😢',angry:'😡'};
-const RXN_LABELS = {like:'Like',love:'Love',haha:'Haha',wow:'Wow',sad:'Sad',angry:'Angry'};
-
-async function sendReaction(targetId, type, targetType) {
-  const url = targetType === 'post'
-    ? `/post/${targetId}/react/${type}`
-    : `/comment/${targetId}/react/${type}`;
-  try {
-    const res  = await fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-    if (!res.ok) return;
-    const data = await res.json();
-    if (targetType === 'post') updatePostReaction(targetId, data.userReaction, data.counts);
-    else updateCommentReaction(targetId, data.userReaction, data.counts);
-  } catch(e) {}
-}
-
-function quickReact(targetId, currentReaction, targetType) {
-  sendReaction(targetId, currentReaction || 'like', targetType);
-}
-
-function updatePostReaction(pid, userReaction, counts) {
-  const btn    = document.getElementById(`rxnbtn-${pid}`);
-  const iconEl = document.getElementById(`rxnicon-${pid}`);
-  const lblEl  = document.getElementById(`rxnlbl-${pid}`);
-  const totEl  = document.getElementById(`rxntotal-${pid}`);
-  if (!btn) return;
-  btn.className = btn.className.replace(/reacted-\w+/g,'').trim();
-  if (userReaction) {
-    btn.classList.add(`reacted-${userReaction}`);
-    iconEl.textContent = RXN_ICONS[userReaction] || '👍';
-    lblEl.textContent  = RXN_LABELS[userReaction] || 'Like';
-  } else {
-    iconEl.textContent = '👍';
-    lblEl.textContent  = 'Like';
-  }
-  Object.keys(RXN_ICONS).forEach(t => {
-    const o = document.getElementById(`rxnopt-${pid}-${t}`);
-    if (o) o.classList.toggle('active-emoji', t === userReaction);
-  });
-  const total = Object.values(counts).reduce((a,b) => a+b, 0);
-  if (totEl) { totEl.style.display = total > 0 ? '' : 'none'; totEl.textContent = total; }
-}
-
-function updateCommentReaction(cid, userReaction, counts) {
-  const btn   = document.getElementById(`crxnbtn-${cid}`);
-  const tally = document.getElementById(`crxntally-${cid}`);
-  if (!btn) return;
-  if (userReaction) { btn.classList.add('c-reacted'); btn.innerHTML = `${RXN_ICONS[userReaction]} ${RXN_LABELS[userReaction]}`; }
-  else { btn.classList.remove('c-reacted'); btn.innerHTML = '👍 Like'; }
-  if (tally) {
-    const total = Object.values(counts).reduce((a,b) => a+b, 0);
-    tally.innerHTML = total > 0
-      ? Object.entries(counts).filter(([,n]) => n>0).map(([t,n]) => `${RXN_ICONS[t]}${n}`).join(' ')
-      : '';
-  }
-}
-
-async function sharePost(title, url) {
-  if (navigator.share) { try { await navigator.share({title, url}); return; } catch(e){return;} }
-  try { await navigator.clipboard.writeText(url); showToast('🔗 Link copied!'); }
-  catch(e) { prompt('Copy link:', url); }
-}
-
-function showToast(msg) {
-  let t = document.querySelector('.blog-toast');
-  if (!t) { t = document.createElement('div'); t.className='blog-toast'; document.body.appendChild(t); }
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-function submitCommentAjax(form, postId) {
-  const textarea = form.querySelector('textarea[name="body"]');
-  const errEl    = form.querySelector('.cform-error');
-  const body     = textarea.value.trim();
-  if (errEl) errEl.textContent = '';
-  if (body.length < 2) { if (errEl) errEl.textContent = 'Comment must be at least 2 characters.'; return; }
-
-  const fd = new FormData(form);
-  fetch(`/comment/create-ajax/${postId}`, { method: 'POST', body: fd })
-    .then(r => r.json())
-    .then(data => {
-      if (data.error) { if (errEl) errEl.textContent = data.error; return; }
-      const c     = data.comment;
-      const html  = `<div class="crow" id="comment-${c.id}">
-        <div class="cav">${c.author.charAt(0).toUpperCase()}</div>
-        <div class="cbubble">
-          <div class="cn">${escHtml(c.author)}</div>
-          <div class="cb">${escHtml(c.body)}</div>
-          <div class="comment-actions"><span class="comment-time">${c.createdAt}</span></div>
-        </div></div>`;
-      const section  = document.querySelector('.show-comments-section');
-      const formEl   = section.querySelector('form');
-      const noEl     = section.querySelector('.no-comments');
-      if (noEl) noEl.remove();
-      const d = document.createElement('div');
-      d.innerHTML = html;
-      section.insertBefore(d.firstElementChild, formEl);
-
-      const title = section.querySelector('.show-comments-title');
-      if (title) {
-        const m = title.textContent.match(/\((\d+)\)/);
-        const n = m ? parseInt(m[1]) + 1 : 1;
-        title.textContent = `💬 Comments (${n})`;
-      }
-      textarea.value = '';
-      textarea.style.height = 'auto';
-      showToast('💬 Comment posted!');
-    })
-    .catch(() => { if (errEl) errEl.textContent = 'Failed to post comment.'; });
-}
-
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function toggleEditForm(id) {
-  const f = document.getElementById(id);
-  if (!f) return;
-  f.classList.toggle('open');
-  if (f.classList.contains('open')) { const ta = f.querySelector('textarea'); if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length,ta.value.length); } }
-}
-
-function toggleReplyForm(id) {
-  const f = document.getElementById(id);
-  if (!f) return;
-  f.classList.toggle('open');
-  if (f.classList.contains('open')) f.querySelector('textarea')?.focus();
-}
-
-function toggleReplies(id, btn) {
-  const w = document.getElementById(id);
-  if (!w) return;
-  const open = w.style.display !== 'none';
-  w.style.display = open ? 'none' : 'flex';
-  w.style.flexDirection = 'column';
-  w.style.gap = '10px';
-  const arrow = btn.querySelector('span');
-  if (arrow) arrow.textContent = open ? '▸' : '▾';
-}
-</script>
 {% endblock %}

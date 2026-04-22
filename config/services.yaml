@@ -4,6 +4,13 @@ parameters:
     env(SERPAPI_API_KEY): ''
     env(OPENWEATHER_API_KEY): ''
     env(ELEVENLABS_API_KEY): ''
+    env(AKISMET_API_KEY): ''
+    env(AKISMET_BLOG_URL): ''
+    env(OPENAI_API_KEY): ''
+    env(OPENAI_MODERATION_MODEL): 'omni-moderation-latest'
+    env(RECAPTCHA_SECRET_KEY): ''
+    env(float:RECAPTCHA_MIN_SCORE): '0.5'
+    app.moderation.bad_words_file: '%kernel.project_dir%/config/moderation_bad_words.txt'
 
 services:
     _defaults:
@@ -108,7 +115,7 @@ services:
     # RoomInsightsService
     App\service\Accommodation\RoomInsightsService:
         arguments:
-            $raggedGemini: '%env(RAGHED_GEMINI)%'
+            $raggedGemini: '%env(TRANSPORTAI)%'
 
     # Google Calendar Service
     App\service\Accommodation\GoogleCalendarAccService:
@@ -205,3 +212,28 @@ services:
             $totpFactory: '@scheb_two_factor.security.google_totp_factory'
             $leeway: 0
         public: true
+
+    # ============ CONTENT MODERATION SERVICES ============
+    
+    App\service\ContentModerationService:
+        arguments:
+            $akismetApiKey: '%env(AKISMET_API_KEY)%'
+            $akismetBlogUrl: '%env(AKISMET_BLOG_URL)%'
+            $openAiApiKey: '%env(OPENAI_API_KEY)%'
+            $openAiModerationModel: '%env(OPENAI_MODERATION_MODEL)%'
+            $badWordsFile: '%app.moderation.bad_words_file%'
+
+    # ============ BOT PROTECTION SERVICES ============
+    
+    App\service\BotProtectionService:
+        arguments:
+            $recaptchaSecretKey: '%env(RECAPTCHA_SECRET_KEY)%'
+            $recaptchaMinScore: '%env(float:RECAPTCHA_MIN_SCORE)%'
+
+    # ============ IMAGE ENHANCER SERVICE ============
+    
+    App\service\ImageEnhancerService:
+        arguments:
+            $pixianId: '%env(PIXIAN_API_ID)%'
+            $pixianSecret: '%env(PIXIAN_API_SECRET)%'
+            $appEnv: '%kernel.environment%'

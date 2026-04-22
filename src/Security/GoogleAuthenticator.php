@@ -70,9 +70,20 @@ class GoogleAuthenticator extends OAuth2Authenticator
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
-    {
-        return new RedirectResponse($this->router->generate('index'));
+{
+    /** @var \App\Entity\User $user */
+    $user = $token->getUser();
+
+    $preference = $this->entityManager->getRepository(\App\Entity\Preference::class)
+        ->findOneBy(['userId' => $user->getUserId()]);
+
+    if (!$preference || !$preference->getTravelPace()) {
+        $request->getSession()->set('onboarding_user_id', $user->getUserId());
+        return new RedirectResponse($this->router->generate('app_onboarding'));
     }
+
+    return new RedirectResponse($this->router->generate('index'));
+}
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {

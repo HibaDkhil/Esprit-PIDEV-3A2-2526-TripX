@@ -3,104 +3,493 @@
 namespace App\Controller\admin;
 
 use App\Entity\Comment;
+use App\Entity\LiveComment;
+use App\Entity\LiveReaction;
+use App\Entity\LiveSession;
+use App\Entity\LiveSessionViewer;
 use App\Entity\Post;
+use App\Entity\Reaction;
+use App\Entity\Story;
 use App\Entity\TravelStory;
 use App\Entity\User;
+use App\service\ModerationRecordService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
+use Symfony\UX\Chartjs\Model\Chart;
 
 #[Route('/admin/blog')]
 class BlogAdminController extends AbstractController
 {
-    // ── List all posts + travel stories ──────────────────────────────────
+    private const BLOG_TABS = ['moderation', 'posts', 'stories', 'ig-stories', 'live'];
+    private const MODERATION_ORDER = [
+        'HIGH_RISK' => 1,
+        'SPAM' => 2,
+        'REVIEW' => 3,
+        'AUTO_HIDDEN' => 4,
+        'SAFE' => 9,
+    ];
+
+    // ── List posts + travel stories + IG stories ─────────────────────────
     #[Route('', name: 'admin_blog')]
-    public function index(EntityManagerInterface $em): Response
+    public function index(
+        EntityManagerInterface $em,
+        ModerationRecordService $moderationRecordService,
+        ChartBuilderInterface $chartBuilder
+    ): Response
     {
         $posts   = $em->getRepository(Post::class)->findBy([], ['id' => 'DESC']);
         $stories = $em->getRepository(TravelStory::class)->findBy([], ['createdAt' => 'DESC']);
-        $comments = $em->getRepository(Comment::class)->findBy([], ['created_at' => 'DESC'], 200);
+        $igStories = $em->getRepository(Story::class)->findBy([], ['createdAt' => 'DESC']);
+        $liveSessions = $em->getRepository(LiveSession::class)->findBy([], ['startedAt' => 'DESC']);
 
-        // Build author map
+        // Build author map from all content types
         $authorIds = array_unique(array_filter(array_merge(
             array_map(fn($p) => $p->getUserId(), $posts),
             array_map(fn($s) => $s->getUserId(), $stories),
-            array_map(fn($c) => $c->getUserId(), $comments)
+            array_map(fn($s) => $s->getUserId(), $igStories),
+            array_map(fn($l) => $l->getHostUser()?->getUserId(), $liveSessions)
         )));
         $authorMap = [];
         foreach ($authorIds as $uid) {
             $u = $em->getRepository(User::class)->find($uid);
             if ($u) {
-                $authorMap[$uid] = trim($u->getFirstName() . ' ' . $u->getLastName()) ?: 'User #' . $uid;
+                $authorMap[$uid] = $u->getFirstName() . ' ' . $u->getLastName();
             }
         }
 
-        $pending  = array_filter($posts, fn($p) => !$p->isConfirmed());
-        $approved = array_filter($posts, fn($p) => $p->isConfirmed());
+        $allComments   = $em->getRepository(Comment::class)->findBy([], ['created_at' => 'DESC']);
+        $allReactions  = $em->getRepository(Reaction::class)->findBy([]);
+
+        $postCommentCounts = [];
+        $storyCommentCounts = [];
+        foreach ($allComments as $comment) {
+            $commentPost = $comment->getPost();
+            if ($commentPost) {
+                $postId = $commentPost->getId();
+                if ($postId !== null) {
+                    $postCommentCounts[$postId] = ($postCommentCounts[$postId] ?? 0) + 1;
+                }
+            }
+
+            $storyId = $comment->getTravelStoryId();
+            if ($storyId !== null) {
+                $storyCommentCounts[$storyId] = ($storyCommentCounts[$storyId] ?? 0) + 1;
+            }
+        }
+
+        $postReactionCounts = [];
+        $storyReactionCounts = [];
+        foreach ($allReactions as $r) {
+            $reactionPostId = $r->getPostId();
+            if ($reactionPostId !== null) {
+                $postReactionCounts[$reactionPostId] = ($postReactionCounts[$reactionPostId] ?? 0) + 1;
+            }
+
+            $reactionStoryId = $r->getTravelStoryId();
+            if ($reactionStoryId !== null) {
+                $storyReactionCounts[$reactionStoryId] = ($storyReactionCounts[$reactionStoryId] ?? 0) + 1;
+            }
+        }
+
+        $allLiveComments = $em->getRepository(LiveComment::class)->findBy([]);
+        $allLiveReactions = $em->getRepository(LiveReaction::class)->findBy([]);
+        $allLiveViewers = $em->getRepository(LiveSessionViewer::class)->findBy([]);
+
+        $liveCommentCounts = [];
+        foreach ($allLiveComments as $liveComment) {
+            $sessionId = $liveComment->getLiveSession()?->getId();
+            if ($sessionId !== null) {
+                $liveCommentCounts[$sessionId] = ($liveCommentCounts[$sessionId] ?? 0) + 1;
+            }
+        }
+
+        $liveReactionCounts = [];
+        foreach ($allLiveReactions as $liveReaction) {
+            $sessionId = $liveReaction->getLiveSession()?->getId();
+            if ($sessionId !== null) {
+                $liveReactionCounts[$sessionId] = ($liveReactionCounts[$sessionId] ?? 0) + 1;
+            }
+        }
+
+        $liveViewerCounts = [];
+        $liveActiveViewerCounts = [];
+        foreach ($allLiveViewers as $liveViewer) {
+            $sessionId = $liveViewer->getLiveSession()?->getId();
+            if ($sessionId !== null) {
+                $liveViewerCounts[$sessionId] = ($liveViewerCounts[$sessionId] ?? 0) + 1;
+                if ($liveViewer->isActive()) {
+                    $liveActiveViewerCounts[$sessionId] = ($liveActiveViewerCounts[$sessionId] ?? 0) + 1;
+                }
+            }
+        }
+
+        // Extend authorMap with comment authors
+        foreach ($allComments as $c) {
+            $uid = $c->getUserId();
+            if ($uid && !isset($authorMap[$uid])) {
+                $u = $em->getRepository(User::class)->find($uid);
+                if ($u) $authorMap[$uid] = $u->getFirstName() . ' ' . $u->getLastName();
+            }
+        }
+
+        $postModeration = [];
+        $storyModeration = [];
+        $igStoryModeration = [];
+        $liveModeration = [];
+        $postCommentModeration = [];
+        $storyCommentModeration = [];
+        $liveCommentModeration = [];
+        $visiblePosts = [];
+        $moderationQueue = [];
+        $spamDetected = 0;
+        $flaggedPosts = 0;
+
+        foreach ($posts as $post) {
+            $postId = $post->getId();
+            if ($postId !== null) {
+                $postCommentModeration[(int) $postId] = $this->createCommentModerationBucket();
+            }
+        }
+
+        foreach ($stories as $story) {
+            $storyId = $story->getId();
+            if ($storyId !== null) {
+                $storyCommentModeration[(int) $storyId] = $this->createCommentModerationBucket();
+            }
+        }
+
+        foreach ($liveSessions as $live) {
+            $liveId = $live->getId();
+            if ($liveId !== null) {
+                $liveCommentModeration[(int) $liveId] = $this->createCommentModerationBucket();
+            }
+        }
+
+        $postModerationFromDb = $moderationRecordService->getPostModerationMap(array_map(
+            static fn(Post $p) => (int) ($p->getId() ?? 0),
+            $posts
+        ));
+
+        $unifiedModerationQueue = [];
+
+        foreach ($posts as $post) {
+            $postId = (int) ($post->getId() ?? 0);
+            $analysis = $postModerationFromDb[$postId] ?? $this->analyzePostModeration($post);
+            $postModeration[(int) $post->getId()] = $analysis;
+
+            if ($analysis['state'] !== 'SAFE') {
+                $unifiedModerationQueue[] = [
+                    'type' => 'post',
+                    'id' => $postId,
+                    'title' => (string) ($post->getTitle() ?? 'Untitled Post'),
+                    'content' => (string) ($post->getBody() ?? ''),
+                    'analysis' => $analysis,
+                    'entity' => $post,
+                ];
+                if (in_array($analysis['state'], ['REVIEW', 'HIGH_RISK', 'AUTO_HIDDEN'], true)) {
+                    $flaggedPosts++;
+                }
+                if ($analysis['state'] === 'SPAM') {
+                    $spamDetected++;
+                }
+            }
+
+            if (in_array($analysis['state'], ['SAFE', 'REVIEW'], true)) {
+                $visiblePosts[] = $post;
+            }
+        }
+
+        foreach ($stories as $story) {
+            $storyId = (int) ($story->getId() ?? 0);
+            $analysis = $this->analyzeModerationText(
+                (string) ($story->getTitle() ?? ''),
+                trim(implode("\n", array_filter([
+                    (string) ($story->getSummary() ?? ''),
+                    (string) ($story->getTips() ?? ''),
+                    (string) ($story->getDestination() ?? ''),
+                    implode(' ', $story->getTagsJson() ?? []),
+                    implode(' ', $story->getMustVisitJson() ?? []),
+                    implode(' ', $story->getMustDoJson() ?? []),
+                    implode(' ', $story->getMustTryJson() ?? []),
+                    implode(' ', $story->getFavoritePlacesJson() ?? []),
+                ])))
+            );
+            $storyModeration[$storyId] = $analysis;
+            if ($analysis['state'] !== 'SAFE') {
+                $unifiedModerationQueue[] = [
+                    'type' => 'travel_story',
+                    'id' => $storyId,
+                    'title' => (string) ($story->getTitle() ?? 'Untitled Travel Story'),
+                    'content' => (string) ($story->getSummary() ?? ''),
+                    'analysis' => $analysis,
+                    'entity' => $story,
+                ];
+            }
+        }
+
+        foreach ($igStories as $igStory) {
+            $igStoryId = (int) ($igStory->getId() ?? 0);
+            $analysis = $this->analyzeModerationText('', (string) ($igStory->getCaption() ?? ''));
+            $igStoryModeration[$igStoryId] = $analysis;
+            if ($analysis['state'] !== 'SAFE') {
+                $unifiedModerationQueue[] = [
+                    'type' => 'story',
+                    'id' => $igStoryId,
+                    'title' => 'IG Story',
+                    'content' => (string) ($igStory->getCaption() ?? ''),
+                    'analysis' => $analysis,
+                    'entity' => $igStory,
+                ];
+            }
+        }
+
+        foreach ($liveSessions as $live) {
+            $liveId = (int) ($live->getId() ?? 0);
+            $analysis = $this->analyzeModerationText(
+                (string) ($live->getTitle() ?? ''),
+                (string) ($live->getRoomName() ?? '')
+            );
+            $liveModeration[$liveId] = $analysis;
+            if ($analysis['state'] !== 'SAFE') {
+                $unifiedModerationQueue[] = [
+                    'type' => 'live',
+                    'id' => $liveId,
+                    'title' => (string) ($live->getTitle() ?? 'Untitled Live'),
+                    'content' => (string) ($live->getRoomName() ?? ''),
+                    'analysis' => $analysis,
+                    'entity' => $live,
+                ];
+            }
+        }
+
+        foreach ($allComments as $comment) {
+            $analysis = $this->analyzeModerationText('', (string) ($comment->getBody() ?? ''));
+            $commentText = trim((string) ($comment->getBody() ?? ''));
+
+            $commentPost = $comment->getPost();
+            if ($commentPost !== null && $commentPost->getId() !== null) {
+                $postId = (int) $commentPost->getId();
+                if (!isset($postCommentModeration[$postId])) {
+                    $postCommentModeration[$postId] = $this->createCommentModerationBucket();
+                }
+                $this->accumulateCommentModeration($postCommentModeration[$postId], $analysis, $commentText);
+            }
+
+            $travelStoryId = $comment->getTravelStoryId();
+            if ($travelStoryId !== null) {
+                $storyId = (int) $travelStoryId;
+                if (!isset($storyCommentModeration[$storyId])) {
+                    $storyCommentModeration[$storyId] = $this->createCommentModerationBucket();
+                }
+                $this->accumulateCommentModeration($storyCommentModeration[$storyId], $analysis, $commentText);
+            }
+
+            if ($analysis['state'] !== 'SAFE') {
+                $unifiedModerationQueue[] = [
+                    'type' => 'comment',
+                    'id' => $comment->getId(),
+                    'title' => 'Comment',
+                    'content' => (string) ($comment->getBody() ?? ''),
+                    'analysis' => $analysis,
+                    'entity' => $comment,
+                ];
+            }
+        }
+
+        foreach ($allLiveComments as $liveComment) {
+            $liveId = $liveComment->getLiveSession()?->getId();
+            if ($liveId === null) {
+                continue;
+            }
+
+            $analysis = $this->analyzeModerationText('', (string) ($liveComment->getMessage() ?? ''));
+            $commentText = trim((string) ($liveComment->getMessage() ?? ''));
+            $liveSessionId = (int) $liveId;
+
+            if (!isset($liveCommentModeration[$liveSessionId])) {
+                $liveCommentModeration[$liveSessionId] = $this->createCommentModerationBucket();
+            }
+            $this->accumulateCommentModeration($liveCommentModeration[$liveSessionId], $analysis, $commentText);
+
+            if ($analysis['state'] !== 'SAFE') {
+                $unifiedModerationQueue[] = [
+                    'type' => 'live_comment',
+                    'id' => $liveComment->getId(),
+                    'title' => 'Live Comment',
+                    'content' => (string) ($liveComment->getMessage() ?? ''),
+                    'analysis' => $analysis,
+                    'entity' => $liveComment,
+                ];
+            }
+        }
+
+        $postCommentModeration = $this->finalizeCommentModerationMap($postCommentModeration);
+        $storyCommentModeration = $this->finalizeCommentModerationMap($storyCommentModeration);
+        $liveCommentModeration = $this->finalizeCommentModerationMap($liveCommentModeration);
+
+        $commentModerationTotals = [
+            'safe' => 0,
+            'review' => 0,
+            'spam' => 0,
+            'high_risk' => 0,
+            'auto_hidden' => 0,
+        ];
+        foreach ([$postCommentModeration, $storyCommentModeration, $liveCommentModeration] as $commentMap) {
+            foreach ($commentMap as $bucket) {
+                $commentModerationTotals['safe'] += (int) ($bucket['safe'] ?? 0);
+                $commentModerationTotals['review'] += (int) ($bucket['review'] ?? 0);
+                $commentModerationTotals['spam'] += (int) ($bucket['spam'] ?? 0);
+                $commentModerationTotals['high_risk'] += (int) ($bucket['high_risk'] ?? 0);
+                $commentModerationTotals['auto_hidden'] += (int) ($bucket['auto_hidden'] ?? 0);
+            }
+        }
+
+        usort($unifiedModerationQueue, function ($a, $b): int {
+            $aRank = self::MODERATION_ORDER[$a['analysis']['state']] ?? 99;
+            $bRank = self::MODERATION_ORDER[$b['analysis']['state']] ?? 99;
+            if ($aRank !== $bRank) {
+                return $aRank <=> $bRank;
+            }
+            return ((int) $b['id']) <=> ((int) $a['id']);
+        });
 
         $stats = [
-            'total'    => count($posts),
-            'pending'  => count($pending),
-            'approved' => count($approved),
-            'stories'  => count($stories),
-            'comments' => count($comments),
+            'total'     => count($posts),
+            'pending'   => count(array_filter($posts, fn($p) => !$p->isConfirmed())),
+            'approved'  => count(array_filter($posts, fn($p) => $p->isConfirmed())),
+            'stories'   => count($stories),
+            'igStories' => count($igStories),
+            'liveSessions' => count($liveSessions),
+            'comments'  => count($allComments),
+            'reactions' => count($allReactions),
+            'flaggedPosts' => $flaggedPosts,
+            'spamDetected' => $spamDetected,
+            'blockedBots' => 0,
         ];
 
-        return $this->render('admin/blog/blog.html.twig', [
-            'posts'     => $posts,
-            'stories'   => $stories,
-            'comments'  => $comments,
-            'authorMap' => $authorMap,
-            'stats'     => $stats,
+        // 1. Content Overview Chart (Doughnut)
+        $contentMixChart = $chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
+        $contentMixChart->setData([
+            'labels' => ['Posts', 'Travel Stories', 'Live Sessions', 'Comments'],
+            'datasets' => [[
+                'data' => [count($posts), count($stories), count($liveSessions), count($allComments)],
+                'backgroundColor' => ['#3b82f6', '#ec4899', '#ef4444', '#8b5cf6'],
+                'borderWidth' => 0,
+            ]],
         ]);
-    }
+        $contentMixChart->setOptions([
+            'plugins' => [
+                'legend' => ['position' => 'bottom', 'labels' => ['usePointStyle' => true, 'padding' => 20]]
+            ],
+            'maintainAspectRatio' => false,
+            'cutout' => '70%',
+        ]);
 
-    // ── Show Post (Admin) ────────────────────────────────────────────────
-    #[Route('/post/{id}', name: 'admin_post_show', methods: ['GET'])]
-    public function showPost(int $id, EntityManagerInterface $em): Response
-    {
-        $post = $em->getRepository(Post::class)->find($id);
-        if (!$post) throw $this->createNotFoundException('Post not found.');
+        // 2. Verification Stats Chart (Pie)
+        $approvedPosts = count(array_filter($posts, fn($p) => $p->isConfirmed()));
+        $pendingPosts = count($posts) - $approvedPosts;
+        $verificationStatsChart = $chartBuilder->createChart(Chart::TYPE_PIE);
+        $verificationStatsChart->setData([
+            'labels' => ['Approved Posts', 'Pending Posts'],
+            'datasets' => [[
+                'data' => [$approvedPosts, $pendingPosts],
+                'backgroundColor' => ['#10b981', '#f59e0b'],
+                'borderWidth' => 0,
+            ]],
+        ]);
+        $verificationStatsChart->setOptions([
+            'plugins' => [
+                'legend' => ['position' => 'bottom', 'labels' => ['usePointStyle' => true, 'padding' => 20]]
+            ],
+            'maintainAspectRatio' => false,
+        ]);
 
-        // Build author map for post + comments
-        $authorIds = array_unique(array_filter(array_merge(
-            [$post->getUserId()],
-            array_map(fn($c) => $c->getUserId(), $post->getComments()->toArray())
-        )));
-        $authorMap = [];
-        foreach ($authorIds as $uid) {
-            $u = $em->getRepository(User::class)->find($uid);
-            if ($u) {
-                $authorMap[$uid] = trim($u->getFirstName() . ' ' . $u->getLastName()) ?: 'User #' . $uid;
+        // 3. Peak User Activity (24H) (Line)
+        $now = new \DateTimeImmutable();
+        $activityLabels = [];
+        $activityData = [];
+        $allActivityEntities = array_merge($posts, $stories, $igStories, $liveSessions, $allComments);
+        
+        for ($i = 23; $i >= 0; $i--) {
+            $t = $now->modify(sprintf('-%d hours', $i));
+            $hourKey = $t->format('Y-m-d H');
+            $activityLabels[] = ($i % 2 === 0) ? $t->format('H:00') : '';
+            
+            $count = 0;
+            foreach ($allActivityEntities as $entity) {
+                $dt = null;
+                if ($entity instanceof Post || $entity instanceof TravelStory || $entity instanceof Story || $entity instanceof Comment) {
+                    $dt = $entity->getCreatedAt();
+                } elseif ($entity instanceof LiveSession) {
+                    $dt = $entity->getStartedAt();
+                }
+                if ($dt instanceof \DateTimeInterface && $dt->format('Y-m-d H') === $hourKey) {
+                    $count++;
+                }
             }
+            $activityData[] = $count;
         }
 
-        return $this->render('admin/blog/post_show.html.twig', [
-            'post'      => $post,
-            'authorMap' => $authorMap,
+        $peakActivityChart = $chartBuilder->createChart(Chart::TYPE_LINE);
+        $peakActivityChart->setData([
+            'labels' => $activityLabels,
+            'datasets' => [[
+                'label' => 'User Activity (Events)',
+                'data' => $activityData,
+                'borderColor' => '#4f46e5',
+                'backgroundColor' => 'rgba(79, 70, 229, 0.1)',
+                'fill' => true,
+                'tension' => 0.4,
+                'pointRadius' => 4,
+                'pointBackgroundColor' => '#4f46e5',
+            ]],
+        ]);
+        $peakActivityChart->setOptions([
+            'plugins' => ['legend' => ['display' => false]],
+            'scales' => [
+                'y' => ['beginAtZero' => true, 'grid' => ['color' => '#f3f4f6']],
+                'x' => ['grid' => ['display' => false]]
+            ],
+            'maintainAspectRatio' => false,
+        ]);
+
+        return $this->render('admin/blog/blog.html.twig', [
+            'posts'             => $posts,
+            'visiblePosts'      => $visiblePosts,
+            'moderationQueue'   => $moderationQueue,
+            'postModeration'    => $postModeration,
+            'storyModeration'   => $storyModeration,
+            'igStoryModeration' => $igStoryModeration,
+            'liveModeration'    => $liveModeration,
+            'postCommentModeration' => $postCommentModeration,
+            'storyCommentModeration' => $storyCommentModeration,
+            'liveCommentModeration' => $liveCommentModeration,
+            'stories'           => $stories,
+            'igStories'         => $igStories,
+            'liveSessions'      => $liveSessions,
+            'authorMap'         => $authorMap,
+            'stats'             => $stats,
+            'allComments'       => $allComments,
+            'postCommentCounts' => $postCommentCounts,
+            'postReactionCounts'=> $postReactionCounts,
+            'storyCommentCounts'=> $storyCommentCounts,
+            'storyReactionCounts'=> $storyReactionCounts,
+            'liveCommentCounts' => $liveCommentCounts,
+            'liveReactionCounts'=> $liveReactionCounts,
+            'liveViewerCounts'  => $liveViewerCounts,
+            'liveActiveViewerCounts' => $liveActiveViewerCounts,
+            'contentMixChart' => $contentMixChart,
+            'verificationStatsChart' => $verificationStatsChart,
+            'peakActivityChart' => $peakActivityChart,
         ]);
     }
 
-    // ── Show Travel Story (Admin) ────────────────────────────────────────
-    #[Route('/story/{id}', name: 'admin_story_show', methods: ['GET'])]
-    public function showStory(int $id, EntityManagerInterface $em): Response
-    {
-        $story = $em->getRepository(TravelStory::class)->find($id);
-        if (!$story) throw $this->createNotFoundException('Story not found.');
-
-        $u = $em->getRepository(User::class)->find($story->getUserId());
-        $authorName = $u ? trim($u->getFirstName() . ' ' . $u->getLastName()) : 'User #' . $story->getUserId();
-
-        return $this->render('admin/blog/story_show.html.twig', [
-            'story'      => $story,
-            'authorName' => $authorName,
-        ]);
-    }
-
-    // ── Approve a post ───────────────────────────────────────────────────
+    // ── Approve a post ──────────────────────────────────────────────────
     #[Route('/{id}/approve', name: 'admin_blog_approve', methods: ['POST'])]
     public function approve(int $id, Request $request, EntityManagerInterface $em): Response
     {
@@ -109,20 +498,156 @@ class BlogAdminController extends AbstractController
             throw $this->createNotFoundException('Post not found.');
         }
 
-        if ($this->isCsrfTokenValid('admin_blog_' . $id, $request->request->get('_token'))) {
+        $token = (string) $request->request->get('_token');
+        if ($this->isCsrfTokenValid('admin_blog_' . $id, $token) || $this->isCsrfTokenValid('admin_blog_action', $token)) {
             $post->setIsConfirmed(true);
+            $post->setRemovedByAdmin(false);
+            $post->setRemovalReason(null);
+            $post->setRemovedAt(null);
             $em->flush();
-
-            if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
-                return $this->json(['success' => true, 'status' => 'approved']);
-            }
             $this->addFlash('success', 'Post approved.');
         }
 
-        return $this->redirectToRoute('admin_blog');
+        return $this->redirectToRoute('admin_blog', ['tab' => $this->resolveTab($request)]);
     }
 
-    // ── Reject a post ────────────────────────────────────────────────────
+    #[Route('/bulk-action', name: 'admin_blog_bulk_action', methods: ['POST'])]
+    public function bulkAction(Request $request, EntityManagerInterface $em): Response
+    {
+        $ids = array_values(array_filter(array_map('intval', (array) $request->request->all('post_ids'))));
+        $action = strtolower(trim((string) $request->request->get('bulk_action', '')));
+
+        if (!$this->isCsrfTokenValid('admin_blog_bulk_action', (string) $request->request->get('_token'))) {
+            $this->addFlash('info', 'Invalid bulk action token.');
+            return $this->redirectToRoute('admin_blog', ['tab' => $this->resolveTab($request)]);
+        }
+
+        if ($ids === [] || !in_array($action, ['approve', 'reject', 'delete', 'mark_safe'], true)) {
+            $this->addFlash('info', 'Select posts and a valid bulk action first.');
+            return $this->redirectToRoute('admin_blog', ['tab' => $this->resolveTab($request)]);
+        }
+
+        $affected = 0;
+        foreach ($ids as $id) {
+            $post = $em->getRepository(Post::class)->find($id);
+            if (!$post instanceof Post) {
+                continue;
+            }
+
+            if (in_array($action, ['approve', 'mark_safe'], true)) {
+                $post->setIsConfirmed(true);
+                $post->setRemovedByAdmin(false);
+                $post->setRemovalReason(null);
+                $post->setRemovedAt(null);
+                $affected++;
+                continue;
+            }
+
+            if ($action === 'reject') {
+                $post->setIsConfirmed(false);
+                $affected++;
+                continue;
+            }
+
+            if ($action === 'delete') {
+                $defaultReason = 'This post was removed by an admin because it violated the community guidelines.';
+                $post->setImageUrl(null);
+                $post->setIsConfirmed(false);
+                $post->setRemovedByAdmin(true);
+                $post->setRemovalReason($defaultReason);
+                $post->setRemovedAt(new \DateTimeImmutable());
+                $post->setUpdatedAt(new \DateTimeImmutable());
+                $affected++;
+            }
+        }
+
+        $em->flush();
+        $this->addFlash('success', sprintf('Bulk action "%s" applied to %d post(s).', $action, $affected));
+
+        return $this->redirectToRoute('admin_blog', ['tab' => $this->resolveTab($request)]);
+    }
+
+    // ── Delete an IG story ───────────────────────────────────────────────
+    #[Route('/ig-story/{id}/delete', name: 'admin_ig_story_delete', methods: ['POST'])]
+    public function deleteIgStory(int $id, Request $request, EntityManagerInterface $em): Response
+    {
+        $story = $em->getRepository(Story::class)->find($id);
+        if (!$story) {
+            throw $this->createNotFoundException('Story not found.');
+        }
+
+        if ($this->isCsrfTokenValid('admin_ig_story_delete_' . $id, $request->request->get('_token'))) {
+            $imagePath = (string) $story->getImageUrl();
+            if (str_starts_with($imagePath, '/uploads/stories/')) {
+                $absolutePath = $this->getParameter('kernel.project_dir') . '/public' . $imagePath;
+                if (is_file($absolutePath)) {
+                    (new Filesystem())->remove($absolutePath);
+                }
+            }
+
+            $reason = trim((string) $request->request->get('removal_reason', ''));
+            $defaultReason = 'This Story was removed by an admin because it violated the community guidelines.';
+
+            $story->setImageUrl('');
+            $story->setRemovedByAdmin(true);
+            $story->setRemovalReason($reason !== '' ? $reason : $defaultReason);
+            $story->setRemovedAt(new \DateTimeImmutable());
+
+            $em->flush();
+            $this->addFlash('success', 'Story removed and replaced with moderation placeholder.');
+        }
+
+        return $this->redirectToRoute('admin_blog', ['tab' => $this->resolveTab($request)]);
+    }
+
+    // ── Delete a live session ────────────────────────────────────────────
+    #[Route('/live/{id}/delete', name: 'admin_live_delete', methods: ['POST'])]
+    public function deleteLiveSession(int $id, Request $request, EntityManagerInterface $em): Response
+    {
+        $session = $em->getRepository(LiveSession::class)->find($id);
+        if (!$session) {
+            throw $this->createNotFoundException('Live session not found.');
+        }
+
+        if ($this->isCsrfTokenValid('admin_live_delete_' . $id, $request->request->get('_token'))) {
+            $recordingUrl = (string) ($session->getRecordingUrl() ?? '');
+            if ($session->isSavedToProfile() && !$session->isRemovedByAdmin()) {
+                if (str_starts_with($recordingUrl, '/uploads/live_recordings/')) {
+                    $recordingPath = $this->getParameter('kernel.project_dir') . '/public' . $recordingUrl;
+                    if (is_file($recordingPath)) {
+                        (new Filesystem())->remove($recordingPath);
+                    }
+                }
+
+                $reason = trim((string) $request->request->get('removal_reason', ''));
+                $defaultReason = 'This Live recording was removed by an admin because it violated the community guidelines.';
+
+                $session->setRecordingUrl('');
+                $session->setRemovedByAdmin(true);
+                $session->setRemovalReason($reason !== '' ? $reason : $defaultReason);
+                $session->setRemovedAt(new \DateTimeImmutable());
+                $session->setUpdatedAt(new \DateTimeImmutable());
+                $em->flush();
+
+                $this->addFlash('success', 'Saved live removed and replaced with moderation placeholder.');
+            } else {
+                if (str_starts_with($recordingUrl, '/uploads/live_recordings/')) {
+                    $recordingPath = $this->getParameter('kernel.project_dir') . '/public' . $recordingUrl;
+                    if (is_file($recordingPath)) {
+                        (new Filesystem())->remove($recordingPath);
+                    }
+                }
+
+                $em->remove($session);
+                $em->flush();
+                $this->addFlash('success', 'Live session deleted.');
+            }
+        }
+
+        return $this->redirectToRoute('admin_blog', ['tab' => $this->resolveTab($request)]);
+    }
+
+    // ── Reject a post ───────────────────────────────────────────────────
     #[Route('/{id}/reject', name: 'admin_blog_reject', methods: ['POST'])]
     public function reject(int $id, Request $request, EntityManagerInterface $em): Response
     {
@@ -131,159 +656,410 @@ class BlogAdminController extends AbstractController
             throw $this->createNotFoundException('Post not found.');
         }
 
-        if ($this->isCsrfTokenValid('admin_blog_' . $id, $request->request->get('_token'))) {
+        $token = (string) $request->request->get('_token');
+        if ($this->isCsrfTokenValid('admin_blog_' . $id, $token) || $this->isCsrfTokenValid('admin_blog_action', $token)) {
             $post->setIsConfirmed(false);
             $em->flush();
-
-            if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
-                return $this->json(['success' => true, 'status' => 'rejected']);
-            }
             $this->addFlash('info', 'Post rejected.');
         }
 
-        return $this->redirectToRoute('admin_blog');
+        return $this->redirectToRoute('admin_blog', ['tab' => $this->resolveTab($request)]);
     }
 
-    // ── Edit a post (admin) ───────────────────────────────────────────────
-    #[Route('/{id}/edit', name: 'admin_blog_edit', methods: ['POST'])]
-    public function edit(int $id, Request $request, EntityManagerInterface $em): Response
-    {
-        $post = $em->getRepository(Post::class)->find($id);
-        if (!$post) {
-            if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
-                return $this->json(['error' => 'Post not found'], Response::HTTP_NOT_FOUND);
-            }
-            throw $this->createNotFoundException();
-        }
-
-        if (!$this->isCsrfTokenValid('admin_blog_edit_' . $id, $request->request->get('_token'))) {
-            if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
-                return $this->json(['error' => 'Invalid token'], Response::HTTP_FORBIDDEN);
-            }
-            $this->addFlash('error', 'Invalid token.');
-            return $this->redirectToRoute('admin_blog');
-        }
-
-        $title = trim((string) $request->request->get('title', ''));
-        $body  = trim((string) $request->request->get('body', ''));
-        $type  = trim((string) $request->request->get('type', ''));
-
-        $allowedTypes = ['inquiry', 'story', 'review', 'advice', 'other'];
-
-        $errors = [];
-        if ($title === '' || mb_strlen($title) < 3) {
-            $errors[] = 'Title must be at least 3 characters.';
-        }
-        if ($body === '' || mb_strlen($body) < 10) {
-            $errors[] = 'Body must be at least 10 characters.';
-        }
-        if (!in_array($type, $allowedTypes, true)) {
-            $errors[] = 'Invalid post type.';
-        }
-
-        if (!empty($errors)) {
-            if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
-                return $this->json(['error' => implode(' ', $errors)], Response::HTTP_UNPROCESSABLE_ENTITY);
-            }
-            $this->addFlash('error', implode(' ', $errors));
-            return $this->redirectToRoute('admin_blog');
-        }
-
-        $post->setTitle($title);
-        $post->setBody($body);
-        $post->setType($type);
-        $post->setUpdatedAt(new \DateTime());
-        $em->flush();
-
-        if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
-            return $this->json([
-                'success' => true,
-                'title'   => $post->getTitle(),
-                'body'    => $post->getBody(),
-                'type'    => $post->getType(),
-            ]);
-        }
-
-        $this->addFlash('success', 'Post updated.');
-        return $this->redirectToRoute('admin_blog');
-    }
-
-    // ── Delete a post ────────────────────────────────────────────────────
+    // ── Delete a post ───────────────────────────────────────────────────
     #[Route('/{id}/delete', name: 'admin_blog_delete', methods: ['POST'])]
     public function delete(int $id, Request $request, EntityManagerInterface $em): Response
     {
         $post = $em->getRepository(Post::class)->find($id);
         if (!$post) {
-            if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
-                return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
-            }
-            throw $this->createNotFoundException();
+            throw $this->createNotFoundException('Post not found.');
         }
 
-        if ($this->isCsrfTokenValid('admin_blog_delete_' . $id, $request->request->get('_token'))) {
-            $em->remove($post);
+        $token = (string) $request->request->get('_token');
+        if ($this->isCsrfTokenValid('admin_blog_delete_' . $id, $token) || $this->isCsrfTokenValid('admin_blog_action', $token)) {
+            $reason = trim((string) $request->request->get('removal_reason', ''));
+            $defaultReason = 'This post was removed by an admin because it violated the community guidelines.';
+
+            $post->setImageUrl(null);
+            $post->setRemovedByAdmin(true);
+            $post->setRemovalReason($reason !== '' ? $reason : $defaultReason);
+            $post->setRemovedAt(new \DateTimeImmutable());
+            $post->setUpdatedAt(new \DateTimeImmutable());
+            $post->setIsConfirmed(false);
             $em->flush();
-
-            if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
-                return $this->json(['success' => true]);
-            }
-            $this->addFlash('success', 'Post deleted.');
+            $this->addFlash('success', 'Post removed and replaced with moderation placeholder.');
         }
 
-        return $this->redirectToRoute('admin_blog');
+        return $this->redirectToRoute('admin_blog', ['tab' => $this->resolveTab($request)]);
     }
 
-    // ── Delete a travel story ─────────────────────────────────────────────
+    // ── Delete a travel story ───────────────────────────────────────────
     #[Route('/story/{id}/delete', name: 'admin_story_delete', methods: ['POST'])]
     public function deleteStory(int $id, Request $request, EntityManagerInterface $em): Response
     {
         $story = $em->getRepository(TravelStory::class)->find($id);
         if (!$story) {
-            if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
-                return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
-            }
-            throw $this->createNotFoundException();
+            throw $this->createNotFoundException('Travel story not found.');
         }
 
         if ($this->isCsrfTokenValid('admin_story_delete_' . $id, $request->request->get('_token'))) {
-            $em->remove($story);
-            $em->flush();
+            $reason = trim((string) $request->request->get('removal_reason', ''));
+            $defaultReason = 'This Travel Story was removed by an admin because it violated the community guidelines.';
 
-            if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
-                return $this->json(['success' => true]);
-            }
-            $this->addFlash('success', 'Travel story deleted.');
+            $this->removeTravelStoryImages($story);
+            $story->setCoverImageUrl(null);
+            $story->setImageUrlsJson([]);
+            $story->setRemovedByAdmin(true);
+            $story->setRemovalReason($reason !== '' ? $reason : $defaultReason);
+            $story->setRemovedAt(new \DateTimeImmutable());
+            $story->setUpdatedAt(new \DateTimeImmutable());
+
+            $em->flush();
+            $this->addFlash('success', 'Travel story removed and replaced with moderation placeholder.');
         }
 
-        return $this->redirectToRoute('admin_blog');
+        return $this->redirectToRoute('admin_blog', ['tab' => $this->resolveTab($request)]);
     }
 
-    // ── Delete a comment (admin) ──────────────────────────────────────────
+    // ── Show a post (with comments & reactions) ─────────────────────────
+    #[Route('/{id}/show', name: 'admin_blog_show')]
+    public function showPost(int $id, EntityManagerInterface $em): Response
+    {
+        $post = $em->getRepository(Post::class)->find($id);
+        if (!$post) {
+            throw $this->createNotFoundException('Post not found.');
+        }
+
+        $userIds = array_unique(array_filter(array_merge(
+            [$post->getUserId()],
+            array_map(fn($c) => $c->getUserId(), $post->getComments()->toArray())
+        )));
+        $authorMap = [];
+        foreach ($userIds as $uid) {
+            $u = $em->getRepository(User::class)->find($uid);
+            if ($u) $authorMap[$uid] = $u->getFirstName() . ' ' . $u->getLastName();
+        }
+
+        $reactions = $em->getRepository(Reaction::class)->findBy(['post_id' => $post->getId()]);
+        $reactionCounts = [];
+        foreach ($reactions as $r) {
+            $reactionCounts[$r->getType()] = ($reactionCounts[$r->getType()] ?? 0) + 1;
+        }
+        arsort($reactionCounts);
+
+        return $this->render('admin/blog/post_show.html.twig', [
+            'post'           => $post,
+            'authorMap'      => $authorMap,
+            'reactionCounts' => $reactionCounts,
+            'totalReactions' => count($reactions),
+        ]);
+    }
+
+    // ── Show a travel story (with comments & reactions) ──────────────────
+    #[Route('/story/{id}/show', name: 'admin_story_show')]
+    public function showStory(int $id, EntityManagerInterface $em): Response
+    {
+        $story = $em->getRepository(TravelStory::class)->find($id);
+        if (!$story) {
+            throw $this->createNotFoundException('Travel story not found.');
+        }
+
+        $comments = $em->getRepository(Comment::class)->findBy(
+            ['travel_story_id' => $story->getId()],
+            ['created_at' => 'DESC']
+        );
+
+        $userIds = array_unique(array_filter(array_merge(
+            [$story->getUserId()],
+            array_map(fn($c) => $c->getUserId(), $comments)
+        )));
+        $authorMap = [];
+        foreach ($userIds as $uid) {
+            $u = $em->getRepository(User::class)->find($uid);
+            if ($u) $authorMap[$uid] = $u->getFirstName() . ' ' . $u->getLastName();
+        }
+
+        $reactions = $em->getRepository(Reaction::class)->findBy(['travel_story_id' => $story->getId()]);
+        $reactionCounts = [];
+        foreach ($reactions as $r) {
+            $reactionCounts[$r->getType()] = ($reactionCounts[$r->getType()] ?? 0) + 1;
+        }
+        arsort($reactionCounts);
+
+        return $this->render('admin/blog/story_show.html.twig', [
+            'story'          => $story,
+            'authorName'     => $authorMap[$story->getUserId()] ?? 'User #' . $story->getUserId(),
+            'authorMap'      => $authorMap,
+            'comments'       => $comments,
+            'reactionCounts' => $reactionCounts,
+            'totalReactions' => count($reactions),
+        ]);
+    }
+
+    // ── Delete a comment ────────────────────────────────────────────────
     #[Route('/comment/{id}/delete', name: 'admin_comment_delete', methods: ['POST'])]
     public function deleteComment(int $id, Request $request, EntityManagerInterface $em): Response
     {
         $comment = $em->getRepository(Comment::class)->find($id);
         if (!$comment) {
-            if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
-                return $this->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
-            }
-            throw $this->createNotFoundException();
+            throw $this->createNotFoundException('Comment not found.');
         }
 
+        $referer = $request->headers->get('referer', $this->generateUrl('admin_blog'));
+
         if ($this->isCsrfTokenValid('admin_comment_delete_' . $id, $request->request->get('_token'))) {
-            // also delete replies
-            foreach ($em->getRepository(Comment::class)->findBy(['parent_comment_id' => $id]) as $reply) {
-                $em->remove($reply);
-            }
             $em->remove($comment);
             $em->flush();
-
-            if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
-                return $this->json(['success' => true]);
-            }
             $this->addFlash('success', 'Comment deleted.');
         }
 
-        return $this->redirectToRoute('admin_blog');
+        return $this->redirect($referer);
+    }
+
+    // ── Delete a live comment ───────────────────────────────────────────
+    #[Route('/live-comment/{id}/delete', name: 'admin_live_comment_delete', methods: ['POST'])]
+    public function deleteLiveComment(int $id, Request $request, EntityManagerInterface $em): Response
+    {
+        $comment = $em->getRepository(LiveComment::class)->find($id);
+        if (!$comment) {
+            throw $this->createNotFoundException('Live comment not found.');
+        }
+
+        $referer = $request->headers->get('referer', $this->generateUrl('admin_blog'));
+
+        if ($this->isCsrfTokenValid('admin_live_comment_delete_' . $id, $request->request->get('_token'))) {
+            $em->remove($comment);
+            $em->flush();
+            $this->addFlash('success', 'Live comment deleted.');
+        }
+
+        return $this->redirect($referer);
+    }
+
+    private function resolveTab(Request $request): string
+    {
+        $tab = (string) ($request->request->get('_tab') ?? $request->query->get('tab') ?? 'moderation');
+
+        return in_array($tab, self::BLOG_TABS, true) ? $tab : 'moderation';
+    }
+
+    private function removeTravelStoryImages(TravelStory $story): void
+    {
+        $paths = array_unique(array_filter(array_merge(
+            $story->getImageUrlsJson() ?? [],
+            [$story->getCoverImageUrl()]
+        )));
+
+        if (empty($paths)) {
+            return;
+        }
+
+        $filesystem = new Filesystem();
+        $projectDir = (string) $this->getParameter('kernel.project_dir');
+
+        foreach ($paths as $publicPath) {
+            if (!is_string($publicPath) || !str_starts_with($publicPath, '/uploads/travel_stories/')) {
+                continue;
+            }
+
+            $absolutePath = $projectDir . '/public' . $publicPath;
+            if (is_file($absolutePath)) {
+                $filesystem->remove($absolutePath);
+            }
+        }
+    }
+
+    private function analyzePostModeration(Post $post): array
+    {
+        return $this->analyzeModerationText(
+            (string) ($post->getTitle() ?? ''),
+            (string) ($post->getBody() ?? '')
+        );
+    }
+
+    private function analyzeModerationText(string $title, string $body): array
+    {
+        $title = mb_strtolower(trim($title));
+        $body = mb_strtolower(trim($body));
+        $text = trim($title . "\n" . $body);
+
+        $hateWords = ['hate', 'hate you', 'i hate you', 'racist', 'inferior', 'go back', 'dirty'];
+        $harassmentWords = ['idiot', 'stupid', 'loser', 'worthless', 'shut up', 'fuck you', 'fucker', 'fuckers', 'you suck', 'suck', 'sucks'];
+        $selfHarmWords = ['suicide', 'kill myself', 'end my life', 'self harm'];
+        $violenceWords = ['kill', 'murder', 'attack', 'bomb', 'shoot'];
+        $spamWords = ['buy now', 'cheap', 'click here', 'free money', 'promo code'];
+        $profanityWords = ['fuck', 'shit', 'bitch', 'asshole', 'bastard'];
+
+        $hateCount = $this->countKeywordHits($text, $hateWords);
+        $harassmentCount = $this->countKeywordHits($text, $harassmentWords);
+        $selfHarmCount = $this->countKeywordHits($text, $selfHarmWords);
+        $violenceCount = $this->countKeywordHits($text, $violenceWords);
+        $spamCount = $this->countKeywordHits($text, $spamWords);
+
+        $profanityMatched = [];
+        foreach ($profanityWords as $word) {
+            if ($this->matchesProfanityVariant($text, $word)) {
+                $profanityMatched[] = $word;
+            }
+        }
+
+        $openAi = [
+            'hate' => min(1.0, $hateCount * 0.35),
+            'harassment' => min(1.0, $harassmentCount * 0.35),
+            'self_harm' => min(1.0, $selfHarmCount * 0.45),
+            'violence' => min(1.0, $violenceCount * 0.35),
+        ];
+
+        $spamProbability = min(1.0, $spamCount * 0.35 + (count($profanityMatched) > 0 ? 0.05 : 0.0));
+
+        $state = 'SAFE';
+        if ($openAi['self_harm'] >= 0.8 || $openAi['violence'] >= 0.8) {
+            $state = 'AUTO_HIDDEN';
+        } elseif ($openAi['hate'] >= 0.75 || $openAi['harassment'] >= 0.75) {
+            $state = 'HIGH_RISK';
+        } elseif ($spamProbability > 0.75) {
+            $state = 'SPAM';
+        } elseif (
+            $openAi['hate'] >= 0.35 ||
+            $openAi['harassment'] >= 0.35 ||
+            $openAi['self_harm'] >= 0.45 ||
+            $openAi['violence'] >= 0.45 ||
+            count($profanityMatched) > 0
+        ) {
+            $state = 'REVIEW';
+        }
+
+        $flaggedByAi = ($openAi['hate'] >= 0.45)
+            || ($openAi['harassment'] >= 0.45)
+            || ($openAi['self_harm'] >= 0.45)
+            || ($openAi['violence'] >= 0.45);
+
+        return [
+            'state' => $state,
+            'flaggedByAi' => $flaggedByAi,
+            'openai' => $openAi,
+            'spam_probability' => $spamProbability,
+            'profanity_count' => count($profanityMatched),
+            'profanity_words' => $profanityMatched,
+            'flagged_phrases' => array_values(array_unique(array_merge(
+                $this->collectMatchedKeywords($text, $hateWords),
+                $this->collectMatchedKeywords($text, $harassmentWords),
+                $this->collectMatchedKeywords($text, $selfHarmWords),
+                $this->collectMatchedKeywords($text, $violenceWords),
+                $this->collectMatchedKeywords($text, $spamWords)
+            ))),
+        ];
+    }
+
+    private function countKeywordHits(string $text, array $keywords): int
+    {
+        $count = 0;
+        foreach ($keywords as $keyword) {
+            if ($keyword === '') {
+                continue;
+            }
+            if (str_contains($text, mb_strtolower($keyword))) {
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
+    private function collectMatchedKeywords(string $text, array $keywords): array
+    {
+        $matched = [];
+        foreach ($keywords as $keyword) {
+            if ($keyword !== '' && str_contains($text, mb_strtolower($keyword))) {
+                $matched[] = $keyword;
+            }
+        }
+
+        return $matched;
+    }
+
+    private function matchesProfanityVariant(string $text, string $word): bool
+    {
+        $base = trim(mb_strtolower($word));
+        if ($base === '') {
+            return false;
+        }
+
+        // Match common inflections: e.g. fuck, fucker, fuckers, fucking, fucked.
+        return preg_match('/\\b' . preg_quote($base, '/') . '[a-z]*\\b/i', $text) === 1;
+    }
+
+    private function createCommentModerationBucket(): array
+    {
+        return [
+            'total' => 0,
+            'flagged' => 0,
+            'safe' => 0,
+            'review' => 0,
+            'spam' => 0,
+            'high_risk' => 0,
+            'auto_hidden' => 0,
+            'top_terms' => [],
+            'samples' => [],
+            '_term_counts' => [],
+        ];
+    }
+
+    private function accumulateCommentModeration(array &$bucket, array $analysis, string $commentText): void
+    {
+        $bucket['total']++;
+
+        $state = (string) ($analysis['state'] ?? 'SAFE');
+        $isFlagged = $state !== 'SAFE';
+        if ($isFlagged) {
+            $bucket['flagged']++;
+        } else {
+            $bucket['safe']++;
+        }
+
+        if ($state === 'REVIEW') {
+            $bucket['review']++;
+        } elseif ($state === 'SPAM') {
+            $bucket['spam']++;
+        } elseif ($state === 'HIGH_RISK') {
+            $bucket['high_risk']++;
+        } elseif ($state === 'AUTO_HIDDEN') {
+            $bucket['auto_hidden']++;
+        }
+
+        $terms = array_merge(
+            (array) ($analysis['profanity_words'] ?? []),
+            (array) ($analysis['flagged_phrases'] ?? [])
+        );
+        foreach ($terms as $term) {
+            $normalized = mb_strtolower(trim((string) $term));
+            if ($normalized === '') {
+                continue;
+            }
+            $bucket['_term_counts'][$normalized] = ($bucket['_term_counts'][$normalized] ?? 0) + 1;
+        }
+
+        if ($isFlagged && $commentText !== '' && count($bucket['samples']) < 3) {
+            $snippet = mb_substr($commentText, 0, 120);
+            if (mb_strlen($commentText) > 120) {
+                $snippet .= '...';
+            }
+            $bucket['samples'][] = sprintf('%s: %s', $state, $snippet);
+        }
+    }
+
+    private function finalizeCommentModerationMap(array $map): array
+    {
+        foreach ($map as $id => $bucket) {
+            $terms = (array) ($bucket['_term_counts'] ?? []);
+            arsort($terms);
+
+            $bucket['top_terms'] = array_slice(array_keys($terms), 0, 5);
+            unset($bucket['_term_counts']);
+
+            $map[$id] = $bucket;
+        }
+
+        return $map;
     }
 }

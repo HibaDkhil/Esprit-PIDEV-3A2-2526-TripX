@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .pe-wrap { max-width: 760px; margin: 24px auto; padding: 0 16px; }
+    .pe-card { background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:18px; }
+    .pe-row { display:grid; gap:10px; margin-bottom:12px; }
+    .pe-input, .pe-text { width:100%; border:1px solid #d1d5db; border-radius:10px; padding:10px 12px; font:inherit; }
+    .pe-text { min-height:120px; resize:vertical; }
+    .pe-actions { display:flex; gap:10px; }
+    .pe-btn { border:0; border-radius:10px; padding:10px 14px; font-weight:700; cursor:pointer; }
+    .pe-btn.primary { background:#111827; color:#fff; }
+    .pe-btn.secondary { background:#f3f4f6; color:#111827; text-decoration:none; display:inline-flex; align-items:center; }
+  </style>
+{% endblock %}
+
+{% block body %}
+<div class="pe-wrap">
+  <h1>Edit Profile</h1>
+  <form method="post" class="pe-card">
+    <div class="pe-row">
+      <label>User name</label>
+      <input class="pe-input" type="text" name="userName" value="{{ profile.userName ?? '' }}" placeholder="How your name appears in blog" required>
+    </div>
+    <div class="pe-row">
+      <label>Avatar ID</label>
+      <input class="pe-input" type="number" min="1" step="1" name="avatarId" value="{{ profile.avatarId ?? '' }}" placeholder="Numeric avatar id">
+    </div>
+    <div class="pe-row">
+      <label>Bio</label>
+      <textarea class="pe-text" name="bio">{{ profile.bio ?? '' }}</textarea>
+    </div>
+    <div class="pe-actions">
+      <button class="pe-btn primary" type="submit">Save</button>
+      <a class="pe-btn secondary" href="{{ path('blog_user_profile', {id: me.userId}) }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

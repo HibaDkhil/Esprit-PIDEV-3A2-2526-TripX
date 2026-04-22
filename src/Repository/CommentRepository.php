@@ -12,29 +12,4 @@ class CommentRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Comment::class);
     }
-
-    /**
-     * Find comments for a given post, ordered by creation date.
-     */
-    public function findByPost(int $postId): array
-    {
-        return $this->createQueryBuilder('c')
-            ->where('c.post = :postId')
-            ->setParameter('postId', $postId)
-            ->orderBy('c.created_at', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    /**
-     * Find recent comments across all posts (for admin).
-     */
-    public function findRecent(int $limit = 200): array
-    {
-        return $this->createQueryBuilder('c')
-            ->orderBy('c.created_at', 'DESC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
-    }
 }

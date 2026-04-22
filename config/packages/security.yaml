@@ -28,8 +28,18 @@ security:
         username_parameter: _username
         password_parameter: _password
         success_handler: App\Security\LoginSuccessHandler
+        failure_handler: App\Security\LoginFailureHandler
         enable_csrf: true
         csrf_token_id: authenticate
+
+      login_throttling:
+        max_attempts: 5
+        interval: '15 minutes'
+
+      two_factor:
+        auth_form_path: 2fa_login
+        check_path: 2fa_login_check
+        success_handler: App\Security\TwoFactorSuccessHandler
 
       logout:
         path:         app_logout
@@ -47,7 +57,14 @@ security:
     - { path: ^/images,      roles: PUBLIC_ACCESS }
     - { path: ^/css,         roles: PUBLIC_ACCESS }
     - { path: ^/js,          roles: PUBLIC_ACCESS }
-    - { path: ^/face/login,  roles: PUBLIC_ACCESS }
     - { path: ^/connect/google, roles: PUBLIC_ACCESS }
+    # Face API
+    - { path: ^/face/login-page,   roles: PUBLIC_ACCESS }
+    - { path: ^/face/login$,       roles: PUBLIC_ACCESS }
+    - { path: ^/face/setup,        roles: ROLE_USER }
+    - { path: ^/face/register,     roles: ROLE_USER }
+    - { path: ^/face/remove,       roles: ROLE_USER }
+    # 2FA route
+    - { path: ^/2fa,               roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
     - { path: ^/admin,       roles: [ROLE_ADMIN, ROLE_ADMIN_DESTINATION, ROLE_ADMIN_ACCOMODATION, ROLE_ADMIN_OFFERS, ROLE_ADMIN_BLOG, ROLE_ADMIN_TRANSPORT] }
     - { path: ^/,            roles: ROLE_USER }

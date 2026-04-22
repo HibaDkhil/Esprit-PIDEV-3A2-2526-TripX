@@ -1,0 +1,540 @@
+{% extends 'base.html.twig' %}
+
+{% set profileName = (blogProfile and blogProfile.userName) ? blogProfile.userName : (target.firstName ~ ' ' ~ target.lastName)|trim %}
+{% set profileBio = blogProfile ? blogProfile.bio : null %}
+{% set profileAvatarId = blogProfile ? blogProfile.avatarId : null %}
+{% set avatarInitial = profileName|trim|first|default(target.firstName|first|default('U')) %}
+{% set canViewContent = canViewContent is defined ? canViewContent : false %}
+
+{% block title %}{{ profileName }} - Profile{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Montserrat', sans-weight; background: #f8fafc; }
+    .up-wrap { max-width: 980px; margin: 32px auto; padding: 0 16px; }
+    
+    /* Header Section */
+    .up-head { background: #fff; border: 1px solid #e5e7eb; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+    .up-cover { height: 200px; background: linear-gradient(135deg, #2563eb, #38bdf8); position: relative; }
+    .up-info-section { padding: 0 32px 32px; display: flex; flex-direction: column; position: relative; }
+    
+    /* Avatar */
+    .up-av-wrapper { margin-top: -64px; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .up-av-container { display: flex; flex-direction: column; align-items: center; }
+    .up-av { width: 128px; height: 128px; border: 4px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; font-weight: 800; color: #fff; background: linear-gradient(135deg, #f59e0b, #ef4444); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .up-av-meta { margin-top: 8px; color: #6b7280; font-size: .8rem; background: #f3f4f6; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+    
+    /* Profile Details */
+    .up-details { margin-top: 16px; }
+    .up-name { font-size: 2rem; font-weight: 800; margin: 0; color: #111827; letter-spacing: -0.5px; }
+    .up-handle { color: #6b7280; font-size: 1rem; margin-top: 2px; font-weight: 500; }
+    .up-bio { margin-top: 12px; color: #374151; font-size: 1rem; line-height: 1.5; max-width: 600px; }
+    
+    /* Stats */
+    .up-stats { display: flex; gap: 24px; margin-top: 20px; }
+    .up-stat-item { display: flex; flex-direction: column; color: #4b5563; font-size: 0.9rem; }
+    .up-stat-item strong { color: #111827; font-size: 1.25rem; font-weight: 800; }
+    
+    /* Buttons */
+    .up-actions { display: flex; gap: 12px; padding-bottom: 8px; }
+    .up-btn { border: 0; border-radius: 8px; padding: 10px 20px; font-size: 0.95rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+    .up-btn.primary { background: #2563eb; color: #fff; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2); }
+    .up-btn.primary:hover { background: #1d4ed8; transform: translateY(-1px); }
+    .up-btn.secondary { background: #f1f5f9; color: #1f2937; border: 1px solid #e2e8f0; }
+    .up-btn.secondary:hover { background: #e2e8f0; color: #0f172a; }
+    .up-btn.danger { background: #fff; color: #ef4444; border: 1px solid #fca5a5; }
+    .up-btn.danger:hover { background: #fef2f2; }
+    
+    /* Navigation Tabs */
+    .up-tabs { margin-top: 24px; display: flex; gap: 32px; border-bottom: 1px solid #e5e7eb; padding: 0 8px; }
+    .up-tab { text-decoration: none; padding: 16px 0; color: #6b7280; font-weight: 600; font-size: 0.95rem; position: relative; transition: color 0.2s; }
+    .up-tab:hover { color: #111827; }
+    .up-tab.active { color: #2563eb; }
+    .up-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 3px; background: #2563eb; border-radius: 3px 3px 0 0; }
+    
+    /* Grid Content */
+    .up-grid { margin-top: 24px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    .up-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; text-decoration: none; color: inherit; }
+    .up-card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -8px rgba(0,0,0,0.1); }
+    .up-card-img-wrap { width: 100%; height: 180px; background: #f3f4f6; position: relative; overflow: hidden; }
+    .up-card-img { width: 100%; height: 100%; object-fit: cover; }
+    .up-card-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #9ca3af; background: linear-gradient(135deg, #f1f5f9, #e2e8f0); }
+    .up-type { position: absolute; top: 12px; left: 12px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; padding: 4px 8px; background: rgba(255,255,255,0.9); color: #111827; backdrop-filter: blur(4px); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .up-type.ts { background: rgba(37, 99, 235, 0.9); color: #fff; }
+    .up-card-body { padding: 16px; flex: 1; display: flex; flex-direction: column; }
+    .up-title { margin: 0 0 8px 0; font-size: 1.1rem; font-weight: 700; color: #111827; line-height: 1.3; }
+    .up-sn { color: #4b5563; font-size: 0.9rem; line-height: 1.5; flex: 1; }
+    .up-meta { margin-top: 16px; color: #9ca3af; font-size: 0.8rem; font-weight: 500; display: flex; align-items: center; justify-content: space-between; }
+    .up-live-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }
+    .up-live-card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -8px rgba(0,0,0,0.1); }
+    .up-live-open { border: 0; text-align: left; cursor: pointer; width: 100%; padding: 0; }
+    .up-live-open.no-recording { cursor: default; }
+    .up-live-open.no-recording:hover { transform: none; box-shadow: none; }
+    .up-live-open:focus-visible { outline: 3px solid rgba(37,99,235,0.4); outline-offset: 2px; }
+    .up-live-head { padding: 14px 16px; background: linear-gradient(135deg, #0f172a, #1e293b); color: #fff; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .up-live-head-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .up-live-actions { display: flex; align-items: center; gap: 8px; }
+    .up-live-pill { border-radius: 999px; padding: 3px 8px; font-size: 0.65rem; font-weight: 800; background: #f43f5e; letter-spacing: 0.04em; }
+    .up-live-delete { border: 1px solid #fecaca; background: #fff1f2; color: #be123c; border-radius: 999px; padding: 3px 10px; font-size: 0.72rem; font-weight: 700; cursor: pointer; }
+    .up-live-delete:hover { background: #ffe4e6; }
+    .up-live-body { padding: 14px 16px; display: grid; gap: 8px; color: #334155; font-size: 0.9rem; }
+    .up-live-stats { display: flex; gap: 10px; flex-wrap: wrap; color: #64748b; font-size: 0.82rem; font-weight: 600; }
+    .up-live-missing { display: inline-flex; align-items: center; width: fit-content; padding: 4px 10px; border-radius: 999px; font-size: 0.74rem; font-weight: 700; color: #92400e; background: #fef3c7; border: 1px solid #fde68a; }
+    .up-live-moderation { border: 1px solid #fecaca; background: #fff7f7; }
+    .up-live-moderation .up-live-head { background: linear-gradient(135deg, #7f1d1d, #991b1b); }
+    .up-live-warning { color: #991b1b; font-weight: 800; font-size: 0.82rem; }
+    .up-live-reason { display: none; margin-top: 6px; padding: 8px 10px; border: 1px solid #fecaca; border-radius: 8px; background: #fff; color: #7f1d1d; font-size: 0.82rem; line-height: 1.45; }
+    .up-live-mod-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+    .up-live-mod-btn { border: 0; border-radius: 9px; padding: 7px 10px; font-size: 0.78rem; font-weight: 700; cursor: pointer; }
+    .up-live-mod-btn.primary { background: #dc2626; color: #fff; }
+    .up-live-mod-btn.secondary { background: #e2e8f0; color: #334155; }
+    
+    .up-empty { margin-top: 32px; color: #6b7280; text-align: center; padding: 48px 24px; background: #fff; border: 2px dashed #e5e7eb; border-radius: 16px; font-size: 1.1rem; font-weight: 500; }
+    .up-empty-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.5; display: block; }
+    .up-live-modal { position: fixed; inset: 0; background: rgba(2, 6, 23, 0.84); display: none; align-items: center; justify-content: center; z-index: 11000; padding: 14px; }
+    .up-live-modal.open { display: flex; }
+    .up-live-dialog { width: min(920px, 96vw); background: #0f172a; border: 1px solid rgba(255,255,255,0.16); border-radius: 16px; overflow: hidden; box-shadow: 0 24px 56px rgba(0,0,0,0.42); }
+    .up-live-modal-head { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; color: #fff; background: rgba(2,6,23,0.55); }
+    .up-live-modal-x { border: 0; background: transparent; color: #fff; font-size: 1.4rem; cursor: pointer; line-height: 1; }
+    .up-btn.pending { background: #fffbeb; color: #d97706; border: 1px solid #fef3c7; box-shadow: 0 4px 6px rgba(217, 119, 6, 0.1); }
+    .up-btn.pending::before { content: '⌛ '; font-size: 0.8em; margin-right: 4px; }
+    .up-btn.pending:hover { background: #fef3c7; }
+  </style>
+{% endblock %}
+
+{% block body %}
+<div class="up-wrap">
+  <section class="up-head">
+    <div class="up-cover"></div>
+    <div class="up-info-section">
+      <div class="up-av-wrapper">
+        <div class="up-av-container">
+          <div class="up-av">{{ avatarInitial|upper }}</div>
+          {% if profileAvatarId %}
+            <div class="up-av-meta">Avatar ID: {{ profileAvatarId }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="up-actions">
+          {% if isSelf %}
+            <a class="up-btn primary" href="{{ path('blog_profile_edit') }}">Edit Profile</a>
+            <a class="up-btn secondary" href="{{ path('blog_user_archive', {id: target.userId}) }}">View Archive</a>
+          {% else %}
+            {% if app.user %}
+              <form id="profile-follow-form" method="post" action="{{ path('follow_toggle', {id: target.userId}) }}" style="margin:0;">
+                <input type="hidden" name="_token" value="{{ csrf_token('follow_' ~ target.userId) }}">
+                <button id="profile-follow-btn" class="up-btn {{ followStatus != 'none' ? 'secondary' : 'primary' }} {{ followStatus == 'pending' ? 'pending' : '' }}" type="submit">
+                  {% if followStatus == 'accepted' %}
+                    Following
+                  {% elseif followStatus == 'pending' %}
+                    Requested
+                  {% else %}
+                    Follow
+                  {% endif %}
+                </button>
+              </form>
+              <button class="up-btn secondary" type="button" onclick="alert('Messaging UI can be connected here.')">Message</button>
+            {% else %}
+              <a class="up-btn primary" href="{{ path('app_login') }}">Login to Follow</a>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="up-details">
+        <h1 class="up-name">{{ profileName }}</h1>
+        <div class="up-handle">@user{{ target.userId }}</div>
+        {% if profileBio %}<div class="up-bio">{{ profileBio }}</div>{% endif %}
+
+        <div class="up-stats">
+          <div class="up-stat-item"><strong>{{ posts|length + travelStories|length }}</strong> posts</div>
+          <div class="up-stat-item"><strong id="profile-followers-count">{{ followersCount }}</strong> followers</div>
+          <div class="up-stat-item"><strong id="profile-following-count">{{ followingCount }}</strong> following</div>
+          <div class="up-stat-item"><strong>{{ activeStoriesCount }}</strong> stories</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="profile-content-gate">
+    {% if canViewContent %}
+      <nav class="up-tabs">
+        <a class="up-tab {{ tab == 'posts' ? 'active' : '' }}" href="{{ path('blog_user_profile', {id: target.userId, tab: 'posts'}) }}">Posts</a>
+        <a class="up-tab {{ tab == 'travel_stories' ? 'active' : '' }}" href="{{ path('blog_user_profile', {id: target.userId, tab: 'travel_stories'}) }}">Travel Stories</a>
+        <a class="up-tab {{ tab == 'shared' ? 'active' : '' }}" href="{{ path('blog_user_profile', {id: target.userId, tab: 'shared'}) }}">Shared</a>
+        <a class="up-tab {{ tab == 'lives' ? 'active' : '' }}" href="{{ path('blog_user_profile', {id: target.userId, tab: 'lives'}) }}">Lives</a>
+      </nav>
+
+      {% set hasItems = false %}
+
+      {% if tab == 'posts' %}
+        {% if posts|length > 0 %}
+          {% set hasItems = true %}
+          <div class="up-grid">
+            {% for post in posts %}
+              <a href="{{ path('post_show', {id: post.id}) }}" class="up-card">
+                <div class="up-card-img-wrap">
+                  <span class="up-type">POST</span>
+                  {% if post.imageUrl %}
+                    {% set imgUrls = post.imageUrl|split(',') %}
+                    <img src="{{ imgUrls[0]|trim }}" class="up-card-img" alt="{{ post.title }}" loading="lazy" onerror="this.style.display='none'">
+                  {% else %}
+                    <div class="up-card-placeholder">📝</div>
+                  {% endif %}
+                </div>
+                <div class="up-card-body">
+                  <h3 class="up-title">{{ post.title }}</h3>
+                  <div class="up-sn">{{ post.body|slice(0, 100) }}{% if post.body|length > 100 %}...{% endif %}</div>
+                  <div class="up-meta">
+                    <span>{{ post.createdAt ? post.createdAt|date('M d, Y') : '' }}</span>
+                  </div>
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% elseif tab == 'travel_stories' %}
+        {% if travelStories|length > 0 %}
+          {% set hasItems = true %}
+          <div class="up-grid">
+            {% for ts in travelStories %}
+              <a href="{{ path('travel_story_show', {id: ts.id}) }}" class="up-card">
+                <div class="up-card-img-wrap">
+                  <span class="up-type ts">TRAVEL STORY</span>
+                  {% if ts.coverImageUrl %}
+                    <img src="{{ ts.coverImageUrl }}" class="up-card-img" alt="{{ ts.title }}" loading="lazy" onerror="this.style.display='none'">
+                  {% else %}
+                    <div class="up-card-placeholder">🧳</div>
+                  {% endif %}
+                </div>
+                <div class="up-card-body">
+                  <h3 class="up-title">{{ ts.title }}</h3>
+                  <div class="up-sn">{{ ts.summary|default('')|slice(0, 100) }}{% if ts.summary|default('')|length > 100 %}...{% endif %}</div>
+                  <div class="up-meta">
+                    <span>{{ ts.createdAt ? ts.createdAt|date('M d, Y') : '' }}</span>
+                  </div>
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% elseif tab == 'shared' %}
+        {% if shared|length > 0 %}
+          {% set hasItems = true %}
+          <div class="up-grid">
+            {% for item in shared %}
+              {% if item.kind == 'post' %}
+                {% set post = item.entity %}
+                <a href="{{ path('post_show', {id: post.id}) }}" class="up-card">
+                  <div class="up-card-img-wrap">
+                    <span class="up-type">POST</span>
+                    {% if post.imageUrl %}
+                      {% set imgUrls = post.imageUrl|split(',') %}
+                      <img src="{{ imgUrls[0]|trim }}" class="up-card-img" alt="{{ post.title }}" loading="lazy" onerror="this.style.display='none'">
+                    {% else %}
+                      <div class="up-card-placeholder">📝</div>
+                    {% endif %}
+                  </div>
+                  <div class="up-card-body">
+                    <h3 class="up-title">{{ post.title }}</h3>
+                    <div class="up-sn">{{ post.body|slice(0, 100) }}{% if post.body|length > 100 %}...{% endif %}</div>
+                    <div class="up-meta">
+                      <span>{{ post.createdAt ? post.createdAt|date('M d, Y') : '' }}</span>
+                    </div>
+                  </div>
+                </a>
+              {% else %}
+                {% set ts = item.entity %}
+                <a href="{{ path('travel_story_show', {id: ts.id}) }}" class="up-card">
+                  <div class="up-card-img-wrap">
+                    <span class="up-type ts">TRAVEL STORY</span>
+                    {% if ts.coverImageUrl %}
+                      <img src="{{ ts.coverImageUrl }}" class="up-card-img" alt="{{ ts.title }}" loading="lazy" onerror="this.style.display='none'">
+                    {% else %}
+                      <div class="up-card-placeholder">🧳</div>
+                    {% endif %}
+                  </div>
+                  <div class="up-card-body">
+                    <h3 class="up-title">{{ ts.title }}</h3>
+                    <div class="up-sn">{{ ts.summary|default('')|slice(0, 100) }}{% if ts.summary|default('')|length > 100 %}...{% endif %}</div>
+                    <div class="up-meta">
+                      <span>{{ ts.createdAt ? ts.createdAt|date('M d, Y') : '' }}</span>
+                    </div>
+                  </div>
+                </a>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% else %}
+        {% if savedLives|default([])|length > 0 %}
+          {% set hasItems = true %}
+          <div class="up-grid">
+            {% for live in savedLives %}
+              {% set totalReactions = live.reactions|length %}
+              {% set recordingUrl = live.recordingUrl|default('') %}
+              {% set hasRecording = recordingUrl is not empty %}
+              {% set isRemoved = live.removedByAdmin|default(false) %}
+              {% set durationSeconds = 0 %}
+              {% if live.startedAt and live.endedAt %}
+                {% set durationSeconds = (live.endedAt|date('U') - live.startedAt|date('U'))|default(0) %}
+              {% endif %}
+              {% set durationLabel = (durationSeconds > 0) ? ((durationSeconds // 60)|number_format(0, '.', '') ~ 'm ' ~ (durationSeconds % 60)|number_format(0, '.', '') ~ 's') : 'n/a' %}
+              {% if isRemoved %}
+                <article class="up-live-card up-live-moderation">
+                  <div class="up-live-head">
+                    <strong class="up-live-head-title">Live removed by admin</strong>
+                    <div class="up-live-actions">
+                      <span class="up-live-pill">REMOVED</span>
+                    </div>
+                  </div>
+                  <div class="up-live-body">
+                    <div class="up-live-warning">This saved live was removed because it violated community guidelines.</div>
+                    <div>Removed on {{ live.removedAt ? live.removedAt|date('M d, Y H:i') : 'n/a' }}</div>
+                    {% if isSelf %}
+                      <div class="up-live-mod-actions">
+                        <button type="button" class="up-live-mod-btn primary" data-dismiss-removed-live data-dismiss-url="{{ path('blog_live_dismiss_removed', {id: live.id}) }}">OK</button>
+                        <button type="button" class="up-live-mod-btn secondary" data-toggle-live-reason="{{ live.id }}">View reason / Learn more</button>
+                      </div>
+                    {% endif %}
+                    <div class="up-live-reason" data-live-reason-for="{{ live.id }}">{{ live.removalReason ?: 'This live recording violated community guidelines and was removed by moderation.' }}</div>
+                  </div>
+                </article>
+              {% else %}
+              <article class="up-live-card up-live-open {{ hasRecording ? '' : 'no-recording' }}" data-live-video-url="{{ recordingUrl }}" data-live-title="{{ (live.title ?: 'Live session')|e('html_attr') }}" {{ hasRecording ? 'role="button" tabindex="0"' : '' }}>
+                <div class="up-live-head">
+                  <strong class="up-live-head-title">{{ live.title ?: 'Live session' }}</strong>
+                  <div class="up-live-actions">
+                    <span class="up-live-pill">LIVE</span>
+                    {% if isSelf %}
+                      <button type="button" class="up-live-delete" data-live-delete-url="{{ path('blog_live_delete', {id: live.id}) }}">Delete</button>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="up-live-body">
+                  {% if not hasRecording %}
+                    <span class="up-live-missing">No recording yet</span>
+                  {% endif %}
+                  <div>Ended on {{ live.endedAt ? live.endedAt|date('M d, Y H:i') : 'n/a' }}</div>
+                  <div class="up-live-stats">
+                    <span>{{ live.viewers|length }} watching</span>
+                    <span>{{ totalReactions }} reactions</span>
+                    <span>Duration: {{ durationLabel }}</span>
+                  </div>
+                </div>
+              </article>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endif %}
+
+      {% if not hasItems %}
+        <div class="up-empty">
+          <span class="up-empty-icon">📭</span>
+          No content to display in this tab yet.
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="up-empty">
+        <span class="up-empty-icon">🔒</span>
+        Follow to see user's posts and shares.
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="up-live-modal" id="up-live-modal" aria-hidden="true">
+  <div class="up-live-dialog" role="dialog" aria-modal="true" aria-labelledby="up-live-modal-title">
+    <div class="up-live-modal-head">
+      <strong id="up-live-modal-title">Live playback</strong>
+      <button type="button" class="up-live-modal-x" id="up-live-modal-close" aria-label="Close">&times;</button>
+    </div>
+    <video id="up-live-player" class="up-live-player" controls playsinline></video>
+  </div>
+</div>
+
+<script>
+(() => {
+  const form = document.getElementById('profile-follow-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const btn = document.getElementById('profile-follow-btn');
+    const followersEl = document.getElementById('profile-followers-count');
+    const followingEl = document.getElementById('profile-following-count');
+    if (!btn) return;
+
+    btn.disabled = true;
+
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+
+      const json = await res.json();
+      if (!res.ok || json.error) {
+        throw new Error(json.error || 'Could not update follow status');
+      }
+
+      const isFollowing = !!json.following;
+      const status = json.status || 'none';
+
+      if (status === 'accepted') {
+        btn.textContent = 'Following';
+        btn.className = 'up-btn secondary';
+      } else if (status === 'pending') {
+        btn.textContent = 'Requested';
+        btn.className = 'up-btn secondary pending';
+      } else {
+        btn.textContent = 'Follow';
+        btn.className = 'up-btn primary';
+      }
+
+      if (followersEl && typeof json.followerCount !== 'undefined') {
+        followersEl.textContent = String(json.followerCount);
+      }
+      if (followingEl && typeof json.followingCount !== 'undefined') {
+        followingEl.textContent = String(json.followingCount);
+      }
+
+      // Refresh only the gated profile content section so follow/unfollow changes appear instantly.
+      const contentGate = document.getElementById('profile-content-gate');
+      if (contentGate) {
+        const pageRes = await fetch(window.location.href, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        if (pageRes.ok) {
+          const html = await pageRes.text();
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          const nextGate = doc.getElementById('profile-content-gate');
+          if (nextGate) {
+            contentGate.innerHTML = nextGate.innerHTML;
+          }
+        }
+      }
+    } catch (err) {
+      alert(err.message || 'Could not update follow status');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
+
+(() => {
+  const modal = document.getElementById('up-live-modal');
+  const closeBtn = document.getElementById('up-live-modal-close');
+  const player = document.getElementById('up-live-player');
+  const title = document.getElementById('up-live-modal-title');
+  if (!modal || !closeBtn || !player || !title) return;
+
+  const closeModal = () => {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    player.pause();
+    player.removeAttribute('src');
+    player.load();
+  };
+
+  const openCardPlayback = (card) => {
+    const url = card.dataset.liveVideoUrl || '';
+    if (!url) return;
+    title.textContent = card.dataset.liveTitle || 'Live playback';
+    player.src = url;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    player.play().catch(() => {});
+  };
+
+  document.addEventListener('click', async (event) => {
+    const dismissBtn = event.target.closest('[data-dismiss-removed-live]');
+    if (dismissBtn) {
+      event.preventDefault();
+      const dismissUrl = dismissBtn.getAttribute('data-dismiss-url') || '';
+      const card = dismissBtn.closest('.up-live-card');
+      if (!dismissUrl || !card) return;
+
+      dismissBtn.disabled = true;
+      try {
+        const res = await fetch(dismissUrl, {
+          method: 'POST',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const json = await res.json();
+        if (!res.ok || !json.ok) throw new Error(json.message || 'Could not remove moderated live');
+        card.remove();
+      } catch (err) {
+        alert(err.message || 'Could not remove moderated live');
+        dismissBtn.disabled = false;
+      }
+      return;
+    }
+
+    const reasonBtn = event.target.closest('[data-toggle-live-reason]');
+    if (reasonBtn) {
+      event.preventDefault();
+      const liveId = reasonBtn.getAttribute('data-toggle-live-reason');
+      if (!liveId) return;
+      const reasonEl = document.querySelector('[data-live-reason-for="' + liveId + '"]');
+      if (!reasonEl) return;
+      const isOpen = reasonEl.style.display === 'block';
+      reasonEl.style.display = isOpen ? 'none' : 'block';
+      reasonBtn.textContent = isOpen ? 'View reason / Learn more' : 'Hide reason';
+      return;
+    }
+
+    const deleteBtn = event.target.closest('.up-live-delete');
+    if (deleteBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      const deleteUrl = deleteBtn.dataset.liveDeleteUrl || '';
+      if (!deleteUrl) return;
+      if (!window.confirm('Delete this saved live permanently?')) return;
+      deleteBtn.disabled = true;
+      try {
+        const res = await fetch(deleteUrl, {
+          method: 'POST',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const json = await res.json();
+        if (!res.ok || !json.ok) throw new Error(json.message || 'Could not delete live');
+        const card = deleteBtn.closest('.up-live-card');
+        if (card) card.remove();
+      } catch (err) {
+        alert(err.message || 'Could not delete live');
+      } finally {
+        deleteBtn.disabled = false;
+      }
+      return;
+    }
+
+    const card = event.target.closest('.up-live-open');
+    if (!card) return;
+    openCardPlayback(card);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    const card = event.target.closest('.up-live-open[role="button"]');
+    if (!card) return;
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    openCardPlayback(card);
+  });
+
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal) closeModal();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && modal.classList.contains('open')) closeModal();
+  });
+})();
+</script>
+{% endblock %}

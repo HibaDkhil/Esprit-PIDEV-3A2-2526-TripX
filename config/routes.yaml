@@ -4,9 +4,27 @@ controllers:
         namespace: App\Controller
     type: attribute
 
+blog_admin_legacy_redirect:
+    path: /blog/admin
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController
+    defaults:
+        route: admin_blog
+        permanent: false
+        keepQueryParams: true
+
 2fa_login:
     path: /2fa
     defaults: { _controller: "scheb_two_factor.form_controller::form" }
 
 2fa_login_check:
     path: /2fa_check
+
+# Google OAuth - Start
+google_auth_start:
+    path: /connect/google
+    controller: App\Controller\user\OAuthController::connectGoogle
+
+# Google OAuth - Callback
+google_auth_check:
+    path: /connect/google/check
+    controller: App\Controller\user\OAuthController::connectGoogleCheck
