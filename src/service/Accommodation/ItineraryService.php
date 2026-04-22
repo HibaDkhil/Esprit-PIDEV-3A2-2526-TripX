@@ -51,22 +51,20 @@ class ItineraryService
         }
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL,
-            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . $this->apiKey
-        );
+        curl_setopt($ch, CURLOPT_URL, 'https://api.groq.com/openai/v1/chat/completions');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $this->apiKey,
+        ]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-            'contents' => [
-                [
-                    'parts' => [['text' => $prompt]]
-                ]
+            'model'       => 'llama-3.3-70b-versatile',
+            'messages'    => [
+                ['role' => 'user', 'content' => $prompt],
             ],
-            'generationConfig' => [
-                'temperature'     => 0.7,
-                'maxOutputTokens' => 2000,
-            ],
+            'temperature' => 0.7,
+            'max_tokens'  => 2000,
         ]));
 
         $response  = curl_exec($ch);
@@ -80,15 +78,15 @@ class ItineraryService
         }
 
         if ($httpCode !== 200) {
-            error_log('ItineraryService: Gemini HTTP ' . $httpCode . ' - ' . $response);
+            error_log('ItineraryService: Groq HTTP ' . $httpCode . ' - ' . $response);
             return $this->getMockItinerary($city, $days);
         }
 
         $data      = json_decode($response, true);
-        $itinerary = $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
+        $itinerary = $data['choices'][0]['message']['content'] ?? null;
 
         if (!$itinerary) {
-            error_log('ItineraryService: Empty Gemini response: ' . json_encode($data));
+            error_log('ItineraryService: Empty Groq response: ' . json_encode($data));
             return $this->getMockItinerary($city, $days);
         }
 
