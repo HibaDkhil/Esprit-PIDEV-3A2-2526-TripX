@@ -22,6 +22,11 @@ class DestinationService
         return $this->repository->search($query);
     }
 
+    public function getAllQuery(string $query = ''): \Doctrine\ORM\Query
+    {
+        return $this->repository->searchQuery($query);
+    }
+
     public function find(string $id): ?Destination
     {
         return $this->repository->find($id);

@@ -27,6 +27,7 @@ class FrontController extends AbstractController
         PricePredictionService $pricePredictionService,
         private AccommodationRepository $accommodationRepository,
         private PackService $packService,
+        private \Knp\Component\Pager\PaginatorInterface $paginator,
     ) {
         $this->profileService = $profileService;
         $this->destinationService = $destinationService;
@@ -58,20 +59,47 @@ class FrontController extends AbstractController
     }
 
     #[Route('/destinations', name: 'destinations')]
-    public function destinations(): Response
+    public function destinations(Request $request, \App\Repository\DestinationRepository $destRepo): Response
     {
-        $destinations = $this->destinationService->getAll();
+        $query = $request->query->get('q', '');
+        $limit = max(1, (int) $request->query->get('limit', 12));
+        $page  = max(1, (int) $request->query->get('page', 1));
+
+        $pagination = $this->paginator->paginate(
+            $destRepo->searchQuery($query),
+            $page,
+            $limit
+        );
+
         return $this->render('front/destinations.html.twig', [
-            'destinations' => $destinations
+            'destinations' => $pagination,
+            'currentLimit' => $limit,
+            'searchQuery'  => $query
         ]);
     }
 
     #[Route('/activities', name: 'activities')]
-    public function activities(): Response
+    public function activities(Request $request, \App\Repository\ActivityRepository $activityRepository): Response
     {
-        $activities = $this->activityService->getAll();
+        $query = $request->query->get('q', '');
+        $limit = max(1, (int) $request->query->get('limit', 16));
+        $page  = max(1, (int) $request->query->get('page', 1));
+
+        // Use the query-based search for pagination efficiency
+        $pagination = $this->paginator->paginate(
+            $activityRepository->searchQuery($query),
+            $page,
+            $limit
+        );
+
+        // Still need all activities for the map (worldwide view)
+        $allActivities = $this->activityService->getAll($query);
+
         return $this->render('front/activities.html.twig', [
-            'activities' => $activities
+            'activities'   => $pagination,
+            'allActivities'=> $allActivities,
+            'currentLimit' => $limit,
+            'searchQuery'  => $query
         ]);
     }
 

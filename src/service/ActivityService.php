@@ -22,6 +22,11 @@ class ActivityService
         return $this->repository->search($query);
     }
 
+    public function getAllQuery(string $query = ''): \Doctrine\ORM\Query
+    {
+        return $this->repository->searchQuery($query);
+    }
+
     public function find(int $id): ?Activity
     {
         return $this->repository->find($id);
