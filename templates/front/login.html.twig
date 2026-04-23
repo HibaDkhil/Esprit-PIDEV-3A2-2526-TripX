@@ -358,6 +358,22 @@
       </div>
     </div>
   </div>
+
+  {# ── Registration Verification Modal ── #}
+  <div class="modal-overlay" id="verifyRegModal">
+    <div class="modal-card">
+      <button class="modal-close" id="closeVerifyReg"><i class="fas fa-times"></i></button>
+      <div class="modal-step active">
+        <div class="form-title" style="font-size: 1.5rem;">Confirm Registration <span class="sparkle">✈</span></div>
+        <div class="form-sub">Enter the 6-digit code sent to your email</div>
+        <div class="form-control" style="margin-top: 30px;">
+          <input type="text" id="reg_verify_code" placeholder=" " maxlength="6" style="text-align: center; letter-spacing: 8px; font-weight: 800; font-size: 24px;" />
+          <label for="reg_verify_code"><span>6-Digit Code</span></label>
+        </div>
+        <button class="btn-primary" style="width: 100%; margin-top: 20px;" id="btnVerifyReg">Verify & Continue</button>
+      </div>
+    </div>
+  </div>
 </div>{# /app #}
 {% endblock %}
 
@@ -368,10 +384,12 @@
     onboardingUrl: "{{ path('app_onboarding') }}",
     lockUntil: {{ lock_until ? lock_until : 'null' }},
     errorType: "{{ error_type|default('') }}",
+    pendingRegistrationVerification: {{ show_registration_verification ? 'true' : 'false' }},
     endpoints: {
       sendCode: "{{ path('app_forgot_password_send_code') }}",
       verifyCode: "{{ path('app_forgot_password_verify') }}",
-      resetPassword: "{{ path('app_forgot_password_reset') }}"
+      resetPassword: "{{ path('app_forgot_password_reset') }}",
+      verifyRegistration: "{{ path('app_verify_registration') }}"
     }
   };
 

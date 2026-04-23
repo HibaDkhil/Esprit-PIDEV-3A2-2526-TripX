@@ -79,6 +79,54 @@
     parent.classList.remove('has-error');
   }
 
+  function showToast(message, duration = 4500) {
+    if (!message) return;
+    if (typeof window.tripxShowToast === 'function') {
+      window.tripxShowToast(message, duration);
+      return;
+    }
+
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast._tid);
+    showToast._tid = setTimeout(() => toast.classList.remove('show'), duration);
+  }
+
+  function getSignupFeedbackBox() {
+    const signupForm = document.getElementById('signupForm');
+    if (!signupForm) return null;
+
+    let box = document.getElementById('signupFeedback');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'signupFeedback';
+      box.className = 'alert';
+      box.style.display = 'none';
+      signupForm.prepend(box);
+    }
+    return box;
+  }
+
+  function showSignupFeedback(message, type = 'error') {
+    const box = getSignupFeedbackBox();
+    if (!box) return;
+
+    box.className = `alert ${type === 'success' ? 'alert-success' : 'alert-error'}`;
+    box.textContent = message || '';
+    box.style.display = message ? 'flex' : 'none';
+  }
+
+  function clearSignupFeedback() {
+    const box = document.getElementById('signupFeedback');
+    if (box) {
+      box.textContent = '';
+      box.style.display = 'none';
+     box.className = 'alert';
+    }
+  }
+
   /* ── Auth panel toggle ── */
   const authCard   = document.getElementById('authCard');
   const goSignup   = document.getElementById('goSignup');
@@ -104,6 +152,12 @@
                          document.querySelector('#panelSignup .form-error-message');
   if (urlParams.has('signup') || hasSignupError) {
     authCard.classList.add('show-signup');
+  }
+
+  const shouldOpenVerificationModal = window.TRIPX?.pendingRegistrationVerification || urlParams.has('verify');
+  if (shouldOpenVerificationModal) {
+    authCard?.classList.add('show-signup');
+    document.getElementById('verifyRegModal')?.classList.add('show');
   }
 
   /* ── Universal Input Management ── */
@@ -175,7 +229,7 @@
   initLoginThrottling();
 
   /* ── Password strength meter ── */
-  const regPass = document.getElementById('registration_form_plainPassword_first');
+  const regPass = document.getElementById('reg_password');
   const pwBar   = document.querySelector('.pw-bar');
   const pwStatus = document.createElement('div');
   if (regPass) {
@@ -259,13 +313,14 @@
     doRegisterBtn.addEventListener('click', function() {
       let valid = true;
 
-      const first = document.getElementById('registration_form_firstName');
-      const last  = document.getElementById('registration_form_lastName');
-      const email = document.getElementById('registration_form_email');
-      const pass  = document.getElementById('registration_form_plainPassword_first');
-      const pass2 = document.getElementById('registration_form_plainPassword_second');
-      const phone = document.getElementById('registration_form_phoneNumber');
+      const first = document.getElementById('reg_first');
+      const last  = document.getElementById('reg_last');
+      const email = document.getElementById('reg_email');
+      const pass  = document.getElementById('reg_password');
+      const pass2 = document.getElementById('reg_confirm');
+      const phone = document.getElementById('reg_phone');
 
+      clearSignupFeedback();
       [first, last, email, pass, pass2, phone].forEach(f => f && clearFieldError(f));
 
       if (first && !first.value.trim()) { showFieldError(first, 'First name is required'); valid = false; }
@@ -285,9 +340,68 @@
         showFieldError(phone, 'Phone must be exactly 8 digits'); valid = false;
       }
 
-      if (valid) {
-        signupForm.submit();
+      if (!valid) {
+        showSignupFeedback('Please fix the highlighted fields and try again.');
+        return;
       }
+
+      // Use AJAX for registration to show verification modal only after DB + mail succeed
+      doRegisterBtn.disabled = true;
+      doRegisterBtn.textContent = 'Creating account...';
+
+      const formData = new FormData(signupForm);
+      fetch(window.TRIPX.registerUrl, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(async resp => {
+        const data = await resp.json();
+        return { ok: resp.ok, data };
+      })
+      .then(({ ok, data }) => {
+        if (data.success) {
+          showSignupFeedback(data.message || 'Verification code sent.', 'success');
+          showToast(data.message || 'Verification code sent.');
+          const verifyModal = document.getElementById('verifyRegModal');
+          if (verifyModal) verifyModal.classList.add('show');
+          return;
+        }
+
+        const fieldMap = {
+          firstName: first,
+          lastName: last,
+          email: email,
+          plainPassword: pass,
+          first: pass,
+          second: pass2,
+          phoneNumber: phone
+        };
+
+        const fieldErrors = data.field_errors || {};
+        Object.entries(fieldErrors).forEach(([key, message]) => {
+          const input = fieldMap[key];
+          if (input && message) {
+            showFieldError(input, message);
+          }
+        });
+
+        const message = data.message || (ok ? 'Registration failed.' : 'Registration request failed.');
+        showSignupFeedback(message, 'error');
+        showToast(message, 7000);
+      })
+      .catch(err => {
+        console.error('Registration error:', err);
+        const message = 'Network error. Please try again.';
+        showSignupFeedback(message, 'error');
+        showToast(message, 7000);
+      })
+      .finally(() => {
+        doRegisterBtn.disabled = false;
+        doRegisterBtn.textContent = 'Create account';
+      });
     });
 
     signupForm.querySelectorAll('input').forEach(function(input) {
@@ -402,6 +516,60 @@
       location.reload();
     } else {
       alert(data.message || 'Error occurred');
+    }
+  });
+
+  /* ── Registration Verification Modal Logic ── */
+  const verifyRegModal = document.getElementById('verifyRegModal');
+  const closeVerifyReg  = document.getElementById('closeVerifyReg');
+  const btnVerifyReg   = document.getElementById('btnVerifyReg');
+
+  if (closeVerifyReg) {
+    closeVerifyReg.addEventListener('click', () => {
+      verifyRegModal.classList.remove('show');
+    });
+  }
+
+  verifyRegModal?.addEventListener('click', (e) => {
+    if (e.target === verifyRegModal) closeVerifyReg.click();
+  });
+
+  btnVerifyReg?.addEventListener('click', async () => {
+    const code = document.getElementById('reg_verify_code').value;
+    if (code.length < 6) {
+      showToast('Please enter the 6-digit code');
+      return;
+    }
+
+    btnVerifyReg.disabled = true;
+    btnVerifyReg.textContent = 'Verifying...';
+
+    try {
+      const resp = await fetch(window.TRIPX.endpoints.verifyRegistration, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      });
+
+      const contentType = resp.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const raw = await resp.text();
+        throw new Error(`Expected JSON but received ${resp.status}. Response starts with: ${raw.slice(0, 120)}`);
+      }
+
+      const data = await resp.json();
+      if (data.success) {
+        // Success! Go to onboarding
+        window.location.href = window.TRIPX.onboardingUrl;
+      } else {
+        showToast(data.message || 'Invalid code', 7000);
+      }
+    } catch (e) {
+      console.error('Verification error:', e);
+      showToast('Verification failed. Please try again.', 7000);
+    } finally {
+      btnVerifyReg.disabled = false;
+      btnVerifyReg.textContent = 'Verify & Continue';
     }
   });
 

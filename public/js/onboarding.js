@@ -26,6 +26,15 @@
   const progressFill = document.getElementById('progressFill');
   const dotContainer = document.getElementById('dotContainer');
 
+  function showMessage(message, duration = 6000) {
+    if (!message) return;
+    if (typeof window.tripxShowToast === 'function') {
+      window.tripxShowToast(message, duration);
+      return;
+    }
+    alert(message);
+  }
+
   // Create Dots
   function createDots() {
     dotContainer.innerHTML = '';
@@ -158,7 +167,7 @@
     
     // Validate required fields
     if (!prefs.gender || !prefs.birth_year) {
-      alert('Please select your gender and birth interval to continue.');
+      showMessage('Please select your gender and birth interval to continue.');
       currentStep = 0;
       updateSteps();
       return;
@@ -169,17 +178,24 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(prefs)
     })
-    .then(r => r.json())
+    .then(async (r) => {
+      const contentType = r.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const raw = await r.text();
+        throw new Error(`Expected JSON but received ${r.status}. Response starts with: ${raw.slice(0, 120)}`);
+      }
+      return r.json();
+    })
     .then(data => {
       if (data.success) {
         window.location.href = window.TRIPX ? window.TRIPX.homeUrl : '/';
       } else {
-        alert('Error saving preferences: ' + (data.message || 'Unknown error'));
+        showMessage('Error saving preferences: ' + (data.message || 'Unknown error'), 8000);
       }
     })
     .catch(err => {
       console.error(err);
-      alert('Network error. Please verify your connection.');
+      showMessage('Network error. Please verify your connection.', 8000);
     });
   }
 

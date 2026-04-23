@@ -18,6 +18,7 @@ security:
     main:
       lazy: true
       provider: app_user_provider
+      user_checker: App\Security\UserChecker
       access_denied_handler: App\Security\AccessDeniedHandler
 
       custom_authenticator:
@@ -51,6 +52,7 @@ security:
     - { path: ^/$,           roles: PUBLIC_ACCESS }
     - { path: ^/login,       roles: PUBLIC_ACCESS }
     - { path: ^/register,    roles: PUBLIC_ACCESS }
+    - { path: ^/verify-registration, roles: PUBLIC_ACCESS }
     - { path: ^/forgot-password, roles: PUBLIC_ACCESS }
     - { path: ^/verify-email, roles: PUBLIC_ACCESS }
     - { path: ^/onboarding,  roles: PUBLIC_ACCESS }

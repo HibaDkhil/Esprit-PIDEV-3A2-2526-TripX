@@ -201,18 +201,6 @@ services:
         tags:
             - { name: liip_monitor.check, alias: redis_status }
 
-    # ============ TWO-FACTOR AUTHENTICATION SERVICES ============
-    
-    Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleTotpFactory:
-        alias: scheb_two_factor.security.google_totp_factory
-        public: true
-
-    Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticator:
-        arguments:
-            $totpFactory: '@scheb_two_factor.security.google_totp_factory'
-            $leeway: 0
-        public: true
-
     # ============ CONTENT MODERATION SERVICES ============
     
     App\service\ContentModerationService:
