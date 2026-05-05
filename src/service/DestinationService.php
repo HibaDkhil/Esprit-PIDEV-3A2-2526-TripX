@@ -14,7 +14,9 @@ class DestinationService
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
-        $this->repository = $em->getRepository(Destination::class);
+        /** @var DestinationRepository $repository */
+        $repository = $em->getRepository(Destination::class);
+        $this->repository = $repository;
     }
 
     public function getAll(string $query = ''): array

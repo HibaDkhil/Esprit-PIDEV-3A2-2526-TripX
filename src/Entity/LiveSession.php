@@ -6,6 +6,7 @@ use App\Repository\LiveSessionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ORM\Entity(repositoryClass: LiveSessionRepository::class)]
 #[ORM\Table(name: 'live_sessions')]
@@ -17,7 +18,7 @@ class LiveSession
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'host_user_id', referencedColumnName: 'user_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'host_user_id', referencedColumnName: 'user_id', nullable: false)]
     private ?User $hostUser = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -30,6 +31,7 @@ class LiveSession
     private ?string $roomName = null;
 
     #[ORM\Column(name: 'stream_token', length: 500, nullable: true)]
+    #[Ignore]
     private ?string $streamToken = null;
 
     #[ORM\Column(name: 'thumbnail_url', length: 500, nullable: true)]
@@ -65,13 +67,13 @@ class LiveSession
     #[ORM\Column(name: 'updated_at', type: 'datetime')]
     private ?\DateTimeInterface $updatedAt = null;
 
-    #[ORM\OneToMany(mappedBy: 'liveSession', targetEntity: LiveComment::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'liveSession', targetEntity: LiveComment::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $comments;
 
-    #[ORM\OneToMany(mappedBy: 'liveSession', targetEntity: LiveReaction::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'liveSession', targetEntity: LiveReaction::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $reactions;
 
-    #[ORM\OneToMany(mappedBy: 'liveSession', targetEntity: LiveSessionViewer::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'liveSession', targetEntity: LiveSessionViewer::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $viewers;
 
     public function __construct()
@@ -135,7 +137,7 @@ class LiveSession
         return $this->streamToken;
     }
 
-    public function setStreamToken(?string $streamToken): self
+    public function setStreamToken(#[\SensitiveParameter] ?string $streamToken): self
     {
         $this->streamToken = $streamToken;
         return $this;
@@ -239,9 +241,27 @@ class LiveSession
         return $this->removedAt;
     }
 
-    public function setRemovedAt(?\DateTimeInterface $removedAt): self
+    private function setRemovedAt(?\DateTimeInterface $removedAt): self
     {
         $this->removedAt = $removedAt;
+        return $this;
+    }
+
+    public function softDelete(?string $reason = null, bool $removedByAdmin = true): self
+    {
+        $this->removedByAdmin = $removedByAdmin;
+        $this->removalReason = $reason;
+        $this->setRemovedAt(new \DateTimeImmutable());
+
+        return $this;
+    }
+
+    public function restore(): self
+    {
+        $this->removedByAdmin = false;
+        $this->removalReason = null;
+        $this->setRemovedAt(null);
+
         return $this;
     }
 

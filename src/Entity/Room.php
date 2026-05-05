@@ -37,7 +37,7 @@ class Room
     )]
     private ?string $roomType = null;
 
-    #[ORM\Column(name: 'price_per_night', type: 'float', nullable: true)]
+    #[ORM\Column(name: 'price_per_night', type: 'decimal', precision: 10, scale: 2, nullable: true)]
     #[Assert\NotNull(message: 'Price per night is required')]
     #[Assert\NotBlank(message: 'Price per night is required')]
     #[Assert\Positive(message: 'Price per night must be a positive number')]
@@ -46,7 +46,7 @@ class Room
         max: 100000,
         notInRangeMessage: 'Price per night must be between {{ min }} and {{ max }}'
     )]
-    private ?float $pricePerNight = null;
+    private ?string $pricePerNight = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
     #[Assert\NotNull(message: 'Capacity is required')]
@@ -90,8 +90,8 @@ class Room
     public function getRoomType(): ?string { return $this->roomType; }
     public function setRoomType(?string $roomType): static { $this->roomType = $roomType; return $this; }
 
-    public function getPricePerNight(): ?float { return $this->pricePerNight; }
-    public function setPricePerNight(?float $pricePerNight): static { $this->pricePerNight = $pricePerNight; return $this; }
+    public function getPricePerNight(): ?float { return $this->pricePerNight !== null ? (float) $this->pricePerNight : null; }
+    public function setPricePerNight(float|string|null $pricePerNight): static { $this->pricePerNight = $pricePerNight !== null ? number_format((float) $pricePerNight, 2, '.', '') : null; return $this; }
 
     public function getCapacity(): ?int { return $this->capacity; }
     public function setCapacity(?int $capacity): static { $this->capacity = $capacity; return $this; }

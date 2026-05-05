@@ -179,7 +179,7 @@ class FrontController extends AbstractController
             $log->setActivityType('SEARCH');
             $log->setTargetId($query);
             $log->setTargetType('QUERY');
-            $log->setTimestamp(new \DateTime());
+            $log->setTimestamp(new \DateTimeImmutable());
             $em->persist($log);
             $em->flush();
         }

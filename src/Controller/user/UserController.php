@@ -260,7 +260,7 @@ class UserController extends AbstractController
     private function getRewardForPoints(int $points): string
     {
         $user = $this->getUser();
-        $id = $user ? ($user->getUserId() ?? $user->getId()) : '000';
+        $id = $user instanceof User ? ($user->getUserId() ?? $user->getId() ?? '000') : '000';
         $year = date('Y');
 
         if ($points > 100) {
@@ -480,6 +480,9 @@ class UserController extends AbstractController
     public function disable2fa(): JsonResponse
     {
         $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->json(['success' => false, 'error' => 'Unauthorized'], 401);
+        }
         $user->setGoogleAuthenticatorSecret(null);
         $this->entityManager->flush();
 

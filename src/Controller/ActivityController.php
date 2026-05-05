@@ -29,7 +29,7 @@ class ActivityController extends AbstractController
         $log->setActivityType($data['activity_type'] ?? 'VISIT');
         $log->setTargetId($data['target_id'] ?? null);
         $log->setTargetType($data['target_type'] ?? 'PAGE');
-        $log->setTimestamp(new \DateTime());
+        $log->setTimestamp(new \DateTimeImmutable());
 
         $em->persist($log);
         $em->flush();

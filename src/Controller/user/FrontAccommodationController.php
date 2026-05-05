@@ -17,7 +17,6 @@ namespace App\Controller\user;
 use App\Entity\Accommodation;
 use App\Entity\BookingAcc;
 use App\Entity\Room;
-use App\Repository\AccommodationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,8 +27,9 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class FrontAccommodationController extends AbstractController
 {
+    private const MAX_ACCOMMODATION_RESULTS = 96;
+
     public function __construct(
-        private readonly AccommodationRepository $accRepo,
         private readonly EntityManagerInterface $em,
     ) {}
 
@@ -115,7 +115,8 @@ class FrontAccommodationController extends AbstractController
             ->select('a')
             ->from(Accommodation::class, 'a')
             ->where('a.status = :status')
-            ->setParameter('status', 'Active');
+            ->setParameter('status', 'Active')
+            ->setMaxResults(self::MAX_ACCOMMODATION_RESULTS);
 
         $this->applySearchFilters($qb, $filters);
         $this->applyStarFilters($qb, $filters);

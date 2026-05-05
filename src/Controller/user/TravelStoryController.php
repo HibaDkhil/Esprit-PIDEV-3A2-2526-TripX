@@ -140,9 +140,9 @@ class TravelStoryController extends AbstractController
             $travelStory->setCoverImageUrl($savedImagePaths[0] ?? null);
 
             if ($travelStory->getCreatedAt() === null) {
-                $travelStory->setCreatedAt(new \DateTime());
+                $travelStory->setCreatedAt(new \DateTimeImmutable());
             }
-            $travelStory->setUpdatedAt(new \DateTime());
+            $travelStory->setUpdatedAt(new \DateTimeImmutable());
 
             $entityManager->persist($travelStory);
             $entityManager->flush();
@@ -273,7 +273,7 @@ class TravelStoryController extends AbstractController
             $existingImages = array_values(array_unique(array_filter($existingImages)));
             $travelStory->setImageUrlsJson($existingImages);
             $travelStory->setCoverImageUrl($existingImages[0] ?? $travelStory->getCoverImageUrl());
-            $travelStory->setUpdatedAt(new \DateTime());
+            $travelStory->setUpdatedAt(new \DateTimeImmutable());
 
             $entityManager->flush();
 

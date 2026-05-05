@@ -439,9 +439,27 @@ class TravelStory
         return $this->removedAt;
     }
 
-    public function setRemovedAt(?\DateTimeInterface $removedAt): static
+    private function setRemovedAt(?\DateTimeInterface $removedAt): static
     {
         $this->removedAt = $removedAt;
+        return $this;
+    }
+
+    public function softDelete(?string $reason = null, bool $removedByAdmin = true): static
+    {
+        $this->removedByAdmin = $removedByAdmin;
+        $this->removalReason = $reason;
+        $this->setRemovedAt(new \DateTimeImmutable());
+
+        return $this;
+    }
+
+    public function restore(): static
+    {
+        $this->removedByAdmin = false;
+        $this->removalReason = null;
+        $this->setRemovedAt(null);
+
         return $this;
     }
 }

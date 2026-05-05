@@ -25,6 +25,7 @@ class AIComparisonController extends AbstractController
     #[Route('/accommodations/compare', name: 'accommodations_compare', methods: ['POST'])]
     public function compare(Request $request): JsonResponse
     {
+        $startedAt = microtime(true);
         $data = json_decode($request->getContent(), true);
         $ids = $data['ids'] ?? [];
         
@@ -75,15 +76,27 @@ class AIComparisonController extends AbstractController
         if (count($accommodations) < 2) {
             return $this->json(['error' => 'Could not find the selected accommodations'], 404);
         }
+
+        $afterDataLoad = microtime(true);
         
         // Call Groq AI API
         $aiAnalysis = $this->callGroqAI($accommodations);
+        $afterAi = microtime(true);
+
+        $timings = [
+            'data_load_ms' => round(($afterDataLoad - $startedAt) * 1000, 2),
+            'ai_ms' => round(($afterAi - $afterDataLoad) * 1000, 2),
+            'total_ms' => round(($afterAi - $startedAt) * 1000, 2),
+        ];
+
+        error_log('[AIComparison] timings=' . json_encode($timings));
         
         return $this->json([
             'accommodations' => $accommodations,
             'ranking' => $aiAnalysis['ranking'] ?? [],
             'comparison' => $aiAnalysis['comparison'] ?? [],
-            'insights' => $aiAnalysis['insights'] ?? 'Analysis complete. All properties offer unique experiences.'
+            'insights' => $aiAnalysis['insights'] ?? 'Analysis complete. All properties offer unique experiences.',
+            'timings' => $timings,
         ]);
     }
     

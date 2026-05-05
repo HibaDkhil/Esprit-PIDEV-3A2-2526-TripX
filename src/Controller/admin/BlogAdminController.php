@@ -589,9 +589,7 @@ class BlogAdminController extends AbstractController
             $defaultReason = 'This Story was removed by an admin because it violated the community guidelines.';
 
             $story->setImageUrl('');
-            $story->setRemovedByAdmin(true);
-            $story->setRemovalReason($reason !== '' ? $reason : $defaultReason);
-            $story->setRemovedAt(new \DateTimeImmutable());
+            $story->softDelete($reason !== '' ? $reason : $defaultReason);
 
             $em->flush();
             $this->addFlash('success', 'Story removed and replaced with moderation placeholder.');
@@ -623,9 +621,7 @@ class BlogAdminController extends AbstractController
                 $defaultReason = 'This Live recording was removed by an admin because it violated the community guidelines.';
 
                 $session->setRecordingUrl('');
-                $session->setRemovedByAdmin(true);
-                $session->setRemovalReason($reason !== '' ? $reason : $defaultReason);
-                $session->setRemovedAt(new \DateTimeImmutable());
+                $session->softDelete($reason !== '' ? $reason : $defaultReason);
                 $session->setUpdatedAt(new \DateTimeImmutable());
                 $em->flush();
 
@@ -709,9 +705,7 @@ class BlogAdminController extends AbstractController
             $this->removeTravelStoryImages($story);
             $story->setCoverImageUrl(null);
             $story->setImageUrlsJson([]);
-            $story->setRemovedByAdmin(true);
-            $story->setRemovalReason($reason !== '' ? $reason : $defaultReason);
-            $story->setRemovedAt(new \DateTimeImmutable());
+            $story->softDelete($reason !== '' ? $reason : $defaultReason);
             $story->setUpdatedAt(new \DateTimeImmutable());
 
             $em->flush();

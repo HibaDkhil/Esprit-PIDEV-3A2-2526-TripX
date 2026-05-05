@@ -83,7 +83,7 @@ class BlogController extends AbstractController
             if ($currentUserId !== null) {
                 $removedOwnedPosts = array_values(array_filter(
                     $postRepository->findByUser($currentUserId),
-                    static function ($post) use ($search): bool {
+                    static function (\App\Entity\Post $post) use ($search): bool {
                         if (!method_exists($post, 'isRemovedByAdmin') || !$post->isRemovedByAdmin()) {
                             return false;
                         }
@@ -124,7 +124,7 @@ class BlogController extends AbstractController
 
         $stories = [];
         if ($showStories) {
-            $stories = $tsRepository->findFiltered($search, '', '', '', null, true);
+            $stories = $tsRepository->findFiltered($search, '', '', '', null);
 
             $stories = array_values(array_filter(
                 $stories,

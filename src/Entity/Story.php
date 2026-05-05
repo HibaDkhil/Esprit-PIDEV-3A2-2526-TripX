@@ -18,7 +18,7 @@ class Story
 
     // Relation instead of user_id int
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'user_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'user_id', nullable: false)]
     private ?User $user = null;
 
     #[ORM\Column(name: 'image_url', type: 'string', length: 500)]
@@ -145,9 +145,27 @@ class Story
         return $this->removedAt;
     }
 
-    public function setRemovedAt(?\DateTimeInterface $removedAt): static
+    private function setRemovedAt(?\DateTimeInterface $removedAt): static
     {
         $this->removedAt = $removedAt;
+        return $this;
+    }
+
+    public function softDelete(?string $reason = null, bool $removedByAdmin = true): static
+    {
+        $this->removedByAdmin = $removedByAdmin;
+        $this->removalReason = $reason;
+        $this->setRemovedAt(new \DateTimeImmutable());
+
+        return $this;
+    }
+
+    public function restore(): static
+    {
+        $this->removedByAdmin = false;
+        $this->removalReason = null;
+        $this->setRemovedAt(null);
+
         return $this;
     }
 }

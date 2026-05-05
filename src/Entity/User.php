@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -36,6 +37,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
     private ?string $email = null;
 
     #[ORM\Column(type: 'string')]
+    #[Ignore]
     private ?string $password = null;
 
     #[ORM\Column(name: 'phone_number', type: 'string', length: 30, nullable: true)]
@@ -78,6 +80,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
     private ?array $faceDescriptor = null;
 
     #[ORM\Column(type: 'string', nullable: true)]
+    #[Ignore]
     private ?string $googleAuthenticatorSecret = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
@@ -92,7 +95,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
         return $this->googleAuthenticatorSecret;
     }
 
-    public function setGoogleAuthenticatorSecret(?string $googleAuthenticatorSecret): self
+    public function setGoogleAuthenticatorSecret(#[\SensitiveParameter] ?string $googleAuthenticatorSecret): self
     {
         $this->googleAuthenticatorSecret = $googleAuthenticatorSecret;
         return $this;
@@ -153,7 +156,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
     {
         return $this->password;
     }
-    public function setPassword(string $password): static
+    public function setPassword(#[\SensitiveParameter] string $password): static
     {
         $this->password = $password;
         return $this;

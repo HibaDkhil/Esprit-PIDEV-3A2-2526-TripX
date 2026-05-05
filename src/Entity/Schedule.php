@@ -3,7 +3,6 @@ namespace App\Entity;
 
 use App\Repository\ScheduleRepository;
 use Doctrine\ORM\Mapping as ORM;
-use DateTime;
 use Symfony\Component\Validator\Constraints as Assert;
 
 use App\form\ScheduleFieldsByType;
@@ -30,17 +29,17 @@ class Schedule
     #[Assert\Positive(message: 'Please select an arrival destination.')] 
     private int $arrivalDestinationId = 0;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?DateTime $departureDatetime = null;
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $departureDatetime = null;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?DateTime $arrivalDatetime = null;
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $arrivalDatetime = null;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?DateTime $rentalStart = null;
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $rentalStart = null;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?DateTime $rentalEnd = null;
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $rentalEnd = null;
 
     #[ORM\Column(type: 'string', nullable: true)]
     #[Assert\NotBlank(message: 'Travel class is required.')]                                  // ★
@@ -71,15 +70,15 @@ class Schedule
     #[ORM\Column(type: 'float')]
     private float $aiDemandScore = 0.0;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?DateTime $createdAt = null;
+    #[ORM\Column(type: 'datetime_immutable')]
+    private \DateTimeImmutable $createdAt;
 
     public function __construct()
     {
         $this->priceMultiplier = 1.0;
         $this->status          = 'ON_TIME';
         $this->delayMinutes    = 0;
-        $this->createdAt       = new DateTime();
+        $this->createdAt       = new \DateTimeImmutable();
     }
 
     public function getScheduleId(): ?int { return $this->scheduleId; }
@@ -93,17 +92,17 @@ class Schedule
     public function getArrivalDestinationId(): int { return $this->arrivalDestinationId; }
     public function setArrivalDestinationId(int $arrivalDestinationId): self { $this->arrivalDestinationId = $arrivalDestinationId; return $this; }
 
-    public function getDepartureDatetime(): ?DateTime { return $this->departureDatetime; }
-    public function setDepartureDatetime(?DateTime $departureDatetime): self { $this->departureDatetime = $departureDatetime; return $this; }
+    public function getDepartureDatetime(): ?\DateTimeImmutable { return $this->departureDatetime; }
+    public function setDepartureDatetime(?\DateTimeInterface $departureDatetime): self { $this->departureDatetime = $departureDatetime ? \DateTimeImmutable::createFromInterface($departureDatetime) : null; return $this; }
 
-    public function getArrivalDatetime(): ?DateTime { return $this->arrivalDatetime; }
-    public function setArrivalDatetime(?DateTime $arrivalDatetime): self { $this->arrivalDatetime = $arrivalDatetime; return $this; }
+    public function getArrivalDatetime(): ?\DateTimeImmutable { return $this->arrivalDatetime; }
+    public function setArrivalDatetime(?\DateTimeInterface $arrivalDatetime): self { $this->arrivalDatetime = $arrivalDatetime ? \DateTimeImmutable::createFromInterface($arrivalDatetime) : null; return $this; }
 
-    public function getRentalStart(): ?DateTime { return $this->rentalStart; }
-    public function setRentalStart(?DateTime $rentalStart): self { $this->rentalStart = $rentalStart; return $this; }
+    public function getRentalStart(): ?\DateTimeImmutable { return $this->rentalStart; }
+    public function setRentalStart(?\DateTimeInterface $rentalStart): self { $this->rentalStart = $rentalStart ? \DateTimeImmutable::createFromInterface($rentalStart) : null; return $this; }
 
-    public function getRentalEnd(): ?DateTime { return $this->rentalEnd; }
-    public function setRentalEnd(?DateTime $rentalEnd): self { $this->rentalEnd = $rentalEnd; return $this; }
+    public function getRentalEnd(): ?\DateTimeImmutable { return $this->rentalEnd; }
+    public function setRentalEnd(?\DateTimeInterface $rentalEnd): self { $this->rentalEnd = $rentalEnd ? \DateTimeImmutable::createFromInterface($rentalEnd) : null; return $this; }
 
     public function getTravelClass(): ?string { return $this->travelClass; }
     public function setTravelClass(?string $travelClass): self { $this->travelClass = $travelClass; return $this; }
@@ -120,7 +119,7 @@ class Schedule
     public function getAiDemandScore(): float { return $this->aiDemandScore; }
     public function setAiDemandScore(float $aiDemandScore): self { $this->aiDemandScore = $aiDemandScore; return $this; }
 
-    public function getCreatedAt(): ?DateTime { return $this->createdAt; }
-    public function setCreatedAt(?DateTime $createdAt): self { $this->createdAt = $createdAt; return $this; }
+    public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+    public function setCreatedAt(\DateTimeInterface $createdAt): self { $this->createdAt = \DateTimeImmutable::createFromInterface($createdAt); return $this; }
 }
 

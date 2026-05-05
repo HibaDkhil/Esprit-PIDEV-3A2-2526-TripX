@@ -14,6 +14,7 @@ namespace App\Controller\user;
 use App\Entity\Accommodation;
 use App\Entity\BookingAcc;
 use App\Entity\Room;
+use App\Entity\User;
 use App\Repository\AccommodationRepository;
 use App\Repository\RoomImagesRepository;
 use App\service\Accommodation\WeatherService;
@@ -138,12 +139,12 @@ class AccommodationDetailsController extends AbstractController
         
         // 5. Check if services are properly injected
         $results['service_status'] = [
-            'weatherService' => $this->weatherService ? 'OK' : 'NULL',
-            'imageService' => $this->imageService ? 'OK' : 'NULL',
-            'localService' => $this->localService ? 'OK' : 'NULL',
-            'reviewService' => $this->reviewService ? 'OK' : 'NULL',
-            'itineraryService' => $this->itineraryService ? 'OK' : 'NULL',
-            'flightService' => $this->flightService ? 'OK' : 'NULL',
+            'weatherService' => 'OK',
+            'imageService' => 'OK',
+            'localService' => 'OK',
+            'reviewService' => 'OK',
+            'itineraryService' => 'OK',
+            'flightService' => 'OK',
         ];
         
         // 6. Environment variables status
@@ -325,12 +326,7 @@ class AccommodationDetailsController extends AbstractController
         $results = [];
         
         // Check if service exists
-        $results['service_exists'] = $this->itineraryService ? true : false;
-        
-        if (!$this->itineraryService) {
-            $results['error'] = 'ItineraryService is null - check services.yaml configuration';
-            return $this->json($results);
-        }
+        $results['service_exists'] = true;
         
         // Test with mock data first
         $results['test_city'] = $accommodation->getCity();
@@ -501,15 +497,6 @@ class AccommodationDetailsController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
         $days = (int) ($data['days'] ?? 3);
-
-        // Check if itinerary service is available
-        if (!$this->itineraryService) {
-            error_log('ItineraryService is null in AccommodationDetailsController');
-            return $this->json([
-                'error' => 'Itinerary service is not available',
-                'itinerary' => $this->getFallbackItinerary($accommodation->getCity(), $days)
-            ]);
-        }
 
         $attractions = [];
         
@@ -734,8 +721,8 @@ class AccommodationDetailsController extends AbstractController
         $totalPrice    = round($subtotal + $tax, 2);
 
         // ── Determine user ID ─────────────────────────────────────────────────────────
-        $user   = $this->getUser();
-        $userId = $user ? $user->getId() : 1;
+        $user = $this->getUser();
+        $userId = $user instanceof User ? ($user->getUserId() ?? $user->getId() ?? 1) : 1;
 
         // ── Create and validate the booking entity ─────────────────────────────────────
         $booking = new BookingAcc();

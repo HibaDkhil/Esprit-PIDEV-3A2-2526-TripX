@@ -460,10 +460,10 @@ class TransportAdminController extends AbstractController
             $s->setAiDemandScore((float) $request->request->get('aiDemandScore', 0.0));
             $s->setDelayMinutes(0);
 
-            if ($depDt)  $s->setDepartureDatetime(new \DateTime($depDt));
-            if ($arrDt)  $s->setArrivalDatetime(new \DateTime($arrDt));
-            if ($rsStart) $s->setRentalStart(new \DateTime($rsStart));
-            if ($rsEnd)   $s->setRentalEnd(new \DateTime($rsEnd));
+            if ($depDt)  $s->setDepartureDatetime(new \DateTimeImmutable($depDt));
+            if ($arrDt)  $s->setArrivalDatetime(new \DateTimeImmutable($arrDt));
+            if ($rsStart) $s->setRentalStart(new \DateTimeImmutable($rsStart));
+            if ($rsEnd)   $s->setRentalEnd(new \DateTimeImmutable($rsEnd));
             // ★ Symfony Validator — uses Assert annotations on Schedule entity
 
             $violations = $this->validator->validate($s);
@@ -568,10 +568,10 @@ class TransportAdminController extends AbstractController
             $schedule->setArrivalDestinationId($arrDestId);
             $schedule->setAiDemandScore((float) $request->request->get('aiDemandScore', 0.0));
 
-            if ($depDt)  $schedule->setDepartureDatetime(new \DateTime($depDt));
-            if ($arrDt)  $schedule->setArrivalDatetime(new \DateTime($arrDt));
-            if ($rsStart) $schedule->setRentalStart(new \DateTime($rsStart));
-            if ($rsEnd)   $schedule->setRentalEnd(new \DateTime($rsEnd));
+            if ($depDt)  $schedule->setDepartureDatetime(new \DateTimeImmutable($depDt));
+            if ($arrDt)  $schedule->setArrivalDatetime(new \DateTimeImmutable($arrDt));
+            if ($rsStart) $schedule->setRentalStart(new \DateTimeImmutable($rsStart));
+            if ($rsEnd)   $schedule->setRentalEnd(new \DateTimeImmutable($rsEnd));
 
             // ★ Symfony Validator pattern
             $violations = $this->validator->validate($schedule);

@@ -339,7 +339,7 @@ class PricePredictionService
                 'current' => $row['current_price'] ?? null,
                 'pct' => $row['percent_change'] ?? null,
             ], JSON_THROW_ON_ERROR));
-            $log->setTimestamp(new \DateTime());
+            $log->setTimestamp(new \DateTimeImmutable());
             $this->em->persist($log);
         } catch (\Throwable) {
         }

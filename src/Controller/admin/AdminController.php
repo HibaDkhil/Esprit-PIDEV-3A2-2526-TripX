@@ -62,7 +62,7 @@ class AdminController extends AbstractController
     {
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
-        if ($user) {
+        if ($user instanceof User) {
             $firstName = trim((string) $request->request->get('firstName'));
             $lastName = trim((string) $request->request->get('lastName'));
             $email = trim((string) $request->request->get('email'));

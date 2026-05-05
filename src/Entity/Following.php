@@ -26,8 +26,13 @@ class Following
     #[ORM\Column(type: 'string', length: 20, options: ['default' => self::STATUS_ACCEPTED])]
     private string $status = self::STATUS_ACCEPTED;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $created_at = null;
+    #[ORM\Column(type: 'datetime')]
+    private \DateTimeInterface $created_at;
+
+    public function __construct()
+    {
+        $this->created_at = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int { return $this->id; }
 
@@ -49,8 +54,8 @@ class Following
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface { return $this->created_at; }
-    public function setCreatedAt(?\DateTimeInterface $created_at): static {
+    public function getCreatedAt(): \DateTimeInterface { return $this->created_at; }
+    public function setCreatedAt(\DateTimeInterface $created_at): static {
         $this->created_at = $created_at;
         return $this;
     }
