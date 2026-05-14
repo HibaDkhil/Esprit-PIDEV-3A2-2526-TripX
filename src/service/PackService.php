@@ -4,12 +4,13 @@ namespace App\service;
 
 use App\Entity\Pack;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 
 class PackService
 {
     public function __construct(private EntityManagerInterface $em) {}
 
-    public function getAll(string $query = ''): array
+    public function getAllQuery(string $query = ''): QueryBuilder
     {
         $qb = $this->em->createQueryBuilder()
             ->select('p')
@@ -20,18 +21,34 @@ class PackService
                ->setParameter('q', '%' . $query . '%');
         }
 
-        return $qb->orderBy('p.idPack', 'DESC')->getQuery()->getResult();
+        return $qb->orderBy('p.idPack', 'DESC');
     }
 
-    public function getActivePacks(): array
+    public function getAll(string $query = '', ?int $limit = null): array
     {
-        return $this->em->createQueryBuilder()
+        $qb = $this->getAllQuery($query);
+
+        if ($limit !== null) {
+            $qb->setMaxResults($limit);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function getActivePacks(?int $limit = null): array
+    {
+        $qb = $this->em->createQueryBuilder()
             ->select('p')
             ->from(Pack::class, 'p')
             ->where('p.status = :s')
             ->setParameter('s', 'ACTIVE')
-            ->orderBy('p.idPack', 'DESC')
-            ->getQuery()->getResult();
+            ->orderBy('p.idPack', 'DESC');
+
+        if ($limit !== null) {
+            $qb->setMaxResults($limit);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
     public function getByCategory(int $categoryId): array

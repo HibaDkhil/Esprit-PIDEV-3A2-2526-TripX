@@ -1,0 +1,108 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tripx-app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    environment:
+      APP_ENV: prod
+      APP_SECRET: ${APP_SECRET}
+      DATABASE_URL: ${DATABASE_URL}
+      MAILER_DSN: ${MAILER_DSN}
+      BOOKING_MAILER_DSN: ${BOOKING_MAILER_DSN}
+      MERCURE_URL: ${MERCURE_URL}
+      MERCURE_PUBLIC_URL: ${MERCURE_PUBLIC_URL}
+      MERCURE_JWT_SECRET: ${MERCURE_JWT_SECRET}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      GOOGLE_AUTH_CONFIG: ${GOOGLE_AUTH_CONFIG:-}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-}
+      RAGHED_GEMINI: ${RAGHED_GEMINI:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_PACK_API_KEY: ${GROQ_PACK_API_KEY:-}
+      SERPAPI_API_KEY: ${SERPAPI_API_KEY:-}
+      OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY:-}
+      ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      AKISMET_API_KEY: ${AKISMET_API_KEY:-}
+      RECAPTCHA_SECRET_KEY: ${RECAPTCHA_SECRET_KEY:-}
+      RECAPTCHA_SITE_KEY: ${RECAPTCHA_SITE_KEY:-}
+      PIXIAN_API_SECRET: ${PIXIAN_API_SECRET:-}
+      LIVEKIT_URL: ${LIVEKIT_URL:-}
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:-}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:-}
+      FIREBASE_API_KEY: ${FIREBASE_API_KEY:-}
+      FIREBASE_AUTH_DOMAIN: ${FIREBASE_AUTH_DOMAIN:-}
+      FIREBASE_DATABASE_URL: ${FIREBASE_DATABASE_URL:-}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-}
+      FIREBASE_STORAGE_BUCKET: ${FIREBASE_STORAGE_BUCKET:-}
+      FIREBASE_MESSAGING_SENDER_ID: ${FIREBASE_MESSAGING_SENDER_ID:-}
+      FIREBASE_APP_ID: ${FIREBASE_APP_ID:-}
+      CALENDARIFIC_API_KEY: ${CALENDARIFIC_API_KEY:-}
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-0}
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      mercure:
+        condition: service_started
+    volumes:
+      - uploads:/var/www/html/public/uploads
+
+  database:
+    image: mariadb:11.4
+    container_name: tripx-db
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-tripx}
+      MARIADB_USER: ${MARIADB_USER:-tripx}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - db-data:/var/lib/mysql
+
+  redis:
+    image: redis:7-alpine
+    container_name: tripx-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+
+  mercure:
+    image: dunglas/mercure
+    container_name: tripx-mercure
+    restart: unless-stopped
+    ports:
+      - "${MERCURE_PORT:-3000}:80"
+    environment:
+      SERVER_NAME: ":80"
+      MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_JWT_SECRET}
+      MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_JWT_SECRET}
+      MERCURE_EXTRA_DIRECTIVES: |
+        anonymous
+        cors_origins *
+    command: /usr/bin/caddy run --config /etc/caddy/dev.Caddyfile
+    volumes:
+      - mercure-data:/data
+      - mercure-config:/config
+
+volumes:
+  db-data:
+  mercure-config:
+  mercure-data:
+  redis-data:
+  uploads:

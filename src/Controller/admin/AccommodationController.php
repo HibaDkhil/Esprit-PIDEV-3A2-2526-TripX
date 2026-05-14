@@ -6,6 +6,7 @@ use App\Entity\Accommodation;
 use App\Repository\AccommodationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Bundle\TimeBundle\DateTimeFormatter;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,7 +20,8 @@ class AccommodationController extends AbstractController
     public function __construct(
         private AccommodationRepository $repo,
         private EntityManagerInterface $em,
-        private DateTimeFormatter $timeFormatter
+        private DateTimeFormatter $timeFormatter,
+        private PaginatorInterface $paginator
     ) {}
 
     // ── List ─────────────────────────────────────────────────────────
@@ -30,12 +32,16 @@ class AccommodationController extends AbstractController
         $type   = $request->query->get('type', '');
         $status = $request->query->get('status', '');
 
-        $accommodations = $this->repo->findByFilters($search, $type, $status);
+        $pagination = $this->paginator->paginate(
+            $this->repo->createFilteredQueryBuilder($search, $type, $status),
+            $request->query->getInt('page', 1),
+            12
+        );
         $stats          = $this->repo->getStats();
         $types          = $this->repo->findDistinctTypes();
 
         return $this->render('admin/accommodations.html.twig', [
-            'accommodations' => $accommodations,
+            'accommodations' => $pagination,
             'total'          => $stats['total'],
             'active'         => $stats['active'],
             'inactive'       => $stats['inactive'],
@@ -59,7 +65,7 @@ class AccommodationController extends AbstractController
         $type    = $request->query->get('type', '');
         $status  = $request->query->get('status', '');
 
-        $results = $this->repo->findByFilters($search, $type, $status);
+        $results = $this->repo->findByFilters($search, $type, $status, 20);
 
         $data = array_map(fn($a) => [
             'id'           => $a->getId(),

@@ -48,8 +48,7 @@ class FrontController extends AbstractController
         $accommodations = $this->accommodationRepository->findBy(['status' => 'Active'], ['id' => 'DESC'], 3);
 
         // Fetch top 2 active packs (offers)
-        $packs = $this->packService->getActivePacks();
-        $packs = array_slice($packs, 0, 2);
+        $packs = $this->packService->getActivePacks(2);
 
         return $this->render('front/index.html.twig', [
             'price_prediction_cards' => $this->pricePredictionService->buildHomeCarouselCards($uid),
