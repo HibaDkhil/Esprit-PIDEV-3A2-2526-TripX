@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Accommodation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -16,7 +17,7 @@ class AccommodationRepository extends ServiceEntityRepository
         parent::__construct($registry, Accommodation::class);
     }
 
-    public function findByFilters(string $search = '', string $type = '', string $status = ''): array
+    public function createFilteredQueryBuilder(string $search = '', string $type = '', string $status = ''): QueryBuilder
     {
         $qb = $this->createQueryBuilder('a')->orderBy('a.createdAt', 'DESC');
 
@@ -29,6 +30,17 @@ class AccommodationRepository extends ServiceEntityRepository
         }
         if ($status) {
             $qb->andWhere('a.status = :status')->setParameter('status', $status);
+        }
+
+        return $qb;
+    }
+
+    public function findByFilters(string $search = '', string $type = '', string $status = '', ?int $limit = null): array
+    {
+        $qb = $this->createFilteredQueryBuilder($search, $type, $status);
+
+        if ($limit !== null) {
+            $qb->setMaxResults($limit);
         }
 
         return $qb->getQuery()->getResult();

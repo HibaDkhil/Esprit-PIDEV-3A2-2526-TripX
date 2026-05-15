@@ -29,8 +29,8 @@ class Reaction
     #[ORM\Column(length: 20)]
     private ?string $type = null;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $created_at = null;
+    #[ORM\Column(type: 'datetime')]
+    private \DateTimeInterface $created_at;
 
     public function __construct()
     {
@@ -97,12 +97,12 @@ class Reaction
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->created_at;
     }
 
-    public function setCreatedAt(?\DateTimeInterface $created_at): static
+    public function setCreatedAt(\DateTimeInterface $created_at): static
     {
         $this->created_at = $created_at;
         return $this;

@@ -30,9 +30,9 @@ class FaceLoginController extends AbstractController
     #[Route('/login-page', name: 'login_page', methods: ['GET'])]
     public function loginPage(): Response
     {
-        // Only redirect if fully authenticated (prevents bypassing if 2FA is needed)
-        if ($this->getUser() && $this->isGranted('IS_AUTHENTICATED_FULLY')) {
-            return $this->redirectToRoute('index');
+        // Already logged in? Go home.
+        if ($this->getUser()) {
+            return $this->redirectToRoute('home');
         }
         return $this->render('front/face_login.html.twig');
     }
@@ -100,14 +100,14 @@ class FaceLoginController extends AbstractController
             return $this->json(['success' => false, 'message' => 'No face descriptor received.'], 400);
         }
 
-        // Check for Face-ID-specific session lockout
+        // Check for session lockout
         $session = $request->getSession();
-        $lockedUntil = $session->get('face_locked_until');
+        $lockedUntil = $session->get('locked_until');
         if ($lockedUntil && time() < $lockedUntil) {
-            $secondsLeft = $lockedUntil - time();
+            $minutesLeft = ceil(($lockedUntil - time()) / 60);
             return $this->json([
                 'success' => false,
-                'message' => "Biometric Lock: Too many failed scans. Please wait {$secondsLeft}s.",
+                'message' => "Security Lock: Too many attempts. Please wait {$minutesLeft} minute(s).",
             ], 429);
         }
 
@@ -133,27 +133,11 @@ class FaceLoginController extends AbstractController
             }
 
             if (!$bestMatch) {
-                $attempts = $session->get('face_login_attempts', 0) + 1;
-                $session->set('face_login_attempts', $attempts);
-                
-                if ($attempts >= 3) {
-                    $session->set('face_locked_until', time() + 60); // 1 minute lock
-                    $session->remove('face_login_attempts');
-                    return $this->json([
-                        'success' => false,
-                        'message' => 'Security Lock: Too many attempts. Please wait 1 minute.',
-                    ], 429);
-                }
-
                 return $this->json([
                     'success' => false,
-                    'message' => 'Face not recognised. Please try again or use password.',
+                    'message' => 'Face not recognised. Please register your face first.',
                 ], 401);
             }
-
-            // Success - clear attempts
-            $session->remove('face_login_attempts');
-            $session->remove('face_locked_until');
 
             $user = $bestMatch;
             $confidence = round((1 - $minDistance) * 100, 1);
@@ -165,32 +149,18 @@ class FaceLoginController extends AbstractController
                 ], 403);
             }
 
+            // Log the user in
             // Log the user in explicitly telling Symfony which firewall and provider to use
-            // On some symfony versions, using 'form_login' works, on others we might need the full ID
-            // or just the firewall name if it's the primary one.
-            try {
-                $this->security->login($user, 'security.authenticator.form_login.main', 'main');
-            } catch (\Throwable $e) {
-                // Fallback to simpler login if the explicit authenticator ID fails
-                try {
-                    $this->security->login($user, 'main');
-                } catch (\Throwable $e2) {
-                    throw new \Exception("Auth failed: " . $e2->getMessage());
-                }
+            $result = $this->security->login($user, 'form_login', 'main');
+            
+            // If 2FA is required, Security::login returns a RedirectResponse to /2fa
+            if ($result instanceof RedirectResponse) {
+                return $this->json([
+                    'success'    => true,
+                    'message'    => 'Two-Factor Authentication required.',
+                    'redirect'   => $result->getTargetUrl(),
+                ]);
             }
-            
-            // If 2FA is required, the token in session will be a TwoFactorToken
-            // We can check if the redirect is needed by looking at the token later or letting
-            // the success handler (which we won't trigger manually here) handle it.
-            // Actually, Security::login does NOT return a response in some versions, 
-            // but we can check if the user is fully and truly authenticated.
-            
-            return $this->json([
-                'success'    => true,
-                'message'    => "Welcome back, {$user->getFirstName()}!",
-                'confidence' => $confidence,
-                'redirect'   => $this->generateUrl('index'),
-            ]);
 
             return $this->json([
                 'success'    => true,

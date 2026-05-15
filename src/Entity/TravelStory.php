@@ -9,6 +9,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TravelStoryRepository::class)]
 #[ORM\Table(name: 'travel_story')]
+#[Assert\Expression(
+    "this.getStartDate() === null or this.getEndDate() === null or this.getStartDate() <= this.getEndDate()",
+    message: "Start Date must be before or equal to End Date."
+)]
 class TravelStory
 {
     #[ORM\Id]
@@ -33,9 +37,11 @@ class TravelStory
     private ?string $summary = null;
 
     #[ORM\Column(name: 'start_date', type: Types::DATE_MUTABLE, nullable: true)]
+    #[Assert\LessThanOrEqual('today', message: 'Start Date cannot be in the future.')]
     private ?\DateTimeInterface $startDate = null;
 
     #[ORM\Column(name: 'end_date', type: Types::DATE_MUTABLE, nullable: true)]
+    #[Assert\LessThanOrEqual('today', message: 'End Date cannot be in the future.')]
     private ?\DateTimeInterface $endDate = null;
 
     #[ORM\Column(name: 'travel_type', type: 'string', length: 20, nullable: true)]
@@ -43,7 +49,7 @@ class TravelStory
     private ?string $travelType = null;
 
     #[ORM\Column(name: 'travel_style', type: 'string', length: 20, nullable: true)]
-    #[Assert\Choice(choices: ['luxury', 'budget', 'adventure', 'relax', 'cultural', 'roadtrip'])]
+    #[Assert\Choice(choices: ['luxury', 'budget', 'standard', 'backpacking', 'adventure'])]
     private ?string $travelStyle = null;
 
     #[ORM\Column(name: 'overall_rating', type: 'smallint', nullable: true, options: ['unsigned' => true])]
@@ -101,6 +107,15 @@ class TravelStory
 
     #[ORM\Column(name: 'updated_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
+
+    #[ORM\Column(name: 'removed_by_admin', type: 'boolean', options: ['default' => false])]
+    private bool $removedByAdmin = false;
+
+    #[ORM\Column(name: 'removal_reason', type: Types::TEXT, nullable: true)]
+    private ?string $removalReason = null;
+
+    #[ORM\Column(name: 'removed_at', type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $removedAt = null;
 
     public function __construct()
     {
@@ -394,6 +409,57 @@ class TravelStory
     public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    public function isRemovedByAdmin(): bool
+    {
+        return $this->removedByAdmin;
+    }
+
+    public function setRemovedByAdmin(bool $removedByAdmin): static
+    {
+        $this->removedByAdmin = $removedByAdmin;
+        return $this;
+    }
+
+    public function getRemovalReason(): ?string
+    {
+        return $this->removalReason;
+    }
+
+    public function setRemovalReason(?string $removalReason): static
+    {
+        $this->removalReason = $removalReason;
+        return $this;
+    }
+
+    public function getRemovedAt(): ?\DateTimeInterface
+    {
+        return $this->removedAt;
+    }
+
+    private function setRemovedAt(?\DateTimeInterface $removedAt): static
+    {
+        $this->removedAt = $removedAt;
+        return $this;
+    }
+
+    public function softDelete(?string $reason = null, bool $removedByAdmin = true): static
+    {
+        $this->removedByAdmin = $removedByAdmin;
+        $this->removalReason = $reason;
+        $this->setRemovedAt(new \DateTimeImmutable());
+
+        return $this;
+    }
+
+    public function restore(): static
+    {
+        $this->removedByAdmin = false;
+        $this->removalReason = null;
+        $this->setRemovedAt(null);
+
         return $this;
     }
 }

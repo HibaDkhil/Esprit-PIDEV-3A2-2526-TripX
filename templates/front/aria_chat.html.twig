@@ -88,13 +88,9 @@
 
     // ── open / close ──────────────────────────────
     orb.addEventListener('click', function() {
-      var isOpen = panel.classList.contains('open');
-      if (isOpen) {
-        panel.classList.remove('open');
-      } else {
-        panel.classList.add('open');
+      panel.classList.toggle('open');
+      if (panel.classList.contains('open')) {
         scrollBottom();
-        if (input) input.focus();
       }
     });
 

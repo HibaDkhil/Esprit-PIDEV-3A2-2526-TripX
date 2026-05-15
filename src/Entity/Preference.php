@@ -17,10 +17,10 @@ class Preference
     private ?int $userId = null;
 
     #[ORM\Column(name: 'budget_min_per_night', type: 'decimal', precision: 10, scale: 2, nullable: true)]
-    private ?float $budgetMinPerNight = null;
+    private ?string $budgetMinPerNight = null;
 
     #[ORM\Column(name: 'budget_max_per_night', type: 'decimal', precision: 10, scale: 2, nullable: true)]
-    private ?float $budgetMaxPerNight = null;
+    private ?string $budgetMaxPerNight = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $priorities = null;
@@ -51,11 +51,16 @@ class Preference
     #[ORM\Column(name: 'accessibility_needs', type: 'boolean', nullable: true, options: ['default' => false])]
     private ?bool $accessibilityNeeds = null;
 
-    #[ORM\Column(name: 'created_at', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $createdAt = null;
+    #[ORM\Column(name: 'created_at', type: 'datetime')]
+    private \DateTimeInterface $createdAt;
 
     #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
     /* ── Getters / Setters ── */
 
@@ -64,11 +69,11 @@ class Preference
     public function getUserId(): ?int { return $this->userId; }
     public function setUserId(int $userId): static { $this->userId = $userId; return $this; }
 
-    public function getBudgetMinPerNight(): ?float { return $this->budgetMinPerNight; }
-    public function setBudgetMinPerNight(?float $v): static { $this->budgetMinPerNight = $v; return $this; }
+    public function getBudgetMinPerNight(): ?float { return $this->budgetMinPerNight !== null ? (float) $this->budgetMinPerNight : null; }
+    public function setBudgetMinPerNight(float|string|null $v): static { $this->budgetMinPerNight = $v !== null ? number_format((float) $v, 2, '.', '') : null; return $this; }
 
-    public function getBudgetMaxPerNight(): ?float { return $this->budgetMaxPerNight; }
-    public function setBudgetMaxPerNight(?float $v): static { $this->budgetMaxPerNight = $v; return $this; }
+    public function getBudgetMaxPerNight(): ?float { return $this->budgetMaxPerNight !== null ? (float) $this->budgetMaxPerNight : null; }
+    public function setBudgetMaxPerNight(float|string|null $v): static { $this->budgetMaxPerNight = $v !== null ? number_format((float) $v, 2, '.', '') : null; return $this; }
 
     public function getPriorities(): ?string { return $this->priorities; }
     public function setPriorities(?string $v): static { $this->priorities = $v; return $this; }
@@ -96,4 +101,10 @@ class Preference
 
     public function getAccessibilityNeeds(): ?bool { return $this->accessibilityNeeds; }
     public function setAccessibilityNeeds(?bool $v): static { $this->accessibilityNeeds = $v; return $this; }
+
+    public function getCreatedAt(): \DateTimeInterface { return $this->createdAt; }
+    public function setCreatedAt(\DateTimeInterface $createdAt): static { $this->createdAt = $createdAt; return $this; }
+
+    public function getUpdatedAt(): ?\DateTimeInterface { return $this->updatedAt; }
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt): static { $this->updatedAt = $updatedAt; return $this; }
 }

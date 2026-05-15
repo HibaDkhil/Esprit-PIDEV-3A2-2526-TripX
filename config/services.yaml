@@ -4,6 +4,13 @@ parameters:
     env(SERPAPI_API_KEY): ''
     env(OPENWEATHER_API_KEY): ''
     env(ELEVENLABS_API_KEY): ''
+    env(AKISMET_API_KEY): ''
+    env(AKISMET_BLOG_URL): ''
+    env(OPENAI_API_KEY): ''
+    env(OPENAI_MODERATION_MODEL): 'omni-moderation-latest'
+    env(RECAPTCHA_SECRET_KEY): ''
+    env(float:RECAPTCHA_MIN_SCORE): '0.5'
+    app.moderation.bad_words_file: '%kernel.project_dir%/config/moderation_bad_words.txt'
 
 services:
     _defaults:
@@ -28,6 +35,13 @@ services:
     App\Security\LoginFailureHandler:
         arguments:
             $router: '@router'
+
+    # ============ ARIA EXPERIENCE SERVICE (Experience Lab) ============
+
+    App\service\AriaExperienceService:
+        arguments:
+            $httpClient: '@http_client'
+            $groqApiKey: '%env(GROQ_API_KEY)%'
 
     # ============ GEMINI SERVICE ============
     
@@ -103,12 +117,12 @@ services:
     App\service\Accommodation\ItineraryService:
         arguments:
             $cache: '@App\service\Accommodation\CacheService'
-            $geminiApiKey: '%env(RAGHED_GEMINI)%'
+            $geminiApiKey: '%env(GEMINI_API_KEY)%'
 
     # RoomInsightsService
     App\service\Accommodation\RoomInsightsService:
         arguments:
-            $raggedGemini: '%env(RAGHED_GEMINI)%'
+            $raggedGemini: '%env(TRANSPORTAI)%'
 
     # Google Calendar Service
     App\service\Accommodation\GoogleCalendarAccService:
@@ -194,14 +208,27 @@ services:
         tags:
             - { name: liip_monitor.check, alias: redis_status }
 
-    # ============ TWO-FACTOR AUTHENTICATION SERVICES ============
+    # ============ CONTENT MODERATION SERVICES ============
     
-    Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleTotpFactory:
-        alias: scheb_two_factor.security.google_totp_factory
-        public: true
-
-    Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Google\GoogleAuthenticator:
+    App\service\ContentModerationService:
         arguments:
-            $totpFactory: '@scheb_two_factor.security.google_totp_factory'
-            $leeway: 0
-        public: true
+            $akismetApiKey: '%env(AKISMET_API_KEY)%'
+            $akismetBlogUrl: '%env(AKISMET_BLOG_URL)%'
+            $openAiApiKey: '%env(OPENAI_API_KEY)%'
+            $openAiModerationModel: '%env(OPENAI_MODERATION_MODEL)%'
+            $badWordsFile: '%app.moderation.bad_words_file%'
+
+    # ============ BOT PROTECTION SERVICES ============
+    
+    App\service\BotProtectionService:
+        arguments:
+            $recaptchaSecretKey: '%env(RECAPTCHA_SECRET_KEY)%'
+            $recaptchaMinScore: '%env(float:RECAPTCHA_MIN_SCORE)%'
+
+    # ============ IMAGE ENHANCER SERVICE ============
+    
+    App\service\ImageEnhancerService:
+        arguments:
+            $pixianId: '%env(PIXIAN_API_ID)%'
+            $pixianSecret: '%env(PIXIAN_API_SECRET)%'
+            $appEnv: '%kernel.environment%'

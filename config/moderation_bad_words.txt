@@ -1,0 +1,111 @@
+# One bad word per line. Keep this list small and focused.
+# You can tune this over time.
+
+fuck
+fucking
+shit
+bitch
+asshole
+bastard
+suicide
+kill myself
+damn
+hell
+crap
+bullshit
+motherfucker
+mf
+wtf
+dick
+dickhead
+cock
+cocksucker
+pussy
+prick
+slut
+whore
+douche
+douchebag
+jackass
+ass
+asshat
+asswipe
+arse
+arsehole
+shitty
+shithead
+shitface
+shitbag
+shitfaced
+fuckface
+fucker
+fucked
+fuckup
+fuk
+fucc
+fck
+biatch
+bitches
+bastards
+son of a bitch
+sob
+motherfucking
+goddamn
+god damn
+dammit
+dipshit
+dumbass
+idiot
+moron
+retard
+retarded
+scumbag
+piece of shit
+pos
+twat
+wanker
+tosser
+numbnuts
+nutsack
+piss
+pissed off
+piss off
+pisshead
+jerkoff
+jerk off
+blowjob
+handjob
+tit
+tits
+boob
+boobs
+boobies
+nipple
+penis
+vagina
+clit
+cum
+cumming
+jizz
+semen
+anal
+anus
+butthole
+boner
+horny
+orgasm
+screw you
+screw u
+screwup
+screw up
+freaking
+frigging
+frick
+frickin
+damn it
+go to hell
+stfu
+gtfo
+lmfao
+bs
+fml

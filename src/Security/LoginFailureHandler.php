@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 
 class LoginFailureHandler implements AuthenticationFailureHandlerInterface
@@ -25,6 +26,13 @@ class LoginFailureHandler implements AuthenticationFailureHandlerInterface
         /** @var Session $session */
         $session = $request->getSession();
         $exceptionMessage = $exception->getMessageKey();
+
+        if ($exception instanceof CustomUserMessageAccountStatusException) {
+            $session->set('login_error_type', 'UNVERIFIED_ACCOUNT');
+            $session->getFlashBag()->add('error', $exceptionMessage);
+
+            return new RedirectResponse($this->router->generate('app_login', ['signup' => 1, 'verify' => 1]));
+        }
         
         // Track attempts in session
         $attempts = $session->get('login_attempts', 0);

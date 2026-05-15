@@ -1,0 +1,15 @@
+.git
+.gitignore
+.idea
+.vscode
+.phpunit.cache
+var/*
+vendor
+node_modules
+public/uploads
+.env
+.env.*
+!.env.deploy.example
+docker-compose*.yml
+compose*.yaml
+tests

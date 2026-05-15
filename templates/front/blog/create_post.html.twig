@@ -1,243 +1,429 @@
 {% extends 'base.html.twig' %}
-{% block title %}Create Post — TripX{% endblock %}
+{% block title %}Create a Post — TripX{% endblock %}
 
 {% block stylesheets %}
-  {{ parent() }}
-  <link rel="stylesheet" href="{{ asset('css/blog.css') }}">
+<style>
+.cp-wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: calc(var(--nav-height, 70px) + 40px) 16px 80px;
+}
+.cp-label {
+    font-family: var(--font-mono, 'Space Mono');
+    font-size: 11px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--accent-primary);
+    margin-bottom: 10px; display: block;
+}
+.cp-title {
+    font-family: var(--font-display, 'Playfair Display');
+    font-size: 36px; font-weight: 900;
+    color: var(--text-primary); margin: 0 0 8px; line-height: 1.15;
+}
+.cp-title span { color: var(--accent-primary); }
+.cp-subtitle {
+    font-size: 15px; color: var(--text-muted);
+    margin: 0 0 32px; line-height: 1.6;
+}
+.cp-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 24px; padding: 36px 32px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.06);
+    animation: fadeUp .45s cubic-bezier(.22,1,.36,1) both;
+}
+.cp-card label, .cp-field-label {
+    display: block; font-weight: 700; font-size: 12px;
+    color: var(--text-muted); margin-bottom: 7px;
+    font-family: var(--font-mono, 'Space Mono');
+    text-transform: uppercase; letter-spacing: .06em;
+}
+.cp-card input[type="text"],
+.cp-card textarea,
+.cp-card select {
+    width: 100%; padding: 13px 16px;
+    border: 1px solid var(--border-color); border-radius: 14px;
+    background: var(--bg-surface); color: var(--text-primary);
+    font-size: 14px; font-family: inherit;
+    transition: border-color .2s, box-shadow .2s;
+    appearance: none;
+}
+.cp-card input:focus, .cp-card textarea:focus, .cp-card select:focus {
+    outline: none; border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+}
+.cp-card input::placeholder, .cp-card textarea::placeholder { color: var(--text-muted); }
+.cp-card textarea { min-height: 200px; resize: vertical; line-height: 1.7; }
+.select-wrap { position: relative; }
+.select-wrap::after {
+    content: '▾'; position: absolute; right: 16px; top: 50%;
+    transform: translateY(-50%); pointer-events: none;
+    color: var(--text-muted); font-size: 14px;
+}
+.select-wrap select { padding-right: 40px; cursor: pointer; }
+.cp-field { margin-bottom: 22px; }
+.cp-card ul { padding: 0; margin: 6px 0 0; list-style: none; }
+.cp-card ul li { color: #ef4444; font-size: 13px; }
+
+/* ── Image upload zone ── */
+.upload-zone {
+    display: block;                       /* label needs display:block */
+    border: 2px dashed var(--border-color);
+    border-radius: 16px; padding: 36px 20px;
+    text-align: center; cursor: pointer;
+    transition: border-color .2s, background .2s;
+    user-select: none;
+}
+.upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--accent-primary);
+    background: rgba(99,102,241,.04);
+}
+.upload-icon {
+    font-size: 46px; display: block; margin-bottom: 12px;
+    transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.upload-zone:hover .upload-icon { transform: scale(1.18) translateY(-5px); }
+.upload-zone-text {
+    font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px;
+}
+.upload-zone-sub {
+    font-size: 12px; color: var(--text-muted);
+    font-family: var(--font-mono, 'Space Mono');
+}
+
+/* ── Image preview grid ── */
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px; margin-top: 14px;
+}
+.preview-item {
+    position: relative; border-radius: 12px; overflow: hidden;
+    aspect-ratio: 1; border: 1px solid var(--border-color);
+    animation: fadeUp .3s cubic-bezier(.22,1,.36,1) both;
+}
+.preview-item img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.preview-remove {
+    position: absolute; top: 5px; right: 5px;
+    background: rgba(0,0,0,.65); color: #fff; border: none;
+    width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+    font-size: 13px; display: flex; align-items: center; justify-content: center;
+    transition: background .15s;
+}
+.preview-remove:hover { background: #ef4444; }
+
+/* ── Notice & actions ── */
+.cp-notice {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: rgba(245,158,11,.09); border: 1px solid rgba(245,158,11,.28);
+    border-radius: 14px; padding: 13px 16px;
+    font-size: 13px; color: #92400e; margin-bottom: 26px; line-height: 1.5;
+}
+.cp-actions {
+    display: flex; gap: 14px; align-items: center;
+    margin-top: 32px; padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+}
+.cp-submit {
+    padding: 13px 32px;
+    background: linear-gradient(135deg, var(--accent-primary,#6366f1), #a855f7);
+    color: #fff; border: none; border-radius: 50px;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+    box-shadow: 0 4px 14px rgba(99,102,241,.3);
+}
+.cp-submit:hover { transform: translateY(-2px); box-shadow: 0 7px 22px rgba(99,102,241,.42); }
+.cp-back {
+    text-decoration: none; color: var(--text-muted);
+    font-weight: 600; font-size: 14px; transition: color .18s;
+}
+.cp-back:hover { color: var(--text-primary); }
+
+@keyframes fadeUp {
+    from { opacity:0; transform:translateY(20px); }
+    to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── Magic AI Enhancer ── */
+.magic-btn { display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:50px;border:1.5px solid var(--accent-primary,#6366f1);background:transparent;color:var(--accent-primary,#6366f1);font-size:11px;font-weight:700;cursor:pointer;transition:all .25s;margin-left:auto; }
+.magic-btn:hover { background:var(--accent-primary,#6366f1);color:#fff;box-shadow:0 4px 18px rgba(99,102,241,.3);transform:translateY(-1px); }
+.magic-btn .ai-badge { padding:2px 6px;font-size:8px;font-weight:800;letter-spacing:.08em;border-radius:4px;background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff; }
+.cp-images-header { display:flex;align-items:center;gap:10px;margin-bottom:7px; }
+.magic-overlay { position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;animation:fadeIn .2s; }
+.magic-overlay.open { display:flex; }
+.magic-modal { background:rgba(255,255,255,.12);backdrop-filter:blur(24px) saturate(1.6);border:1px solid rgba(255,255,255,.18);border-radius:24px;padding:32px 28px;width:92%;max-width:480px;color:#fff;box-shadow:0 16px 64px rgba(0,0,0,.35);animation:fadeUp .35s cubic-bezier(.22,1,.36,1); }
+.magic-modal h3 { font-size:20px;font-weight:800;margin:0 0 6px;display:flex;align-items:center;gap:10px; }
+.magic-modal .magic-sub { font-size:13px;color:rgba(255,255,255,.6);margin:0 0 18px; }
+.magic-thumb-grid { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px; }
+.magic-thumb { width:64px;height:64px;border-radius:10px;object-fit:cover;cursor:pointer;border:2px solid transparent;transition:border-color .2s,transform .15s;opacity:.7; }
+.magic-thumb:hover { opacity:1;transform:scale(1.05); }
+.magic-thumb.selected { border-color:#a855f7;opacity:1; }
+.magic-no-images { font-size:13px;color:rgba(255,255,255,.45);padding:16px 0;text-align:center; }
+.magic-upload-zone { border:2px dashed rgba(255,255,255,.25);border-radius:14px;padding:28px 16px;text-align:center;cursor:pointer;transition:border-color .2s; }
+.magic-upload-zone:hover { border-color:rgba(255,255,255,.5); }
+.magic-upload-zone input[type=file] { display:none; }
+.magic-preview { margin:16px 0;border-radius:14px;overflow:hidden;max-height:260px;display:none;position:relative;background:rgba(0,0,0,.2); }
+.magic-preview img { width:100%;display:block;object-fit:contain;max-height:260px; }
+.magic-toggles { display:flex;flex-direction:column;gap:10px;margin:18px 0; }
+.magic-toggle { display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);cursor:pointer;transition:border-color .2s; }
+.magic-toggle:hover { border-color:rgba(255,255,255,.3); }
+.magic-toggle input[type=checkbox] { accent-color:#a855f7;width:18px;height:18px;cursor:pointer; }
+.magic-toggle-label { font-size:13px;font-weight:600; }
+.magic-toggle-desc { font-size:11px;color:rgba(255,255,255,.5); }
+.magic-actions { display:flex;gap:10px;margin-top:20px; }
+.magic-apply { flex:1;padding:12px 0;border:none;border-radius:50px;font-size:14px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff;transition:transform .2s,box-shadow .2s; }
+.magic-apply:hover { transform:translateY(-2px);box-shadow:0 6px 20px rgba(99,102,241,.4); }
+.magic-apply:disabled { opacity:.5;cursor:not-allowed;transform:none;box-shadow:none; }
+.magic-use { flex:1;padding:12px 0;border:none;border-radius:50px;font-size:14px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;display:none;transition:transform .2s; }
+.magic-use:hover { transform:translateY(-2px); }
+.magic-cancel { padding:12px 20px;border:1px solid rgba(255,255,255,.2);border-radius:50px;background:transparent;color:rgba(255,255,255,.7);font-size:13px;font-weight:600;cursor:pointer;transition:border-color .2s; }
+.magic-cancel:hover { border-color:rgba(255,255,255,.5);color:#fff; }
+.magic-spinner { display:none;margin:16px auto;width:32px;height:32px;border:3px solid rgba(255,255,255,.15);border-top-color:#a855f7;border-radius:50%;animation:spin .7s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+</style>
 {% endblock %}
 
 {% block body %}
-<div class="blog-page">
 <div class="cp-wrap">
+    <span class="cp-label">✍️ Create</span>
+    <h1 class="cp-title">Share your <span>thoughts</span></h1>
+    <p class="cp-subtitle">
+        Post a story, review, tip or question with the TripX community.
+        All posts are reviewed before going live.
+    </p>
 
-  <span class="cp-eyebrow">✍️ Create</span>
-  <h1 class="cp-title">Share your <span>Travel Story</span></h1>
-  <p class="cp-subtitle">Post a story, review, tip or question to the TripX community.<br>All posts are reviewed before going live.</p>
+    {% for msg in app.flashes('error') %}
+        <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);
+                    border-radius:14px;padding:14px 18px;margin-bottom:20px;
+                    color:#b91c1c;font-size:14px;">❌ {{ msg }}</div>
+    {% endfor %}
 
-  {% for msg in app.flashes('error') %}
-    <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:16px;padding:14px 18px;margin-bottom:20px;color:#fca5a5;font-size:14px;">
-      ❌ {{ msg }}
-    </div>
-  {% endfor %}
+    <div class="cp-card">
+        <div class="cp-notice">
+            ℹ️ Your post will be reviewed by an admin before appearing publicly.
+        </div>
 
-  <div class="cp-card">
-    <div class="cp-notice">ℹ️ Your post will be reviewed by an admin before appearing publicly.</div>
-
-    {{ form_start(form, {
-      'attr': {
-        'novalidate': 'novalidate',
-        'enctype': 'multipart/form-data',
-        'id': 'post-create-form'
-      }
-    }) }}
-
-      {# Title #}
-      <div class="cp-field" id="field-title">
-        <label class="cp-field-label" for="post-title-input">📝 Post Title</label>
-        {{ form_widget(form.title, {
-          'attr': {
-            'class': 'cp-input',
-            'id': 'post-title-input',
-            'placeholder': 'Give your post a clear, catchy title…',
-            'autocomplete': 'off'
-          }
-        }) }}
-        <span class="field-error" id="err-title"></span>
-      </div>
-
-      {# Body #}
-      <div class="cp-field" id="field-body">
-        <label class="cp-field-label" for="post-body-input">📖 Content</label>
-        {{ form_widget(form.body, {
-          'attr': {
-            'class': 'cp-textarea',
-            'id': 'post-body-input',
-            'placeholder': 'Tell your story, share your experience, ask your question…'
-          }
-        }) }}
-        <span class="field-error" id="err-body"></span>
-        <div style="text-align:right;font-size:11px;color:var(--text-3);margin-top:4px;" id="body-count">0 chars</div>
-      </div>
-
-      {# Type #}
-      <div class="cp-field" id="field-type">
-        <label class="cp-field-label" for="post-type-select">🏷️ Post Type</label>
-        <div class="select-wrap">
-          {{ form_widget(form.type, {
+        {{ form_start(form, {
             'attr': {
-              'class': 'cp-select',
-              'id': 'post-type-select'
+                'novalidate': 'novalidate',
+                'enctype': 'multipart/form-data',
+                'data-recaptcha-action': 'post_create'
             }
-          }) }}
-        </div>
-        <span class="field-error" id="err-type"></span>
-      </div>
+        }) }}
 
-      {# Images #}
-      <div class="cp-field" id="field-images">
-        <span class="cp-field-label">🖼️ Images (optional — up to 5)</span>
-        {% set fileInputId = form.imageFile.vars.id %}
-        <div style="position:absolute;width:0;height:0;overflow:hidden;">
-          {{ form_widget(form.imageFile, {'attr': {'multiple': 'multiple'}}) }}
-        </div>
-        <label for="{{ fileInputId }}" class="upload-zone" id="upload-zone"
-               ondragover="handleDragOver(event)"
-               ondragleave="handleDragLeave(event)"
-               ondrop="handleDrop(event)">
-          <span class="upload-icon">📷</span>
-          <div class="upload-zone-text">Click to add photos — or drag & drop</div>
-          <div class="upload-zone-sub">JPG · PNG · WebP · GIF &nbsp;·&nbsp; max 5 MB each &nbsp;·&nbsp; up to 5 images</div>
-        </label>
-        <div class="preview-grid" id="preview-grid"></div>
-        <span class="field-error" id="err-images"></span>
-      </div>
+            {{ form_errors(form) }}
+            <input type="text" name="_hp" value="" tabindex="-1" autocomplete="off" style="display:none">
+            <input type="hidden" name="_recaptcha_token" value="">
 
-      <div class="cp-actions">
-        <button type="button" class="cp-submit" onclick="validateAndSubmit()">
-          🚀 Publish Post
-        </button>
-        <a href="{{ path('blog') }}" class="cp-back">← Back to blog</a>
-      </div>
+            {# Title #}
+            <div class="cp-field">
+                {{ form_label(form.title, 'Post Title') }}
+                {{ form_widget(form.title, {'attr': {'placeholder': 'Give your post a clear, catchy title…'}}) }}
+                {{ form_errors(form.title) }}
+            </div>
 
-    {{ form_end(form) }}
-  </div>
+            {# Body #}
+            <div class="cp-field">
+                {{ form_label(form.body, 'Content') }}
+                {{ form_widget(form.body, {'attr': {'placeholder': 'Tell your story, share your experience, ask your question…'}}) }}
+                {{ form_errors(form.body) }}
+            </div>
+
+            {# Type #}
+            <div class="cp-field">
+                {{ form_label(form.type, 'Post Type') }}
+                <div class="select-wrap">
+                    {{ form_widget(form.type) }}
+                </div>
+                {{ form_errors(form.type) }}
+            </div>
+
+            {# Image Upload #}
+            <div class="cp-field">
+                <div class="cp-images-header">
+                    <span class="cp-field-label" style="margin-bottom:0">🖼️ Images (optional — up to 5)</span>
+                    <button type="button" class="magic-btn" id="magic-enhancer-btn">
+                        ✨ Magic AI Enhance
+                    </button>
+                </div>
+
+                {# Render the Symfony file widget — hidden visually but fully clickable via its label #}
+                {# We capture the real Symfony-generated ID so our <label for="..."> matches exactly #}
+                {% set fileInputId = form.imageFile.vars.id %}
+
+                <div style="position:absolute;width:0;height:0;overflow:hidden;">
+                    {{ form_widget(form.imageFile, {'attr': {'multiple': 'multiple'}}) }}
+                </div>
+                {{ form_errors(form.imageFile) }}
+
+                {# <label for="..."> natively triggers the input on click — zero JS needed #}
+                <label for="{{ fileInputId }}" class="upload-zone" id="upload-zone"
+                       ondragover="handleDragOver(event)"
+                       ondragleave="handleDragLeave(event)"
+                       ondrop="handleDrop(event)">
+                    <span class="upload-icon">📷</span>
+                    <div class="upload-zone-text">Click to add photos — or drag & drop here</div>
+                    <div class="upload-zone-sub">
+                        JPG, PNG, WebP, GIF &nbsp;·&nbsp; max 5 MB each &nbsp;·&nbsp; up to 5 images
+                    </div>
+                </label>
+
+                <div class="preview-grid" id="preview-grid"></div>
+            </div>
+
+            <div class="cp-actions">
+                <button type="submit" class="cp-submit">🚀 Publish Post</button>
+                <a href="{{ path('blog') }}" class="cp-back">← Back to blog</a>
+            </div>
+
+        {{ form_end(form) }}
+    </div>
 </div>
+
+{# ── Magic AI Enhancer Modal ── #}
+<div class="magic-overlay" id="magic-overlay">
+  <div class="magic-modal">
+    <h3>✨ Magic AI Enhancer</h3>
+    <p class="magic-sub">Select an uploaded image to enhance.</p>
+    <div class="magic-thumb-grid" id="magic-thumb-grid"></div>
+    <div class="magic-preview" id="magic-preview"><img id="magic-preview-img" src="" alt="Preview"></div>
+    <div class="magic-toggles">
+      <label class="magic-toggle"><input type="checkbox" id="magic-sharpen" checked><div><div class="magic-toggle-label">✨ Enhance &amp; Sharpen</div><div class="magic-toggle-desc">Make blurry photos look crisp and HD</div></div></label>
+      <label class="magic-toggle"><input type="checkbox" id="magic-rmbg"><div><div class="magic-toggle-label">✂️ Remove Background</div><div class="magic-toggle-desc">AI-powered subject isolation (Pixian)</div></div></label>
+    </div>
+    <div class="magic-spinner" id="magic-spinner"></div>
+    <div class="magic-actions">
+      <button type="button" class="magic-apply" id="magic-apply" disabled>Apply Magic 🪄</button>
+      <button type="button" class="magic-use" id="magic-use">✅ Use this image</button>
+      <button type="button" class="magic-cancel" id="magic-cancel">Cancel</button>
+    </div>
+  </div>
 </div>
 
 <script>
-/* ── Image Upload ── */
-const fileInput   = document.querySelector('input[type="file"][multiple]');
+const fileInput  = document.querySelector('input[type="file"][multiple]');
 const previewGrid = document.getElementById('preview-grid');
 const uploadZone  = document.getElementById('upload-zone');
 let selectedFiles = [];
-const MAX_FILES   = 5;
-const MAX_SIZE    = 5 * 1024 * 1024;
-const ALLOWED_TYPES = ['image/jpeg','image/png','image/webp','image/gif'];
 
 function syncFilesToInput() {
-  const dt = new DataTransfer();
-  selectedFiles.forEach(f => dt.items.add(f));
-  fileInput.files = dt.files;
+    const dt = new DataTransfer();
+    selectedFiles.forEach(f => dt.items.add(f));
+    fileInput.files = dt.files;
 }
-
 function renderPreviews() {
-  previewGrid.innerHTML = '';
-  selectedFiles.forEach((file, idx) => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const item = document.createElement('div');
-      item.className = 'preview-item';
-      item.style.animationDelay = (idx * 0.06) + 's';
-      item.innerHTML = `<img src="${e.target.result}" alt="${file.name}">
-        <button type="button" class="preview-remove" onclick="removeFile(${idx})" title="Remove">✕</button>`;
-      previewGrid.appendChild(item);
-    };
-    reader.readAsDataURL(file);
-  });
+    previewGrid.innerHTML = '';
+    selectedFiles.forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const item = document.createElement('div');
+            item.className = 'preview-item';
+            item.style.animationDelay = (idx * 0.06) + 's';
+            item.innerHTML = `<img src="${e.target.result}" alt="${file.name}"><button type="button" class="preview-remove" onclick="removeFile(${idx})" title="Remove">✕</button>`;
+            previewGrid.appendChild(item);
+        };
+        reader.readAsDataURL(file);
+    });
 }
-
-function removeFile(idx) {
-  selectedFiles.splice(idx, 1);
-  syncFilesToInput();
-  renderPreviews();
-}
-
-function addFiles(files) {
-  const errEl = document.getElementById('err-images');
-  errEl.textContent = '';
-  const arr = Array.from(files);
-  const valid = [];
-  for (const f of arr) {
-    if (!ALLOWED_TYPES.includes(f.type)) {
-      errEl.textContent = `"${f.name}" is not a valid image format.`;
-      continue;
-    }
-    if (f.size > MAX_SIZE) {
-      errEl.textContent = `"${f.name}" exceeds 5 MB limit.`;
-      continue;
-    }
-    valid.push(f);
-  }
-  selectedFiles = [...selectedFiles, ...valid].slice(0, MAX_FILES);
-  if (selectedFiles.length >= MAX_FILES) {
-    errEl.textContent = 'Maximum 5 images allowed.';
-  }
-  syncFilesToInput();
-  renderPreviews();
-}
-
-fileInput.addEventListener('change', () => addFiles(fileInput.files));
-
+function removeFile(idx) { selectedFiles.splice(idx, 1); syncFilesToInput(); renderPreviews(); }
+function addFiles(files) { const arr = Array.from(files); selectedFiles = [...selectedFiles, ...arr].slice(0, 5); syncFilesToInput(); renderPreviews(); }
+fileInput.addEventListener('change', () => { addFiles(fileInput.files); });
 function handleDragOver(e) { e.preventDefault(); uploadZone.classList.add('dragover'); }
-function handleDragLeave()  { uploadZone.classList.remove('dragover'); }
-function handleDrop(e) {
-  e.preventDefault();
-  uploadZone.classList.remove('dragover');
-  if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+function handleDragLeave(e) { uploadZone.classList.remove('dragover'); }
+function handleDrop(e) { e.preventDefault(); uploadZone.classList.remove('dragover'); if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files); }
+
+// ── Magic AI Enhancer Logic ─────────────────────────────────────────
+const magicOverlay  = document.getElementById('magic-overlay');
+const magicThumbGrid = document.getElementById('magic-thumb-grid');
+const magicPreview  = document.getElementById('magic-preview');
+const magicImg      = document.getElementById('magic-preview-img');
+const magicApply    = document.getElementById('magic-apply');
+const magicUse      = document.getElementById('magic-use');
+const magicCancel   = document.getElementById('magic-cancel');
+const magicSpinner  = document.getElementById('magic-spinner');
+let magicSelectedIdx  = -1;
+let magicResultUrl    = null;
+
+function openMagicEnhancer() {
+    if (!selectedFiles.length) { alert('Upload at least one image first.'); return; }
+    magicOverlay.classList.add('open');
+    magicSelectedIdx = -1; magicResultUrl = null;
+    magicPreview.style.display = 'none'; magicImg.src = '';
+    magicApply.disabled = true; magicApply.textContent = 'Apply Magic 🪄';
+    magicUse.style.display = 'none'; magicSpinner.style.display = 'none';
+    renderMagicThumbs();
 }
 
-/* ── Character Count ── */
-const bodyInput = document.getElementById('post-body-input');
-const bodyCount = document.getElementById('body-count');
-if (bodyInput && bodyCount) {
-  bodyInput.addEventListener('input', () => {
-    const len = bodyInput.value.length;
-    bodyCount.textContent = len + ' chars';
-    bodyCount.style.color = len < 10 ? 'var(--danger)' : 'var(--text-3)';
-  });
+function renderMagicThumbs() {
+    magicThumbGrid.innerHTML = '';
+    if (!selectedFiles.length) {
+        magicThumbGrid.innerHTML = '<div class="magic-no-images">No images uploaded yet</div>';
+        return;
+    }
+    selectedFiles.forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = document.createElement('img');
+            img.src = e.target.result; img.className = 'magic-thumb';
+            img.addEventListener('click', () => {
+                magicThumbGrid.querySelectorAll('.magic-thumb').forEach(t => t.classList.remove('selected'));
+                img.classList.add('selected');
+                magicSelectedIdx = idx;
+                magicImg.src = e.target.result; magicPreview.style.display = 'block';
+                magicApply.disabled = false; magicUse.style.display = 'none'; magicResultUrl = null;
+            });
+            magicThumbGrid.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    });
 }
 
-/* ── JS Validation ── */
-function setFieldError(fieldId, errId, msg) {
-  const field = document.getElementById(fieldId);
-  const err   = document.getElementById(errId);
-  if (field) field.classList.toggle('err', !!msg);
-  if (err)   { err.textContent = msg || ''; }
-  return !msg;
-}
+document.getElementById('magic-enhancer-btn').addEventListener('click', openMagicEnhancer);
+magicCancel.addEventListener('click', () => { magicOverlay.classList.remove('open'); });
+magicOverlay.addEventListener('click', e => { if (e.target === magicOverlay) magicOverlay.classList.remove('open'); });
 
-function validateAndSubmit() {
-  let valid = true;
+magicApply.addEventListener('click', async () => {
+    if (magicSelectedIdx < 0 || !selectedFiles[magicSelectedIdx]) return;
+    const sharpen = document.getElementById('magic-sharpen').checked;
+    const rmbg    = document.getElementById('magic-rmbg').checked;
+    if (!sharpen && !rmbg) { alert('Select at least one enhancement.'); return; }
 
-  const title = document.getElementById('post-title-input')?.value.trim() || '';
-  valid = setFieldError('post-title-input', 'err-title',
-    title === '' ? 'Title is required.' :
-    title.length < 3 ? 'Title must be at least 3 characters.' :
-    title.length > 255 ? 'Title must not exceed 255 characters.' : '') && valid;
+    magicApply.disabled = true; magicApply.textContent = 'Processing... 🪄';
+    magicSpinner.style.display = 'block';
 
-  const body = document.getElementById('post-body-input')?.value.trim() || '';
-  valid = setFieldError('post-body-input', 'err-body',
-    body === '' ? 'Content is required.' :
-    body.length < 10 ? 'Content must be at least 10 characters.' : '') && valid;
+    const fd = new FormData();
+    fd.append('image', selectedFiles[magicSelectedIdx]);
+    if (sharpen) fd.append('sharpen', '1');
+    if (rmbg)    fd.append('remove_bg', '1');
 
-  const type = document.getElementById('post-type-select')?.value || '';
-  valid = setFieldError('post-type-select', 'err-type',
-    type === '' ? 'Please select a post type.' : '') && valid;
+    try {
+        const res = await fetch('{{ path("post_enhance_image") }}', { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.message || 'Enhancement failed');
+        magicResultUrl = json.url;
+        magicImg.src = magicResultUrl;
+        magicPreview.style.display = 'block';
+        magicUse.style.display = 'block';
+        magicApply.textContent = 'Re-apply 🪄'; magicApply.disabled = false;
+    } catch (err) {
+        alert(err.message || 'Could not enhance image.');
+        magicApply.textContent = 'Apply Magic 🪄'; magicApply.disabled = false;
+    } finally { magicSpinner.style.display = 'none'; }
+});
 
-  if (valid) {
-    const btn = document.querySelector('.cp-submit');
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ Submitting…'; }
-    document.getElementById('post-create-form').submit();
-  }
-}
-
-/* ── Real-time validation on blur ── */
-document.addEventListener('DOMContentLoaded', () => {
-  const titleEl = document.getElementById('post-title-input');
-  const bodyEl  = document.getElementById('post-body-input');
-  const typeEl  = document.getElementById('post-type-select');
-
-  if (titleEl) titleEl.addEventListener('input', () => {
-    setFieldError('post-title-input', 'err-title', '');
-  });
-
-  if (bodyEl) bodyEl.addEventListener('input', () => {
-    setFieldError('post-body-input', 'err-body', '');
-  });
-
-  if (typeEl) typeEl.addEventListener('change', () => {
-    setFieldError('post-type-select', 'err-type', '');
-  });
+magicUse.addEventListener('click', async () => {
+    if (!magicResultUrl || magicSelectedIdx < 0) return;
+    try {
+        const resp = await fetch(magicResultUrl);
+        const blob = await resp.blob();
+        const ext = magicResultUrl.split('.').pop() || 'png';
+        const file = new File([blob], 'enhanced-' + Date.now() + '.' + ext, { type: blob.type });
+        selectedFiles[magicSelectedIdx] = file;
+        syncFilesToInput(); renderPreviews();
+        magicOverlay.classList.remove('open');
+    } catch (_) { alert('Could not load enhanced image.'); }
 });
 </script>
 {% endblock %}

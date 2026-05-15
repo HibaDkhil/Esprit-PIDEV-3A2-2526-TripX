@@ -7,566 +7,1313 @@
 
 {% block content %}
 <style>
-/* ── Admin Blog Styles ── */
-.ab-stats        { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:16px; margin-bottom:28px; }
-.ab-stat         { background:var(--bg-card); border:1px solid var(--border-color); border-radius:14px; padding:20px 18px; position:relative; overflow:hidden; transition:all .2s; }
-.ab-stat:hover   { transform:translateY(-2px); box-shadow:0 8px 28px rgba(0,0,0,.25); }
-.ab-stat::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
-.ab-stat.c1::before { background:linear-gradient(90deg,#2563eb,#0ea5e9); }
-.ab-stat.c2::before { background:linear-gradient(90deg,#f59e0b,#ef4444); }
-.ab-stat.c3::before { background:linear-gradient(90deg,#10b981,#3b82f6); }
-.ab-stat.c4::before { background:#a78bfa; }
-.ab-stat.c5::before { background:#38bdf8; }
-.ab-stat .num    { font-size:32px; font-weight:900; color:var(--accent-primary); line-height:1; }
-.ab-stat .lbl    { font-size:12px; color:var(--text-muted); margin-top:4px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; }
-
-.ab-tabs         { display:flex; gap:0; border-bottom:2px solid var(--border-color); margin-bottom:24px; }
-.ab-tab          { padding:12px 24px; font-size:14px; font-weight:700; cursor:pointer; border:none; background:none; color:var(--text-muted); position:relative; transition:color .2s; }
-.ab-tab:hover    { color:var(--text-primary); }
-.ab-tab.active   { color:var(--accent-primary); }
-.ab-tab.active::after { content:''; position:absolute; bottom:-2px; left:0; right:0; height:2px; background:var(--accent-primary); }
-.tab-cnt         { display:inline-block; margin-left:6px; padding:1px 8px; border-radius:50px; font-size:11px; font-weight:700; background:rgba(255,255,255,.08); }
-.ab-tab.active .tab-cnt { background:var(--accent-primary); color:#fff; }
-.tab-panel       { display:none; }
-.tab-panel.active{ display:block; }
-
-/* Table */
-.ab-table        { width:100%; border-collapse:collapse; background:var(--bg-card); border-radius:14px; overflow:hidden; border:1px solid var(--border-color); }
-.ab-table th     { background:var(--bg-surface); padding:12px 14px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); text-align:left; border-bottom:1px solid var(--border-color); }
-.ab-table td     { padding:13px 14px; font-size:13px; border-bottom:1px solid var(--border-color); vertical-align:middle; }
-.ab-table tr:last-child td { border-bottom:none; }
-.ab-table tr:hover td { background:rgba(255,255,255,.03); }
-
-/* Badges */
-.badge           { display:inline-block; padding:3px 10px; border-radius:50px; font-size:11px; font-weight:700; }
-.badge-pending   { background:rgba(245,158,11,.15); color:#fcd34d; border:1px solid rgba(245,158,11,.3); }
-.badge-approved  { background:rgba(16,185,129,.15); color:#6ee7b7; border:1px solid rgba(16,185,129,.3); }
-.type-dot        { display:inline-block; padding:3px 10px; border-radius:50px; font-size:11px; font-weight:700; }
-.type-inquiry    { background:rgba(59,130,246,.15); color:#93c5fd; }
-.type-story      { background:rgba(16,185,129,.15); color:#6ee7b7; }
-.type-review     { background:rgba(245,158,11,.15); color:#fcd34d; }
-.type-advice     { background:rgba(168,85,247,.15); color:#c4b5fd; }
-.type-other      { background:rgba(255,255,255,.06); color:#9ca3af; }
-
-/* Action buttons */
-.ab-actions      { display:flex; gap:6px; flex-wrap:wrap; }
-.btn-approve     { padding:5px 12px; background:rgba(16,185,129,.15); color:#6ee7b7; border:1px solid rgba(16,185,129,.3); border-radius:50px; font-size:12px; font-weight:700; cursor:pointer; transition:all .2s; }
-.btn-approve:hover { background:rgba(16,185,129,.3); }
-.btn-reject      { padding:5px 12px; background:rgba(245,158,11,.15); color:#fcd34d; border:1px solid rgba(245,158,11,.3); border-radius:50px; font-size:12px; font-weight:700; cursor:pointer; transition:all .2s; }
-.btn-reject:hover{ background:rgba(245,158,11,.3); }
-.btn-del         { padding:5px 12px; background:rgba(239,68,68,.15); color:#fca5a5; border:1px solid rgba(239,68,68,.3); border-radius:50px; font-size:12px; font-weight:700; cursor:pointer; transition:all .2s; }
-.btn-del:hover   { background:rgba(239,68,68,.3); }
-.btn-edit        { padding:5px 12px; background:rgba(37,99,235,.15); color:#c4b5fd; border:1px solid rgba(37,99,235,.3); border-radius:50px; font-size:12px; font-weight:700; cursor:pointer; transition:all .2s; }
-.btn-edit:hover  { background:rgba(37,99,235,.3); }
-.btn-view        { padding:5px 12px; background:rgba(59,130,246,.15); color:#93c5fd; border:1px solid rgba(59,130,246,.3); border-radius:50px; font-size:12px; font-weight:700; text-decoration:none; transition:all .2s; }
-.btn-view:hover  { background:rgba(59,130,246,.3); }
-
-.post-title-cell { max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:700; color:var(--text-primary); }
-.story-thumb     { width:44px; height:34px; object-fit:cover; border-radius:6px; }
-.empty-state-admin { text-align:center; padding:48px; color:var(--text-muted); }
-
-/* Search + Filter bar */
-.ab-toolbar      { display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; align-items:center; }
-.ab-search-wrap  { flex:1; min-width:200px; display:flex; align-items:center; gap:8px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:50px; padding:9px 16px; }
-.ab-search-wrap input { flex:1; border:none; background:none; outline:none; font-size:13px; color:var(--text-primary); }
-.ab-filter-select { padding:9px 14px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:50px; color:var(--text-primary); font-size:13px; cursor:pointer; outline:none; }
-
-/* Edit Modal */
-.ab-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center; }
-.ab-modal-overlay.open { display:flex; }
-.ab-modal        { background:var(--bg-card); border:1px solid var(--border-color); border-radius:20px; padding:28px 30px; width:100%; max-width:560px; animation:modalIn .25s cubic-bezier(0.22,1,0.36,1); }
-@keyframes modalIn { from{opacity:0;transform:scale(.95) translateY(10px)} to{opacity:1;transform:none} }
-.ab-modal h3     { font-size:18px; font-weight:800; color:var(--text-primary); margin:0 0 20px; }
-.ab-modal label  { display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); margin-bottom:6px; margin-top:16px; }
-.ab-modal label:first-of-type { margin-top:0; }
-.ab-modal input, .ab-modal textarea, .ab-modal select {
-  width:100%; padding:11px 14px; background:var(--bg-surface); border:1px solid var(--border-color);
-  border-radius:10px; color:var(--text-primary); font-size:14px; outline:none; box-sizing:border-box;
-  font-family:inherit; transition:border-color .2s;
+/* Modern Admin Dashboard Styles */
+:root {
+    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    --card-border: 1px solid rgba(226, 232, 240, 0.8);
 }
-.ab-modal input:focus, .ab-modal textarea:focus, .ab-modal select:focus {
-  border-color:var(--accent-primary);
-  box-shadow:0 0 0 3px rgba(99,102,241,.15);
+
+.dashboard-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
 }
-.ab-modal textarea { min-height:130px; resize:vertical; }
-.ab-modal-actions { display:flex; gap:10px; margin-top:20px; justify-content:flex-end; }
-.ab-modal-save   { padding:10px 24px; background:var(--accent-primary,#6366f1); color:#fff; border:none; border-radius:50px; font-weight:700; cursor:pointer; transition:all .2s; }
-.ab-modal-save:hover { opacity:.85; }
-.ab-modal-cancel { padding:10px 20px; background:rgba(255,255,255,.06); border:1px solid var(--border-color); color:var(--text-muted); border-radius:50px; cursor:pointer; font-weight:700; transition:all .2s; }
-.ab-modal-err    { font-size:12px; color:#fca5a5; margin-top:8px; }
-.ab-modal-close  { float:right; background:none; border:none; color:var(--text-muted); font-size:20px; cursor:pointer; line-height:1; }
 
-/* Confirmation modal */
-.ab-confirm-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:1001; align-items:center; justify-content:center; }
-.ab-confirm-overlay.open { display:flex; }
-.ab-confirm      { background:var(--bg-card); border:1px solid var(--border-color); border-radius:16px; padding:24px 28px; max-width:380px; width:100%; text-align:center; animation:modalIn .2s ease; }
-.ab-confirm h4   { font-size:17px; font-weight:800; margin:0 0 10px; color:var(--text-primary); }
-.ab-confirm p    { font-size:13px; color:var(--text-muted); margin:0 0 20px; }
-.ab-confirm-btns { display:flex; gap:10px; justify-content:center; }
-.ab-confirm-yes  { padding:9px 24px; background:#ef4444; color:#fff; border:none; border-radius:50px; font-weight:700; cursor:pointer; }
-.ab-confirm-no   { padding:9px 20px; background:rgba(255,255,255,.06); border:1px solid var(--border-color); color:var(--text-muted); border-radius:50px; cursor:pointer; font-weight:700; }
+.stat-card-modern {
+    background: #ffffff;
+    border: var(--card-border);
+    border-radius: 16px;
+    padding: 24px 16px;
+    text-align: center;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
-/* Flash */
-.ab-flash        { padding:12px 18px; border-radius:12px; margin-bottom:18px; font-size:13px; font-weight:600; }
-.ab-flash.success{ background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.3); color:#6ee7b7; }
-.ab-flash.info   { background:rgba(59,130,246,.1); border:1px solid rgba(59,130,246,.3); color:#93c5fd; }
-.ab-flash.error  { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.3); color:#fca5a5; }
+.stat-card-modern:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card-modern .num {
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.stat-card-modern .lbl {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    letter-spacing: 0.02em;
+}
+
+/* Specific Card Colors */
+.card-total-posts .num { color: #3b82f6; }
+.card-pending .num { color: #f59e0b; }
+.card-approved .num { color: #10b981; }
+.card-travel-stories .num { color: #f43f5e; }
+.card-stories .num { color: #14b8a6; }
+.card-live .num { color: #e11d48; }
+.card-comments .num { color: #8b5cf6; }
+.card-reactions .num { color: #d946ef; }
+
+.wide-stat-card {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+}
+
+.charts-row-modern {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.chart-card-modern {
+    background: #ffffff;
+    border: var(--card-border);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+}
+
+.chart-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.chart-header h3 {
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #475569;
+    letter-spacing: 0.05em;
+    margin: 0;
+}
+
+.chart-body {
+    height: 300px;
+    position: relative;
+}
+
+@media (max-width: 1200px) {
+    .charts-row-modern { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+    .charts-row-modern { grid-template-columns: 1fr; }
+    .dashboard-stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Original table styles kept below */
+.blog-table       { width:100%; border-collapse:collapse; background:var(--bg-card);
+                     border-radius:var(--border-radius-md); overflow:hidden;
+                     border:1px solid var(--border-color); }
+.table-scroll     { width:100%; overflow-x:auto; }
+.table-scroll .blog-table { width:max-content; min-width:1180px; }
+.stories-table    { table-layout:fixed; width:1520px; }
+.stories-table th:nth-child(1), .stories-table td:nth-child(1) { width:56px; }
+.stories-table th:nth-child(2), .stories-table td:nth-child(2) { width:90px; }
+.stories-table th:nth-child(3), .stories-table td:nth-child(3) { width:220px; }
+.stories-table th:nth-child(4), .stories-table td:nth-child(4) { width:160px; }
+.stories-table th:nth-child(5), .stories-table td:nth-child(5) { width:150px; }
+.stories-table th:nth-child(6), .stories-table td:nth-child(6) { width:170px; }
+.stories-table th:nth-child(7), .stories-table td:nth-child(7) { width:95px; }
+.stories-table th:nth-child(8), .stories-table td:nth-child(8) { width:125px; }
+.stories-table th:nth-child(9), .stories-table td:nth-child(9) { width:135px; }
+.stories-table th:nth-child(10), .stories-table td:nth-child(10) { width:95px; }
+.stories-table th:nth-child(11), .stories-table td:nth-child(11) { width:95px; }
+.stories-table th:nth-child(12), .stories-table td:nth-child(12) { width:120px; }
+.stories-table th:nth-child(13), .stories-table td:nth-child(13) { width:240px; }
+.story-destination-cell { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.blog-table th    { background:var(--bg-surface); padding:13px 16px; font-size:12px;
+                     font-weight:700; text-transform:uppercase; letter-spacing:.5px;
+                     color:var(--text-muted); text-align:left; border-bottom:1px solid var(--border-color); }
+.blog-table td    { padding:14px 16px; font-size:14px; border-bottom:1px solid var(--border-color);
+                     vertical-align:middle; }
+.blog-table tr:last-child td { border-bottom:none; }
+.blog-table tr:hover td      { background:var(--bg-surface); }
+
+.badge            { display:inline-block; padding:3px 10px; border-radius:50px; font-size:11px; font-weight:700; }
+.badge-pending    { background:#fef3c7; color:#92400e; }
+.badge-approved   { background:#d1fae5; color:#065f46; }
+.type-dot         { display:inline-block; padding:3px 8px; border-radius:50px; font-size:11px; font-weight:600; white-space:nowrap; }
+.type-post        { background:#dbeafe; color:#1d4ed8; }
+.type-travel-story { background:#fdf2f8; color:#be185d; }
+.type-story       { background:#f0fdf4; color:#15803d; }
+.type-live        { background:#fff1f2; color:#be123c; }
+.type-comment     { background:#f5f3ff; color:#6d28d9; }
+.type-live-comment { background:#fff7ed; color:#c2410c; }
+
+.actions          { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.btn-approve,
+.btn-reject,
+.btn-del,
+.btn-view         { width:32px; height:32px; padding:0; display:inline-flex; align-items:center; justify-content:center;
+                     border-radius:9px; font-size:14px; font-weight:800; line-height:1; cursor:pointer; text-decoration:none; }
+.btn-approve      { background:#d1fae5; color:#065f46; border:1px solid #6ee7b7; }
+.btn-reject       { background:#fef3c7; color:#92400e; border:1px solid #fcd34d; }
+.btn-del          { background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; }
+.btn-view         { background:#dbeafe; color:#1d4ed8; border:1px solid #93c5fd; }
+
+.post-title-cell  { max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:700; }
+.flash-success    { background:#d1fae5; color:#065f46; padding:12px 16px; border-radius:10px; margin-bottom:18px; }
+.flash-info       { background:#dbeafe; color:#1e40af; padding:12px 16px; border-radius:10px; margin-bottom:18px; }
+.empty-state      { text-align:center; padding:50px; color:var(--text-muted); }
+
+/* Tabs */
+.admin-tabs       { display:flex; gap:0; margin-bottom:24px; border-bottom:2px solid var(--border-color); }
+.admin-tab        { padding:12px 24px; font-size:14px; font-weight:700; cursor:pointer; border:none;
+                     background:none; color:var(--text-muted); position:relative; }
+.admin-tab.active { color:var(--accent-primary); }
+.admin-tab.active::after { content:''; position:absolute; bottom:-2px; left:0; right:0; height:2px;
+                     background:var(--accent-primary); }
+.admin-tab .tab-count { display:inline-block; margin-left:6px; padding:1px 8px; border-radius:50px;
+                     font-size:11px; font-weight:700; background:#f3f4f6; color:#374151; }
+.admin-tab.active .tab-count { background:var(--accent-primary); color:#fff; }
+.tab-panel        { display:none; }
+.tab-panel.active { display:block; }
+
+.story-cover-thumb { width:48px; height:36px; object-fit:cover; border-radius:6px; }
+.ig-story-thumb    { width:44px; height:44px; object-fit:cover; border-radius:10px; }
+.live-thumb        { width:56px; height:38px; object-fit:cover; border-radius:8px; }
+.star-rating      { color:#f59e0b; font-size:13px; }
+
+.badge-mod-safe       { background:#d1fae5; color:#065f46; border:1px solid #6ee7b7; }
+.badge-mod-review     { background:#fef3c7; color:#92400e; border:1px solid #fcd34d; }
+.badge-mod-spam       { background:#ede9fe; color:#5b21b6; border:1px solid #c4b5fd; }
+.badge-mod-high-risk  { background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; }
+.badge-mod-hidden     { background:#7f1d1d; color:#fee2e2; border:1px solid #b91c1c; }
+
+.mod-badge-btn { border:none; cursor:pointer; }
+.bulk-actions { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; align-items:center; }
+.btn-bulk { padding:6px 12px; border-radius:50px; border:1px solid var(--border-color); background:var(--bg-surface); color:var(--text-primary); font-size:12px; font-weight:700; cursor:pointer; }
+
+.mq-section { margin-bottom:16px; }
+.mq-title { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); margin:0 0 8px; }
+
+.mod-modal-backdrop {
+    position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+    background:rgba(15,23,42,.55); z-index:2000; padding:20px;
+}
+.mod-modal-backdrop.open { display:flex; }
+.mod-modal {
+    width:min(980px, 98vw); max-height:90vh; overflow:auto;
+    background:var(--bg-card); border:1px solid var(--border-color); border-radius:14px;
+    box-shadow:0 20px 50px rgba(0,0,0,.25);
+}
+.mod-head { display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid var(--border-color); }
+.mod-head h3 { margin:0; font-size:16px; }
+.mod-close { border:none; background:transparent; font-size:22px; cursor:pointer; color:var(--text-muted); }
+.mod-body { padding:16px; display:grid; gap:12px; }
+.mod-grid { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; }
+.mod-box { border:1px solid var(--border-color); border-radius:10px; padding:10px; background:var(--bg-surface); }
+.mod-box h4 { margin:0 0 8px; font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); }
+.mod-line { display:flex; justify-content:space-between; font-size:13px; padding:2px 0; }
+.mod-content { border:1px solid var(--border-color); border-radius:10px; padding:12px; line-height:1.55; white-space:pre-wrap; }
+.hl-profanity { text-decoration:underline; text-decoration-color:#dc2626; text-decoration-thickness:2px; }
+.hl-flag { background:#fef08a; color:#713f12; padding:0 2px; border-radius:4px; }
+.mod-actions { display:flex; gap:8px; flex-wrap:wrap; }
+
 </style>
 
-{# Flash messages #}
-{% for msg in app.flashes('success') %}<div class="ab-flash success">✅ {{ msg }}</div>{% endfor %}
-{% for msg in app.flashes('info') %}<div class="ab-flash info">ℹ️ {{ msg }}</div>{% endfor %}
-{% for msg in app.flashes('error') %}<div class="ab-flash error">❌ {{ msg }}</div>{% endfor %}
-<div id="ajax-flash" style="display:none;" class="ab-flash"></div>
+{# ── Flash messages ── #}
+{% for msg in app.flashes('success') %}<div class="flash-success">✅ {{ msg }}</div>{% endfor %}
+{% for msg in app.flashes('info') %}<div class="flash-info">ℹ️ {{ msg }}</div>{% endfor %}
 
-{# Stats #}
-<div class="ab-stats">
-  <div class="ab-stat c1">
-    <div class="num">{{ stats.total }}</div>
-    <div class="lbl">Total Posts</div>
-  </div>
-  <div class="ab-stat c2">
-    <div class="num">{{ stats.pending }}</div>
-    <div class="lbl">Pending</div>
-  </div>
-  <div class="ab-stat c3">
-    <div class="num">{{ stats.approved }}</div>
-    <div class="lbl">Approved</div>
-  </div>
-  <div class="ab-stat c4">
-    <div class="num">{{ stats.stories }}</div>
-    <div class="lbl">Travel Stories</div>
-  </div>
-  <div class="ab-stat c5">
-    <div class="num">{{ stats.comments }}</div>
-    <div class="lbl">Comments</div>
-  </div>
-</div>
-
-{# Tabs #}
-<div class="ab-tabs">
-  <button class="ab-tab active" onclick="switchTab('posts', this)">
-    📝 Posts <span class="tab-cnt">{{ posts|length }}</span>
-  </button>
-  <button class="ab-tab" onclick="switchTab('stories', this)">
-    🧳 Stories <span class="tab-cnt">{{ stories|length }}</span>
-  </button>
-  <button class="ab-tab" onclick="switchTab('comments', this)">
-    💬 Comments <span class="tab-cnt">{{ stats.comments }}</span>
-  </button>
-</div>
-
-{# ── POSTS TAB ── #}
-<div class="tab-panel active" id="tab-posts">
-  <div class="ab-toolbar">
-    <div class="ab-search-wrap">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <input type="text" id="posts-search" placeholder="Search posts…" oninput="triggerPostFilter()">
+{# ── Modern Stats Section ── #}
+<div class="dashboard-stats-grid">
+    <div class="stat-card-modern card-total-posts">
+        <div class="num">{{ stats.total }}</div>
+        <div class="lbl">Total Posts</div>
     </div>
-    <select class="ab-filter-select" id="posts-type-filter" onchange="triggerPostFilter()">
-      <option value="">All Types</option>
-      <option value="inquiry">Inquiry</option>
-      <option value="story">Story</option>
-      <option value="review">Review</option>
-      <option value="advice">Advice</option>
-      <option value="other">Other</option>
-    </select>
-    <select class="ab-filter-select" id="posts-status-filter" onchange="triggerPostFilter()">
-      <option value="">All Statuses</option>
-      <option value="pending">Pending</option>
-      <option value="approved">Approved</option>
-    </select>
-  </div>
-  {% if posts is empty %}
-    <div class="empty-state-admin"><p style="font-size:42px">📭</p><p>No posts yet.</p></div>
-  {% else %}
-    <table class="ab-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Title</th>
-          <th>Author</th>
-          <th>Type</th>
-          <th>Status</th>
-          <th>Date</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="posts-tbody">
-        {% for post in posts %}
-          <tr id="post-row-{{ post.id }}"
-              data-title="{{ post.title|lower }}"
-              data-type="{{ post.type }}"
-              data-status="{{ post.isConfirmed ? 'approved' : 'pending' }}">
-            <td style="color:var(--text-muted);font-size:12px;">{{ post.id }}</td>
-            <td class="post-title-cell" title="{{ post.title }}">{{ post.title }}</td>
-            <td>{{ authorMap[post.userId] ?? 'User #' ~ post.userId }}</td>
-            <td><span class="type-dot type-{{ post.type }}">{{ post.type }}</span></td>
-            <td id="status-cell-{{ post.id }}">
-              {% if post.isConfirmed %}
-                <span class="badge badge-approved">✅ Approved</span>
-              {% else %}
-                <span class="badge badge-pending">⏳ Pending</span>
-              {% endif %}
-            </td>
-            <td style="font-size:12px;color:var(--text-muted);">
-              {% if post.createdAt %}{{ post.createdAt|date('d M Y') }}{% endif %}
-            </td>
-            <td>
-              <div class="ab-actions">
-                <a href="{{ path('admin_post_show', {id: post.id}) }}" class="btn-view">View</a>
-                <button class="btn-edit" onclick="openEditModal({{ post.id }}, {{ post.title|json_encode }}, {{ post.body|json_encode }}, '{{ post.type }}', '{{ csrf_token('admin_blog_edit_' ~ post.id)|e('js') }}')">
-                  Edit
-                </button>
-                {% if not post.isConfirmed %}
-                  <button class="btn-approve" onclick="approvePost({{ post.id }}, {{ csrf_token('admin_blog_' ~ post.id)|json_encode }})">
-                    Approve
-                  </button>
-                {% else %}
-                  <button class="btn-reject" onclick="rejectPost({{ post.id }}, {{ csrf_token('admin_blog_' ~ post.id)|json_encode }})">
-                    Reject
-                  </button>
-                {% endif %}
-                <button class="btn-del" onclick="confirmDelete('post', {{ post.id }}, {{ csrf_token('admin_blog_delete_' ~ post.id)|json_encode }})">
-                  Delete
-                </button>
-              </div>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% endif %}
+    <div class="stat-card-modern card-pending">
+        <div class="num">{{ stats.pending }}</div>
+        <div class="lbl">Pending Approval</div>
+    </div>
+    <div class="stat-card-modern card-approved">
+        <div class="num">{{ stats.approved }}</div>
+        <div class="lbl">Approved</div>
+    </div>
+    <div class="stat-card-modern card-travel-stories">
+        <div class="num">{{ stats.stories }}</div>
+        <div class="lbl">Travel Stories</div>
+    </div>
+    <div class="stat-card-modern card-stories">
+        <div class="num">{{ stats.igStories ?? 0 }}</div>
+        <div class="lbl">Stories</div>
+    </div>
+    <div class="stat-card-modern card-live">
+        <div class="num">{{ stats.liveSessions ?? 0 }}</div>
+        <div class="lbl">Live Sessions</div>
+    </div>
+    <div class="stat-card-modern card-comments">
+        <div class="num">{{ stats.comments }}</div>
+        <div class="lbl">Total Comments</div>
+    </div>
+
+    {# Wide Reaction Card #}
+    <div class="stat-card-modern wide-stat-card card-reactions">
+        <div class="num">{{ stats.reactions }}</div>
+        <div class="lbl">Total Reactions</div>
+    </div>
 </div>
 
-{# ── STORIES TAB ── #}
+{# ── Modern Charts Section ── #}
+<div class="charts-row-modern">
+    <div class="chart-card-modern">
+        <div class="chart-header">
+            <h3>Content Overview</h3>
+        </div>
+        <div class="chart-body">
+            {{ render_chart(contentMixChart) }}
+        </div>
+    </div>
+    <div class="chart-card-modern">
+        <div class="chart-header">
+            <h3>Verification Stats</h3>
+        </div>
+        <div class="chart-body">
+            {{ render_chart(verificationStatsChart) }}
+        </div>
+    </div>
+    <div class="chart-card-modern">
+        <div class="chart-header">
+            <h3>Peak User Activity (24h)</h3>
+        </div>
+        <div class="chart-body">
+            {{ render_chart(peakActivityChart) }}
+        </div>
+    </div>
+</div>
+
+{# ── Tabs ── #}
+<div class="admin-tabs">
+    <button class="admin-tab active" data-tab="moderation" onclick="switchTab('moderation', this)">
+        🛡 Moderation Queue <span class="tab-count">{{ moderationQueue|length }}</span>
+    </button>
+    <button class="admin-tab" data-tab="posts" onclick="switchTab('posts', this)">
+        📝 Posts <span class="tab-count">{{ (visiblePosts ?? posts)|length }}</span>
+    </button>
+    <button class="admin-tab" data-tab="stories" onclick="switchTab('stories', this)">
+        🧳 Travel Stories <span class="tab-count">{{ stories|length }}</span>
+    </button>
+    <button class="admin-tab" data-tab="ig-stories" onclick="switchTab('ig-stories', this)">
+        📸 Stories <span class="tab-count">{{ igStories|length }}</span>
+    </button>
+    <button class="admin-tab" data-tab="live" onclick="switchTab('live', this)">
+        🔴 Lives <span class="tab-count">{{ liveSessions|length }}</span>
+    </button>
+</div>
+
+{# ── Moderation Queue Tab ── #}
+<div class="tab-panel active" id="tab-moderation">
+    {% if moderationQueue is empty %}
+        <div class="empty-state">
+            <p style="font-size:42px;">🛡</p>
+            <p>No flagged content in moderation queue.</p>
+        </div>
+    {% else %}
+        {% for state, label in {'HIGH_RISK':'🚨 High Risk','REVIEW':'⚠️ Needs Review','SPAM':'🕷 Spam'} %}
+            {% set rows = moderationQueue|filter(item => item.analysis.state == state) %}
+            {% if rows is not empty %}
+                <div class="mq-section">
+                    <h3 class="mq-title">{{ label }} ({{ rows|length }})</h3>
+                    <div class="table-scroll">
+                        <table class="blog-table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Title/Snippet</th>
+                                    <th>Author</th>
+                                    <th>🛡 Moderation</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in rows %}
+                                    {% set m = item.analysis %}
+                                    {% set stateClass = {
+                                        'SAFE': 'badge-mod-safe',
+                                        'REVIEW': 'badge-mod-review',
+                                        'SPAM': 'badge-mod-spam',
+                                        'HIGH_RISK': 'badge-mod-high-risk',
+                                        'AUTO_HIDDEN': 'badge-mod-hidden'
+                                    }[m.state]|default('badge-mod-safe') %}
+                                    {% set stateText = {
+                                        'SAFE': '🟢 Safe',
+                                        'REVIEW': '⚠️ Review',
+                                        'SPAM': '🕷 Spam',
+                                        'HIGH_RISK': '🚨 High Risk',
+                                        'AUTO_HIDDEN': '⛔ Hidden'
+                                    }[m.state]|default('🟢 Safe') %}
+                                    <tr>
+                                        <td><span class="type-dot type-{{ item.type|replace('_', '-') }}">{{ item.type|replace('_', ' ')|capitalize }}</span></td>
+                                        <td class="post-title-cell" title="{{ item.title }}">{{ item.title }}</td>
+                                        <td>
+                                            {% set uid = 0 %}
+                                            {% if item.type == 'live' %}{% set uid = item.entity.hostUser.userId|default(0) %}
+                                            {% elseif item.type == 'live_comment' %}{% set uid = item.entity.user.userId|default(0) %}
+                                            {% else %}{% set uid = item.entity.userId|default(0) %}
+                                            {% endif %}
+                                            {{ authorMap[uid] ?? 'User #' ~ uid }}
+                                        </td>
+                                        <td><span class="badge {{ stateClass }}">{{ stateText }}</span></td>
+                                        <td style="font-size:13px; color:var(--text-muted);">
+                                            {% if item.entity.createdAt is defined %}{{ item.entity.createdAt|date('d M Y') }}
+                                            {% elseif item.entity.startedAt is defined %}{{ item.entity.startedAt|date('d M Y') }}
+                                            {% else %}—{% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="actions">
+                                                <button type="button" class="btn-view" data-open-moderation="1"
+                                                        data-content-type="{{ item.type }}"
+                                                        data-post-id="{{ item.id }}"
+                                                        data-post-title="{{ item.title|e('html_attr') }}"
+                                                        data-post-content="{{ item.content|e('html_attr') }}"
+                                                        data-state="{{ m.state }}"
+                                                        data-openai-hate="{{ m.openai.hate|default(0) }}"
+                                                        data-openai-harassment="{{ m.openai.harassment|default(0) }}"
+                                                        data-openai-self-harm="{{ m.openai.self_harm|default(0) }}"
+                                                        data-openai-violence="{{ m.openai.violence|default(0) }}"
+                                                        data-spam="{{ m.spam_probability|default(0) }}"
+                                                        data-profanity-count="{{ m.profanity_count|default(0) }}"
+                                                        data-profanity-words="{{ (m.profanity_words|default([])|join('||'))|e('html_attr') }}"
+                                                        data-flagged-phrases="{{ (m.flagged_phrases|default([])|join('||'))|e('html_attr') }}"
+                                                title="View moderation details" aria-label="View moderation details">👁</button>
+
+                                                {% if item.type == 'post' %}
+                                                    <form method="post" action="{{ path('admin_blog_approve', {id: item.id}) }}">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('admin_blog_' ~ item.id) }}">
+                                                        <button type="submit" class="btn-approve" title="Approve post" aria-label="Approve post">✔</button>
+                                                    </form>
+                                                {% endif %}
+
+                                                {% set delRoute = {
+                                                    'post': 'admin_blog_delete',
+                                                    'travel_story': 'admin_story_delete',
+                                                    'story': 'admin_ig_story_delete',
+                                                    'live': 'admin_live_delete',
+                                                    'comment': 'admin_comment_delete',
+                                                    'live_comment': 'admin_live_comment_delete'
+                                                }[item.type] %}
+
+                                                <form method="post"
+                                                      action="{{ path(delRoute, {id: item.id}) }}"
+                                                      onsubmit="return confirm('Delete this {{ item.type|replace('_', ' ') }} permanently?');">
+                                                    <input type="hidden" name="_token"
+                                                           value="{{ csrf_token(delRoute ~ '_' ~ item.id) }}">
+                                                    <button type="submit" class="btn-del" title="Delete content" aria-label="Delete content">🗑</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+</div>
+
+{# ── Posts Tab ── #}
+<div class="tab-panel" id="tab-posts">
+    {% set postsForDisplay = visiblePosts ?? posts %}
+    {% if postsForDisplay is empty %}
+        <div class="empty-state">
+            <p style="font-size:42px;">📭</p>
+            <p>No posts yet.</p>
+        </div>
+    {% else %}
+        <form method="post" action="{{ path('admin_blog_bulk_action') }}" id="bulk-posts-form">
+            <input type="hidden" name="_token" value="{{ csrf_token('admin_blog_bulk_action') }}">
+            <input type="hidden" name="_tab" value="posts">
+            <input type="hidden" name="bulk_action" id="bulk-action-input" value="">
+            <div class="bulk-actions">
+                <label style="font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+                    <input type="checkbox" id="select-all-posts"> Select All
+                </label>
+                <button type="button" class="btn-bulk" data-bulk-action="approve">Approve Selected</button>
+                <button type="button" class="btn-bulk" data-bulk-action="reject">Reject Selected</button>
+                <button type="button" class="btn-bulk" data-bulk-action="delete">Delete Selected</button>
+                <button type="button" class="btn-bulk" data-bulk-action="mark_safe">Mark as Safe</button>
+            </div>
+        </form>
+
+        <div class="table-scroll">
+            <table class="blog-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>🛡 Moderation</th>
+                        <th>Comments</th>
+                        <th>Reacts</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for post in postsForDisplay %}
+                        {% set m = postModeration[post.id] ?? {
+                            state: 'SAFE',
+                            flaggedByAi: false,
+                            openai: {hate: 0, harassment: 0, self_harm: 0, violence: 0},
+                            spam_probability: 0,
+                            profanity_count: 0,
+                            profanity_words: [],
+                            flagged_phrases: []
+                        } %}
+                        {% set cm = postCommentModeration[post.id] ?? {total: 0, flagged: 0, review: 0, spam: 0, high_risk: 0, auto_hidden: 0, top_terms: [], samples: []} %}
+                        {% set stateClass = {
+                            'SAFE': 'badge-mod-safe',
+                            'REVIEW': 'badge-mod-review',
+                            'SPAM': 'badge-mod-spam',
+                            'HIGH_RISK': 'badge-mod-high-risk',
+                            'AUTO_HIDDEN': 'badge-mod-hidden'
+                        }[m.state]|default('badge-mod-safe') %}
+                        {% set stateText = {
+                            'SAFE': '🟢 Safe',
+                            'REVIEW': '⚠️ Review',
+                            'SPAM': '🕷 Spam',
+                            'HIGH_RISK': '🚨 High Risk',
+                            'AUTO_HIDDEN': '⛔ Hidden'
+                        }[m.state]|default('🟢 Safe') %}
+                        {% set titlePrefix = '' %}
+                        {% if m.state == 'HIGH_RISK' %}{% set titlePrefix = titlePrefix ~ '🚨 ' %}{% endif %}
+                        {% if m.state == 'REVIEW' %}{% set titlePrefix = titlePrefix ~ '⚠️ ' %}{% endif %}
+                        {% if m.state == 'SPAM' %}{% set titlePrefix = titlePrefix ~ '🕷 ' %}{% endif %}
+                        {% if m.flaggedByAi %}{% set titlePrefix = titlePrefix ~ '🧠 ' %}{% endif %}
+                        <tr>
+                            <td><input type="checkbox" class="post-check" name="post_ids[]" value="{{ post.id }}" form="bulk-posts-form"></td>
+                            <td style="color:var(--text-muted); font-size:13px;">{{ post.id }}</td>
+                            <td class="post-title-cell" title="{{ post.title }}">{{ titlePrefix }}{{ post.title }}</td>
+                            <td>{{ authorMap[post.userId] ?? 'User #' ~ post.userId }}</td>
+                            <td>
+                                <span class="type-dot type-{{ post.type }}">{{ post.type }}</span>
+                            </td>
+                            <td>
+                                {% if m.state == 'AUTO_HIDDEN' %}
+                                    <span class="badge badge-mod-hidden">⛔ Auto-hidden (AI)</span>
+                                {% elseif not post.isConfirmed and m.state != 'SAFE' %}
+                                    <span class="badge badge-pending">⏳ Pending (AI flagged)</span>
+                                {% elseif post.isConfirmed %}
+                                    <span class="badge badge-approved">✅ Approved</span>
+                                {% else %}
+                                    <span class="badge badge-pending">⏳ Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button
+                                    type="button"
+                                    class="badge mod-badge-btn {{ stateClass }}"
+                                    title="OpenAI: hate={{ (m.openai.hate * 100)|round(0) }}%, harassment={{ (m.openai.harassment * 100)|round(0) }}%, self_harm={{ (m.openai.self_harm * 100)|round(0) }}%, violence={{ (m.openai.violence * 100)|round(0) }}%&#10;Spam (Akismet): probability={{ (m.spam_probability * 100)|round(0) }}%&#10;Profanity: count={{ m.profanity_count }}"
+                                    data-open-moderation="1"
+                                    data-post-id="{{ post.id }}"
+                                    data-post-title="{{ post.title|e('html_attr') }}"
+                                    data-post-content="{{ post.body|e('html_attr') }}"
+                                    data-state="{{ m.state }}"
+                                    data-openai-hate="{{ m.openai.hate }}"
+                                    data-openai-harassment="{{ m.openai.harassment }}"
+                                    data-openai-self-harm="{{ m.openai.self_harm }}"
+                                    data-openai-violence="{{ m.openai.violence }}"
+                                    data-spam="{{ m.spam_probability }}"
+                                    data-profanity-count="{{ m.profanity_count }}"
+                                    data-profanity-words="{{ (m.profanity_words|join('||'))|e('html_attr') }}"
+                                    data-flagged-phrases="{{ (m.flagged_phrases|join('||'))|e('html_attr') }}"
+                                    data-comments-total="{{ cm.total|default(0) }}"
+                                    data-comments-flagged="{{ cm.flagged|default(0) }}"
+                                    data-comments-review="{{ cm.review|default(0) }}"
+                                    data-comments-spam="{{ cm.spam|default(0) }}"
+                                    data-comments-high-risk="{{ cm.high_risk|default(0) }}"
+                                    data-comments-auto-hidden="{{ cm.auto_hidden|default(0) }}"
+                                    data-comments-top-terms="{{ (cm.top_terms|default([])|join('||'))|e('html_attr') }}"
+                                    data-comments-samples="{{ (cm.samples|default([])|join('||'))|e('html_attr') }}"
+                                >{{ stateText }}</button>
+                            </td>
+                            {% set commentRiskClass = 'badge-mod-review' %}
+                            {% if (cm.high_risk|default(0) + cm.auto_hidden|default(0)) > 0 %}
+                                {% set commentRiskClass = 'badge-mod-high-risk' %}
+                            {% elseif (cm.spam|default(0)) > 0 %}
+                                {% set commentRiskClass = 'badge-mod-spam' %}
+                            {% endif %}
+                            <td>
+                                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                    <span style="font-weight:700;">{{ postCommentCounts[post.id] ?? 0 }}</span>
+                                    {% if (cm.flagged|default(0)) > 0 %}
+                                        <span class="badge {{ commentRiskClass }}" title="{{ cm.flagged }} flagged out of {{ cm.total|default(0) }} comments">🚩 {{ cm.flagged }}</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td style="font-weight:700;">{{ postReactionCounts[post.id] ?? 0 }}</td>
+                            <td style="font-size:13px; color:var(--text-muted);">
+                                {% if post.createdAt %}{{ post.createdAt|date('d M Y') }}{% endif %}
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <button type="button" class="btn-view" data-open-moderation="1"
+                                            data-post-id="{{ post.id }}"
+                                            data-post-title="{{ post.title|e('html_attr') }}"
+                                            data-post-content="{{ post.body|e('html_attr') }}"
+                                            data-state="{{ m.state }}"
+                                            data-openai-hate="{{ m.openai.hate }}"
+                                            data-openai-harassment="{{ m.openai.harassment }}"
+                                            data-openai-self-harm="{{ m.openai.self_harm }}"
+                                            data-openai-violence="{{ m.openai.violence }}"
+                                            data-spam="{{ m.spam_probability }}"
+                                            data-profanity-count="{{ m.profanity_count }}"
+                                            data-profanity-words="{{ (m.profanity_words|join('||'))|e('html_attr') }}"
+                                            data-flagged-phrases="{{ (m.flagged_phrases|join('||'))|e('html_attr') }}"
+                                                data-comments-total="{{ cm.total|default(0) }}"
+                                                data-comments-flagged="{{ cm.flagged|default(0) }}"
+                                                data-comments-review="{{ cm.review|default(0) }}"
+                                                data-comments-spam="{{ cm.spam|default(0) }}"
+                                                data-comments-high-risk="{{ cm.high_risk|default(0) }}"
+                                                data-comments-auto-hidden="{{ cm.auto_hidden|default(0) }}"
+                                                data-comments-top-terms="{{ (cm.top_terms|default([])|join('||'))|e('html_attr') }}"
+                                                data-comments-samples="{{ (cm.samples|default([])|join('||'))|e('html_attr') }}"
+                                            title="View moderation details" aria-label="View moderation details">👁</button>
+
+                                    <form method="post" action="{{ path('admin_blog_approve', {id: post.id}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('admin_blog_' ~ post.id) }}">
+                                        <button type="submit" class="btn-approve" title="Approve post" aria-label="Approve post">✔</button>
+                                    </form>
+
+                                    <form method="post" action="{{ path('admin_blog_reject', {id: post.id}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('admin_blog_' ~ post.id) }}">
+                                        <button type="submit" class="btn-reject" title="Reject post" aria-label="Reject post">✖</button>
+                                    </form>
+
+                                    <form method="post"
+                                          action="{{ path('admin_blog_delete', {id: post.id}) }}"
+                                          onsubmit="return confirm('Delete this post permanently?');">
+                                        <input type="hidden" name="_token"
+                                               value="{{ csrf_token('admin_blog_delete_' ~ post.id) }}">
+                                             <button type="submit" class="btn-del" title="Delete post" aria-label="Delete post">🗑</button>
+                                    </form>
+
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+
+{# ── Travel Stories Tab ── #}
 <div class="tab-panel" id="tab-stories">
-  <div class="ab-toolbar">
-    <div class="ab-search-wrap">
-      <input type="text" id="stories-search" placeholder="Search stories…" oninput="filterTable('stories-tbody', this.value)">
-    </div>
-  </div>
-  {% if stories is empty %}
-    <div class="empty-state-admin"><p style="font-size:42px">🧳</p><p>No travel stories yet.</p></div>
-  {% else %}
-    <table class="ab-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Cover</th>
-          <th>Title</th>
-          <th>Author</th>
-          <th>Destination</th>
-          <th>Rating</th>
-          <th>Date</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="stories-tbody">
-        {% for story in stories %}
-          <tr id="story-row-{{ story.id }}" data-title="{{ story.title|lower }}">
-            <td style="color:var(--text-muted);font-size:12px;">{{ story.id }}</td>
-            <td>
-              {% if story.coverImageUrl %}
-                <img src="{{ story.coverImageUrl }}" class="story-thumb" onerror="this.style.display='none'">
-              {% else %}—{% endif %}
-            </td>
-            <td class="post-title-cell" title="{{ story.title }}">{{ story.title }}</td>
-            <td>{{ authorMap[story.userId] ?? 'User #' ~ story.userId }}</td>
-            <td>{{ story.destination ?? '—' }}</td>
-            <td>
-              {% if story.overallRating %}
-                <span style="color:#fcd34d;">{% for i in 1..story.overallRating %}⭐{% endfor %}</span>
-              {% else %}—{% endif %}
-            </td>
-            <td style="font-size:12px;color:var(--text-muted);">{% if story.createdAt %}{{ story.createdAt|date('d M Y') }}{% endif %}</td>
-            <td>
-              <div class="ab-actions">
-                <a href="{{ path('admin_story_show', {id: story.id}) }}" class="btn-view">View</a>
-                <button class="btn-del" onclick="confirmDelete('story', {{ story.id }}, {{ csrf_token('admin_story_delete_' ~ story.id)|json_encode }})">
-                  Delete
-                </button>
-              </div>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% endif %}
+    {% if stories is empty %}
+        <div class="empty-state">
+            <p style="font-size:42px;">🧳</p>
+            <p>No travel stories yet.</p>
+        </div>
+    {% else %}
+        <div class="table-scroll">
+            <table class="blog-table stories-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Cover</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Destination</th>
+                        <th>Type / Style</th>
+                        <th>Rating</th>
+                        <th>Status</th>
+                        <th>🛡 Moderation</th>
+                        <th>Comments</th>
+                        <th>Reacts</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for story in stories %}
+                        {% set m = storyModeration[story.id] ?? {state: 'SAFE'} %}
+                        {% set cm = storyCommentModeration[story.id] ?? {total: 0, flagged: 0, review: 0, spam: 0, high_risk: 0, auto_hidden: 0, top_terms: [], samples: []} %}
+                        {% set stateClass = {
+                            'SAFE': 'badge-mod-safe',
+                            'REVIEW': 'badge-mod-review',
+                            'SPAM': 'badge-mod-spam',
+                            'HIGH_RISK': 'badge-mod-high-risk',
+                            'AUTO_HIDDEN': 'badge-mod-hidden'
+                        }[m.state]|default('badge-mod-safe') %}
+                        {% set stateText = {
+                            'SAFE': '🟢 Safe',
+                            'REVIEW': '⚠️ Review',
+                            'SPAM': '🕷 Spam',
+                            'HIGH_RISK': '🚨 High Risk',
+                            'AUTO_HIDDEN': '⛔ Hidden'
+                        }[m.state]|default('🟢 Safe') %}
+                        <tr>
+                            <td style="color:var(--text-muted); font-size:13px;">{{ story.id }}</td>
+                            <td>
+                                {% if story.coverImageUrl %}
+                                    <img src="{{ story.coverImageUrl }}" alt="" class="story-cover-thumb">
+                                {% else %}
+                                    <span style="color:var(--text-muted); font-size:12px;">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="post-title-cell" title="{{ story.title }}">{{ story.title }}</td>
+                            <td>{{ authorMap[story.userId] ?? 'User #' ~ story.userId }}</td>
+                            <td class="story-destination-cell" title="{{ story.destination ?? '—' }}">{{ story.destination ?? '—' }}</td>
+                            <td>
+                                {% if story.travelType %}
+                                    <span class="type-dot type-travel">{{ story.travelType }}</span>
+                                {% endif %}
+                                {% if story.travelStyle %}
+                                    <span class="type-dot" style="background:#ede9fe;color:#5b21b6;">{{ story.travelStyle }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if story.overallRating %}
+                                    <span class="star-rating">
+                                        {% for i in 1..story.overallRating %}⭐{% endfor %}
+                                    </span>
+                                {% else %}
+                                    <span style="color:var(--text-muted);">—</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="badge badge-approved">✅ Published</span></td>
+                            {% set storyPreview = [story.summary ?? '', story.tips ?? '', story.destination ?? '']|join("\n")|trim %}
+                            <td>
+                                <button
+                                    type="button"
+                                    class="badge mod-badge-btn {{ stateClass }}"
+                                    data-open-moderation="1"
+                                    data-content-type="travel_story"
+                                    data-post-id="{{ story.id }}"
+                                    data-post-title="{{ story.title|default('Travel story')|e('html_attr') }}"
+                                    data-post-content="{{ storyPreview|e('html_attr') }}"
+                                    data-state="{{ m.state }}"
+                                    data-openai-hate="{{ m.openai.hate|default(0) }}"
+                                    data-openai-harassment="{{ m.openai.harassment|default(0) }}"
+                                    data-openai-self-harm="{{ m.openai.self_harm|default(0) }}"
+                                    data-openai-violence="{{ m.openai.violence|default(0) }}"
+                                    data-spam="{{ m.spam_probability|default(0) }}"
+                                    data-profanity-count="{{ m.profanity_count|default(0) }}"
+                                    data-profanity-words="{{ (m.profanity_words|default([])|join('||'))|e('html_attr') }}"
+                                    data-flagged-phrases="{{ (m.flagged_phrases|default([])|join('||'))|e('html_attr') }}"
+                                    data-comments-total="{{ cm.total|default(0) }}"
+                                    data-comments-flagged="{{ cm.flagged|default(0) }}"
+                                    data-comments-review="{{ cm.review|default(0) }}"
+                                    data-comments-spam="{{ cm.spam|default(0) }}"
+                                    data-comments-high-risk="{{ cm.high_risk|default(0) }}"
+                                    data-comments-auto-hidden="{{ cm.auto_hidden|default(0) }}"
+                                    data-comments-top-terms="{{ (cm.top_terms|default([])|join('||'))|e('html_attr') }}"
+                                    data-comments-samples="{{ (cm.samples|default([])|join('||'))|e('html_attr') }}"
+                                >{{ stateText }}</button>
+                            </td>
+                            {% set commentRiskClass = 'badge-mod-review' %}
+                            {% if (cm.high_risk|default(0) + cm.auto_hidden|default(0)) > 0 %}
+                                {% set commentRiskClass = 'badge-mod-high-risk' %}
+                            {% elseif (cm.spam|default(0)) > 0 %}
+                                {% set commentRiskClass = 'badge-mod-spam' %}
+                            {% endif %}
+                            <td>
+                                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                    <span style="font-weight:700;">{{ storyCommentCounts[story.id] ?? 0 }}</span>
+                                    {% if (cm.flagged|default(0)) > 0 %}
+                                        <span class="badge {{ commentRiskClass }}" title="{{ cm.flagged }} flagged out of {{ cm.total|default(0) }} comments">🚩 {{ cm.flagged }}</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td style="font-weight:700;">{{ storyReactionCounts[story.id] ?? 0 }}</td>
+                            <td style="font-size:13px; color:var(--text-muted);">
+                                {% if story.createdAt %}{{ story.createdAt|date('d M Y') }}{% endif %}
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <a href="{{ path('admin_story_show', {id: story.id}) }}" class="btn-view" title="View travel story" aria-label="View travel story">👁</a>
+                                    <form method="post"
+                                          action="{{ path('admin_story_delete', {id: story.id}) }}"
+                                          onsubmit="return confirm('Delete this travel story permanently?');">
+                                        <input type="hidden" name="_token"
+                                               value="{{ csrf_token('admin_story_delete_' ~ story.id) }}">
+                                        <button type="submit" class="btn-del" title="Delete travel story" aria-label="Delete travel story">🗑</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
 </div>
 
-{# ── COMMENTS TAB ── #}
-<div class="tab-panel" id="tab-comments">
-  <div class="ab-toolbar">
-    <div class="ab-search-wrap">
-      <input type="text" id="comments-search" placeholder="Search comments…" oninput="filterTable('comments-tbody', this.value)">
+<div class="mod-modal-backdrop" id="moderation-modal" aria-hidden="true">
+    <div class="mod-modal" role="dialog" aria-modal="true" aria-labelledby="moderation-modal-title">
+        <div class="mod-head">
+            <h3 id="moderation-modal-title">🛡 Moderation Analysis</h3>
+            <button type="button" class="mod-close" id="mod-close">×</button>
+        </div>
+        <div class="mod-body">
+            <div class="mod-box">
+                <strong>Content ID:</strong> <span id="mod-post-id">—</span>
+                <div><strong>Type:</strong> <span id="mod-content-type">—</span></div>
+                <div><strong>Title:</strong> <span id="mod-post-title">—</span></div>
+            </div>
+
+            <div class="mod-grid">
+                <div class="mod-box">
+                    <h4>OpenAI Moderation</h4>
+                    <div class="mod-line"><span>Hate</span><span id="mod-hate">—</span></div>
+                    <div class="mod-line"><span>Harassment</span><span id="mod-harassment">—</span></div>
+                    <div class="mod-line"><span>Self-harm</span><span id="mod-self-harm">—</span></div>
+                    <div class="mod-line"><span>Violence</span><span id="mod-violence">—</span></div>
+                </div>
+                <div class="mod-box">
+                    <h4>Spam Detection</h4>
+                    <div class="mod-line"><span>Probability</span><span id="mod-spam">—</span></div>
+                    <div class="mod-line"><span>Status</span><span id="mod-spam-status">—</span></div>
+                </div>
+                <div class="mod-box">
+                    <h4>Profanity</h4>
+                    <div class="mod-line"><span>Detected words</span><span id="mod-profanity-count">—</span></div>
+                    <div id="mod-profanity-list" style="font-size:12px; color:var(--text-muted);"></div>
+                </div>
+                <div class="mod-box">
+                    <h4>Moderation State</h4>
+                    <div class="mod-line"><span>Current state</span><span id="mod-state">—</span></div>
+                </div>
+                <div class="mod-box">
+                    <h4>Comments Moderation</h4>
+                    <div class="mod-line"><span>Total comments</span><span id="mod-comments-total">0</span></div>
+                    <div class="mod-line"><span>Flagged comments</span><span id="mod-comments-flagged">0</span></div>
+                    <div class="mod-line"><span>High Risk / Hidden</span><span id="mod-comments-high-risk">0 / 0</span></div>
+                    <div class="mod-line"><span>Review / Spam</span><span id="mod-comments-review-spam">0 / 0</span></div>
+                    <div id="mod-comments-top" style="font-size:12px; color:var(--text-muted); margin-top:6px;"></div>
+                    <div id="mod-comments-samples" style="font-size:12px; color:var(--text-muted); margin-top:4px;"></div>
+                </div>
+            </div>
+
+            <div>
+                <h4 style="margin:0 0 8px;">Content Preview</h4>
+                <div class="mod-content" id="mod-content-preview"></div>
+            </div>
+
+            <div class="mod-actions" id="mod-actions-wrap">
+                <form method="post" id="mod-form-approve">
+                    <input type="hidden" name="_token" value="{{ csrf_token('admin_blog_action') }}">
+                    <input type="hidden" name="_tab" value="moderation">
+                    <button type="submit" class="btn-approve" title="Approve post" aria-label="Approve post">✔</button>
+                </form>
+                <form method="post" id="mod-form-reject">
+                    <input type="hidden" name="_token" value="{{ csrf_token('admin_blog_action') }}">
+                    <input type="hidden" name="_tab" value="moderation">
+                    <button type="submit" class="btn-reject" title="Reject post" aria-label="Reject post">✖</button>
+                </form>
+                <form method="post" id="mod-form-delete" onsubmit="return confirm('Delete this post permanently?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('admin_blog_action') }}">
+                    <input type="hidden" name="_tab" value="moderation">
+                    <button type="submit" class="btn-del" title="Delete post" aria-label="Delete post">🗑</button>
+                </form>
+                <form method="post" id="mod-form-safe">
+                    <input type="hidden" name="_token" value="{{ csrf_token('admin_blog_bulk_action') }}">
+                    <input type="hidden" name="_tab" value="moderation">
+                    <input type="hidden" name="bulk_action" value="mark_safe">
+                    <input type="hidden" name="post_ids[]" id="mod-mark-safe-id" value="">
+                    <button type="submit" class="btn-bulk">Mark as Safe</button>
+                </form>
+            </div>
+            <div id="mod-readonly-note" style="display:none; font-size:12px; color:var(--text-muted);">
+                Analysis only for this content type. Use row actions in this tab for moderation/removal.
+            </div>
+        </div>
     </div>
-  </div>
-  {% if comments is empty %}
-    <div class="empty-state-admin"><p style="font-size:42px">💬</p><p>No comments yet.</p></div>
-  {% else %}
-    <table class="ab-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Comment</th>
-          <th>Author</th>
-          <th>Post ID</th>
-          <th>Date</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="comments-tbody">
-        {% for comment in comments %}
-          <tr id="comment-row-{{ comment.id }}" data-title="{{ comment.body|lower }}">
-            <td style="color:var(--text-muted);font-size:12px;">{{ comment.id }}</td>
-            <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-              {{ comment.body }}
-            </td>
-            <td>{{ authorMap[comment.userId] ?? 'User #' ~ comment.userId }}</td>
-            <td>
-              {% if comment.post %}
-                <a href="{{ path('admin_post_show', {id: comment.post.id}) }}" class="btn-view" style="font-size:11px;">
-                  #{{ comment.post.id }}
-                </a>
-              {% else %}—{% endif %}
-            </td>
-            <td style="font-size:12px;color:var(--text-muted);">
-              {% if comment.createdAt %}{{ comment.createdAt|date('d M Y · H:i') }}{% endif %}
-            </td>
-            <td>
-              <div class="ab-actions">
-                <button class="btn-del" onclick="confirmDelete('comment', {{ comment.id }}, {{ csrf_token('admin_comment_delete_' ~ comment.id)|json_encode }})">
-                  Delete
-                </button>
-              </div>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% endif %}
 </div>
 
-{# ── Edit Modal ── #}
-<div class="ab-modal-overlay" id="edit-modal">
-  <div class="ab-modal">
-    <button class="ab-modal-close" onclick="closeEditModal()">×</button>
-    <h3>✏️ Edit Post</h3>
-    <label>Title</label>
-    <input type="text" id="modal-title" placeholder="Post title…" autocomplete="off">
-    <label>Content</label>
-    <textarea id="modal-body" placeholder="Post content…"></textarea>
-    <label>Type</label>
-    <select id="modal-type">
-      <option value="inquiry">Inquiry</option>
-      <option value="story">Story</option>
-      <option value="review">Review</option>
-      <option value="advice">Advice</option>
-      <option value="other">Other</option>
-    </select>
-    <div class="ab-modal-err" id="modal-err"></div>
-    <div class="ab-modal-actions">
-      <button class="ab-modal-cancel" onclick="closeEditModal()">Cancel</button>
-      <button class="ab-modal-save" onclick="savePost()">💾 Save Changes</button>
-    </div>
-  </div>
+{# ── IG Stories Tab ── #}
+<div class="tab-panel" id="tab-ig-stories">
+    {% if igStories is empty %}
+        <div class="empty-state">
+            <p style="font-size:42px;">📸</p>
+            <p>No stories yet.</p>
+        </div>
+    {% else %}
+        <div class="table-scroll">
+            <table class="blog-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Media</th>
+                        <th>Caption</th>
+                        <th>Author</th>
+                        <th>Status</th>
+                        <th>🛡 Moderation</th>
+                        <th>Created</th>
+                        <th>Expires</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for igStory in igStories %}
+                        {% set m = igStoryModeration[igStory.id] ?? {state: 'SAFE'} %}
+                        {% set stateClass = {
+                            'SAFE': 'badge-mod-safe',
+                            'REVIEW': 'badge-mod-review',
+                            'SPAM': 'badge-mod-spam',
+                            'HIGH_RISK': 'badge-mod-high-risk',
+                            'AUTO_HIDDEN': 'badge-mod-hidden'
+                        }[m.state]|default('badge-mod-safe') %}
+                        {% set stateText = {
+                            'SAFE': '🟢 Safe',
+                            'REVIEW': '⚠️ Review',
+                            'SPAM': '🕷 Spam',
+                            'HIGH_RISK': '🚨 High Risk',
+                            'AUTO_HIDDEN': '⛔ Hidden'
+                        }[m.state]|default('🟢 Safe') %}
+                        <tr>
+                            <td style="color:var(--text-muted); font-size:13px;">{{ igStory.id }}</td>
+                            <td>
+                                {% if igStory.imageUrl %}
+                                    <img src="{{ igStory.imageUrl }}" alt="" class="ig-story-thumb">
+                                {% else %}
+                                    <span style="color:var(--text-muted); font-size:12px;">—</span>
+                                {% endif %}
+                            </td>
+                            <td style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="{{ igStory.caption ?? '—' }}">
+                                {{ igStory.caption ?? '—' }}
+                            </td>
+                            <td>{{ authorMap[igStory.userId] ?? 'User #' ~ igStory.userId }}</td>
+                            <td>
+                                {% if igStory.expiresAt and igStory.expiresAt > date() %}
+                                    <span class="badge badge-approved">🟢 Active</span>
+                                {% else %}
+                                    <span class="badge badge-pending">⏰ Expired</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button
+                                    type="button"
+                                    class="badge mod-badge-btn {{ stateClass }}"
+                                    data-open-moderation="1"
+                                    data-content-type="story"
+                                    data-post-id="{{ igStory.id }}"
+                                    data-post-title="{{ ('Story #' ~ igStory.id)|e('html_attr') }}"
+                                    data-post-content="{{ (igStory.caption ?? '')|e('html_attr') }}"
+                                    data-state="{{ m.state }}"
+                                    data-openai-hate="{{ m.openai.hate|default(0) }}"
+                                    data-openai-harassment="{{ m.openai.harassment|default(0) }}"
+                                    data-openai-self-harm="{{ m.openai.self_harm|default(0) }}"
+                                    data-openai-violence="{{ m.openai.violence|default(0) }}"
+                                    data-spam="{{ m.spam_probability|default(0) }}"
+                                    data-profanity-count="{{ m.profanity_count|default(0) }}"
+                                    data-profanity-words="{{ (m.profanity_words|default([])|join('||'))|e('html_attr') }}"
+                                    data-flagged-phrases="{{ (m.flagged_phrases|default([])|join('||'))|e('html_attr') }}"
+                                    data-comments-total="0"
+                                    data-comments-flagged="0"
+                                    data-comments-review="0"
+                                    data-comments-spam="0"
+                                    data-comments-high-risk="0"
+                                    data-comments-auto-hidden="0"
+                                    data-comments-top-terms=""
+                                    data-comments-samples=""
+                                >{{ stateText }}</button>
+                            </td>
+                            <td style="font-size:13px; color:var(--text-muted);">
+                                {{ igStory.createdAt ? igStory.createdAt|date('d M Y H:i') : '—' }}
+                            </td>
+                            <td style="font-size:13px; color:var(--text-muted);">
+                                {{ igStory.expiresAt ? igStory.expiresAt|date('d M Y H:i') : '—' }}
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    {% if igStory.imageUrl %}
+                                        <a href="{{ igStory.imageUrl }}" target="_blank" rel="noopener" class="btn-view" title="View story media" aria-label="View story media">👁</a>
+                                    {% endif %}
+                                    <form method="post"
+                                          action="{{ path('admin_ig_story_delete', {id: igStory.id}) }}"
+                                          onsubmit="return confirm('Delete this IG story permanently?');">
+                                        <input type="hidden" name="_token"
+                                               value="{{ csrf_token('admin_ig_story_delete_' ~ igStory.id) }}">
+                                        <button type="submit" class="btn-del" title="Delete story" aria-label="Delete story">🗑</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
 </div>
 
-{# ── Confirm Modal ── #}
-<div class="ab-confirm-overlay" id="confirm-modal">
-  <div class="ab-confirm">
-    <h4 id="confirm-title">Are you sure?</h4>
-    <p id="confirm-msg">This action cannot be undone.</p>
-    <div class="ab-confirm-btns">
-      <button class="ab-confirm-no" onclick="closeConfirm()">Cancel</button>
-      <button class="ab-confirm-yes" id="confirm-yes-btn">Confirm</button>
-    </div>
-  </div>
+{# ── Live Tab ── #}
+<div class="tab-panel" id="tab-live">
+    {% if liveSessions is empty %}
+        <div class="empty-state">
+            <p style="font-size:42px;">🔴</p>
+            <p>No live sessions yet.</p>
+        </div>
+    {% else %}
+        <div class="table-scroll">
+            <table class="blog-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Preview</th>
+                        <th>Title</th>
+                        <th>Host</th>
+                        <th>Status</th>
+                        <th>🛡 Moderation</th>
+                        <th>Comments</th>
+                        <th>Reacts</th>
+                        <th>Viewers</th>
+                        <th>Started</th>
+                        <th>Ended</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for live in liveSessions %}
+                        {% set m = liveModeration[live.id] ?? {state: 'SAFE'} %}
+                        {% set cm = liveCommentModeration[live.id] ?? {total: 0, flagged: 0, review: 0, spam: 0, high_risk: 0, auto_hidden: 0, top_terms: [], samples: []} %}
+                        {% set stateClass = {
+                            'SAFE': 'badge-mod-safe',
+                            'REVIEW': 'badge-mod-review',
+                            'SPAM': 'badge-mod-spam',
+                            'HIGH_RISK': 'badge-mod-high-risk',
+                            'AUTO_HIDDEN': 'badge-mod-hidden'
+                        }[m.state]|default('badge-mod-safe') %}
+                        {% set stateText = {
+                            'SAFE': '🟢 Safe',
+                            'REVIEW': '⚠️ Review',
+                            'SPAM': '🕷 Spam',
+                            'HIGH_RISK': '🚨 High Risk',
+                            'AUTO_HIDDEN': '⛔ Hidden'
+                        }[m.state]|default('🟢 Safe') %}
+                        <tr>
+                            <td style="color:var(--text-muted); font-size:13px;">{{ live.id }}</td>
+                            <td>
+                                {% if live.thumbnailUrl %}
+                                    <img src="{{ live.thumbnailUrl }}" alt="" class="live-thumb">
+                                {% elseif live.recordingUrl %}
+                                    <a href="{{ live.recordingUrl }}" target="_blank" rel="noopener" class="btn-view">Recording</a>
+                                {% else %}
+                                    <span style="color:var(--text-muted); font-size:12px;">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="post-title-cell" title="{{ live.title ?? 'Untitled live' }}">{{ live.title ?? 'Untitled live' }}</td>
+                            <td>{{ authorMap[live.hostUser.userId] ?? 'User #' ~ live.hostUser.userId }}</td>
+                            <td>
+                                {% if live.status == 'live' %}
+                                    <span class="badge badge-approved">🔴 Live</span>
+                                {% else %}
+                                    <span class="badge badge-pending">⏹️ {{ live.status|capitalize }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button
+                                    type="button"
+                                    class="badge mod-badge-btn {{ stateClass }}"
+                                    data-open-moderation="1"
+                                    data-content-type="live"
+                                    data-post-id="{{ live.id }}"
+                                    data-post-title="{{ (live.title ?? 'Untitled live')|e('html_attr') }}"
+                                    data-post-content="{{ ('Room: ' ~ (live.roomName ?? ''))|e('html_attr') }}"
+                                    data-state="{{ m.state }}"
+                                    data-openai-hate="{{ m.openai.hate|default(0) }}"
+                                    data-openai-harassment="{{ m.openai.harassment|default(0) }}"
+                                    data-openai-self-harm="{{ m.openai.self_harm|default(0) }}"
+                                    data-openai-violence="{{ m.openai.violence|default(0) }}"
+                                    data-spam="{{ m.spam_probability|default(0) }}"
+                                    data-profanity-count="{{ m.profanity_count|default(0) }}"
+                                    data-profanity-words="{{ (m.profanity_words|default([])|join('||'))|e('html_attr') }}"
+                                    data-flagged-phrases="{{ (m.flagged_phrases|default([])|join('||'))|e('html_attr') }}"
+                                    data-comments-total="{{ cm.total|default(0) }}"
+                                    data-comments-flagged="{{ cm.flagged|default(0) }}"
+                                    data-comments-review="{{ cm.review|default(0) }}"
+                                    data-comments-spam="{{ cm.spam|default(0) }}"
+                                    data-comments-high-risk="{{ cm.high_risk|default(0) }}"
+                                    data-comments-auto-hidden="{{ cm.auto_hidden|default(0) }}"
+                                    data-comments-top-terms="{{ (cm.top_terms|default([])|join('||'))|e('html_attr') }}"
+                                    data-comments-samples="{{ (cm.samples|default([])|join('||'))|e('html_attr') }}"
+                                >{{ stateText }}</button>
+                            </td>
+                            {% set commentRiskClass = 'badge-mod-review' %}
+                            {% if (cm.high_risk|default(0) + cm.auto_hidden|default(0)) > 0 %}
+                                {% set commentRiskClass = 'badge-mod-high-risk' %}
+                            {% elseif (cm.spam|default(0)) > 0 %}
+                                {% set commentRiskClass = 'badge-mod-spam' %}
+                            {% endif %}
+                            <td>
+                                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                    <span style="font-weight:700;">{{ liveCommentCounts[live.id] ?? 0 }}</span>
+                                    {% if (cm.flagged|default(0)) > 0 %}
+                                        <span class="badge {{ commentRiskClass }}" title="{{ cm.flagged }} flagged out of {{ cm.total|default(0) }} comments">🚩 {{ cm.flagged }}</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td style="font-weight:700;">{{ liveReactionCounts[live.id] ?? 0 }}</td>
+                            <td style="font-weight:700;">
+                                {{ liveActiveViewerCounts[live.id] ?? 0 }}
+                                <span style="color:var(--text-muted); font-size:12px;">/ {{ liveViewerCounts[live.id] ?? 0 }}</span>
+                            </td>
+                            <td style="font-size:13px; color:var(--text-muted);">{{ live.startedAt ? live.startedAt|date('d M Y H:i') : '—' }}</td>
+                            <td style="font-size:13px; color:var(--text-muted);">{{ live.endedAt ? live.endedAt|date('d M Y H:i') : '—' }}</td>
+                            <td>
+                                <div class="actions">
+                                    {% if live.recordingUrl %}
+                                        <a href="{{ live.recordingUrl }}" target="_blank" rel="noopener" class="btn-view" title="View live recording" aria-label="View live recording">👁</a>
+                                    {% endif %}
+                                    <form method="post"
+                                          action="{{ path('admin_live_delete', {id: live.id}) }}"
+                                          onsubmit="return confirm('Delete this live session permanently?');">
+                                        <input type="hidden" name="_token"
+                                               value="{{ csrf_token('admin_live_delete_' ~ live.id) }}">
+                                        <button type="submit" class="btn-del" title="Delete live session" aria-label="Delete live session">🗑</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-/* ── Tab switch ── */
+function getCurrentTab() {
+    const activePanel = document.querySelector('.tab-panel.active');
+    return activePanel ? activePanel.id.replace('tab-', '') : 'posts';
+}
+
+function updateTabInUrl(tab) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', tab);
+    window.history.replaceState(null, '', url.toString());
+}
+
 function switchTab(tab, btn) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.ab-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  btn.classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    btn.classList.add('active');
+    updateTabInUrl(tab);
+    
+    // Resize charts in case they were hidden
+    setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+    }, 50);
 }
 
-/* ── Filter table rows ── */
-function triggerPostFilter() {
-  filterTable('posts-tbody', document.getElementById('posts-search').value, document.getElementById('posts-type-filter').value, document.getElementById('posts-status-filter').value);
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const url = new URL(window.location.href);
+    const tab = url.searchParams.get('tab');
+    const panel = tab ? document.getElementById('tab-' + tab) : null;
+    const tabBtn = tab ? document.querySelector('.admin-tab[data-tab="' + tab + '"]') : null;
 
-function filterTable(tbodyId, q, typeVal, statusVal) {
-  const tbody  = document.getElementById(tbodyId);
-  if (!tbody) return;
-  const search = (q || '').toLowerCase().trim();
-  tbody.querySelectorAll('tr').forEach(row => {
-    const title  = (row.dataset.title || '').toLowerCase();
-    const type   = (row.dataset.type  || '').toLowerCase();
-    const status = (row.dataset.status|| '').toLowerCase();
-    const matchQ      = !search   || title.includes(search);
-    const matchType   = !typeVal  || type   === typeVal;
-    const matchStatus = !statusVal|| status === statusVal;
-    row.style.display = matchQ && matchType && matchStatus ? '' : 'none';
-  });
-}
-
-/* ── Flash ── */
-function showAdminFlash(msg, type) {
-  const f = document.getElementById('ajax-flash');
-  f.textContent  = msg;
-  f.className    = 'ab-flash ' + type;
-  f.style.display = 'block';
-  clearTimeout(f._t);
-  f._t = setTimeout(() => { f.style.display = 'none'; }, 4000);
-}
-
-/* ── Approve / Reject ── */
-async function approvePost(id, token) {
-  const fd = new URLSearchParams({ _token: token });
-  try {
-    const res  = await fetch(`/admin/blog/${id}/approve`, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-    const data = await res.json();
-    if (data.success) {
-      document.getElementById(`status-cell-${id}`).innerHTML = '<span class="badge badge-approved">✅ Approved</span>';
-      const row = document.getElementById(`post-row-${id}`);
-      if (row) row.dataset.status = 'approved';
-      // Swap button Approve → Reject
-      const approveBtn = document.querySelector(`[onclick*="approvePost(${id},"]`);
-      if (approveBtn) {
-        const newToken = '{% verbatim %}{{ csrf_token("admin_blog_" ~ id) }}{% endverbatim %}';
-        approveBtn.outerHTML = `<button class="btn-reject" onclick="rejectPost(${id}, '${token}')">Reject</button>`;
-      }
-      showAdminFlash('✅ Post approved!', 'success');
+    if (panel && tabBtn) {
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+        panel.classList.add('active');
+        tabBtn.classList.add('active');
     }
-  } catch(e) { showAdminFlash('❌ Error approving post.', 'error'); }
-}
 
-async function rejectPost(id, token) {
-  const fd = new URLSearchParams({ _token: token });
-  try {
-    const res  = await fetch(`/admin/blog/${id}/reject`, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-    const data = await res.json();
-    if (data.success) {
-      document.getElementById(`status-cell-${id}`).innerHTML = '<span class="badge badge-pending">⏳ Pending</span>';
-      const row = document.getElementById(`post-row-${id}`);
-      if (row) row.dataset.status = 'pending';
-      showAdminFlash('ℹ️ Post rejected.', 'info');
+    if (!tab) {
+        updateTabInUrl(getCurrentTab());
     }
-  } catch(e) { showAdminFlash('❌ Error rejecting post.', 'error'); }
-}
 
-/* ── Edit Modal ── */
-let _editId    = null;
-let _editToken = null;
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', () => {
+            let tabInput = form.querySelector('input[name="_tab"]');
+            if (!tabInput) {
+                tabInput = document.createElement('input');
+                tabInput.type = 'hidden';
+                tabInput.name = '_tab';
+                form.appendChild(tabInput);
+            }
+            tabInput.value = getCurrentTab();
+        });
+    });
 
-function openEditModal(id, title, body, type, token) {
-  _editId    = id;
-  _editToken = token;
-  document.getElementById('modal-title').value = title;
-  document.getElementById('modal-body').value  = body;
-  document.getElementById('modal-type').value  = type;
-  document.getElementById('modal-err').textContent = '';
-  document.getElementById('edit-modal').classList.add('open');
-}
-
-function closeEditModal() {
-  document.getElementById('edit-modal').classList.remove('open');
-}
-
-// Generate correct CSRF token per post on open
-document.querySelectorAll('[onclick*="openEditModal"]').forEach(btn => {
-  const id = btn.getAttribute('onclick').match(/openEditModal\((\d+)/)?.[1];
-  if (id) {
-    // CSRF tokens are baked in per-row from Twig; the JS will grab the right one via hidden fields approach
-  }
-});
-
-async function savePost() {
-  const title = document.getElementById('modal-title').value.trim();
-  const body  = document.getElementById('modal-body').value.trim();
-  const type  = document.getElementById('modal-type').value;
-  const errEl = document.getElementById('modal-err');
-
-  errEl.textContent = '';
-  if (title.length < 3) { errEl.textContent = 'Title must be at least 3 characters.'; return; }
-  if (body.length < 10) { errEl.textContent = 'Body must be at least 10 characters.'; return; }
-
-  // Use the directly provided token
-  const token = _editToken;
-
-  const fd = new URLSearchParams({ title, body, type, _token: token });
-  try {
-    const res  = await fetch(`/admin/blog/${_editId}/edit`, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-    const data = await res.json();
-    if (data.error) { errEl.textContent = data.error; return; }
-    if (data.success) {
-      const row = document.getElementById('post-row-' + _editId);
-      const cell = row?.querySelector('.post-title-cell');
-      if (cell) cell.textContent = data.title;
-      if (row) {
-        row.dataset.title = data.title.toLowerCase();
-        row.dataset.type = data.type;
-        const typeEl = row.querySelector('.type-dot');
-        if (typeEl) {
-          typeEl.className = 'type-dot type-' + data.type;
-          typeEl.textContent = data.type;
-        }
-      }
-      showAdminFlash('✅ Post updated!', 'success');
-      closeEditModal();
+    const selectAllPosts = document.getElementById('select-all-posts');
+    const bulkPostsForm = document.getElementById('bulk-posts-form');
+    const bulkActionInput = document.getElementById('bulk-action-input');
+    if (selectAllPosts) {
+        selectAllPosts.addEventListener('change', () => {
+            document.querySelectorAll('.post-check').forEach(box => {
+                box.checked = selectAllPosts.checked;
+            });
+        });
     }
-  } catch(e) { errEl.textContent = 'Failed to save.'; }
-}
 
-/* ── Confirm Delete ── */
-let _confirmCallback = null;
+    document.querySelectorAll('[data-bulk-action]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            if (!bulkPostsForm || !bulkActionInput) return;
+            bulkActionInput.value = String(btn.getAttribute('data-bulk-action') || '').trim();
+            bulkPostsForm.requestSubmit();
+        });
+    });
 
-function confirmDelete(targetType, id, token) {
-  const labels = { post: 'post', story: 'travel story', comment: 'comment' };
-  document.getElementById('confirm-title').textContent = 'Delete this ' + labels[targetType] + '?';
-  document.getElementById('confirm-msg').textContent   = 'This action cannot be undone.';
-  document.getElementById('confirm-modal').classList.add('open');
+    const modal = document.getElementById('moderation-modal');
+    const modClose = document.getElementById('mod-close');
+    const modPostId = document.getElementById('mod-post-id');
+    const modContentType = document.getElementById('mod-content-type');
+    const modPostTitle = document.getElementById('mod-post-title');
+    const modState = document.getElementById('mod-state');
+    const modHate = document.getElementById('mod-hate');
+    const modHarassment = document.getElementById('mod-harassment');
+    const modSelfHarm = document.getElementById('mod-self-harm');
+    const modViolence = document.getElementById('mod-violence');
+    const modSpam = document.getElementById('mod-spam');
+    const modSpamStatus = document.getElementById('mod-spam-status');
+    const modProfanityCount = document.getElementById('mod-profanity-count');
+    const modProfanityList = document.getElementById('mod-profanity-list');
+    const modPreview = document.getElementById('mod-content-preview');
+    const modCommentsTotal = document.getElementById('mod-comments-total');
+    const modCommentsFlagged = document.getElementById('mod-comments-flagged');
+    const modCommentsHighRisk = document.getElementById('mod-comments-high-risk');
+    const modCommentsReviewSpam = document.getElementById('mod-comments-review-spam');
+    const modCommentsTop = document.getElementById('mod-comments-top');
+    const modCommentsSamples = document.getElementById('mod-comments-samples');
 
-  _confirmCallback = async () => {
-    const routes = {
-      post:    `/admin/blog/${id}/delete`,
-      story:   `/admin/blog/story/${id}/delete`,
-      comment: `/admin/blog/comment/${id}/delete`,
+    const modApprove = document.getElementById('mod-form-approve');
+    const modReject = document.getElementById('mod-form-reject');
+    const modDelete = document.getElementById('mod-form-delete');
+    const modMarkSafeId = document.getElementById('mod-mark-safe-id');
+    const modActionsWrap = document.getElementById('mod-actions-wrap');
+    const modReadonlyNote = document.getElementById('mod-readonly-note');
+
+    const esc = (v) => (v || '').replace(/[&<>"']/g, (m) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));
+    const pct = (n) => `${Math.round((Number(n || 0) * 100))}%`;
+    const level = (n) => {
+        const v = Number(n || 0);
+        if (v >= 0.75) return 'high';
+        if (v >= 0.45) return 'medium';
+        if (v > 0.1) return 'low';
+        return 'none';
     };
-    const fd = new URLSearchParams({ _token: token });
-    try {
-      const res  = await fetch(routes[targetType], { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-      const data = await res.json();
-      if (data.success) {
-        const row = document.getElementById(`${targetType}-row-${id}`);
-        if (row) {
-          row.style.transition = 'opacity .3s, transform .3s';
-          row.style.opacity    = '0';
-          row.style.transform  = 'translateX(20px)';
-          setTimeout(() => row.remove(), 350);
+
+    const setActionTargets = (postId) => {
+        modApprove.action = `{{ path('admin_blog_approve', {id: 0}) }}`.replace('/0/', `/${postId}/`);
+        modReject.action = `{{ path('admin_blog_reject', {id: 0}) }}`.replace('/0/', `/${postId}/`);
+        modDelete.action = `{{ path('admin_blog_delete', {id: 0}) }}`.replace('/0/', `/${postId}/`);
+        modMarkSafeId.value = String(postId || '');
+    };
+
+    const highlightContent = (raw, profanityWords, flaggedPhrases) => {
+        let html = esc(raw || '');
+        (flaggedPhrases || []).filter(Boolean).sort((a,b) => b.length - a.length).forEach((phrase) => {
+            const safe = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            html = html.replace(new RegExp(`(${safe})`, 'gi'), '<span class="hl-flag">$1</span>');
+        });
+        (profanityWords || []).filter(Boolean).sort((a,b) => b.length - a.length).forEach((word) => {
+            const safe = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            html = html.replace(new RegExp(`\\b(${safe})\\b`, 'gi'), '<span class="hl-profanity">$1</span>');
+        });
+        return html;
+    };
+
+    document.querySelectorAll('[data-open-moderation="1"]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const postId = btn.dataset.postId || '';
+            const title = btn.dataset.postTitle || '';
+            const content = btn.dataset.postContent || '';
+            const state = btn.dataset.state || 'SAFE';
+            const contentType = btn.dataset.contentType || 'post';
+
+            const hate = Number(btn.dataset.openaiHate || 0);
+            const harassment = Number(btn.dataset.openaiHarassment || 0);
+            const selfHarm = Number(btn.dataset.openaiSelfHarm || 0);
+            const violence = Number(btn.dataset.openaiViolence || 0);
+            const spam = Number(btn.dataset.spam || 0);
+            const profanityCount = Number(btn.dataset.profanityCount || 0);
+            const commentsTotal = Number(btn.dataset.commentsTotal || 0);
+            const commentsFlagged = Number(btn.dataset.commentsFlagged || 0);
+            const commentsReview = Number(btn.dataset.commentsReview || 0);
+            const commentsSpam = Number(btn.dataset.commentsSpam || 0);
+            const commentsHighRisk = Number(btn.dataset.commentsHighRisk || 0);
+            const commentsAutoHidden = Number(btn.dataset.commentsAutoHidden || 0);
+
+            const profanityWords = (btn.dataset.profanityWords || '').split('||').filter(Boolean);
+            const flaggedPhrases = (btn.dataset.flaggedPhrases || '').split('||').filter(Boolean);
+            const commentsTopTerms = (btn.dataset.commentsTopTerms || '').split('||').filter(Boolean);
+            const commentsSamples = (btn.dataset.commentsSamples || '').split('||').filter(Boolean);
+
+            modPostId.textContent = postId;
+            modContentType.textContent = contentType.replace('_', ' ').toUpperCase();
+            modPostTitle.textContent = title;
+            modState.textContent = state;
+            modHate.textContent = `${level(hate)} (${pct(hate)})`;
+            modHarassment.textContent = `${level(harassment)} (${pct(harassment)})`;
+            modSelfHarm.textContent = `${level(selfHarm)} (${pct(selfHarm)})`;
+            modViolence.textContent = `${level(violence)} (${pct(violence)})`;
+            modSpam.textContent = pct(spam);
+            modSpamStatus.textContent = spam > 0.75 ? 'Likely spam' : (spam > 0.45 ? 'Suspicious' : 'Not spam');
+            modProfanityCount.textContent = String(profanityCount);
+            modProfanityList.textContent = profanityWords.length ? `Words: ${profanityWords.join(', ')}` : 'No explicit profanity detected.';
+            modCommentsTotal.textContent = String(commentsTotal);
+            modCommentsFlagged.textContent = String(commentsFlagged);
+            modCommentsHighRisk.textContent = `${commentsHighRisk} / ${commentsAutoHidden}`;
+            modCommentsReviewSpam.textContent = `${commentsReview} / ${commentsSpam}`;
+            modCommentsTop.textContent = commentsTopTerms.length ? `Top terms in comments: ${commentsTopTerms.join(', ')}` : 'No notable flagged terms in comments.';
+            modCommentsSamples.textContent = commentsSamples.length ? `Examples: ${commentsSamples.join(' | ')}` : 'No flagged comment samples.';
+            modPreview.innerHTML = highlightContent(content, profanityWords, flaggedPhrases);
+
+            if (contentType === 'post') {
+                setActionTargets(postId);
+                if (modActionsWrap) modActionsWrap.style.display = 'flex';
+                if (modReadonlyNote) modReadonlyNote.style.display = 'none';
+            } else {
+                if (modActionsWrap) modActionsWrap.style.display = 'none';
+                if (modReadonlyNote) modReadonlyNote.style.display = 'block';
+            }
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+        });
+    });
+
+    const closeModal = () => {
+        if (!modal) return;
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+    };
+
+    if (modClose) modClose.addEventListener('click', closeModal);
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    }
+
+    // --- Manually initialize Symfony UX Chart.js charts ---
+    const chartElements = document.querySelectorAll('canvas[data-controller="symfony--ux-chartjs--chart"]');
+    chartElements.forEach(canvas => {
+        try {
+            const viewValue = JSON.parse(canvas.getAttribute('data-symfony--ux-chartjs--chart-view-value'));
+            if (viewValue) {
+                new Chart(canvas, {
+                    type: viewValue.type,
+                    data: viewValue.data,
+                    options: viewValue.options
+                });
+            }
+        } catch (e) {
+            console.error('Failed to initialize chart:', e);
         }
-        showAdminFlash('✅ Deleted successfully.', 'success');
-      } else {
-        showAdminFlash('❌ Delete failed.', 'error');
-      }
-    } catch(e) { showAdminFlash('❌ Delete failed.', 'error'); }
-    closeConfirm();
-  };
-
-  document.getElementById('confirm-yes-btn').onclick = () => _confirmCallback && _confirmCallback();
-}
-
-function closeConfirm() {
-  document.getElementById('confirm-modal').classList.remove('open');
-  _confirmCallback = null;
-}
-
-/* Close modals on overlay click */
-document.getElementById('edit-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeEditModal(); });
-document.getElementById('confirm-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeConfirm(); });
+    });
+});
 </script>
+
 {% endblock %}

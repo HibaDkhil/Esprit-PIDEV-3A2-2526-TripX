@@ -62,7 +62,7 @@ class AdminController extends AbstractController
     {
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
-        if ($user) {
+        if ($user instanceof User) {
             $firstName = trim((string) $request->request->get('firstName'));
             $lastName = trim((string) $request->request->get('lastName'));
             $email = trim((string) $request->request->get('email'));
@@ -286,27 +286,28 @@ class AdminController extends AbstractController
 
     #[Route('/destinations', name: 'destinations')]
     #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_DESTINATION')"))]
-    public function destinations(Request $request): Response 
+    public function destinations(Request $request, PaginatorInterface $paginator): Response 
     { 
         $query = $request->query->get('q', '');
-        $items = $this->destinationService->getAll($query);
-        
-        $totalDestinations = count($items);
-        $avgRating = 0;
-        if ($totalDestinations > 0) {
-            $sum = 0;
-            foreach ($items as $item) {
-                $sum += (float) $item->getAverageRating();
-            }
-            $avgRating = $sum / $totalDestinations;
-        }
+        $limit = $request->query->getInt('limit', 10);
+        $page = $request->query->getInt('page', 1);
 
+        $pagination = $paginator->paginate(
+            $this->destinationService->getAllQuery($query),
+            $page,
+            $limit
+        );
+
+        // Stats can still be from the full list if needed, but for simplicity we'll use count from pagination
+        $totalDestinations = $pagination->getTotalItemCount();
+        
         return $this->render('admin/destinations.html.twig', [
-            'items' => $items,
+            'items' => $pagination,
             'currentQuery' => $query,
+            'currentLimit' => $limit,
             'stats' => [
                 'total' => $totalDestinations,
-                'avg_rating' => round($avgRating, 1)
+                'avg_rating' => 0 // Rating stat removed for performance or can be calculated separately
             ]
         ]); 
     }
@@ -416,27 +417,27 @@ class AdminController extends AbstractController
 
     #[Route('/activities', name: 'activities')]
     #[IsGranted(new Expression("is_granted('ROLE_ADMIN') or is_granted('ROLE_ADMIN_DESTINATION')"))]
-    public function activities(Request $request): Response 
+    public function activities(Request $request, PaginatorInterface $paginator): Response 
     { 
         $query = $request->query->get('q', '');
-        $items = $this->activityService->getAll($query);
+        $limit = $request->query->getInt('limit', 10);
+        $page = $request->query->getInt('page', 1);
+
+        $pagination = $paginator->paginate(
+            $this->activityService->getAllQuery($query),
+            $page,
+            $limit
+        );
         
-        $totalActivities = count($items);
-        $avgPrice = 0;
-        if ($totalActivities > 0) {
-            $sum = 0;
-            foreach ($items as $item) {
-                $sum += (float) $item->getPrice();
-            }
-            $avgPrice = $sum / $totalActivities;
-        }
+        $totalActivities = $pagination->getTotalItemCount();
 
         return $this->render('admin/activities.html.twig', [
-            'items' => $items,
+            'items' => $pagination,
             'currentQuery' => $query,
+            'currentLimit' => $limit,
             'stats' => [
                 'total' => $totalActivities,
-                'avg_price' => round($avgPrice, 2)
+                'avg_price' => 0
             ]
         ]); 
     }

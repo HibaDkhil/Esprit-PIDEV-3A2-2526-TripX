@@ -4,6 +4,7 @@
 
 {% block stylesheets %}
   {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/experience-lab.css') }}">
   <style>
     :root {
       --nav-height: 80px;
@@ -263,6 +264,126 @@
   </div>
 </section>
 
+<!-- ARIA Picked For You Section -->
+{% if ariaDestination %}
+<section class="section container" style="margin-top: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+    <div>
+      <div class="section-label"><span>✨ ARIA Picked For You</span></div>
+      <h2 class="section-title">Your Perfect Journey</h2>
+    </div>
+    <a href="{{ path('destination_recommendations') }}" class="btn-primary ripple-btn" style="padding: 8px 16px; font-size: 0.85rem; border-radius: 8px; text-decoration: none;">See All Recommendations</a>
+  </div>
+  <div class="grid-3 stagger">
+    {# Destination #}
+    <div class="card interactive">
+      <a href="{{ path('destinations', {'q': ariaDestination.name}) }}" style="text-decoration:none; color:inherit;">
+        <img src="{{ ariaDestination.imageUrl|default('/images/view1.jpg') }}" style="width:100%; height:200px; object-fit:cover; border-radius:var(--border-radius-sm) var(--border-radius-sm) 0 0;" alt="{{ ariaDestination.name }}">
+        <div class="card-body">
+          <div class="badge badge-primary" style="margin-bottom:8px;">Perfect Destination</div>
+          <h3 style="font-family: var(--font-display); font-size:1.2rem;">{{ ariaDestination.name }}</h3>
+          <p class="text-muted" style="font-size:0.9rem;">{{ ariaDestination.country }}</p>
+        </div>
+      </a>
+    </div>
+    {# Accommodation #}
+    {% if ariaAccommodation %}
+    <div class="card interactive">
+      <a href="{{ path('accommodation_details', {id: ariaAccommodation.id}) }}" style="text-decoration:none; color:inherit;">
+        <img src="{{ ariaAccommodation.imagePath ? asset(ariaAccommodation.imagePath) : '/images/view1.jpg' }}" style="width:100%; height:200px; object-fit:cover; border-radius:var(--border-radius-sm) var(--border-radius-sm) 0 0;" alt="{{ ariaAccommodation.name }}">
+        <div class="card-body">
+          <div class="badge badge-primary" style="margin-bottom:8px; background:var(--accent-teal);">Perfect Stay</div>
+          <h3 style="font-family: var(--font-display); font-size:1.2rem;">{{ ariaAccommodation.name }}</h3>
+          <p class="text-muted" style="font-size:0.9rem;">{{ ariaAccommodation.city }}</p>
+        </div>
+      </a>
+    </div>
+    {% endif %}
+    {# Activity #}
+    {% if ariaActivity %}
+    <div class="card interactive">
+      <a href="{{ path('activities', {'q': ariaActivity.name}) }}" style="text-decoration:none; color:inherit;">
+        <img src="/images/view1.jpg" style="width:100%; height:200px; object-fit:cover; border-radius:var(--border-radius-sm) var(--border-radius-sm) 0 0;" alt="{{ ariaActivity.name }}">
+        <div class="card-body">
+          <div class="badge badge-primary" style="margin-bottom:8px; background:var(--accent-gold);">Perfect Activity</div>
+          <h3 style="font-family: var(--font-display); font-size:1.2rem;">{{ ariaActivity.name }}</h3>
+          <p class="text-muted" style="font-size:0.9rem;">{{ ariaActivity.category }}</p>
+        </div>
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+
+<!-- Virtual Experiences Section -->
+<section class="section container" style="margin-top: 40px; margin-bottom: 40px;">
+  <div class="section-label reveal"><span>Immersive Journeys</span></div>
+  <h2 class="section-title reveal" style="font-family: var(--font-display); background: linear-gradient(135deg, #f59e0b, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Cultural & Architectural Wonders</h2>
+  <p class="text-muted reveal" style="max-width: 800px; margin-bottom: 40px; font-size: 1.1rem; line-height: 1.6;">
+    Dive into breathtaking virtual simulations of world heritage, iconic history, and modern culture. Explore stunning architectural designs, vibrant colors, and deeply curated museum details right from your browser.
+  </p>
+  
+  <div class="grid-3 stagger">
+    {# Card 1: Greece #}
+    <div class="card interactive" style="background: linear-gradient(to bottom, #eff6ff, #dbeafe); border-color: #bfdbfe; overflow: hidden; padding: 0;">
+      <div style="height: 160px; background: url('https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&q=80') center/cover;"></div>
+      <div style="padding: 24px;">
+        <h3 style="font-family: var(--font-display); color: #1e3a8a; font-size: 1.3rem; margin-bottom: 10px;">Greece & Pristine Beaches</h3>
+        <p style="color: #3b82f6; font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px;">
+          Wander through dazzling white architecture against the backdrop of the cerulean Aegean Sea. Experience the warm sunlight and architectural marvels of the Greek coastline in full 3D simulation.
+        </p>
+        <button onclick="openVirtualExp('https://metasteps.com/viewer/6e411e77-9c32-41ad-992e-02801265280a')" class="btn-primary ripple-btn" style="width: 100%; text-align: center; border-radius: 8px;">Explore Greece</button>
+      </div>
+    </div>
+
+    {# Card 2: Pop Stars #}
+    <div class="card interactive" style="background: linear-gradient(to bottom, #fdf4ff, #fae8ff); border-color: #f5d0fe; overflow: hidden; padding: 0;">
+      <div style="height: 160px; background: url('https://images.unsplash.com/photo-1493225457224-eda8e63a13ee?auto=format&fit=crop&q=80') center/cover;"></div>
+      <div style="padding: 24px;">
+        <h3 style="font-family: var(--font-display); color: #701a75; font-size: 1.3rem; margin-bottom: 10px;">Pop Culture Museum</h3>
+        <p style="color: #d946ef; font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px;">
+          Step into a vibrant, neon-lit museum celebrating the history and impact of global pop stars. Immerse yourself in the dynamic colors, fashion, and legendary performances that shaped modern music.
+        </p>
+        <button onclick="openVirtualExp('https://web.atopia.space/?experienceId=68d3f6511229772ae57d195c')" class="btn-primary ripple-btn" style="width: 100%; text-align: center; border-radius: 8px; background: linear-gradient(135deg, #d946ef, #8b5cf6); border:none;">Enter Museum</button>
+      </div>
+    </div>
+
+    {# Card 3: Ancient Egypt #}
+    <div class="card interactive" style="background: linear-gradient(to bottom, #fffbeb, #fef3c7); border-color: #fde68a; overflow: hidden; padding: 0;">
+      <div style="height: 160px; background: url('https://images.unsplash.com/photo-1539650116574-8efeb43e2b08?auto=format&fit=crop&q=80') center/cover;"></div>
+      <div style="padding: 24px;">
+        <h3 style="font-family: var(--font-display); color: #78350f; font-size: 1.3rem; margin-bottom: 10px;">Ancient Egypt History</h3>
+        <p style="color: #d97706; font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px;">
+          Walk through the monumental temples and golden tombs of the Pharaohs. Witness the grandeur of ancient Egyptian architecture, hieroglyphics, and timeless artifacts up close.
+        </p>
+        <button onclick="openVirtualExp('https://web.atopia.space/?experienceId=67b62ad171c3d4984f7462d9')" class="btn-primary ripple-btn" style="width: 100%; text-align: center; border-radius: 8px; background: linear-gradient(135deg, #d97706, #b45309); border:none;">Unearth History</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Virtual Experience Overlay -->
+<div id="virtual-exp-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:999999; background:#000;">
+  <button onclick="closeVirtualExp()" style="position:absolute; top:20px; left:20px; z-index:1000; background:rgba(0,0,0,0.7); color:white; border:2px solid rgba(255,255,255,0.3); border-radius:12px; padding:10px 20px; font-weight:bold; cursor:pointer; font-family:var(--font-display); backdrop-filter:blur(10px); transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.borderColor='white';" onmouseout="this.style.background='rgba(0,0,0,0.7)'; this.style.borderColor='rgba(255,255,255,0.3)';">
+    ← Back to TripX
+  </button>
+  <iframe id="virtual-exp-iframe" src="" style="width:100%; height:100%; border:none;" allow="xr-spatial-tracking; autoplay; camera; microphone; vr; fullscreen"></iframe>
+</div>
+
+<script>
+  function openVirtualExp(url) {
+    document.getElementById('virtual-exp-iframe').src = url;
+    document.getElementById('virtual-exp-overlay').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+  function closeVirtualExp() {
+    document.getElementById('virtual-exp-iframe').src = '';
+    document.getElementById('virtual-exp-overlay').style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }
+</script>
+
 <!-- Trending Section -->
 <section class="section container">
   <div class="section-label"><span>Trending Destinations</span></div>
@@ -278,6 +399,57 @@
       </div>
     </div>
     {% endfor %}
+  </div>
+</section>
+
+<!-- Futuristic Offers Section -->
+<section class="section container" style="margin-top: 3rem; margin-bottom: 3rem; position: relative;">
+  <div style="position:absolute; top:50%; left:50%; width:100%; height:100%; background:radial-gradient(ellipse at center, rgba(139,92,246,0.1), transparent 60%); transform:translate(-50%, -50%); z-index:-1; pointer-events:none;"></div>
+  
+  <div style="text-align:center; margin-bottom: 2.5rem;">
+    <div style="display:inline-block; font-size:0.75rem; font-weight:800; letter-spacing:0.2em; color:#06b6d4; text-transform:uppercase; margin-bottom:0.8rem; background:rgba(6,182,212,0.1); padding:6px 16px; border-radius:100px; border:1px solid rgba(6,182,212,0.3); box-shadow:0 0 15px rgba(6,182,212,0.2);">Limited Time</div>
+    <h2 style="font-size:3rem; font-weight:900; background:linear-gradient(135deg, #fff 30%, #8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:-0.02em;">Exclusive Offers</h2>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:2rem;">
+    <!-- Offer 1 -->
+    <a href="{{ path('user_packs_offers') }}" style="text-decoration:none; display:block; position:relative; border-radius:1.5rem; padding:2px; background:linear-gradient(135deg, #8b5cf6, #06b6d4); transition:all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);" onmouseover="this.style.transform='scale(1.04) translateY(-10px)'; this.style.boxShadow='0 20px 40px rgba(6,182,212,0.3), 0 0 0 2px rgba(6,182,212,0.5)';" onmouseout="this.style.transform='scale(1) translateY(0)'; this.style.boxShadow='none';">
+      <div style="background:rgba(5,10,26,0.9); border-radius:1.4rem; padding:2rem; height:100%; position:relative; overflow:hidden; backdrop-filter:blur(10px);">
+        <div style="position:absolute; top:-30px; right:-30px; width:120px; height:120px; background:rgba(6,182,212,0.25); filter:blur(30px); border-radius:50%;"></div>
+        <h3 style="color:#fff; font-size:1.8rem; font-weight:900; margin-bottom:0.5rem; z-index:2; position:relative;">Maldives Escape</h3>
+        <p style="color:rgba(200,210,240,0.7); font-size:0.9rem; margin-bottom:2rem; z-index:2; position:relative;">Experience true paradise with private overwater villas.</p>
+        <div style="display:flex; align-items:center; justify-content:space-between; z-index:2; position:relative;">
+          <span style="font-size:2.2rem; font-weight:900; color:#06b6d4;">40% OFF</span>
+          <span style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:6px 12px; border-radius:100px; font-size:0.75rem; font-weight:700;">Ends in 24h</span>
+        </div>
+      </div>
+    </a>
+    
+    <!-- Offer 2 -->
+    <a href="{{ path('user_packs_offers') }}" style="text-decoration:none; display:block; position:relative; border-radius:1.5rem; padding:2px; background:linear-gradient(135deg, #f59e0b, #ec4899); transition:all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);" onmouseover="this.style.transform='scale(1.04) translateY(-10px)'; this.style.boxShadow='0 20px 40px rgba(236,72,153,0.3), 0 0 0 2px rgba(236,72,153,0.5)';" onmouseout="this.style.transform='scale(1) translateY(0)'; this.style.boxShadow='none';">
+      <div style="background:rgba(5,10,26,0.9); border-radius:1.4rem; padding:2rem; height:100%; position:relative; overflow:hidden; backdrop-filter:blur(10px);">
+        <div style="position:absolute; top:-30px; right:-30px; width:120px; height:120px; background:rgba(236,72,153,0.25); filter:blur(30px); border-radius:50%;"></div>
+        <h3 style="color:#fff; font-size:1.8rem; font-weight:900; margin-bottom:0.5rem; z-index:2; position:relative;">Tokyo Neon Nights</h3>
+        <p style="color:rgba(200,210,240,0.7); font-size:0.9rem; margin-bottom:2rem; z-index:2; position:relative;">7 days in the vibrant, futuristic heart of Japan.</p>
+        <div style="display:flex; align-items:center; justify-content:space-between; z-index:2; position:relative;">
+          <span style="font-size:2.2rem; font-weight:900; color:#ec4899;">$499 OFF</span>
+          <span style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:6px 12px; border-radius:100px; font-size:0.75rem; font-weight:700;">Last 3 spots</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Offer 3 -->
+    <a href="{{ path('user_packs_offers') }}" style="text-decoration:none; display:block; position:relative; border-radius:1.5rem; padding:2px; background:linear-gradient(135deg, #10b981, #3b82f6); transition:all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);" onmouseover="this.style.transform='scale(1.04) translateY(-10px)'; this.style.boxShadow='0 20px 40px rgba(16,185,129,0.3), 0 0 0 2px rgba(16,185,129,0.5)';" onmouseout="this.style.transform='scale(1) translateY(0)'; this.style.boxShadow='none';">
+      <div style="background:rgba(5,10,26,0.9); border-radius:1.4rem; padding:2rem; height:100%; position:relative; overflow:hidden; backdrop-filter:blur(10px);">
+        <div style="position:absolute; top:-30px; right:-30px; width:120px; height:120px; background:rgba(16,185,129,0.25); filter:blur(30px); border-radius:50%;"></div>
+        <h3 style="color:#fff; font-size:1.8rem; font-weight:900; margin-bottom:0.5rem; z-index:2; position:relative;">Swiss Alps Ski Pack</h3>
+        <p style="color:rgba(200,210,240,0.7); font-size:0.9rem; margin-bottom:2rem; z-index:2; position:relative;">Luxury chalet stay with all-access ski passes.</p>
+        <div style="display:flex; align-items:center; justify-content:space-between; z-index:2; position:relative;">
+          <span style="font-size:2.2rem; font-weight:900; color:#10b981;">FREE UPGRADE</span>
+          <span style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:6px 12px; border-radius:100px; font-size:0.75rem; font-weight:700;">VIP Only</span>
+        </div>
+      </div>
+    </a>
   </div>
 </section>
 
@@ -410,6 +582,94 @@
   </div>
 </section>
 
+{# ═══════════════════════════════════════════════════════════════
+   TRIPX EXPERIENCE LAB — FLOATING WIDGET
+   ═══════════════════════════════════════════════════════════════ #}
+<div class="tripx-lab-float-wrapper" id="tripx-lab-widget" style="position:fixed; bottom:30px; left:0; padding-left:30px; z-index:9999; display:flex; align-items:flex-end; transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);" data-hidden="false">
+    
+    <!-- Fortune Wheel Orb (Floating above Lab) -->
+    <div id="wheel-orb" onclick="openWheelModal()" title="Spin to Win!">
+      🎁
+    </div>
+
+    <div class="tripx-lab-float" id="lab-float-card" onclick="openExperienceLab()" role="button" tabindex="0"
+         aria-label="Open TripX Experience Lab" style="transform: scale(0.85); transform-origin: bottom left;">
+
+        {# Glitter particle canvas #}
+        <canvas class="float-particles-canvas" id="float-particles"></canvas>
+
+        {# Content #}
+        <div class="float-content">
+            <div class="float-icon">🌍</div>
+
+            <div class="float-title">✨ TRIPX<br>EXPERIENCE LAB ✨</div>
+
+            <div class="float-desc">
+                Answer 6 quick questions.<br>
+                Our AI crafts your dream journey<br>
+                with real-time recommendations.
+            </div>
+
+            <button class="float-cta" onclick="event.stopPropagation(); openExperienceLab()">
+                🚀 Start the Experience
+            </button>
+
+            <div class="float-features">
+                <span class="float-tag">🤖 AI-Powered</span>
+                <span class="float-tag">⚡ Real-Time</span>
+                <span class="float-tag">💎 Personalised</span>
+            </div>
+        </div>
+    </div>
+
+    {# Toggle button (Right side of rectangle) #}
+    <button id="lab-toggle-btn" onclick="
+        event.stopPropagation();
+        const widget = document.getElementById('tripx-lab-widget');
+        const btn = document.getElementById('lab-toggle-btn');
+        if (widget.dataset.hidden === 'true') {
+            widget.style.transform = 'translateX(0)';
+            widget.dataset.hidden = 'false';
+            btn.innerHTML = '<svg width=\'14\' height=\'14\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'3\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M15 18l-6-6 6-6\'/></svg>';
+        } else {
+            widget.style.transform = 'translateX(calc(-100% + 50px))';
+            widget.dataset.hidden = 'true';
+            btn.innerHTML = '<svg width=\'14\' height=\'14\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'3\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M9 18l6-6-6-6\'/></svg>';
+        }
+    " 
+            style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-left:5px; margin-bottom:15px; z-index:10; backdrop-filter:blur(4px); transition:all 0.2s;" 
+            onmouseover="this.style.background='rgba(236,72,153,0.3)'; this.style.borderColor='rgba(236,72,153,0.5)';"
+            onmouseout="this.style.background='rgba(255,255,255,0.1)'; this.style.borderColor='rgba(255,255,255,0.2)';"
+            title="Toggle Experience Lab">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6"/>
+        </svg>
+    </button>
+</div>
+
+{# Inline script for floating rectangle on homepage #}
+<script>
+    const LAB_URL = "{{ path('experience_lab_index') }}";
+    const DELETE_PLAN_URL = "/experience-lab/delete-plan/";
+    const BOOKING_URL = "{{ path('my_bookings') }}";
+
+    function openExperienceLab() {
+        document.body.style.transition = 'opacity 0.4s ease';
+        document.body.style.opacity    = '0';
+        setTimeout(() => { window.location.href = LAB_URL; }, 380);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof initFloatParticles === 'function') {
+            initFloatParticles('float-particles');
+        }
+    });
+
+    document.getElementById('lab-float-card')?.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') openExperienceLab();
+    });
+</script>
+
 <footer class="home-footer-premium">
   <div class="container">
     <div class="home-footer-inner">
@@ -441,11 +701,204 @@
 </footer>
 
 
+<!-- Fortune Wheel Orb (Moved to Widget) -->
+<style>
+  #wheel-orb {
+    position: absolute; 
+    top: -85px; 
+    left: 45px; 
+    width: 70px; 
+    height: 70px; 
+    background: linear-gradient(135deg, #f59e0b, #ec4899, #8b5cf6); 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 32px; 
+    cursor: pointer; 
+    z-index: 10001; 
+    box-shadow: 0 0 25px rgba(236,72,153,0.7), inset 0 0 10px rgba(255,255,255,0.5); 
+    animation: wheel-pulse 2s infinite;
+    border: 2px solid rgba(255,255,255,0.3);
+  }
+  @keyframes wheel-pulse {
+    0% { transform: scale(1) rotate(0deg); box-shadow: 0 0 20px rgba(236,72,153,0.6); }
+    50% { transform: scale(1.1) rotate(5deg); box-shadow: 0 0 40px rgba(236,72,153,1); }
+    100% { transform: scale(1) rotate(0deg); box-shadow: 0 0 20px rgba(236,72,153,0.6); }
+  }
+  #wheel-modal {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2147483648; align-items: center; justify-content: center; backdrop-filter: blur(10px);
+  }
+  .wheel-container {
+    background: radial-gradient(circle at top left, #1e293b, #0f172a); 
+    border: 2px solid rgba(236,72,153,0.5); 
+    border-radius: 30px; padding: 40px; text-align: center; position: relative; max-width: 95vw; width: 450px;
+    box-shadow: 0 0 50px rgba(0,0,0,0.5), 0 0 20px rgba(236,72,153,0.2);
+  }
+  #wheel-canvas-container {
+    position: relative; width: 320px; height: 320px; margin: 25px auto;
+    filter: drop-shadow(0 0 15px rgba(236,72,153,0.4));
+  }
+  #wheel-canvas {
+    width: 100%; height: 100%; border-radius: 50%; border: 8px solid #334155; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
+  }
+  .wheel-pointer {
+    position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid #f59e0b; z-index: 10;
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
+  }
+  .glitter-layer {
+    position: absolute; inset: 0; pointer-events: none; border-radius: 50%; background-image: radial-gradient(white 1px, transparent 1px); background-size: 20px 20px; opacity: 0.2;
+  }
+</style>
+<div id="wheel-modal">
+  <div class="wheel-container">
+    <button onclick="closeWheelModal()" style="position:absolute; top:15px; right:15px; background:transparent; border:none; color:#fff; font-size:24px; cursor:pointer;">&times;</button>
+    <h3 style="font-family: var(--font-display); font-size:1.8rem; margin-bottom:10px;">Spin &amp; Win!</h3>
+    <p style="color:rgba(255,255,255,0.7); font-size:0.9rem;">Turn the wheel for a chance to win an exclusive free trip! It's hard to win, but if you do, it's on us!</p>
+    <div id="wheel-canvas-container">
+      <div class="wheel-pointer"></div>
+      <div class="glitter-layer"></div>
+      <canvas id="wheel-canvas" width="320" height="320"></canvas>
+    </div>
+    <button id="spin-btn" class="btn-primary ripple-btn" style="width:100%; padding:12px; font-size:1.1rem;" onclick="spinWheel()">Spin the Wheel!</button>
+    
+    <div id="wheel-result" style="display:none; margin-top:20px;">
+      <h4 id="wheel-result-msg" style="font-size:1.4rem; margin-bottom:15px;"></h4>
+      <a id="wheel-book-btn" href="#" class="btn-primary" style="display:none; width:100%; text-align:center; padding:12px; background:linear-gradient(135deg, #10b981, #3b82f6); border:none;">Book for FREE</a>
+    </div>
+  </div>
+</div>
+<script>
+  let isSpinning = false;
+  let hasSpun = false;
+  const segments = [
+    { text: 'Try Again', color: '#1e293b' },
+    { text: 'Try Again', color: '#334155' },
+    { text: 'Try Again', color: '#1e293b' },
+    { text: 'Exclusive Trip!', color: '#ec4899', offerId: {{ packs|length > 0 ? packs[0].idPack : 1 }} },
+    { text: 'Try Again', color: '#334155' },
+    { text: 'Try Again', color: '#1e293b' },
+    { text: 'Try Again', color: '#334155' },
+    { text: 'Try Again', color: '#1e293b' }
+  ];
+
+  const winSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
+  const failSound = new Audio('https://assets.mixkit.co/active_storage/sfx/255/255-preview.mp3');
+  const spinSound = new Audio('https://assets.mixkit.co/active_storage/sfx/707/707-preview.mp3');
+
+  function drawWheel() {
+    const canvas = document.getElementById('wheel-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const radius = canvas.width / 2;
+    const arc = Math.PI / (segments.length / 2);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    for (let i = 0; i < segments.length; i++) {
+      const angle = i * arc;
+      
+      // Gradient for each slice
+      const grad = ctx.createRadialGradient(radius, radius, 10, radius, radius, radius);
+      grad.addColorStop(0, segments[i].color);
+      grad.addColorStop(1, i % 2 === 0 ? '#0f172a' : '#1e293b');
+      
+      ctx.beginPath();
+      ctx.fillStyle = grad;
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 2;
+      ctx.moveTo(radius, radius);
+      ctx.arc(radius, radius, radius, angle, angle + arc, false);
+      ctx.lineTo(radius, radius);
+      ctx.fill();
+      ctx.stroke();
+      
+      ctx.save();
+      ctx.fillStyle = '#fff';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 4;
+      ctx.translate(radius + Math.cos(angle + arc / 2) * radius * 0.7, radius + Math.sin(angle + arc / 2) * radius * 0.7);
+      ctx.rotate(angle + arc / 2 + Math.PI / 2);
+      ctx.font = 'bold 14px var(--font-mono, sans-serif)';
+      ctx.textAlign = 'center';
+      ctx.fillText(segments[i].text, 0, 0);
+      ctx.restore();
+    }
+    
+    // Center circle
+    ctx.beginPath();
+    ctx.fillStyle = '#f59e0b';
+    ctx.arc(radius, radius, 15, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+  }
+
+  function openWheelModal() {
+    document.getElementById('wheel-modal').style.display = 'flex';
+    drawWheel();
+  }
+  function closeWheelModal() {
+    if (isSpinning) return;
+    document.getElementById('wheel-modal').style.display = 'none';
+  }
+
+  function spinWheel() {
+    if (isSpinning || hasSpun) return;
+    isSpinning = true;
+    hasSpun = true;
+    
+    spinSound.play().catch(() => {});
+    
+    const canvas = document.getElementById('wheel-canvas');
+    const btn = document.getElementById('spin-btn');
+    btn.disabled = true;
+    btn.innerText = 'Good Luck...';
+    
+    let winChance = Math.random();
+    let targetIndex = 0;
+    if (winChance > 0.9) {
+      targetIndex = 3;
+    } else {
+      const loseIndices = [0, 1, 2, 4, 5, 6, 7];
+      targetIndex = loseIndices[Math.floor(Math.random() * loseIndices.length)];
+    }
+    
+    const arc = 360 / segments.length;
+    const spinDegrees = 360 * 8 - (targetIndex * arc) - (arc / 2) - 90;
+    
+    canvas.style.transform = `rotate(${spinDegrees}deg)`;
+    
+    setTimeout(() => {
+      isSpinning = false;
+      btn.style.display = 'none';
+      const resultDiv = document.getElementById('wheel-result');
+      const resultMsg = document.getElementById('wheel-result-msg');
+      const bookBtn = document.getElementById('wheel-book-btn');
+      
+      resultDiv.style.display = 'block';
+      
+      if (targetIndex === 3) {
+        winSound.play().catch(() => {});
+        resultMsg.innerText = '🎉 UNBELIEVABLE! YOU WON! 🎉';
+        resultMsg.style.color = '#10b981';
+        resultMsg.style.textShadow = '0 0 10px rgba(16,185,129,0.5)';
+        bookBtn.style.display = 'block';
+        bookBtn.href = '/packs/' + segments[3].offerId;
+      } else {
+        failSound.play().catch(() => {});
+        resultMsg.innerText = 'Better luck next time, explorer!';
+        resultMsg.style.color = '#94a3b8';
+      }
+    }, 5000);
+  }
+</script>
 
 {% endblock %}
 
 {% block javascripts %}
   {{ parent() }}
+  <script src="{{ asset('js/experience-lab.js') }}"></script>
   <script src="/assets.php?f=js/price-predictor.js"></script>
 <script>
   // Particle Background Logic

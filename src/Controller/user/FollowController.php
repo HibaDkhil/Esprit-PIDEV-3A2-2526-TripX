@@ -53,26 +53,70 @@ class FollowController extends AbstractController
         if ($existing) {
             $em->remove($existing);
             $em->flush();
-            $following = false;
+            return $this->json([
+                'following' => false,
+                'status'    => 'none',
+                'followerCount'  => $followingRepo->count(['followed_id' => $id, 'status' => Following::STATUS_ACCEPTED]),
+                'followingCount' => $followingRepo->count(['follower_id' => $id, 'status' => Following::STATUS_ACCEPTED]),
+            ]);
         } else {
             $f = new Following();
             $f->setFollowerId($myId);
             $f->setFollowedId($id);
+            $f->setStatus(Following::STATUS_PENDING); // Start as pending
             $f->setCreatedAt(new \DateTime());
             $em->persist($f);
             $em->flush();
-            $following = true;
+            
+            return $this->json([
+                'following' => true,
+                'status'    => 'pending',
+                'followerCount'  => $followingRepo->count(['followed_id' => $id, 'status' => Following::STATUS_ACCEPTED]),
+                'followingCount' => $followingRepo->count(['follower_id' => $id, 'status' => Following::STATUS_ACCEPTED]),
+            ]);
         }
+    }
 
-        // Return updated counts for target
-        $followerCount  = $followingRepo->count(['followed_id' => $id]);
-        $followingCount = $followingRepo->count(['follower_id' => $id]);
+    #[Route('/follow/accept/{id}', name: 'follow_accept', methods: ['POST'])]
+    public function acceptRequest(int $id, EntityManagerInterface $em, FollowingRepository $followingRepo): JsonResponse
+    {
+        /** @var User|null $me */
+        $me = $this->getUser();
+        if (!$me) return $this->json(['error' => 'Unauthorized'], 401);
 
-        return $this->json([
-            'following'      => $following,
-            'followerCount'  => $followerCount,
-            'followingCount' => $followingCount,
+        $request = $followingRepo->findOneBy([
+            'followed_id' => (int)$me->getUserId(),
+            'follower_id' => $id,
+            'status'      => Following::STATUS_PENDING
         ]);
+
+        if (!$request) return $this->json(['error' => 'Request not found'], 404);
+
+        $request->setStatus(Following::STATUS_ACCEPTED);
+        $em->flush();
+
+        return $this->json(['success' => true]);
+    }
+
+    #[Route('/follow/reject/{id}', name: 'follow_reject', methods: ['POST'])]
+    public function rejectRequest(int $id, EntityManagerInterface $em, FollowingRepository $followingRepo): JsonResponse
+    {
+        /** @var User|null $me */
+        $me = $this->getUser();
+        if (!$me) return $this->json(['error' => 'Unauthorized'], 401);
+
+        $request = $followingRepo->findOneBy([
+            'followed_id' => (int)$me->getUserId(),
+            'follower_id' => $id,
+            'status'      => Following::STATUS_PENDING
+        ]);
+
+        if (!$request) return $this->json(['error' => 'Request not found'], 404);
+
+        $em->remove($request);
+        $em->flush();
+
+        return $this->json(['success' => true]);
     }
 
     // ── My follower / following stats ────────────────────────────────────

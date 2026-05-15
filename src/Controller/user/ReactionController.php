@@ -75,7 +75,6 @@ class ReactionController extends AbstractController
         ]);
     }
 
-    // ── TRAVEL STORY reaction ────────────────────────────────────────────────
     #[Route('/travel-story/{id}/react/{type}', name: 'travel_story_react', methods: ['POST'])]
     public function reactToTravelStory(
         int $id,
@@ -108,10 +107,8 @@ class ReactionController extends AbstractController
 
         if ($existing) {
             if ($existing->getType() === $type) {
-                // Same reaction → remove (toggle off)
                 $em->remove($existing);
             } else {
-                // Different reaction → update
                 $existing->setType($type);
                 $userReaction = $type;
             }

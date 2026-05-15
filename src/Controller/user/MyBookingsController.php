@@ -16,21 +16,24 @@ class MyBookingsController extends AbstractController
     private BookingAccRepository $bookingAccRepo;
     private BookingService $bookingDesService;
     private DestinationService $destinationService;
+    private \Knp\Component\Pager\PaginatorInterface $paginator;
 
     public function __construct(
         BookingtransService $bookingTransService,
         BookingAccRepository $bookingAccRepo,
         BookingService $bookingDesService,
         DestinationService $destinationService,
+        \Knp\Component\Pager\PaginatorInterface $paginator,
     ) {
         $this->bookingTransService = $bookingTransService;
         $this->bookingAccRepo = $bookingAccRepo;
         $this->bookingDesService = $bookingDesService;
         $this->destinationService = $destinationService;
+        $this->paginator = $paginator;
     }
 
     #[Route('/my-bookings', name: 'my_bookings')]
-    public function index(): Response
+    public function index(\Symfony\Component\HttpFoundation\Request $request): Response
     {
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
@@ -127,12 +130,21 @@ class MyBookingsController extends AbstractController
             return $b['date'] <=> $a['date']; // Newest first
         });
 
+        $limit = $request->query->getInt('limit', 5);
+        $page = $request->query->getInt('page', 1);
+        $pagination = $this->paginator->paginate(
+            $allBookings,
+            $page,
+            $limit
+        );
+
         return $this->render('front/my_bookings.html.twig', [
             'totalBookings' => $totalBookings,
             'totalSpent' => $totalSpent,
             'confirmedCount' => $confirmedCount,
             'pendingCount' => $pendingCount,
-            'allBookings' => $allBookings,
+            'allBookings' => $pagination,
+            'currentLimit' => $limit,
         ]);
     }
 }

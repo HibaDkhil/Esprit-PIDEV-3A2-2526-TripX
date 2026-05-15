@@ -26,6 +26,8 @@ class DestinationsController extends AbstractController
     private ActivityService $activityService;
     private BookingService $bookingService;
     private WeatherService $weatherService;
+    private ReviewService $reviewService;
+    private DestinationBookingMailerService $mailerService;
     private EntityManagerInterface $em;
 
     public function __construct(
@@ -52,7 +54,7 @@ class DestinationsController extends AbstractController
     #[Route('/destinations/{id}', name: 'destination_detail', requirements: ['id' => '\d+'])]
     public function detail(int $id, \App\service\RestCountriesService $restCountriesService): Response
     {
-        $destination = $this->destinationService->find($id);
+        $destination = $this->destinationService->find((string) $id);
         if (!$destination) {
             $this->addFlash('error', 'Destination not found.');
             return $this->redirectToRoute('destinations');
@@ -131,7 +133,7 @@ class DestinationsController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $destination = $this->destinationService->find($id);
+        $destination = $this->destinationService->find((string) $id);
         if (!$destination) {
             $this->addFlash('error', 'Destination not found.');
             return $this->redirectToRoute('destinations');
@@ -149,7 +151,7 @@ class DestinationsController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $review->setDestinationId($id);
+            $review->setDestinationId((string) $id);
             $review->setUserId($user->getUserId());
 
             $this->reviewService->save($review);
@@ -194,7 +196,7 @@ class DestinationsController extends AbstractController
     #[Route('/destinations/{destinationId}/book', name: 'booking_form', requirements: ['destinationId' => '\d+'], methods: ['GET', 'POST'])]
     public function bookingForm(int $destinationId, Request $request, ValidatorInterface $validator): Response
     {
-        $destination = $this->destinationService->find($destinationId);
+        $destination = $this->destinationService->find((string) $destinationId);
         if (!$destination) {
             $this->addFlash('error', 'Destination not found.');
             return $this->redirectToRoute('destinations');
@@ -212,7 +214,7 @@ class DestinationsController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // Set fields not in the form
-            $booking->setDestinationId($destinationId);
+            $booking->setDestinationId((string) $destinationId);
             $booking->setUserId($user->getUserId());
             $booking->setUserEmail($user->getEmail());
 

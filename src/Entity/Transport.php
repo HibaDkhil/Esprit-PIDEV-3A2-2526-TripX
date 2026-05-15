@@ -3,7 +3,6 @@ namespace App\Entity;
 
 use App\Repository\TransportRepository;
 use Doctrine\ORM\Mapping as ORM;
-use DateTime;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TransportRepository::class)]
@@ -13,7 +12,7 @@ class Transport
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private int $transportId;
+    private ?int $transportId = null;
 
     #[ORM\Column(type: 'string')]
     #[Assert\NotBlank(message: 'Transport type is required.')]                               // ★
@@ -33,9 +32,9 @@ class Transport
     #[Assert\Length(max: 255, maxMessage: 'Vehicle model cannot exceed 255 characters.')]      // ★
     private string $vehicleModel;
 
-    #[ORM\Column(type: 'float')]
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     #[Assert\Positive(message: 'Base price must be greater than 0.')]
-    private float $basePrice;
+    private string $basePrice = '0.00';
 
     #[ORM\Column(type: 'integer')]
     #[Assert\Positive(message: 'Capacity must be at least 1.')] 
@@ -66,23 +65,23 @@ class Transport
     #[ORM\Column(type: 'boolean')]
     private bool $isActive;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?DateTime $createdAt = null;
+    #[ORM\Column(type: 'datetime_immutable')]
+    private \DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?DateTime $updatedAt = null;
+    #[ORM\Column(type: 'datetime_immutable')]
+    private \DateTimeImmutable $updatedAt;
 
     // Constructor
     public function __construct()
     {
         $this->dynamicPriceFactor = 1.0;
         $this->isActive = true;
-        $this->createdAt = new DateTime();
-        $this->updatedAt = new DateTime();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
     // Getters and Setters
-    public function getTransportId(): int { return $this->transportId; }
+    public function getTransportId(): ?int { return $this->transportId; }
 
     public function getTransportType(): string { return $this->transportType; }
     public function setTransportType(string $transportType): self { $this->transportType = $transportType; return $this; }
@@ -93,8 +92,8 @@ class Transport
     public function getVehicleModel(): string { return $this->vehicleModel; }
     public function setVehicleModel(string $vehicleModel): self { $this->vehicleModel = $vehicleModel; return $this; }
 
-    public function getBasePrice(): float { return $this->basePrice; }
-    public function setBasePrice(float $basePrice): self { $this->basePrice = $basePrice; return $this; }
+    public function getBasePrice(): float { return (float) $this->basePrice; }
+    public function setBasePrice(float|string $basePrice): self { $this->basePrice = number_format((float) $basePrice, 2, '.', ''); return $this; }
 
     public function getCapacity(): int { return $this->capacity; }
     public function setCapacity(int $capacity): self { $this->capacity = $capacity; return $this; }
@@ -117,9 +116,9 @@ class Transport
     public function isActive(): bool { return $this->isActive; }
     public function setActive(bool $isActive): self { $this->isActive = $isActive; return $this; }
 
-    public function getCreatedAt(): ?DateTime { return $this->createdAt; }
-    public function setCreatedAt(?DateTime $createdAt): self { $this->createdAt = $createdAt; return $this; }
+    public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+    public function setCreatedAt(\DateTimeInterface $createdAt): self { $this->createdAt = \DateTimeImmutable::createFromInterface($createdAt); return $this; }
 
-    public function getUpdatedAt(): ?DateTime { return $this->updatedAt; }
-    public function setUpdatedAt(?DateTime $updatedAt): self { $this->updatedAt = $updatedAt; return $this; }
+    public function getUpdatedAt(): \DateTimeImmutable { return $this->updatedAt; }
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): self { $this->updatedAt = \DateTimeImmutable::createFromInterface($updatedAt); return $this; }
 }

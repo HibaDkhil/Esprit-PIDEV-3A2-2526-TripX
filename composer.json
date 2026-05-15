@@ -46,6 +46,7 @@
         "symfony/google-mailer": "6.4.*",
         "symfony/http-client": "6.4.*",
         "symfony/mailer": "6.4.*",
+        "symfony/mercure-bundle": "^0.4.2",
         "symfony/messenger": "6.4.*",
         "symfony/mime": "6.4.*",
         "symfony/notifier": "6.4.*",
@@ -111,7 +112,14 @@
         }
     },
     "require-dev": {
+        "ahmed-bhs/doctrine-doctor": "1.0",
         "itsgoingd/clockwork": "^5.3",
-        "symfony/maker-bundle": "^1.67"
+        "phpstan/phpstan": "1.12",
+        "phpunit/phpunit": "10.5",
+        "symfony/debug-bundle": "6.4",
+        "symfony/maker-bundle": "^1.67",
+        "symfony/phpunit-bridge": "6.4",
+        "symfony/web-profiler-bundle": "6.4",
+        "webmozart/assert": "1.11"
     }
 }

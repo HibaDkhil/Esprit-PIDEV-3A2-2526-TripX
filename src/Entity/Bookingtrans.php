@@ -3,7 +3,6 @@ namespace App\Entity;
 
 use App\Repository\BookingtransRepository;
 use Doctrine\ORM\Mapping as ORM;
-use DateTime;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BookingtransRepository::class)]
@@ -24,8 +23,8 @@ class Bookingtrans
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $scheduleId = null;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?DateTime $bookingDate = null;
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $bookingDate = null;
 
     #[ORM\Column(type: 'integer')]
     #[Assert\Positive(message: 'At least 1 adult is required.')]
@@ -39,9 +38,9 @@ class Bookingtrans
     #[Assert\Positive(message: 'Total seats must be at least 1.')]
     private int $totalSeats = 0;
 
-    #[ORM\Column(type: 'float')]
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     #[Assert\Positive(message: 'Total price must be greater than 0.')]
-    private float $totalPrice = 0.0;
+    private string $totalPrice = '0.00';
 
     #[ORM\Column(type: 'string')]
     #[Assert\Choice(choices: ['PENDING', 'CONFIRMED', 'CANCELLED'], message: 'Invalid booking status.')]
@@ -59,8 +58,8 @@ class Bookingtrans
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $voucherPath = null;
 
-    #[ORM\Column(type: 'float')]
-    private float $aiPricePrediction = 0.0;
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    private string $aiPricePrediction = '0.00';
 
     #[ORM\Column(type: 'float')]
     private float $comparisonScore = 0.0;
@@ -92,7 +91,7 @@ class Bookingtrans
         $this->bookingStatus = 'PENDING';
         $this->paymentStatus = 'UNPAID';
         $this->insuranceIncluded = false;
-        $this->bookingDate = new DateTime();
+        $this->bookingDate = new \DateTimeImmutable();
         $this->scheduleId = null;
     }
 
@@ -131,13 +130,13 @@ class Bookingtrans
         return $this;
     }
 
-    public function getBookingDate(): ?DateTime
+    public function getBookingDate(): ?\DateTimeImmutable
     {
         return $this->bookingDate;
     }
-    public function setBookingDate(?DateTime $bookingDate): self
+    public function setBookingDate(?\DateTimeInterface $bookingDate): self
     {
-        $this->bookingDate = $bookingDate;
+        $this->bookingDate = $bookingDate ? \DateTimeImmutable::createFromInterface($bookingDate) : null;
         return $this;
     }
 
@@ -173,11 +172,11 @@ class Bookingtrans
 
     public function getTotalPrice(): float
     {
-        return $this->totalPrice;
+        return (float) $this->totalPrice;
     }
-    public function setTotalPrice(float $totalPrice): self
+    public function setTotalPrice(float|string $totalPrice): self
     {
-        $this->totalPrice = $totalPrice;
+        $this->totalPrice = number_format((float) $totalPrice, 2, '.', '');
         return $this;
     }
 
@@ -233,11 +232,11 @@ class Bookingtrans
 
     public function getAiPricePrediction(): float
     {
-        return $this->aiPricePrediction;
+        return (float) $this->aiPricePrediction;
     }
-    public function setAiPricePrediction(float $aiPricePrediction): self
+    public function setAiPricePrediction(float|string $aiPricePrediction): self
     {
-        $this->aiPricePrediction = $aiPricePrediction;
+        $this->aiPricePrediction = number_format((float) $aiPricePrediction, 2, '.', '');
         return $this;
     }
 

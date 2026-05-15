@@ -13,6 +13,7 @@
 ###> phpunit/phpunit ###
 /phpunit.xml
 /.phpunit.result.cache
+/.phpunit.cache/
 ###< phpunit/phpunit ###
 
 # Composer
@@ -33,3 +34,7 @@ Thumbs.db
 /public/build/
 npm-debug.log
 yarn-error.log
+###> symfony/phpunit-bridge ###
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###

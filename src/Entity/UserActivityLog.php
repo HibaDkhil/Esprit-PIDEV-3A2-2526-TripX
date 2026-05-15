@@ -25,8 +25,13 @@ class UserActivityLog
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $targetType = null;
 
-    #[ORM\Column]
-    private ?\DateTime $timestamp = null;
+    #[ORM\Column(type: 'datetime_immutable')]
+    private \DateTimeImmutable $timestamp;
+
+    public function __construct()
+    {
+        $this->timestamp = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
@@ -81,14 +86,14 @@ class UserActivityLog
         return $this;
     }
 
-    public function getTimestamp(): ?\DateTime
+    public function getTimestamp(): \DateTimeImmutable
     {
         return $this->timestamp;
     }
 
-    public function setTimestamp(\DateTime $timestamp): static
+    public function setTimestamp(\DateTimeInterface $timestamp): static
     {
-        $this->timestamp = $timestamp;
+        $this->timestamp = \DateTimeImmutable::createFromInterface($timestamp);
 
         return $this;
     }

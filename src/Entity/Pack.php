@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
+use App\Repository\PackRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: PackRepository::class)]
 #[ORM\Table(name: 'packs')]
 class Pack
 {

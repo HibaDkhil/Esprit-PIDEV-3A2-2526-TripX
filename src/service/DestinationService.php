@@ -14,12 +14,19 @@ class DestinationService
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
-        $this->repository = $em->getRepository(Destination::class);
+        /** @var DestinationRepository $repository */
+        $repository = $em->getRepository(Destination::class);
+        $this->repository = $repository;
     }
 
     public function getAll(string $query = ''): array
     {
         return $this->repository->search($query);
+    }
+
+    public function getAllQuery(string $query = ''): \Doctrine\ORM\Query
+    {
+        return $this->repository->searchQuery($query);
     }
 
     public function find(string $id): ?Destination

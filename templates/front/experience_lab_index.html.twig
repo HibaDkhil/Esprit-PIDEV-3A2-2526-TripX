@@ -1,0 +1,506 @@
+{# templates/front/experience_lab_index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}✨ TripX Experience Lab ✨{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/experience-lab.css') }}">
+{% endblock %}
+
+{% block body %}
+{# ══════════════════════════════════════════════════════════════
+   FULL-SCREEN IMMERSIVE EXPERIENCE LAB
+   ══════════════════════════════════════════════════════════════ #}
+<div id="experience-lab" class="experience-lab">
+
+    {# ── Animated nebula background ── #}
+    <div class="nebula-bg">
+        <div class="nebula-layer layer-1"></div>
+        <div class="nebula-layer layer-2"></div>
+        <div class="nebula-layer layer-3"></div>
+    </div>
+
+    {# ── Floating star particles ── #}
+    <canvas id="star-canvas"></canvas>
+
+    {# ── Close button ── #}
+    <button class="lab-close-btn" onclick="closeLab()" title="Close Experience Lab">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+    </button>
+
+    {# ── Main layout: Wizard (60%) + ARIA (40%) ── #}
+    <div class="lab-layout">
+
+        {# ════════════════════════════════════
+           MAIN AREA: Interactive Wizard
+           ════════════════════════════════════ #}
+        <div class="lab-left">
+            <div class="wizard-header">
+                <div class="wizard-logo">✨ TRIPX EXPERIENCE LAB ✨</div>
+                <div class="wizard-subtitle">Design Your Destiny: Answer 6 questions & let AI ARIA craft your soul's DNA journey. Discover your perfect trip now.</div>
+
+                {# Progress bar #}
+                <div class="progress-track">
+                    <div class="progress-fill" id="progress-fill"></div>
+                    <div class="progress-steps">
+                        {% for i in 1..6 %}
+                            <div class="progress-dot" id="dot-{{ i }}" data-step="{{ i }}">{{ i }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {# ── Questions container ── #}
+            <div class="questions-container" id="questions-container">
+
+                {# STEP 1: Weather #}
+                <div class="question-step active" data-step="1" id="step-1">
+                    <h2 class="question-title">🌤️ What's your ideal weather?</h2>
+                    <p class="question-hint">Choose the climate that calls to your soul</p>
+                    <div class="cards-grid">
+                        <div class="option-card" data-key="weather" data-value="sunny">
+                            <div class="card-emoji">☀️</div>
+                            <div class="card-label">Sunny</div>
+                            <div class="card-desc">Warm rays, golden beaches</div>
+                        </div>
+                        <div class="option-card" data-key="weather" data-value="cool">
+                            <div class="card-emoji">❄️</div>
+                            <div class="card-label">Cool</div>
+                            <div class="card-desc">Crisp air, cozy vibes</div>
+                        </div>
+                        <div class="option-card" data-key="weather" data-value="rainy">
+                            <div class="card-emoji">🌧️</div>
+                            <div class="card-label">Rainy</div>
+                            <div class="card-desc">Lush greens, romantic moods</div>
+                        </div>
+                        <div class="option-card" data-key="weather" data-value="mixed">
+                            <div class="card-emoji">🌈</div>
+                            <div class="card-label">Mixed</div>
+                            <div class="card-desc">A bit of everything</div>
+                        </div>
+                    </div>
+                </div>
+
+                {# STEP 2: Travel group #}
+                <div class="question-step" data-step="2" id="step-2">
+                    <h2 class="question-title">👥 Who are you traveling with?</h2>
+                    <p class="question-hint">Your travel style defines everything</p>
+                    <div class="cards-grid">
+                        <div class="option-card" data-key="group" data-value="solo">
+                            <div class="card-emoji">🎒</div>
+                            <div class="card-label">Solo</div>
+                            <div class="card-desc">Just you & the world</div>
+                        </div>
+                        <div class="option-card" data-key="group" data-value="couple">
+                            <div class="card-emoji">💑</div>
+                            <div class="card-label">Couple</div>
+                            <div class="card-desc">Romance & shared memories</div>
+                        </div>
+                        <div class="option-card" data-key="group" data-value="family">
+                            <div class="card-emoji">👨‍👩‍👧</div>
+                            <div class="card-label">Family</div>
+                            <div class="card-desc">Fun for everyone</div>
+                        </div>
+                        <div class="option-card" data-key="group" data-value="friends">
+                            <div class="card-emoji">👯</div>
+                            <div class="card-label">Friends</div>
+                            <div class="card-desc">Epic crew adventures</div>
+                        </div>
+                    </div>
+                </div>
+
+                {# STEP 3: Climate preference #}
+                <div class="question-step" data-step="3" id="step-3">
+                    <h2 class="question-title">⚡ What's your favourite climate zone?</h2>
+                    <p class="question-hint">Where does your body feel most alive?</p>
+                    <div class="cards-grid cards-grid-3">
+                        <div class="option-card" data-key="climate" data-value="tropical">
+                            <div class="card-emoji">🌴</div>
+                            <div class="card-label">Tropical</div>
+                            <div class="card-desc">Hot, humid, lush</div>
+                        </div>
+                        <div class="option-card" data-key="climate" data-value="mediterranean">
+                            <div class="card-emoji">🫒</div>
+                            <div class="card-label">Mediterranean</div>
+                            <div class="card-desc">Warm, dry, scenic</div>
+                        </div>
+                        <div class="option-card" data-key="climate" data-value="temperate">
+                            <div class="card-emoji">🍃</div>
+                            <div class="card-label">Temperate</div>
+                            <div class="card-desc">Mild, four seasons</div>
+                        </div>
+                        <div class="option-card" data-key="climate" data-value="arid">
+                            <div class="card-emoji">🏜️</div>
+                            <div class="card-label">Arid / Desert</div>
+                            <div class="card-desc">Dry, vast, dramatic</div>
+                        </div>
+                        <div class="option-card" data-key="climate" data-value="polar">
+                            <div class="card-emoji">🧊</div>
+                            <div class="card-label">Polar / Alpine</div>
+                            <div class="card-desc">Cold, majestic, pure</div>
+                        </div>
+                        <div class="option-card" data-key="climate" data-value="monsoon">
+                            <div class="card-emoji">⛈️</div>
+                            <div class="card-label">Monsoon</div>
+                            <div class="card-desc">Wild, dramatic, vibrant</div>
+                        </div>
+                    </div>
+                </div>
+
+                {# STEP 4: Budget #}
+                <div class="question-step" data-step="4" id="step-4">
+                    <h2 class="question-title">💰 What's your budget level?</h2>
+                    <p class="question-hint">Every budget unlocks a unique world</p>
+                    <div class="cards-grid cards-grid-3">
+                        <div class="option-card budget-card" data-key="budget" data-value="budget">
+                            <div class="card-emoji">🎒</div>
+                            <div class="card-label">Budget Explorer</div>
+                            <div class="card-desc">Under $80/night — maximum adventure, minimum cost</div>
+                            <div class="card-badge">< $80 / night</div>
+                        </div>
+                        <div class="option-card budget-card" data-key="budget" data-value="comfort">
+                            <div class="card-emoji">💼</div>
+                            <div class="card-label">Comfort Seeker</div>
+                            <div class="card-desc">$80–200/night — the sweet spot of value & quality</div>
+                            <div class="card-badge">$80–$200 / night</div>
+                        </div>
+                        <div class="option-card budget-card" data-key="budget" data-value="luxury">
+                            <div class="card-emoji">💎</div>
+                            <div class="card-label">Luxury Connoisseur</div>
+                            <div class="card-desc">$200+/night — only the finest will do</div>
+                            <div class="card-badge">$200+ / night</div>
+                        </div>
+                    </div>
+                </div>
+
+                {# STEP 5: Interests (multi-select, max 3) #}
+                <div class="question-step" data-step="5" id="step-5">
+                    <h2 class="question-title">🎯 What are your passions?</h2>
+                    <p class="question-hint">Choose up to 3 interests that define your ideal trip</p>
+                    <div class="interests-grid" id="interests-grid">
+                        <div class="option-card interest-card" data-key="interests" data-value="culture">
+                            <div class="card-emoji">🏛️</div><div class="card-label">Culture</div>
+                        </div>
+                        <div class="option-card interest-card" data-key="interests" data-value="adventure">
+                            <div class="card-emoji">🏄</div><div class="card-label">Adventure</div>
+                        </div>
+                        <div class="option-card interest-card" data-key="interests" data-value="food">
+                            <div class="card-emoji">🍜</div><div class="card-label">Food</div>
+                        </div>
+                        <div class="option-card interest-card" data-key="interests" data-value="beach">
+                            <div class="card-emoji">🏖️</div><div class="card-label">Beach</div>
+                        </div>
+                        <div class="option-card interest-card" data-key="interests" data-value="nature">
+                            <div class="card-emoji">🌿</div><div class="card-label">Nature</div>
+                        </div>
+                        <div class="option-card interest-card" data-key="interests" data-value="nightlife">
+                            <div class="card-emoji">🎶</div><div class="card-label">Nightlife</div>
+                        </div>
+                        <div class="option-card interest-card" data-key="interests" data-value="wellness">
+                            <div class="card-emoji">🧘</div><div class="card-label">Wellness</div>
+                        </div>
+                        <div class="option-card interest-card" data-key="interests" data-value="shopping">
+                            <div class="card-emoji">🛍️</div><div class="card-label">Shopping</div>
+                        </div>
+                        <div class="option-card interest-card" data-key="interests" data-value="business">
+                            <div class="card-emoji">💼</div><div class="card-label">Business</div>
+                        </div>
+                    </div>
+                    <p class="multi-select-hint" id="interest-hint">Select up to 3 interests</p>
+                </div>
+
+                {# STEP 6: Duration #}
+                <div class="question-step" data-step="6" id="step-6">
+                    <h2 class="question-title">📅 How long is your adventure?</h2>
+                    <p class="question-hint">Time shapes every experience</p>
+                    <div class="cards-grid cards-grid-4">
+                        <div class="option-card" data-key="duration" data-value="weekend">
+                            <div class="card-emoji">🌙</div>
+                            <div class="card-label">Weekend</div>
+                            <div class="card-desc">2–3 days<br><small>Quick escape</small></div>
+                        </div>
+                        <div class="option-card" data-key="duration" data-value="5-7 days">
+                            <div class="card-emoji">🗓️</div>
+                            <div class="card-label">5–7 Days</div>
+                            <div class="card-desc">One week<br><small>Classic trip</small></div>
+                        </div>
+                        <div class="option-card" data-key="duration" data-value="10-14 days">
+                            <div class="card-emoji">✈️</div>
+                            <div class="card-label">10–14 Days</div>
+                            <div class="card-desc">Two weeks<br><small>Deep dive</small></div>
+                        </div>
+                        <div class="option-card" data-key="duration" data-value="2+ weeks">
+                            <div class="card-emoji">🌍</div>
+                            <div class="card-label">2+ Weeks</div>
+                            <div class="card-desc">Extended<br><small>True explorer</small></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>{# /questions-container #}
+
+            {# ── Live Results Panel ── #}
+            <div class="live-results-panel" id="live-results-panel">
+                <div class="results-tabs">
+                    <button class="tab-btn active" data-tab="destinations">🗺️ Destinations</button>
+                    <button class="tab-btn" data-tab="accommodations">🏨 Stays</button>
+                    <button class="tab-btn" data-tab="activities">🎯 Activities</button>
+                    <button class="tab-btn" data-tab="offers">🔥 Offers</button>
+                </div>
+
+                <div class="results-content">
+                    <div class="tab-panel active" id="tab-destinations">
+                        <div class="results-grid" id="results-destinations">
+                            <div class="results-placeholder">✨ Your perfect destinations will appear here as you answer...</div>
+                        </div>
+                    </div>
+                    <div class="tab-panel" id="tab-accommodations">
+                        <div class="results-grid" id="results-accommodations">
+                            <div class="results-placeholder">🏨 Dream stays loading...</div>
+                        </div>
+                    </div>
+                    <div class="tab-panel" id="tab-activities">
+                        <div class="results-grid" id="results-activities">
+                            <div class="results-placeholder">🎯 Activities matching your vibe...</div>
+                        </div>
+                    </div>
+                    <div class="tab-panel" id="tab-offers">
+                        <div class="results-grid" id="results-offers">
+                            <div class="results-placeholder">🔥 Exclusive offers loading...</div>
+                        </div>
+                    </div>
+                </div>
+
+                {# Selection Planner Section (The "Choice Maker") #}
+                <div class="planner-section" id="planner-section" style="display:none; margin-top:3rem; padding:2rem; background:rgba(15,23,42,0.9); border:2px solid var(--neon-purple); border-radius:1.5rem; box-shadow: 0 0 30px rgba(139,92,246,0.2);">
+                    <div style="text-align:center; margin-bottom:1.5rem;">
+                        <h2 style="font-size:1.8rem; font-weight:900; color:#fff;">🛠️ YOUR CUSTOM JOURNEY BUILDER</h2>
+                        <p style="color:var(--text-muted); font-size:0.9rem;">Tick the items you love from our recommendations to build your ultimate plan.</p>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 2fr 1fr; gap:2rem;">
+                        <div>
+                            <h4 style="color:var(--neon-cyan); margin-bottom:1rem; font-size:0.8rem; text-transform:uppercase;">Selected Items</h4>
+                            <div id="selection-summary" style="display:flex; flex-direction:column; gap:0.8rem;">
+                                <div class="empty-selection" style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:20px; border:1px dashed rgba(255,255,255,0.1); border-radius:10px;">
+                                    No items selected yet. Click the ➕ on any card above to add it!
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background:rgba(255,255,255,0.03); padding:1.5rem; border-radius:1rem; border:1px solid rgba(139,92,246,0.2);">
+                            <div style="margin-bottom:1.5rem;">
+                                <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Total Estimated Budget</div>
+                                <div id="planner-total" style="font-size:2rem; font-weight:900; color:var(--neon-gold);">$0.00</div>
+                            </div>
+
+                            <div class="planner-stat-grid">
+                                <div><span id="planner-days">6</span><small>Days</small></div>
+                                <div><span id="planner-travelers">1</span><small>Travelers</small></div>
+                                <div><span id="planner-per-person">$0</span><small>Per person</small></div>
+                                <div><span id="planner-savings">$0</span><small>Savings</small></div>
+                            </div>
+
+                            <div class="planner-budget-breakdown">
+                                <div><span>Stays</span><strong id="planner-lodging">$0</strong></div>
+                                <div><span>Activities</span><strong id="planner-activities">$0</strong></div>
+                                <div><span>Transport</span><strong id="planner-transport">$0</strong></div>
+                                <div><span>Offer discount</span><strong id="planner-discount">0%</strong></div>
+                            </div>
+
+                            <div id="aria-planner-advice" style="margin-bottom:1.5rem; padding:1rem; background:rgba(139,92,246,0.1); border-radius:0.8rem; border-left:4px solid var(--neon-purple); display:none;">
+                                <div style="font-size:0.7rem; font-weight:800; color:var(--neon-purple); margin-bottom:5px;">ARIA'S ANALYSIS</div>
+                                <p id="planner-advice-text" style="font-size:0.85rem; line-height:1.4; color:var(--text-primary); margin:0;"></p>
+                            </div>
+
+                            <button class="generate-btn" id="validate-selection-btn" style="width:100%; margin-bottom:0.8rem;">
+                                <span class="generate-btn-inner" style="padding:1rem;">GENERATE SUMMARY</span>
+                            </button>
+
+                            <button id="open-simulation-btn" class="float-cta" style="width:100%; display:none; background:linear-gradient(135deg, var(--neon-pink), var(--neon-gold)); box-shadow: 0 0 20px rgba(236,72,153,0.4);">
+                                🛸 PROCEED TO DEEP DIVE SIMULATION
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {# Journey Simulation Overlay (Deep Dive) #}
+                <div id="simulation-overlay" class="final-plan-overlay" style="display:none; z-index:10000; background:rgba(5,10,26,0.98);">
+                    <div class="final-plan-modal" style="max-width:1100px; border-color:var(--neon-gold);">
+                        <div class="plan-header" style="background:linear-gradient(135deg, rgba(245,158,11,0.2), rgba(236,72,153,0.1));">
+                            <button onclick="closeSimulation()" style="position:absolute; top:20px; right:20px; background:transparent; border:none; color:#fff; font-size:2rem; cursor:pointer;">&times;</button>
+                            <div class="plan-title" style="font-size:2.5rem;">🌌 YOUR TRIP SIMULATION</div>
+                            <p class="plan-subtitle">Prepare for a sensory deep-dive into your future journey...</p>
+                        </div>
+                        
+                        <div style="padding:3rem; display:grid; grid-template-columns: 1fr 1fr; gap:3rem;">
+                            <div id="simulation-narrative" style="font-size:1.1rem; line-height:1.8; color:rgba(255,255,255,0.9); font-family:'Georgia', serif; font-style:italic;">
+                                {# ARIA's long narrative goes here #}
+                                <div class="typing-dots"><span></span><span></span><span></span></div>
+                                <p>ARIA is weaving your story...</p>
+                            </div>
+
+                            <div style="display:flex; flex-direction:column; gap:2rem;">
+                                <div class="plan-dest-card" style="border-color:var(--neon-cyan); background:rgba(6,182,212,0.05);">
+                                    <h3 style="color:var(--neon-cyan); margin-bottom:1rem;">📍 ITINERARY SNAPSHOT</h3>
+                                    <div id="simulation-list" style="display:flex; flex-direction:column; gap:1rem;">
+                                        {# Selected items summary #}
+                                    </div>
+                                </div>
+
+                                <div style="background:rgba(139,92,246,0.1); padding:2rem; border-radius:1rem; border:1px solid var(--neon-purple);">
+                                    <h3 style="color:var(--neon-purple); margin-bottom:1rem;">💰 FINANCIAL SIMULATION</h3>
+                                    <div id="simulation-budget-details" style="font-size:1.2rem; font-weight:800;">
+                                        {# Detailed budget #}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="plan-actions" style="justify-content:center; padding-bottom:3rem;">
+                            <button class="action-btn btn-book" style="max-width:300px;" onclick="savePlan()">✨ SAVE THIS DESTINY</button>
+                            <button class="action-btn btn-restart" onclick="closeSimulation()">BACK TO EDITS</button>
+                        </div>
+                    </div>
+                </div>
+
+                {# Generate Plan CTA #}
+                <div class="generate-plan-section" id="generate-plan-section" style="display:none">
+                    <button class="generate-btn" id="generate-btn">
+                        <span class="generate-btn-inner">
+                            ✨ GENERATE MY PERFECT TRIP ✨
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+        </div>{# /lab-left #}
+
+        {# ════════════════════════════════════
+           RIGHT SIDEBAR: ARIA AI
+           ════════════════════════════════════ #}
+        <div class="lab-right">
+            <div class="aria-panel">
+                <div class="aria-header">
+                    <div class="aria-avatar">
+                        <div class="aria-pulse"></div>
+                        <div class="aria-icon">🤖</div>
+                    </div>
+                    <div class="aria-info">
+                        <div class="aria-name">ARIA</div>
+                        <div class="aria-status">
+                            <span class="status-dot"></span>
+                            <span>AI Travel Advisor • Live</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="aria-chat-feed" id="aria-chat-feed">
+                    <div class="aria-message aria-intro">
+                        <div class="aria-bubble">
+                            Hi there! 👋 I'm <strong>ARIA</strong>, your personal AI travel concierge.<br><br>
+                            Start answering the questions and I'll craft the most incredible trip recommendations just for you! ✨<br><br>
+                            I know ALL the hidden gems, best deals, and insider secrets of the travel world. Let's find your perfect adventure together! 🌍
+                        </div>
+                        <div class="aria-timestamp">Just now</div>
+                    </div>
+                </div>
+
+                <div class="aria-typing" id="aria-typing" style="display:none">
+                    <div class="typing-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <span class="typing-label">ARIA is thinking...</span>
+                </div>
+
+                {# Quick stats sidebar #}
+                <div class="aria-stats" id="aria-stats" style="display:none">
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-destinations">0</div>
+                        <div class="stat-label">Destinations</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-activities">0</div>
+                        <div class="stat-label">Activities</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-offers">0</div>
+                        <div class="stat-label">Offers</div>
+                    </div>
+                </div>
+
+                <div class="aria-destination-radar">
+                    <div class="aria-radar-label">Live destination radar</div>
+                    <p id="aria-destination-advice">ARIA will give destination advice here as your choices update.</p>
+                    <div id="aria-destination-list" class="aria-radar-list">
+                        <div class="aria-radar-empty">Answer a few questions to unlock live destination advice.</div>
+                    </div>
+                </div>
+
+                {# Saved Plans Area #}
+                <div class="saved-plans-area" style="padding:1rem; border-top:1px solid rgba(139,92,246,0.2); flex:1; overflow-y:auto;">
+                    <h4 style="font-size:0.8rem; color:var(--neon-cyan); margin-bottom:0.8rem; text-transform:uppercase; letter-spacing:0.1em;">💾 My Saved Plans</h4>
+                    <div id="saved-plans-list" style="display:flex; flex-direction:column; gap:0.8rem;">
+                        {# Loaded via JS #}
+                        <div style="font-size:0.75rem; color:var(--text-muted); text-align:center;">No saved plans yet</div>
+                    </div>
+                </div>
+            </div>
+        </div>{# /lab-right #}
+
+    {# ═══════════════════════════════════════
+       FINAL TRIP PLAN MODAL
+       ═══════════════════════════════════════ #}
+    <div class="final-plan-overlay" id="final-plan-overlay" style="display:none">
+        <div class="final-plan-modal">
+            <div class="plan-header">
+                <div class="plan-title">✨ YOUR PERFECT TRIP PLAN ✨</div>
+                <div class="plan-subtitle" id="plan-subtitle"></div>
+            </div>
+
+            <div class="plan-body" id="plan-body">
+                {# Filled dynamically by JS #}
+            </div>
+
+            <div class="plan-aria-section">
+                <div class="plan-aria-avatar">🤖</div>
+                <div class="plan-aria-pitch" id="plan-aria-pitch">Loading ARIA's recommendation...</div>
+            </div>
+
+            <div class="plan-budget-section" id="plan-budget-section">
+                {# Filled dynamically #}
+            </div>
+
+            <div class="plan-actions">
+                <button class="action-btn btn-book" id="btn-book">
+                    📅 BOOK NOW
+                </button>
+                <button class="action-btn btn-save" id="btn-save" onclick="savePlan()">
+                    💾 SAVE FOR LATER
+                </button>
+                <button class="action-btn btn-restart" onclick="restartLab()">
+                    🔄 START OVER
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>{# /experience-lab #}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        const LIVE_RESULTS_URL  = "{{ path('experience_lab_live_results') }}";
+        const GENERATE_PLAN_URL = "{{ path('experience_lab_generate_plan') }}";
+        const SAVE_PLAN_URL     = "{{ path('experience_lab_save_plan') }}";
+        const MY_PLANS_URL      = "{{ path('experience_lab_my_plans') }}";
+        const DELETE_PLAN_URL   = "/experience-lab/delete-plan/";
+        const SIMULATE_URL      = "/experience-lab/simulate";
+        const BOOKING_URL       = "{{ path('my_bookings') }}";
+    </script>
+    <script src="{{ asset('js/experience-lab.js') }}"></script>
+{% endblock %}

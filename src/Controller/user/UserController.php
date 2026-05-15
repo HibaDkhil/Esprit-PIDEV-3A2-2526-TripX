@@ -260,7 +260,7 @@ class UserController extends AbstractController
     private function getRewardForPoints(int $points): string
     {
         $user = $this->getUser();
-        $id = $user ? ($user->getUserId() ?? $user->getId()) : '000';
+        $id = $user instanceof User ? ($user->getUserId() ?? $user->getId() ?? '000') : '000';
         $year = date('Y');
 
         if ($points > 100) {
@@ -367,8 +367,7 @@ class UserController extends AbstractController
         $dompdf->render();
 
         $pdfOutput = $dompdf->output();
-
-        return new Response($pdfOutput, 200, [
+            return new Response($pdfOutput, 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="TripX_AI_Fiche_' . $user->getUserId() . '.pdf"'
         ]);
@@ -378,7 +377,6 @@ class UserController extends AbstractController
     public function setup2fa(Request $request, GoogleAuthenticator $googleAuthenticator): Response
     {
         $user = $this->getUser();
-
         if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
         }
@@ -393,21 +391,30 @@ class UserController extends AbstractController
             }
         }
 
-        // Temporary user to generate QR code without saving to database
-        $tempUser = clone $user;
-        $tempUser->setGoogleAuthenticatorSecret($secret);
+        // Refetch user and set secret temporarily for QR generation
+        $managedUser = $this->entityManager->getRepository(User::class)->find($user->getUserId());
+        $managedUser->setGoogleAuthenticatorSecret($secret);
+
+        // Build a standard otpauth URI so authenticator apps read issuer/account consistently.
+        $issuer = 'TripX';
+        $label = rawurlencode($issuer . ':' . $managedUser->getEmail());
+        $qrCodeContent = sprintf(
+            'otpauth://totp/%s?secret=%s&issuer=%s&algorithm=SHA1&digits=6&period=30',
+            $label,
+            rawurlencode($secret),
+            rawurlencode($issuer)
+        );
 
         // Generate QR code
         $qrCode = Builder::create()
             ->writer(new PngWriter())
-            ->data($googleAuthenticator->getQRContent($tempUser))
+            ->data($qrCodeContent)
             ->size(200)
+            ->margin(10)
             ->build();
 
-        $qrCodeDataUri = $qrCode->getDataUri();
-
         return $this->render('front/2fa_setup.html.twig', [
-            'qrCode' => $qrCodeDataUri,
+            'qrCode' => $qrCode->getDataUri(),
             'secret' => $secret
         ]);
     }
@@ -421,6 +428,10 @@ class UserController extends AbstractController
         }
 
         $code = $request->request->get('code');
+        $rawCode = $code; // Keep raw for debugging
+        if ($code) {
+            $code = str_replace([' ', '-'], '', trim($code));
+        }
         
         $secret = $user->getGoogleAuthenticatorSecret();
         $isSetup = false;
@@ -433,9 +444,16 @@ class UserController extends AbstractController
             $isSetup = true;
         }
 
-        $user->setGoogleAuthenticatorSecret($secret);
+        // Refetch user to ensure we have a managed entity
+        $managedUser = $this->entityManager->getRepository(User::class)->find($user->getUserId());
+        $managedUser->setGoogleAuthenticatorSecret($secret);
 
-        if ($googleAuthenticator->checkCode($user, $code)) {
+        // Check using both the Scheb validator and a local TOTP fallback with a wider drift window.
+        $totp = \OTPHP\TOTP::create($secret, 30, 'sha1', 6);
+        $bundleCheck = $googleAuthenticator->checkCode($managedUser, $code);
+        $localCheck = $totp->verify($code, null, 120);
+
+        if ($bundleCheck || $localCheck) {
             if ($isSetup) {
                 $this->entityManager->flush();
                 $request->getSession()->remove('2fa_setup_secret');
@@ -443,17 +461,28 @@ class UserController extends AbstractController
             return $this->json(['success' => true]);
         }
 
-        if ($isSetup) {
-            $user->setGoogleAuthenticatorSecret(null);
+        $message = 'Invalid code';
+        if ($this->getParameter('kernel.environment') === 'dev') {
+            $message .= sprintf(
+                '. Debug: entered=%s current=%s prev=%s next=%s secret=%s',
+                $code ?? 'null',
+                $totp->at(time()),
+                $totp->at(time() - 30),
+                $totp->at(time() + 30),
+                $secret
+            );
         }
 
-        return $this->json(['success' => false, 'error' => 'Invalid code']);
+        return $this->json(['success' => false, 'error' => $message]);
     }
 
     #[Route('/profile/2fa/disable', name: 'profile_2fa_disable', methods: ['POST'])]
     public function disable2fa(): JsonResponse
     {
         $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->json(['success' => false, 'error' => 'Unauthorized'], 401);
+        }
         $user->setGoogleAuthenticatorSecret(null);
         $this->entityManager->flush();
 

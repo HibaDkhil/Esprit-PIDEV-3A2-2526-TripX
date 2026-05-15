@@ -203,7 +203,7 @@ class RoomInsightsService
     private function getGeminiInsights(array $rooms, array $roomAnalysis, float $avgPrice): array
     {
         if (empty($this->raggedGemini)) {
-            error_log('Gemini API key not configured, using fallback analysis');
+            error_log('AI API key not configured, using fallback analysis');
             return $this->getFallbackInsights($rooms, $roomAnalysis, $avgPrice);
         }
 
@@ -211,26 +211,27 @@ class RoomInsightsService
             $prompt = $this->buildPrompt($rooms, $roomAnalysis, $avgPrice);
 
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL,
-               'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . $this->raggedGemini
-            );
+            curl_setopt($ch, CURLOPT_URL, 'https://api.groq.com/openai/v1/chat/completions');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer ' . $this->raggedGemini,
+                'Content-Type: application/json'
+            ]);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-                'contents' => [
+                'model' => 'llama-3.3-70b-versatile',
+                'messages' => [
                     [
-                        'parts' => [
-                            [
-                                'text' => 'You are a hotel revenue management expert. Provide concise, actionable insights for room pricing and optimization. Keep responses under 150 words. Do not use emojis. ' . $prompt
-                            ]
-                        ]
+                        'role' => 'system',
+                        'content' => 'You are a hotel revenue management expert. Provide concise, actionable insights for room pricing and optimization. Keep responses under 150 words. Do not use emojis.'
+                    ],
+                    [
+                        'role' => 'user',
+                        'content' => $prompt
                     ]
                 ],
-                'generationConfig' => [
-                    'maxOutputTokens' => 1024,
-                    'temperature' => 0.7
-                ]
+                'temperature' => 0.7,
+                'max_tokens' => 1024
             ]));
 
             $response = curl_exec($ch);
@@ -239,17 +240,17 @@ class RoomInsightsService
 
             if ($httpCode === 200) {
                 $data = json_decode($response, true);
-                $content = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
+                $content = $data['choices'][0]['message']['content'] ?? '';
                 return [
                     'generated' => true,
                     'insights'  => $content,
-                    'model'     => 'Gemini 2.0 Flash'
+                    'model'     => 'Groq LLaMA 3.3 70B'
                 ];
             } else {
-                error_log('Gemini API error: HTTP ' . $httpCode . ' - ' . $response);
+                error_log('Groq API error: HTTP ' . $httpCode . ' - ' . $response);
             }
         } catch (\Exception $e) {
-            error_log('Gemini API error: ' . $e->getMessage());
+            error_log('Groq API error: ' . $e->getMessage());
         }
 
         return $this->getFallbackInsights($rooms, $roomAnalysis, $avgPrice);

@@ -55,16 +55,18 @@ class AdminPacksController extends AbstractController
         $status   = $request->query->get('status', '');
         $category = $request->query->get('category', '');
 
-        $all = $this->packService->getAll($query);
+        $qb = $this->packService->getAllQuery($query);
 
-        if ($status)   $all = array_filter($all, fn($p) => $p->getStatus() === strtoupper($status));
-        if ($category) $all = array_filter($all, fn($p) => $p->getCategoryId() == $category);
+        if ($status) {
+            $qb->andWhere('p.status = :status')
+               ->setParameter('status', strtoupper($status));
+        }
+        if ($category) {
+            $qb->andWhere('p.categoryId = :category')
+               ->setParameter('category', (int) $category);
+        }
 
-        $pagination = $this->paginator->paginate(
-            array_values($all),
-            $request->query->getInt('page', 1),
-            10
-        );
+        $pagination = $this->paginator->paginate($qb, $request->query->getInt('page', 1), 10);
 
         return $this->render('admin/packs.html.twig', array_merge([
             'pagination'    => $pagination,

@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
+use App\Repository\OfferRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: OfferRepository::class)]
 #[ORM\Table(name: 'offers')]
 class Offer
 {

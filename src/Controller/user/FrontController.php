@@ -27,6 +27,7 @@ class FrontController extends AbstractController
         PricePredictionService $pricePredictionService,
         private AccommodationRepository $accommodationRepository,
         private PackService $packService,
+        private \Knp\Component\Pager\PaginatorInterface $paginator,
     ) {
         $this->profileService = $profileService;
         $this->destinationService = $destinationService;
@@ -35,7 +36,7 @@ class FrontController extends AbstractController
     }
 
     #[Route('/home', name: 'index')]
-    public function index(): Response
+    public function index(\App\service\RecommendationService $recommendationService, \App\Repository\ActivityRepository $activityRepository): Response
     {
         if (!$this->getUser()) {
             return $this->redirectToRoute('app_login');
@@ -47,31 +48,89 @@ class FrontController extends AbstractController
         $accommodations = $this->accommodationRepository->findBy(['status' => 'Active'], ['id' => 'DESC'], 3);
 
         // Fetch top 2 active packs (offers)
-        $packs = $this->packService->getActivePacks();
-        $packs = array_slice($packs, 0, 2);
+        $packs = $this->packService->getActivePacks(2);
+
+        // --- ARIA Picked For You ---
+        $seasons = ['summer', 'winter', 'spring', 'autumn'];
+        $userSeason = 'all_year';
+        if ($user instanceof User && $user->getBirthYear()) {
+            $userSeason = $seasons[intval($user->getBirthYear()) % 4];
+        }
+        $rec = $recommendationService->getRecommendations(['season' => $userSeason], 1);
+        $ariaDestination = !empty($rec) ? $rec[0]['destination'] : null;
+
+        $ariaAccommodation = null;
+        $ariaActivity = null;
+
+        if ($ariaDestination) {
+            $accs = $this->accommodationRepository->findBy([
+                'city' => $ariaDestination->getCity(),
+                'country' => $ariaDestination->getCountry(),
+                'status' => 'Active'
+            ], ['rating' => 'DESC'], 1);
+            $ariaAccommodation = !empty($accs) ? $accs[0] : null;
+
+            // Find an activity for this destination
+            // Assuming Activity entity has a destinationId or destination relation
+            // The ActivityRepository has a find() but we can try findBy to check.
+            // Using query builder or simple findBy if it's a relation. Let's just use the query string search if no relation or just fetch one.
+            // In ActivityRepository we saw `innerJoin('a.destination', 'd')`, so `destination` is a relation.
+            $activities = $activityRepository->findBy(['destination' => $ariaDestination], [], 1);
+            $ariaActivity = !empty($activities) ? $activities[0] : null;
+        }
 
         return $this->render('front/index.html.twig', [
             'price_prediction_cards' => $this->pricePredictionService->buildHomeCarouselCards($uid),
             'accommodations' => $accommodations,
             'packs' => $packs,
+            'ariaDestination' => $ariaDestination,
+            'ariaAccommodation' => $ariaAccommodation,
+            'ariaActivity' => $ariaActivity,
         ]);
     }
 
     #[Route('/destinations', name: 'destinations')]
-    public function destinations(): Response
+    public function destinations(Request $request, \App\Repository\DestinationRepository $destRepo): Response
     {
-        $destinations = $this->destinationService->getAll();
+        $query = $request->query->get('q', '');
+        $limit = max(1, (int) $request->query->get('limit', 12));
+        $page  = max(1, (int) $request->query->get('page', 1));
+
+        $pagination = $this->paginator->paginate(
+            $destRepo->searchQuery($query),
+            $page,
+            $limit
+        );
+
         return $this->render('front/destinations.html.twig', [
-            'destinations' => $destinations
+            'destinations' => $pagination,
+            'currentLimit' => $limit,
+            'searchQuery'  => $query
         ]);
     }
 
     #[Route('/activities', name: 'activities')]
-    public function activities(): Response
+    public function activities(Request $request, \App\Repository\ActivityRepository $activityRepository): Response
     {
-        $activities = $this->activityService->getAll();
+        $query = $request->query->get('q', '');
+        $limit = max(1, (int) $request->query->get('limit', 16));
+        $page  = max(1, (int) $request->query->get('page', 1));
+
+        // Use the query-based search for pagination efficiency
+        $pagination = $this->paginator->paginate(
+            $activityRepository->searchQuery($query),
+            $page,
+            $limit
+        );
+
+        // Still need all activities for the map (worldwide view)
+        $allActivities = $this->activityService->getAll($query);
+
         return $this->render('front/activities.html.twig', [
-            'activities' => $activities
+            'activities'   => $pagination,
+            'allActivities'=> $allActivities,
+            'currentLimit' => $limit,
+            'searchQuery'  => $query
         ]);
     }
 
@@ -151,7 +210,7 @@ class FrontController extends AbstractController
             $log->setActivityType('SEARCH');
             $log->setTargetId($query);
             $log->setTargetType('QUERY');
-            $log->setTimestamp(new \DateTime());
+            $log->setTimestamp(new \DateTimeImmutable());
             $em->persist($log);
             $em->flush();
         }

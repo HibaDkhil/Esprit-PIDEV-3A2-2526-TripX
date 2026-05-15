@@ -5,6 +5,8 @@
 {% block stylesheets %}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Montserrat:wght@100..900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <style>
     .detail-hero {
       height: 90vh;
@@ -174,6 +176,22 @@
       color: #10b981; font-family: var(--font-mono); font-size: 12px;
       letter-spacing: 0.05em;
     }
+    
+    #destination-map {
+      height: 300px;
+      width: 100%;
+      border-radius: var(--border-radius-lg);
+      border: 1px solid var(--border-color);
+      margin-top: 24px;
+      box-shadow: var(--shadow-lg);
+      z-index: 1;
+    }
+    .leaflet-container {
+      background: #030712 !important;
+    }
+    .leaflet-tile {
+      filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+    }
   </style>
 {% endblock %}
 
@@ -286,6 +304,10 @@
             {% endif %}
           </div>
         </div>
+        <!-- Map Panel -->
+        {% if destination.latitude and destination.longitude %}
+          <div id="destination-map" class="reveal reveal-delay-2"></div>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -476,21 +498,6 @@
   </div>
 </footer>
 
-<div class="aria-panel" id="aria-panel">
-  <div class="aria-header">
-    <div class="aria-avatar">✦</div>
-    <div><span class="aria-name">ARIA</span><span class="aria-status">{{ destination.name }} Expert 🌍</span></div>
-    <button id="aria-close" style="margin-left:auto;font-size:18px;color:var(--text-muted);cursor:none">✕</button>
-  </div>
-  <div class="aria-messages" id="aria-messages">
-    <div class="aria-msg bot"><div class="aria-bubble">I see you're exploring {{ destination.name }}! Want me to help plan your trip? Just ask! 🌴</div></div>
-  </div>
-  <div class="aria-input-row">
-    <input class="aria-input" id="aria-input" type="text" placeholder="Ask about {{ destination.name }}...">
-    <button class="aria-send" id="aria-send">➤</button>
-  </div>
-</div>
-{% block javascripts %}
 <script>
   // ── Character counter for review textarea ──
   const textarea = document.getElementById('review-comment');
@@ -500,6 +507,36 @@
     textarea.addEventListener('input', update);
     update();
   }
+
+  // ── Leaflet Map Initialization ──
+  {% if destination.latitude and destination.longitude %}
+  document.addEventListener('DOMContentLoaded', function() {
+    const lat = {{ destination.latitude }};
+    const lng = {{ destination.longitude }};
+    
+    const map = L.map('destination-map', {
+        zoomControl: false,
+        attributionControl: false
+    }).setView([lat, lng], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+    }).addTo(map);
+
+    const customIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div style="background-color: var(--accent-primary); width: 24px; height: 24px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid #fff; box-shadow: 0 0 15px var(--accent-primary);"></div>`,
+        iconSize: [30, 42],
+        iconAnchor: [15, 42]
+    });
+
+    L.marker([lat, lng], { icon: customIcon }).addTo(map)
+      .bindPopup(`<strong style="color:#000">{{ destination.name }}</strong><br><span style="color:#666">{{ destination.country }}</span>`)
+      .openPopup();
+      
+    // Add small zoom control at bottom right
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+  });
+  {% endif %}
 </script>
-{% endblock %}
 {% endblock %}

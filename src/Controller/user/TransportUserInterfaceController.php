@@ -26,7 +26,7 @@ use App\service\TransportService;
 use App\service\TransportOptimalRouteService;
 use App\service\ValidationService;
 use App\service\DestinationTransService;
-use App\service\PricePredictionService;
+use App\service\Transport\PricePredictionService as TransportPricePredictionService;
 use App\service\RouteRecommendationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -49,7 +49,8 @@ class TransportUserInterfaceController extends AbstractController
     private ValidationService $validation;
     private ValidatorInterface $validator;
     private DestinationTransService $destService;
-    private PricePredictionService $pricePredictionService;
+    private TransportPricePredictionService $pricePredictionService;
+    private RouteRecommendationService $recommendationService;
     private \App\service\TravelInsightAiService $aiService;
 
     public function __construct(
@@ -60,7 +61,7 @@ class TransportUserInterfaceController extends AbstractController
         ValidationService $validation,
         ValidatorInterface $validator,
         DestinationTransService $destService,
-        PricePredictionService $pricePredictionService,
+        TransportPricePredictionService $pricePredictionService,
         RouteRecommendationService $recommendationService,
         \App\service\TravelInsightAiService $aiService
     ) {
@@ -517,7 +518,7 @@ class TransportUserInterfaceController extends AbstractController
 
         $transports = array_filter(
             $this->transportService->getAllTransports(),
-            function ($t) use ($transportType, $from, $to) {
+            function ($t) use ($transportType, $from) {
                 if ($t->getTransportType() !== $transportType || !$t->isActive())
                     return false;
                 if ($from && stripos($t->getProviderName() . ' ' . $t->getVehicleModel(), $from) === false)
@@ -562,7 +563,7 @@ class TransportUserInterfaceController extends AbstractController
 
         $transports = array_filter(
             $this->transportService->getAllTransports(),
-            function ($t) use ($transportType, $provider, $from, $to) {
+            function ($t) use ($transportType, $provider, $from) {
                 if ($t->getTransportType() !== $transportType || $t->getProviderName() !== $provider || !$t->isActive())
                     return false;
                 if ($from && stripos($t->getVehicleModel(), $from) === false)
@@ -829,7 +830,7 @@ class TransportUserInterfaceController extends AbstractController
             $insurance
         );
         $booking->setAiPricePrediction($predictedPrice);
-        $booking->setBookingDate(new DateTime());
+        $booking->setBookingDate(new \DateTimeImmutable());
         $booking->setComparisonScore(0.0);
         // ★ Symfony Validator on booking entity (uses Assert on Bookingtrans)
 

@@ -104,7 +104,11 @@
 
     .hero-title-accent {
       color: transparent;
-      background: linear-gradient(90deg, #fff 0%, var(--ocean-teal) 50%, #fff 100%); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; animation: text-shimmer 4s linear infinite;
+      background: linear-gradient(90deg, #fff 0%, var(--ocean-teal) 50%, #fff 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: text-shimmer 4s linear infinite;
     }
 
     .hero-subtitle {
@@ -313,7 +317,15 @@
 <section class="section">
   <div class="container">
     <div class="section-label reveal"><span>All Experiences</span></div>
-    <h2 class="display-md reveal" style="margin-bottom:24px">Discover <span class="text-coral">Your Next Adventure</span></h2>
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:32px; gap:20px; flex-wrap:wrap;">
+      <div>
+        <h2 class="display-md reveal" style="margin-bottom:0">Discover <span class="text-coral">Your Next Adventure</span></h2>
+      </div>
+      <form action="{{ path('activities') }}" method="GET" style="display:flex; gap:10px; align-items:center; background:var(--glass-bg); padding:8px 16px; border-radius:50px; border:1px solid var(--glass-border); min-width:300px;">
+        <input type="text" name="q" placeholder="Search activities..." value="{{ searchQuery|default('') }}" style="background:transparent; border:none; color:#fff; font-size:14px; outline:none; width:100%;">
+        <button type="submit" style="background:transparent; border:none; color:var(--ocean-teal); cursor:pointer; font-size:18px;">🔍</button>
+      </form>
+    </div>
     <div class="grid-4 stagger" style="margin-bottom:60px">
       {% for act in activities %}
       <div class="activity-card">
@@ -349,7 +361,7 @@
       <div style="display:flex; align-items:center; gap:10px;">
         <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono); letter-spacing:0.05em; text-transform:uppercase;">Show</span>
         {% for size in [8, 16, 32, 64] %}
-          <a href="{{ path('activities', {limit: size, page: 1}) }}"
+          <a href="{{ path('activities', {limit: size, page: 1, q: searchQuery|default('')}) }}"
              class="btn btn-sm {{ currentLimit == size ? 'btn-primary' : 'btn-secondary' }} ripple-btn"
              style="min-width:42px; text-align:center; font-size:12px; border-radius:50px;">{{ size }}</a>
         {% endfor %}
@@ -359,19 +371,19 @@
       {% if activities.pageCount|default(0) > 1 %}
       <div style="display:flex; align-items:center; gap:8px;">
         {% if activities.currentPageNumber > 1 %}
-          <a href="{{ path('activities', {page: activities.currentPageNumber - 1, limit: currentLimit}) }}" class="btn btn-secondary ripple-btn" style="border-radius:50px; padding:10px 20px; font-size:13px;">← Previous</a>
+          <a href="{{ path('activities', {page: activities.currentPageNumber - 1, limit: currentLimit, q: searchQuery|default('')}) }}" class="btn btn-secondary ripple-btn" style="border-radius:50px; padding:10px 20px; font-size:13px;">← Previous</a>
         {% endif %}
 
         {% set startPage = max(1, activities.currentPageNumber - 2) %}
         {% set endPage   = min(activities.pageCount, activities.currentPageNumber + 2) %}
         {% for p in startPage..endPage %}
-          <a href="{{ path('activities', {page: p, limit: currentLimit}) }}"
+          <a href="{{ path('activities', {page: p, limit: currentLimit, q: searchQuery|default('')}) }}"
              class="btn {{ p == activities.currentPageNumber ? 'btn-primary' : 'btn-secondary' }} ripple-btn"
              style="min-width:42px; text-align:center; border-radius:50px; padding:10px 16px; font-size:13px;">{{ p }}</a>
         {% endfor %}
 
         {% if activities.currentPageNumber < activities.pageCount %}
-          <a href="{{ path('activities', {page: activities.currentPageNumber + 1, limit: currentLimit}) }}" class="btn btn-secondary ripple-btn" style="border-radius:50px; padding:10px 20px; font-size:13px;">Next →</a>
+          <a href="{{ path('activities', {page: activities.currentPageNumber + 1, limit: currentLimit, q: searchQuery|default('')}) }}" class="btn btn-secondary ripple-btn" style="border-radius:50px; padding:10px 20px; font-size:13px;">Next →</a>
         {% endif %}
       </div>
       <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono);">
@@ -393,11 +405,13 @@
   </div>
 </footer>
 
+{# ── ARIA Chat Panel ── #}
+<button class="aria-orb" id="aria-orb" aria-label="Open ARIA">✦</button>
 <div class="aria-panel" id="aria-panel">
   <div class="aria-header">
     <div class="aria-avatar">✦</div>
     <div><span class="aria-name">ARIA</span><span class="aria-status">AI Activity Finder</span></div>
-    <button id="aria-close" style="margin-left:auto;font-size:18px;color:var(--text-muted);cursor:none">✕</button>
+    <button id="aria-close" style="margin-left:auto;font-size:18px;color:var(--text-muted);cursor:pointer">✕</button>
   </div>
   <div class="aria-messages" id="aria-messages">
     <div class="aria-msg bot"><div class="aria-bubble">Tell me where you're going and your vibe, and I'll find you the perfect activities! ⚡</div></div>
@@ -408,21 +422,28 @@
   </div>
 </div>
 
+{% endblock %}
+
 {% block javascripts %}
+{# ── Leaflet must be loaded before the inline map script ── #}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+
+    /* ═══════════════════════════════════════
+       MAP
+    ═══════════════════════════════════════ */
     const activityData = [
-        {% for act in activities %}
+        {% for act in allActivities %}
           {% set dest = act.destination %}
           {% if dest and dest.latitude and dest.longitude %}
             {
                 id: "{{ act.activityId|escape('js') }}",
                 name: "{{ act.name|escape('js') }}",
-                category: "{{ act.category|escape('js') }}",
+                category: "{{ act.category|default('')|escape('js') }}",
                 price: "{{ act.price|escape('js') }}",
-                lat: {{ dest.latitude|default(0) }},
-                lng: {{ dest.longitude|default(0) }},
+                lat: {{ dest.latitude }},
+                lng: {{ dest.longitude }},
                 destination: "{{ dest.name|escape('js') }}",
                 country: "{{ dest.country|escape('js') }}"
             },
@@ -466,11 +487,12 @@ document.addEventListener('DOMContentLoaded', function() {
         map.fitBounds(L.latLngBounds(markers), { padding: [50, 50], maxZoom: 12 });
     }
 
+    // Re-tile on theme toggle
     const themeBtn = document.getElementById('theme-toggle');
     if (themeBtn) {
         themeBtn.addEventListener('click', () => {
             setTimeout(() => {
-                const newTheme  = document.documentElement.getAttribute('data-theme');
+                const newTheme   = document.documentElement.getAttribute('data-theme');
                 const newTileUrl = newTheme === 'dark'
                     ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
                     : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
@@ -479,7 +501,74 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 100);
         });
     }
+
+    /* ═══════════════════════════════════════
+       ARIA CHAT PANEL
+    ═══════════════════════════════════════ */
+    const orb      = document.getElementById('aria-orb');
+    const panel    = document.getElementById('aria-panel');
+    const closeBtn = document.getElementById('aria-close');
+    const input    = document.getElementById('aria-input');
+    const sendBtn  = document.getElementById('aria-send');
+    const messages = document.getElementById('aria-messages');
+
+    if (orb && panel) {
+        orb.addEventListener('click', () => {
+            panel.classList.toggle('open');
+            orb.classList.toggle('hidden');
+        });
+    }
+
+    if (closeBtn && panel && orb) {
+        closeBtn.addEventListener('click', () => {
+            panel.classList.remove('open');
+            orb.classList.remove('hidden');
+        });
+    }
+
+    function appendMessage(text, role) {
+        const wrap   = document.createElement('div');
+        wrap.className = `aria-msg ${role}`;
+        const bubble = document.createElement('div');
+        bubble.className = 'aria-bubble';
+        bubble.textContent = text;
+        wrap.appendChild(bubble);
+        messages.appendChild(wrap);
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    async function sendMessage() {
+        const text = input.value.trim();
+        if (!text) return;
+        appendMessage(text, 'user');
+        input.value = '';
+        sendBtn.disabled = true;
+
+        try {
+            const res  = await fetch('https://api.anthropic.com/v1/messages', {
+                method : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body   : JSON.stringify({
+                    model     : 'claude-sonnet-4-20250514',
+                    max_tokens: 1000,
+                    system    : 'You are ARIA, a friendly AI travel activity finder for TripX. Help users discover exciting activities and experiences based on their destination and interests. Keep replies concise and enthusiastic.',
+                    messages  : [{ role: 'user', content: text }]
+                })
+            });
+            const data = await res.json();
+            const reply = data?.content?.[0]?.text ?? 'Sorry, I couldn\'t get a response. Please try again!';
+            appendMessage(reply, 'bot');
+        } catch (err) {
+            appendMessage('Oops! Something went wrong. Please try again.', 'bot');
+        } finally {
+            sendBtn.disabled = false;
+            input.focus();
+        }
+    }
+
+    if (sendBtn) sendBtn.addEventListener('click', sendMessage);
+    if (input)   input.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+
 });
 </script>
-{% endblock %}
 {% endblock %}
